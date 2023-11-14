@@ -1,0 +1,12 @@
+.idea/*
+Binaries/*
+Build/*
+DerivedDataCache/*
+Intermediate/*
+Saved/*
+
+*.sln
+*.xcworkspace
+
+.DS_Store
+
