@@ -6,12 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "UnrealPortfolioGameModeBase.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class UNREALPORTFOLIO_API AUnrealPortfolioGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
 };

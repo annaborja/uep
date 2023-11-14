@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 public class UnrealPortfolioTarget : TargetRules
 {
-	public UnrealPortfolioTarget( TargetInfo Target) : base(Target)
+	public UnrealPortfolioTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
+		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
 		ExtraModuleNames.Add("UnrealPortfolio");
 	}
 }
