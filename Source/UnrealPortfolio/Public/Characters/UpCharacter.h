@@ -13,4 +13,5 @@ class UNREALPORTFOLIO_API AUpCharacter : public ACharacter
 
 public:
 	AUpCharacter();
+	explicit AUpCharacter(const FObjectInitializer& ObjectInitializer) : AUpCharacter() {}
 };
