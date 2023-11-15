@@ -1,6 +1,6 @@
 // Copyright AB. All Rights Reserved.
 
-#include "Characters/Player/UpPlayerMovementComponent.h"
+#include "Characters/Player/Components/UpPlayerMovementComponent.h"
 
 UUpPlayerMovementComponent::UUpPlayerMovementComponent()
 {

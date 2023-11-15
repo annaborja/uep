@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/UpCharacterMovementComponent.h"
+#include "Components/UpCharacterMovementComponent.h"
 #include "UpPlayerMovementComponent.generated.h"
 
 UCLASS()

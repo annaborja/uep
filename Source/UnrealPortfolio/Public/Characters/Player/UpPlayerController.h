@@ -22,6 +22,9 @@ public:
 	
 	void Init() const;
 
+	FORCEINLINE AUpHud* GetCustomHud() const { return CustomHud; }
+	FORCEINLINE AUpPlayerCharacter* GetCustomPlayer() const { return CustomPlayer; }
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -30,6 +33,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
 	TObjectPtr<UInputMappingContext> BaseInputMappingContext;
 	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InteractInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> LookInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
@@ -42,6 +47,7 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayerCharacter> CustomPlayer;
 	
+	void Interact(const FInputActionValue& InputActionValue);
 	void PauseGame(const FInputActionValue& InputActionValue);
 
 	void Look(const FInputActionValue& InputActionValue);

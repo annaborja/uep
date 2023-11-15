@@ -1,6 +1,6 @@
 // Copyright AB. All Rights Reserved.
 
-#include "UI/Widgets/UpCommonActivatableWidget.h"
+#include "UI/UpCommonActivatableWidget.h"
 
 #include "UI/UpHud.h"
 

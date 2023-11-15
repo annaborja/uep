@@ -6,6 +6,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "Characters/Player/UpPlayerCameraManager.h"
 #include "Characters/Player/UpPlayerCharacter.h"
+#include "Characters/Player/Components/UpPlayerInteractionComponent.h"
+#include "Interfaces/UpInteractable.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/UpHud.h"
 
@@ -25,6 +27,7 @@ void AUpPlayerController::BeginPlay()
 
 	check(BaseInputMappingContext);
 
+	check(InteractInputAction);
 	check(LookInputAction);
 	check(MoveInputAction);
 	check(PauseGameInputAction);
@@ -45,6 +48,21 @@ void AUpPlayerController::SetupInputComponent()
 	
 	EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
+	
+	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ThisClass::Interact);
+}
+
+void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
+{
+	if (!CustomPlayer) return;
+	
+	if (const auto PlayerInteractionComponent = CustomPlayer->GetPlayerInteractionComponent())
+	{
+		if (const auto TargetInteractable = Cast<IUpInteractable>(PlayerInteractionComponent->GetTargetInteractable()))
+		{
+			TargetInteractable->Interact(this);
+		}
+	}
 }
 
 void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)

@@ -1,6 +1,6 @@
 // Copyright AB. All Rights Reserved.
 
-#include "Characters/UpCharacterMovementComponent.h"
+#include "Components/UpCharacterMovementComponent.h"
 
 UUpCharacterMovementComponent::UUpCharacterMovementComponent()
 {

@@ -3,9 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Widgets/UpCommonUserWidget.h"
+#include "UI/UpCommonUserWidget.h"
 #include "UpPersistentOverlayWidget.generated.h"
 
+class UUpDialogueOverlayWidget;
 class UCommonActivatableWidget;
 class UCommonActivatableWidgetContainerBase;
 
@@ -16,14 +17,22 @@ class UNREALPORTFOLIO_API UUpPersistentOverlayWidget : public UUpCommonUserWidge
 
 public:
 	void OpenMainMenu() const;
+	UUpDialogueOverlayWidget* OpenDialogueFlow() const;
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
+	UCommonActivatableWidgetContainerBase* GetDialogueWidgetContainer() const;
+	UFUNCTION(BlueprintImplementableEvent)
 	UCommonActivatableWidgetContainerBase* GetMenuWidgetContainer() const;
+
+	UFUNCTION(BlueprintCallable)
+	ESlateVisibility GetTargetInteractableDisplayVisibility() const;
 	
 	virtual void NativePreConstruct() override;
 
 private:
 	UFUNCTION()
 	void OnDisplayedWidgetChanged(UCommonActivatableWidget* Widget) const;
+	
+	bool IsDescendentWidgetActivated() const;
 };

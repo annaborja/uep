@@ -1,6 +1,6 @@
 // Copyright AB. All Rights Reserved.
 
-#include "UI/Widgets/UpCommonUserWidget.h"
+#include "UI/UpCommonUserWidget.h"
 
 void UUpCommonUserWidget::SetCustomHud(AUpHud* InCustomHud)
 {
