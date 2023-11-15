@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "UpPlayerController.generated.h"
 
+class AUpHud;
 class AUpPlayerCharacter;
 struct FInputActionValue;
 class UInputAction;
@@ -33,9 +34,15 @@ private:
 	TObjectPtr<UInputAction> LookInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> MoveInputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> PauseGameInputAction;
 
 	UPROPERTY(Transient)
+	TObjectPtr<AUpHud> CustomHud;
+	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayerCharacter> CustomPlayer;
+	
+	void PauseGame(const FInputActionValue& InputActionValue);
 
 	void Look(const FInputActionValue& InputActionValue);
 	void Move(const FInputActionValue& InputActionValue);

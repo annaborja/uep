@@ -6,6 +6,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "Characters/Player/UpPlayerCameraManager.h"
 #include "Characters/Player/UpPlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "UI/UpHud.h"
 
 AUpPlayerController::AUpPlayerController(): APlayerController()
 {
@@ -25,8 +27,12 @@ void AUpPlayerController::BeginPlay()
 
 	check(LookInputAction);
 	check(MoveInputAction);
+	check(PauseGameInputAction);
 
 	CustomPlayer = CastChecked<AUpPlayerCharacter>(GetCharacter());
+
+	CustomHud = CastChecked<AUpHud>(GetHUD());
+	CustomHud->Init(this);
 }
 
 void AUpPlayerController::SetupInputComponent()
@@ -35,8 +41,17 @@ void AUpPlayerController::SetupInputComponent()
 
 	const auto EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 	
+	EnhancedInputComponent->BindAction(PauseGameInputAction, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
+	
 	EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
+}
+
+void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
+{
+	if (CustomHud) CustomHud->OpenMainMenu();
+	
+	UGameplayStatics::SetGamePaused(this, true);
 }
 
 void AUpPlayerController::Look(const FInputActionValue& InputActionValue)
