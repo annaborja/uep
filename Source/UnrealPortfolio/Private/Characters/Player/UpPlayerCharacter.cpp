@@ -4,6 +4,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Characters/Player/UpPlayerController.h"
+#include "Characters/Player/UpPlayerState.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Characters/Player/Components/UpPlayerMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -43,8 +44,24 @@ void AUpPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
+	if (const auto CustomPlayerState = GetPlayerState<AUpPlayerState>())
+	{
+		CastChecked<UUpAbilitySystemComponent>(CustomPlayerState->GetAbilitySystemComponent())->
+			Init(CustomPlayerState, this);
+	}
+
 	CustomController = CastChecked<AUpPlayerController>(NewController);
 	CustomController->Init();
+}
+
+UAbilitySystemComponent* AUpPlayerCharacter::GetAbilitySystemComponent() const
+{
+	if (const auto CustomPlayerState = GetPlayerState<AUpPlayerState>())
+	{
+		return CustomPlayerState->GetAbilitySystemComponent();
+	}
+
+	return nullptr;
 }
 
 void AUpPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
@@ -52,6 +69,13 @@ void AUpPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContaine
 	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
 	{
 		GameMode->GetPlayerCharacterTags(TagContainer);
+	}
+
+	if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
+	{
+		FGameplayTagContainer AbilitySystemTags;
+		AbilitySystemComponent->GetOwnedGameplayTags(AbilitySystemTags);
+		TagContainer.AppendTags(AbilitySystemTags);
 	}
 }
 

@@ -9,6 +9,7 @@
 
 class UDataTable;
 class UDialogueVoice;
+class UUpGasDataAsset;
 
 UCLASS()
 class UNREALPORTFOLIO_API AUnrealPortfolioGameModeBase : public AGameModeBase
@@ -24,6 +25,7 @@ public:
 	bool AddNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag);
 	bool RemoveNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag);
 	
+	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
 	FORCEINLINE UDataTable* GetNpcDataTable() const { return NpcDataTable; }
 	FORCEINLINE UDialogueVoice* GetPlayerDialogueVoice() const { return PlayerDialogueVoice; }
 	FORCEINLINE bool ShouldDebugTagSpecGrant() const { return bDebugTagSpecGrant; }
@@ -32,6 +34,8 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<UUpGasDataAsset> GasDataAsset;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="UpNpcData"))
 	TObjectPtr<UDataTable> NpcDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")

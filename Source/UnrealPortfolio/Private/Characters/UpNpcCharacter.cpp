@@ -58,6 +58,7 @@ AUpNpcCharacter::AUpNpcCharacter(const FObjectInitializer& ObjectInitializer) :
 		Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	}
 
+	AbilitySystemComponent = CreateDefaultSubobject<UUpAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	DialogueComponent = CreateDefaultSubobject<UUpDialogueComponent>(TEXT("DialogueComponent"));
 
 	InteractionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));
@@ -91,6 +92,8 @@ void AUpNpcCharacter::BeginPlay()
 			}
 		}
 	}
+	
+	if (AbilitySystemComponent) AbilitySystemComponent->Init(this, this);
 }
 
 void AUpNpcCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const

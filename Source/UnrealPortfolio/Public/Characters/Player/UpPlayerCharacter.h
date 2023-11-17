@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
 #include "GameplayTagAssetInterface.h"
 #include "Characters/UpCharacter.h"
 #include "Interfaces/UpTagSpecGrantable.h"
@@ -16,7 +17,7 @@ class UUpPlayerInteractionComponent;
 class UUpPlayerMovementComponent;
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpCharacter, public IGameplayTagAssetInterface, public IUpTagSpecGrantable
+class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface, public IUpTagSpecGrantable
 {
 	GENERATED_BODY()
 
@@ -24,6 +25,8 @@ public:
 	explicit AUpPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void PossessedBy(AController* NewController) override;
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 

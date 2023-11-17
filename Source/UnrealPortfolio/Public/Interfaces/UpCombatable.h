@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "UpNameable.generated.h"
+#include "UpCombatable.generated.h"
 
 UINTERFACE(MinimalAPI)
-class UUpNameable : public UInterface
+class UUpCombatable : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class UNREALPORTFOLIO_API IUpNameable
+class UNREALPORTFOLIO_API IUpCombatable
 {
 	GENERATED_BODY()
 
 public:
-	virtual FText GetInGameName() const = 0;
+	virtual uint8 GetCombatLevel() const { return 1; }
 };

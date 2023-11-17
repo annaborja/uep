@@ -10,7 +10,8 @@ public class UnrealPortfolio : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
-			"CommonInput", "CommonUI", "Core", "CoreUObject", "Engine", "EnhancedInput", "GameplayAbilities", "GameplayTags", "InputCore"
+			"CommonInput", "CommonUI", "Core", "CoreUObject", "Engine", "EnhancedInput",
+			"GameplayAbilities", "GameplayTags", "GameplayTasks", "InputCore"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {});
