@@ -5,7 +5,7 @@
 #include "Characters/UpNpcCharacter.h"
 #include "Components/UpDialogueComponent.h"
 #include "UI/UpCommonActivatableWidget.h"
-#include "UI/UpPersistentOverlayWidget.h"
+#include "UI/Persistent/UpPersistentOverlayWidget.h"
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
 
 void AUpHud::Init(AUpPlayerController* InPlayerController)
@@ -63,7 +63,7 @@ void AUpHud::AdvanceDialogueStep(const AUpNpcCharacter* Npc, const FUpDialogueSt
 	}
 }
 
-void AUpHud::DisplayDialogueOptions(const AUpNpcCharacter* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const
+void AUpHud::DisplayDialogueOptions(AUpNpcCharacter* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const
 {
 	if (!DialogueOverlayWidget) return;
 	

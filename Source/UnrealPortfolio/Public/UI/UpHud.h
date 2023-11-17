@@ -32,7 +32,6 @@ class UNREALPORTFOLIO_API AUpHud : public AHUD
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintAssignable)
 	FUpHudTargetInteractableSignature TargetInteractableDelegate;
 	
 	void Init(AUpPlayerController* InPlayerController);
@@ -42,8 +41,7 @@ public:
 	void CloseDialogueFlow() const;
 	void DisplayDialogueStep(AUpNpcCharacter* Npc, const FUpDialogueStepData& DialogueStep) const;
 	void AdvanceDialogueStep(const AUpNpcCharacter* Npc, const FUpDialogueStepData& DialogueStep) const;
-	void DisplayDialogueOptions(const AUpNpcCharacter* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const;
-	UFUNCTION(BlueprintCallable, BlueprintPure=false)
+	void DisplayDialogueOptions(AUpNpcCharacter* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const;
 	void SelectDialogueOption(const AUpNpcCharacter* Npc, const FUpDialogueOptionData& DialogueOption) const;
 
 	void BroadcastTargetInteractable(const AActor* TargetInteractable) const;

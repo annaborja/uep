@@ -18,7 +18,7 @@ void UUpDialogueStepDisplayWidget::DisplayDialogueStep(AUpNpcCharacter* InNpc, c
 	DisplayDialogueLine();
 }
 
-void UUpDialogueStepDisplayWidget::OnContinueClick() const
+void UUpDialogueStepDisplayWidget::HandleContinueAction() const
 {
 	StopAudio();
 }
@@ -85,7 +85,8 @@ void UUpDialogueStepDisplayWidget::DisplayDialogueLine()
 
 void UUpDialogueStepDisplayWidget::StopAudio() const
 {
-	if (!IsValid(CurrentDialogueLineAudio)) return;
-	
-	CurrentDialogueLineAudio->Stop();
+	if (IsValid(CurrentDialogueLineAudio))
+	{
+		CurrentDialogueLineAudio->Stop();
+	}
 }

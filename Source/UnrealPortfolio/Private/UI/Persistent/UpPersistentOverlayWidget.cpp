@@ -1,6 +1,6 @@
 // Copyright AB. All Rights Reserved.
 
-#include "UI/UpPersistentOverlayWidget.h"
+#include "UI/Persistent/UpPersistentOverlayWidget.h"
 
 #include "Input/CommonUIActionRouterBase.h"
 #include "UI/UpHud.h"

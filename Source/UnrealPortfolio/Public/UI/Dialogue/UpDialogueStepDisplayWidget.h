@@ -25,7 +25,7 @@ protected:
 	FText NpcName;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure=false)
-	void OnContinueClick() const;
+	void HandleContinueAction() const;
 
 private:
 	UPROPERTY(Transient)

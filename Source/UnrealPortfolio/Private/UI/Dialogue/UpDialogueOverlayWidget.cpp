@@ -3,6 +3,7 @@
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
 
 #include "CommonActivatableWidgetSwitcher.h"
+#include "UI/Dialogue/UpDialogueOptionsDisplayWidget.h"
 #include "UI/Dialogue/UpDialogueStepDisplayWidget.h"
 
 void UUpDialogueOverlayWidget::DisplayDialogueStep(AUpNpcCharacter* Npc, const FUpDialogueStepData& DialogueStep) const
@@ -13,6 +14,19 @@ void UUpDialogueOverlayWidget::DisplayDialogueStep(AUpNpcCharacter* Npc, const F
 	}
 	
 	ActivateDialogueStepDisplay();
+}
+
+void UUpDialogueOverlayWidget::DisplayDialogueOptions(AUpNpcCharacter* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const
+{
+	if (const auto DialogueOptionsDisplay = GetDialogueOptionsDisplay())
+	{
+		DialogueOptionsDisplay->PopulateDialogueOptions(Npc, DialogueOptions);
+
+		if (const auto WidgetSwitcher = GetWidgetSwitcher())
+		{
+			WidgetSwitcher->SetActiveWidget(DialogueOptionsDisplay);
+		}
+	}
 }
 
 void UUpDialogueOverlayWidget::NativePreConstruct()
