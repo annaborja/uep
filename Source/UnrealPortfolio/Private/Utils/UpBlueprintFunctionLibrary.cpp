@@ -72,9 +72,9 @@ void UUpBlueprintFunctionLibrary::ProcessEntityTagSpecGrants(const UObject* Worl
 	{
 		for (const auto& NpcTagToTagSpecMappings : EntityTagSpec.NpcTagSpecMappings)
 		{
-			for (const auto& NpcTagSpec : NpcTagToTagSpecMappings.TagSpecs)
+			if (NpcTagToTagSpecMappings.Tag.MatchesTag(TAG_Npc))
 			{
-				if (NpcTagToTagSpecMappings.Tag.MatchesTag(TAG_Npc))
+				for (const auto& NpcTagSpec : NpcTagToTagSpecMappings.TagSpecs)
 				{
 					AUpNpcCharacter::GrantTagSpec(GameMode, NpcTagToTagSpecMappings.Tag, NpcTagSpec);
 				}

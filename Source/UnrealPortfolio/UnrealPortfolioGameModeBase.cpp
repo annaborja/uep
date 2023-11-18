@@ -52,6 +52,11 @@ bool AUnrealPortfolioGameModeBase::RemoveNpcCharacterTag(const FGameplayTag& Npc
 	return true;
 }
 
+void AUnrealPortfolioGameModeBase::UpdatePlayerKarma(const int32 KarmaDelta)
+{
+	PlayerKarma += KarmaDelta;
+}
+
 void AUnrealPortfolioGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();

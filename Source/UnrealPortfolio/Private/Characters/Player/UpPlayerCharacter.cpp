@@ -38,6 +38,7 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	PlayerMovementComponent = CastChecked<UUpPlayerMovementComponent>(GetCharacterMovement());
 
 	InteractionComponent = CreateDefaultSubobject<UUpPlayerInteractionComponent>(TEXT("InteractionComponent"));
+	ReputationComponent = CreateDefaultSubobject<UUpReputationComponent>(TEXT("ReputationComponent"));
 }
 
 void AUpPlayerCharacter::PossessedBy(AController* NewController)
@@ -92,7 +93,10 @@ void AUpPlayerCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 		{
 			bool bSuccess = false;
 
-			if (TagSpec.Count > 0)
+			if (UUpReputationComponent::ShouldHandleTagSpecGrant(TagSpec))
+			{
+				bSuccess = ReputationComponent->HandleTagSpecGrant(TagSpec);
+			} else if (TagSpec.Count > 0)
 			{
 				bSuccess = GameMode->AddPlayerCharacterTag(TagSpec.Tag);
 			} else if (TagSpec.Count < 0)

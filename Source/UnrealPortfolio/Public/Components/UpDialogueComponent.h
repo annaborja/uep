@@ -29,26 +29,26 @@ struct FUpDialogueData : public FTableRowBase
 	TArray<FDataTableRowHandle> PotentialFirstDialogueSteps;
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FUpDialogueLine
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UDialogueWave> DialogueWave;
 	
 	UPROPERTY(EditDefaultsOnly)
 	FUpMontageData MontageData;
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FUpDialogueStepData : public FTableRowBase
 {
 	GENERATED_BODY();
 	
 	bool IsValid() const { return DialogueLines.Num() > 0; }
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(TitleProperty="DialogueWave"))
+	UPROPERTY(EditDefaultsOnly, meta=(TitleProperty="DialogueWave"))
 	TArray<FUpDialogueLine> DialogueLines;
 	
 	UPROPERTY(EditDefaultsOnly)
@@ -63,7 +63,7 @@ struct FUpDialogueStepData : public FTableRowBase
 	TArray<FDataTableRowHandle> PotentialDialogueOptions;
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FUpDialogueOptionData : public FTableRowBase
 {
 	GENERATED_BODY();
@@ -73,7 +73,7 @@ struct FUpDialogueOptionData : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly)
 	FUpEntityTagSpec TagProhibitions;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	FText Text;
 	
 	UPROPERTY(EditDefaultsOnly)

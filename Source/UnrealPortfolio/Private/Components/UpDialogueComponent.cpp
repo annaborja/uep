@@ -119,25 +119,22 @@ void UUpDialogueComponent::EndDialogue(AUpPlayerController* PlayerController)
 void UUpDialogueComponent::AdvanceDialogueStep(const FUpDialogueStepData& DialogueStep, AUpPlayerController* PlayerController)
 {
 	UUpBlueprintFunctionLibrary::ProcessEntityTagSpecGrants(this, DialogueStep.TagGrants);
-	
-	if (DialogueStep.PotentialDialogueOptions.Num() > 0)
-	{
-		if (const auto Hud = PlayerController->GetCustomHud(); Hud && CustomOwner)
-		{
-			TArray<FUpDialogueOptionData> DialogueOptions;
 
-			for (const auto& Potential : DialogueStep.PotentialDialogueOptions)
-			{
-				if (const auto Data = *Potential.GetRow<FUpDialogueOptionData>(TEXT("PotentialDialogueOption GetRow"));
-					UUpBlueprintFunctionLibrary::IsEntityTagSpecSatisfied(this, Data.TagRequirements) &&
-					UUpBlueprintFunctionLibrary::IsEntityTagSpecSatisfied(this, Data.TagProhibitions, true))
-				{
-					DialogueOptions.Add(Data);
-				}
-			}
-		
-			Hud->DisplayDialogueOptions(CustomOwner, DialogueOptions);
+	TArray<FUpDialogueOptionData> DialogueOptions;
+	
+	for (const auto& Potential : DialogueStep.PotentialDialogueOptions)
+	{
+		if (const auto Data = *Potential.GetRow<FUpDialogueOptionData>(TEXT("PotentialDialogueOption GetRow"));
+			UUpBlueprintFunctionLibrary::IsEntityTagSpecSatisfied(this, Data.TagRequirements) &&
+			UUpBlueprintFunctionLibrary::IsEntityTagSpecSatisfied(this, Data.TagProhibitions, true))
+		{
+			DialogueOptions.Add(Data);
 		}
+	}
+	
+	if (const auto Hud = PlayerController->GetCustomHud(); Hud && CustomOwner && DialogueOptions.Num() > 0)
+	{
+		Hud->DisplayDialogueOptions(CustomOwner, DialogueOptions);
 	} else
 	{
 		EndDialogue(PlayerController);
@@ -146,6 +143,8 @@ void UUpDialogueComponent::AdvanceDialogueStep(const FUpDialogueStepData& Dialog
 
 void UUpDialogueComponent::SelectDialogueOption(const FUpDialogueOptionData& DialogueOption, AUpPlayerController* PlayerController)
 {
+	UUpBlueprintFunctionLibrary::ProcessEntityTagSpecGrants(this, DialogueOption.TagGrants);
+	
 	FUpDialogueStepData NextDialogueStep;
 		
 	for (const auto& Potential : DialogueOption.PotentialNextDialogueSteps)
@@ -159,12 +158,9 @@ void UUpDialogueComponent::SelectDialogueOption(const FUpDialogueOptionData& Dia
 		}
 	}
 
-	if (NextDialogueStep.IsValid())
+	if (const auto Hud = PlayerController->GetCustomHud(); Hud && CustomOwner && NextDialogueStep.IsValid())
 	{
-		if (const auto Hud = PlayerController->GetCustomHud(); Hud && CustomOwner)
-		{
-			Hud->DisplayDialogueStep(CustomOwner, NextDialogueStep);
-		}
+		Hud->DisplayDialogueStep(CustomOwner, NextDialogueStep);
 	} else
 	{
 		EndDialogue(PlayerController);

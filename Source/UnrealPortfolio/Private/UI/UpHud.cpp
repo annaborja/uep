@@ -4,9 +4,32 @@
 
 #include "Characters/UpNpcCharacter.h"
 #include "Components/UpDialogueComponent.h"
+#include "Components/UpReputationComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "UI/UpCommonActivatableWidget.h"
 #include "UI/Persistent/UpPersistentOverlayWidget.h"
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
+#include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
+
+int32 AUpHud::GetPlayerKarma() const
+{
+	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	{
+		return GameMode->GetPlayerKarma();
+	}
+
+	return -1;
+}
+
+FUpRelationshipData AUpHud::GetPlayerRelationshipData() const
+{
+	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	{
+		return GameMode->GetPlayerRelationshipData();
+	}
+
+	return FUpRelationshipData();
+}
 
 void AUpHud::Init(AUpPlayerController* InPlayerController)
 {

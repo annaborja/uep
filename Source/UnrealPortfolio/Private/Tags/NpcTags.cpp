@@ -4,4 +4,5 @@
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Npc, "Npc")
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Npc_DialogueSystemNpc, "Npc.DialogueSystemNpc")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Npc_DialogueSystem_A, "Npc.DialogueSystem.A")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Npc_DialogueSystem_B, "Npc.DialogueSystem.B")

@@ -18,7 +18,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	ESlateVisibility GetRootVisibility() const;
 	
-	virtual void OnCustomHudSet_Implementation() override;
+	virtual void OnCustomHudSet_Implementation(AUpHud* NewCustomHud) override;
 
 private:
 	UFUNCTION()

@@ -7,13 +7,11 @@ void UUpCommonUserWidget::SetCustomHud(AUpHud* InCustomHud)
 	if (CustomHud == InCustomHud) return;
 
 	CustomHud = InCustomHud;
-	OnCustomHudSet();
+	OnCustomHudSet(CustomHud);
 }
 
-void UUpCommonUserWidget::OnCustomHudSet_Implementation()
+void UUpCommonUserWidget::OnCustomHudSet_Implementation(AUpHud* NewCustomHud)
 {
-	if (!CustomHud) return;
-
 	for (const auto Widget : GetHudSettableChildren())
 	{
 		if (const auto HudSettable = Cast<IUpHudSettable>(Widget))

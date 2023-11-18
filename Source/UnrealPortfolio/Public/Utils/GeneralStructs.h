@@ -20,6 +20,9 @@ struct FUpTagSpec
 	FGameplayTag Tag;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag RelatedTag;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Count = 1;
 };
 

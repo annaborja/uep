@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Components/UpReputationComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "UnrealPortfolioGameModeBase.generated.h"
 
@@ -24,6 +25,11 @@ public:
 	void GetNpcCharacterTags(const FGameplayTag& NpcTagId, FGameplayTagContainer& OutCharacterTags);
 	bool AddNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag);
 	bool RemoveNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag);
+
+	int32 GetPlayerKarma() const { return PlayerKarma; }
+	void UpdatePlayerKarma(const int32 KarmaDelta);
+	
+	FUpRelationshipData GetPlayerRelationshipData() const { return PlayerRelationshipData; }
 	
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
 	FORCEINLINE UDataTable* GetNpcDataTable() const { return NpcDataTable; }
@@ -50,4 +56,11 @@ private:
 	// TODO(P0): Load from saved data.
 	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
 	TMap<FGameplayTag, FGameplayTagContainer> NpcCharacterTagsMap;
+
+	// TODO(P0): Load from saved data.
+	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
+	int32 PlayerKarma = 50;
+	// TODO(P0): Load from saved data.
+	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
+	FUpRelationshipData PlayerRelationshipData;
 };

@@ -25,7 +25,7 @@ protected:
 	TArray<UCommonUserWidget*> GetHudSettableChildren() const;
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnCustomHudSet();
+	void OnCustomHudSet(AUpHud* NewCustomHud);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")

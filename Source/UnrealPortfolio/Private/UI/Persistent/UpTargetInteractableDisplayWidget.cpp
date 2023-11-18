@@ -12,14 +12,11 @@ ESlateVisibility UUpTargetInteractableDisplayWidget::GetRootVisibility() const
 	return ESlateVisibility::SelfHitTestInvisible;
 }
 
-void UUpTargetInteractableDisplayWidget::OnCustomHudSet_Implementation()
+void UUpTargetInteractableDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewCustomHud)
 {
-	Super::OnCustomHudSet_Implementation();
-
-	if (CustomHud)
-	{
-		CustomHud->TargetInteractableDelegate.AddDynamic(this, &ThisClass::HandleTargetInteractableDelegate);
-	}
+	Super::OnCustomHudSet_Implementation(NewCustomHud);
+	
+	CustomHud->TargetInteractableDelegate.AddDynamic(this, &ThisClass::HandleTargetInteractableDelegate);
 }
 
 void UUpTargetInteractableDisplayWidget::HandleTargetInteractableDelegate(const AActor* TargetInteractable)
