@@ -2,6 +2,9 @@
 
 #include "Characters/UpNpcCharacter.h"
 
+#include "AI/UpAiController.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
@@ -39,6 +42,8 @@ bool AUpNpcCharacter::GrantTagSpec(AUnrealPortfolioGameModeBase* GameMode, const
 AUpNpcCharacter::AUpNpcCharacter(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UUpCharacterMovementComponent>(CharacterMovementComponentName))
 {
+	AIControllerClass = AUpAiController::StaticClass();
+	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
@@ -55,6 +60,8 @@ AUpNpcCharacter::AUpNpcCharacter(const FObjectInitializer& ObjectInitializer) :
 
 	if (const auto Mesh = GetMesh())
 	{
+		Mesh->SetRelativeLocation(FVector(0.f, 0.f, -91.f));
+		Mesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 		Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	}
 
@@ -96,11 +103,39 @@ void AUpNpcCharacter::BeginPlay()
 	if (AbilitySystemComponent) AbilitySystemComponent->Init(this, this);
 }
 
+void AUpNpcCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (!HasAuthority()) return;
+
+	AiController = Cast<AUpAiController>(NewController);
+
+	if (AiController && BehaviorTree)
+	{
+		if (const auto BlackboardComponent = AiController->GetBlackboardComponent())
+		{
+			if (const auto BlackboardAsset = BehaviorTree->BlackboardAsset)
+			{
+				BlackboardComponent->InitializeBlackboard(*BlackboardAsset);
+				AiController->RunBehaviorTree(BehaviorTree);
+			}
+		}
+	}
+}
+
 void AUpNpcCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
 	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
 	{
 		GameMode->GetNpcCharacterTags(TagId, TagContainer);
+	}
+
+	if (AbilitySystemComponent)
+	{
+		FGameplayTagContainer AbilitySystemTags;
+		AbilitySystemComponent->GetOwnedGameplayTags(AbilitySystemTags);
+		TagContainer.AppendTags(AbilitySystemTags);
 	}
 }
 

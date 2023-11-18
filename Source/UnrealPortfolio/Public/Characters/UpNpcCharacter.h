@@ -15,6 +15,8 @@
 #include "UpNpcCharacter.generated.h"
 
 class AUnrealPortfolioGameModeBase;
+class AUpAiController;
+class UBehaviorTree;
 class UDialogueVoice;
 class USphereComponent;
 class UUpDialogueComponent;
@@ -45,6 +47,7 @@ public:
 	explicit AUpNpcCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
+	virtual void PossessedBy(AController* NewController) override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 	
@@ -72,11 +75,16 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UDialogueVoice> DialogueVoice;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<UBehaviorTree> BehaviorTree;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	FGameplayTag TagId;
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float InteractionSphereRadius = 100.f;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AUpAiController> AiController;
 
 	FUpNpcData NpcData;
 };

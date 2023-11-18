@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "UpCharacter.generated.h"
 
+class UUpCharacterMovementComponent;
+
 UCLASS()
 class UNREALPORTFOLIO_API AUpCharacter : public ACharacter
 {
@@ -14,4 +16,10 @@ class UNREALPORTFOLIO_API AUpCharacter : public ACharacter
 public:
 	AUpCharacter();
 	explicit AUpCharacter(const FObjectInitializer& ObjectInitializer) : AUpCharacter() {}
+
+	virtual void BeginPlay() override;
+
+private:
+	UPROPERTY(Transient)
+	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;
 };
