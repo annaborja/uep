@@ -26,12 +26,14 @@ EBTNodeResult::Type UUpBtTask_ExecuteDialogue::ExecuteTask(UBehaviorTreeComponen
 					}
 					
 					DialogueComponent->StartDialogue(PlayerController);
+					
+					return EBTNodeResult::InProgress;
 				}
 			}
 		}
 	}
 	
-	return EBTNodeResult::InProgress;
+	return EBTNodeResult::Failed;
 }
 
 void UUpBtTask_ExecuteDialogue::OnDialogueEnded(AAIController* AiController)

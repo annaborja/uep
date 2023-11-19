@@ -13,4 +13,13 @@ class UNREALPORTFOLIO_API UUpCharacterMovementComponent : public UCharacterMovem
 
 public:
 	UUpCharacterMovementComponent();
+
+	virtual void BeginPlay() override;
+
+	void ResetMaxWalkSpeed();
+	void ResetRotationRate();
+
+private:
+	float BaseMaxWalkSpeed = 0.f;
+	FRotator BaseRotationRate;
 };

@@ -19,6 +19,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
+
 private:
 	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;

@@ -1,0 +1,46 @@
+// Copyright AB. All Rights Reserved.
+
+#include "AI/Tasks/UpBtTask_SetMovementParams.h"
+
+#include "AIController.h"
+#include "Characters/UpNpcCharacter.h"
+#include "Components/UpCharacterMovementComponent.h"
+
+EBTNodeResult::Type UUpBtTask_SetMovementParams::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	if (const auto AiController = OwnerComp.GetAIOwner())
+	{
+		if (const auto Npc = Cast<AUpNpcCharacter>(AiController->GetPawn()))
+		{
+			if (const auto MovementComponent = Npc->GetCustomMovementComponent())
+			{
+				for (const auto& Command : Commands)
+				{
+					switch (Command.CommandType)
+					{
+					case EUpBttSetMovementParamsCommandType::SetMaxWalkSpeed:
+						MovementComponent->MaxWalkSpeed = Command.FloatValue;
+						break;
+					case EUpBttSetMovementParamsCommandType::ResetMaxWalkSpeed:
+						MovementComponent->ResetMaxWalkSpeed();
+						break;
+					case EUpBttSetMovementParamsCommandType::SetRotationRate:
+						MovementComponent->RotationRate = FRotator(
+							Command.VectorValue.Y, Command.VectorValue.Z, Command.VectorValue.X);
+						break;
+					case EUpBttSetMovementParamsCommandType::ResetRotationRate:
+						MovementComponent->ResetRotationRate();
+						break;
+					default:
+						UE_LOG(LogTemp, Error, TEXT("Invalid SetMovementParams command type"))
+						return EBTNodeResult::Failed;
+					}
+				}
+				
+				return EBTNodeResult::Succeeded;
+			}
+		}
+	}
+
+	return EBTNodeResult::Failed;
+}

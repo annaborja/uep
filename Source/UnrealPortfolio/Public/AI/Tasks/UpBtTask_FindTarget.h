@@ -45,5 +45,5 @@ private:
 	UPROPERTY(EditInstanceOnly, Category="UP Params")
 	TEnumAsByte<EUpBttFindTargetSelectionStrategy::Type> SelectionStrategy = EUpBttFindTargetSelectionStrategy::ClosestDistance;
 	UPROPERTY(EditInstanceOnly, Category="UP Params")
-	bool bFailIfNotFound = false;
+	bool bFailIfNotFound = true;
 };

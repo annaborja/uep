@@ -9,71 +9,76 @@
 
 EBTNodeResult::Type UUpBtTask_FindTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	if (const auto AiController = OwnerComp.GetAIOwner())
+	AActor* NewTarget = nullptr;
+
+	// If no target class is set, set the blackboard value to null.
+	if (TargetClass)
 	{
-		if (const auto AiPawn = AiController->GetPawn())
+		if (const auto AiController = OwnerComp.GetAIOwner())
 		{
-			const auto SpherePosition = AiPawn->GetActorLocation();
-
-			TArray<AActor*> OverlapActors;
-			UKismetSystemLibrary::SphereOverlapActors(AiPawn, SpherePosition, OverlapSphereRadius,
-				TargetObjectTypes, TargetClass, TArray<AActor*> { AiPawn }, OverlapActors);
-
-			if (bDebugOverlapSphere)
+			if (const auto AiPawn = AiController->GetPawn())
 			{
-				UKismetSystemLibrary::DrawDebugSphere(AiPawn, SpherePosition, OverlapSphereRadius, 12, FColor::Orange, 5.f);
-			}
+				const auto SpherePosition = AiPawn->GetActorLocation();
 
-			TArray<AActor*> CandidateActors;
+				TArray<AActor*> OverlapActors;
+				UKismetSystemLibrary::SphereOverlapActors(AiPawn, SpherePosition, OverlapSphereRadius,
+					TargetObjectTypes, TargetClass, TArray<AActor*> { AiPawn }, OverlapActors);
 
-			for (const auto Actor : OverlapActors)
-			{
-				if (TargetTagId.IsValid() && UUpBlueprintFunctionLibrary::HasTagId(Actor, TargetTagId))
+				if (bDebugOverlapSphere)
 				{
-					CandidateActors.Add(Actor);
-					break;
+					UKismetSystemLibrary::DrawDebugSphere(AiPawn, SpherePosition, OverlapSphereRadius, 12, FColor::Orange, 5.f);
 				}
 
-				if ((TargetTag.IsValid() && UUpBlueprintFunctionLibrary::HasTag(Actor, TargetTag)) ||
-					(!TargetTagId.IsValid() && !TargetTag.IsValid()))
-				{
-					CandidateActors.Add(Actor);
-				}
-			}
+				TArray<AActor*> CandidateActors;
 
-			AActor* NewTarget = nullptr;
-
-			if (CandidateActors.Num() > 0)
-			{
-				int32 NewTargetIndex = 0;
-			
-				switch (SelectionStrategy)
+				for (const auto Actor : OverlapActors)
 				{
-				case EUpBttFindTargetSelectionStrategy::Random:
-					NewTargetIndex = FMath::RandRange(0, CandidateActors.Num() - 1);
-					break;
-				case EUpBttFindTargetSelectionStrategy::ClosestDistance:
-				default:
-					CandidateActors.Sort([AiPawn](const AActor& ActorA, const AActor& ActorB)
+					if (TargetTagId.IsValid() && UUpBlueprintFunctionLibrary::HasTagId(Actor, TargetTagId))
 					{
-						return AiPawn->GetDistanceTo(&ActorA) < AiPawn->GetDistanceTo(&ActorB);
-					});
+						CandidateActors.Add(Actor);
+						break;
+					}
+
+					if ((TargetTag.IsValid() && UUpBlueprintFunctionLibrary::HasTag(Actor, TargetTag)) ||
+						(!TargetTagId.IsValid() && !TargetTag.IsValid()))
+					{
+						CandidateActors.Add(Actor);
+					}
 				}
 
-				if (CandidateActors.IsValidIndex(NewTargetIndex))
+				if (CandidateActors.Num() > 0)
 				{
-					NewTarget = CandidateActors[NewTargetIndex];
+					int32 NewTargetIndex = 0;
+			
+					switch (SelectionStrategy)
+					{
+					case EUpBttFindTargetSelectionStrategy::Random:
+						NewTargetIndex = FMath::RandRange(0, CandidateActors.Num() - 1);
+						break;
+					case EUpBttFindTargetSelectionStrategy::ClosestDistance:
+					default:
+						CandidateActors.Sort([AiPawn](const AActor& ActorA, const AActor& ActorB)
+						{
+							return AiPawn->GetDistanceTo(&ActorA) < AiPawn->GetDistanceTo(&ActorB);
+						});
+					}
+
+					if (CandidateActors.IsValidIndex(NewTargetIndex))
+					{
+						NewTarget = CandidateActors[NewTargetIndex];
+					}
 				}
 			}
-			
-			if (const auto BlackboardComponent = OwnerComp.GetBlackboardComponent())
-			{
-				if (!NewTarget && bFailIfNotFound) return EBTNodeResult::Failed;
-				
-				BlackboardComponent->SetValueAsObject(TargetSelector.SelectedKeyName, NewTarget);
+		}
+	}
+
+	if (NewTarget || !bFailIfNotFound)
+	{
+		if (const auto BlackboardComponent = OwnerComp.GetBlackboardComponent())
+		{
+			BlackboardComponent->SetValueAsObject(TargetSelector.SelectedKeyName, NewTarget);
 		
-				return EBTNodeResult::Succeeded;
-			}
+			return EBTNodeResult::Succeeded;
 		}
 	}
 

@@ -6,7 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "Structs.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FUpTagSpec
 {
 	GENERATED_BODY()
@@ -16,13 +16,13 @@ struct FUpTagSpec
 	
 	bool IsValid() const { return Tag.IsValid() && Count != 0; }
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag Tag;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag RelatedTag;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Count = 1;
 };
 
@@ -34,7 +34,7 @@ struct FUpTagToTagSpecsMapping
 	UPROPERTY(EditAnywhere)
 	FGameplayTag Tag;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta=(TitleProperty="Tag"))
 	TArray<FUpTagSpec> TagSpecs;
 };
 
@@ -46,12 +46,12 @@ struct FUpEntityTagSpec
 	FUpEntityTagSpec() {}
 	explicit FUpEntityTagSpec(const TArray<FUpTagSpec>& InPlayerTagSpecs) : PlayerTagSpecs(InPlayerTagSpecs) {}
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta=(TitleProperty="Tag"))
 	TArray<FUpTagSpec> PlayerTagSpecs;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta=(TitleProperty="Tag"))
 	TArray<FUpTagToTagSpecsMapping> NpcTagSpecMappings;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta=(TitleProperty="Tag"))
 	TArray<FUpTagToTagSpecsMapping> WorldTagSpecMappings;
 };
 
