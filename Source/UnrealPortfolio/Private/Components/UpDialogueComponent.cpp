@@ -2,6 +2,7 @@
 
 #include "Components/UpDialogueComponent.h"
 
+#include "AIController.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "Characters/UpNpcCharacter.h"
@@ -114,6 +115,14 @@ void UUpDialogueComponent::EndDialogue(AUpPlayerController* PlayerController)
 		World->DestroyActor(DialogueCamera);
 		DialogueCamera = nullptr;
 	}
+
+	if (CustomOwner)
+	{
+		if (const auto AiController = Cast<AAIController>(CustomOwner->GetController()))
+		{
+			DialogueEndedDelegate.Broadcast(AiController);
+		}
+	}
 }
 
 void UUpDialogueComponent::AdvanceDialogueStep(const FUpDialogueStepData& DialogueStep, AUpPlayerController* PlayerController)
@@ -173,12 +182,12 @@ void UUpDialogueComponent::BeginPlay()
 
 	check(DialogueDataTable);
 
-	TArray<FUpDialogueData*> AllRows;
-	DialogueDataTable->GetAllRows<FUpDialogueData>(TEXT("DialogueDataTable GetAllRows"), AllRows);
+	TArray<FUpDialogueData*> AllDialogueDataRows;
+	DialogueDataTable->GetAllRows<FUpDialogueData>(TEXT("DialogueDataTable GetAllRows"), AllDialogueDataRows);
 
-	for (const auto Row : AllRows)
+	for (const auto DialogueDataRow : AllDialogueDataRows)
 	{
-		AllDialogueData.Add(*Row);
+		AllDialogueData.Add(*DialogueDataRow);
 	}
 	
 	CustomOwner = CastChecked<AUpNpcCharacter>(GetOwner());

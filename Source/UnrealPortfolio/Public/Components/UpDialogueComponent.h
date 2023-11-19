@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Engine/DataTable.h"
-#include "Utils/GeneralStructs.h"
+#include "Utils/Structs.h"
 #include "UpDialogueComponent.generated.h"
 
 class AUpPlayerController;
@@ -83,6 +83,8 @@ struct FUpDialogueOptionData : public FTableRowBase
 	TArray<FDataTableRowHandle> PotentialNextDialogueSteps;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUpDialogueComponentDialogueEndedSignature, AAIController*, AiController);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UNREALPORTFOLIO_API UUpDialogueComponent : public UActorComponent
 {
@@ -99,6 +101,8 @@ public:
 	
 	void AdvanceDialogueStep(const FUpDialogueStepData& DialogueStep, AUpPlayerController* PlayerController);
 	void SelectDialogueOption(const FUpDialogueOptionData& DialogueOption, AUpPlayerController* PlayerController);
+
+	FUpDialogueComponentDialogueEndedSignature DialogueEndedDelegate;
 
 protected:
 	virtual void BeginPlay() override;

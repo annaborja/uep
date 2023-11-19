@@ -15,7 +15,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class UUpPlayerInteractionComponent;
 class UUpPlayerMovementComponent;
-class UUpReputationComponent;
+class UUpPlayerReputationComponent;
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface, public IUpTagSpecGrantable
@@ -36,9 +36,9 @@ public:
 	AUpHud* GetCustomHud() const;
 
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
-	FORCEINLINE UUpPlayerInteractionComponent* GetPlayerInteractionComponent() const { return InteractionComponent; }
+	FORCEINLINE UUpPlayerInteractionComponent* GetInteractionComponent() const { return InteractionComponent; }
 	FORCEINLINE UUpPlayerMovementComponent* GetPlayerMovementComponent() const { return PlayerMovementComponent; }
-	FORCEINLINE UUpReputationComponent* GetReputationComponent() const { return ReputationComponent; }
+	FORCEINLINE UUpPlayerReputationComponent* GetReputationComponent() const { return ReputationComponent; }
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -49,7 +49,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpPlayerInteractionComponent> InteractionComponent;
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UUpReputationComponent> ReputationComponent;
+	TObjectPtr<UUpPlayerReputationComponent> ReputationComponent;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayerController> CustomController;

@@ -37,7 +37,9 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UUpMainMenuTabWidget> MenuTabClass;
-	
+
+	bool bDelegatesAdded = false;
+
 	UFUNCTION()
 	void ResumeGame();
 	UFUNCTION()

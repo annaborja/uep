@@ -7,10 +7,11 @@
 #include "Characters/Player/UpPlayerState.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Characters/Player/Components/UpPlayerMovementComponent.h"
+#include "Characters/Player/Components/UpPlayerReputationComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
-#include "Utils/GeneralStructs.h"
+#include "Utils/Structs.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UUpPlayerMovementComponent>(CharacterMovementComponentName))
@@ -38,7 +39,7 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	PlayerMovementComponent = CastChecked<UUpPlayerMovementComponent>(GetCharacterMovement());
 
 	InteractionComponent = CreateDefaultSubobject<UUpPlayerInteractionComponent>(TEXT("InteractionComponent"));
-	ReputationComponent = CreateDefaultSubobject<UUpReputationComponent>(TEXT("ReputationComponent"));
+	ReputationComponent = CreateDefaultSubobject<UUpPlayerReputationComponent>(TEXT("ReputationComponent"));
 }
 
 void AUpPlayerCharacter::PossessedBy(AController* NewController)
@@ -67,7 +68,7 @@ UAbilitySystemComponent* AUpPlayerCharacter::GetAbilitySystemComponent() const
 
 void AUpPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
-	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
 	{
 		GameMode->GetPlayerCharacterTags(TagContainer);
 	}
@@ -82,27 +83,24 @@ void AUpPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContaine
 
 void AUpPlayerCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 {
-	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
 	{
 		if (GameMode->ShouldDebugTagSpecGrant())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Player GrantTagSpec: %s (%d)"), *TagSpec.Tag.ToString(), TagSpec.Count)
 		}
 	
-		if (TagSpec.Tag.IsValid())
-		{
-			bool bSuccess = false;
+		bool bSuccess = false;
 
-			if (UUpReputationComponent::ShouldHandleTagSpecGrant(TagSpec))
-			{
-				bSuccess = ReputationComponent->HandleTagSpecGrant(TagSpec);
-			} else if (TagSpec.Count > 0)
-			{
-				bSuccess = GameMode->AddPlayerCharacterTag(TagSpec.Tag);
-			} else if (TagSpec.Count < 0)
-			{
-				bSuccess = GameMode->RemovePlayerCharacterTag(TagSpec.Tag);
-			}
+		if (UUpPlayerReputationComponent::ShouldHandleTagSpecGrant(TagSpec))
+		{
+			bSuccess = ReputationComponent->HandleTagSpecGrant(TagSpec);
+		} else if (TagSpec.Count > 0)
+		{
+			bSuccess = GameMode->AddPlayerCharacterTag(TagSpec.Tag);
+		} else if (TagSpec.Count < 0)
+		{
+			bSuccess = GameMode->RemovePlayerCharacterTag(TagSpec.Tag);
 		}
 	}
 }

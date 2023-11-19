@@ -15,6 +15,6 @@ public:
 	void SetLabel(const FText& InLabel) { Label = InLabel; }
 
 protected:
-	UPROPERTY(Transient, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	FText Label;
 };

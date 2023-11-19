@@ -20,6 +20,8 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="UpMenuTabData"))
 	TObjectPtr<UDataTable> MenuTabDataTable;
+
+	bool bDelegatesAdded = false;
 	
 	UFUNCTION()
 	void AddTabButton(FName TabId, UCommonButtonBase* TabButton);

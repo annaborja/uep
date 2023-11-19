@@ -11,8 +11,12 @@ void UUpMainMenuTabListWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	OnTabButtonCreation.AddDynamic(this, &ThisClass::AddTabButton);
-	OnTabButtonRemoval.AddDynamic(this, &ThisClass::RemoveTabButton);
+	if (!bDelegatesAdded)
+	{
+		OnTabButtonCreation.AddDynamic(this, &ThisClass::AddTabButton);
+		OnTabButtonRemoval.AddDynamic(this, &ThisClass::RemoveTabButton);
+		bDelegatesAdded = true;
+	}
 }
 
 void UUpMainMenuTabListWidget::AddTabButton(FName TabId, UCommonButtonBase* TabButton)
@@ -24,11 +28,11 @@ void UUpMainMenuTabListWidget::AddTabButton(FName TabId, UCommonButtonBase* TabB
 
 		FUpMenuTabData MenuTabData;
 
-		for (const auto Row : AllMenuTabDataRows)
+		for (const auto MenuTabDataRow : AllMenuTabDataRows)
 		{
-			if (Row->TagId.GetTagName() == TabId)
+			if (MenuTabDataRow->TagId.GetTagName() == TabId)
 			{
-				MenuTabData = *Row;
+				MenuTabData = *MenuTabDataRow;
 				break;
 			}
 		}

@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "GeneralStructs.generated.h"
+#include "Structs.generated.h"
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FUpTagSpec
 {
 	GENERATED_BODY()
@@ -16,29 +16,29 @@ struct FUpTagSpec
 	
 	bool IsValid() const { return Tag.IsValid() && Count != 0; }
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	FGameplayTag Tag;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	FGameplayTag RelatedTag;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	int32 Count = 1;
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FUpTagToTagSpecsMapping
 {
 	GENERATED_BODY();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	FGameplayTag Tag;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	TArray<FUpTagSpec> TagSpecs;
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FUpEntityTagSpec
 {
 	GENERATED_BODY();
@@ -46,12 +46,12 @@ struct FUpEntityTagSpec
 	FUpEntityTagSpec() {}
 	explicit FUpEntityTagSpec(const TArray<FUpTagSpec>& InPlayerTagSpecs) : PlayerTagSpecs(InPlayerTagSpecs) {}
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	TArray<FUpTagSpec> PlayerTagSpecs;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	TArray<FUpTagToTagSpecsMapping> NpcTagSpecMappings;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	TArray<FUpTagToTagSpecsMapping> WorldTagSpecMappings;
 };
 

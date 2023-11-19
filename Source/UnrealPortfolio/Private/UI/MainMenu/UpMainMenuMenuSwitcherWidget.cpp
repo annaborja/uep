@@ -9,7 +9,7 @@
 #include "UI/UpHud.h"
 #include "UI/MainMenu/UpMainMenuTabListWidget.h"
 #include "UI/MainMenu/UpMainMenuTabWidget.h"
-#include "UI/MainMenu/Menus/UpReputationMenuWidget.h"
+#include "UI/MainMenu/ReputationMenu/UpReputationMenuWidget.h"
 
 void UUpMainMenuMenuSwitcherWidget::HandleCloseMenuAction()
 {
@@ -28,8 +28,12 @@ void UUpMainMenuMenuSwitcherWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	OnActivated().AddUObject(this, &ThisClass::SetUpTabList);
-	OnDeactivated().AddUObject(this, &ThisClass::ResumeGame);
+	if (!bDelegatesAdded)
+	{
+		OnActivated().AddUObject(this, &ThisClass::SetUpTabList);
+		OnDeactivated().AddUObject(this, &ThisClass::ResumeGame);
+		bDelegatesAdded = true;
+	}
 }
 
 void UUpMainMenuMenuSwitcherWidget::ResumeGame()
@@ -41,7 +45,7 @@ void UUpMainMenuMenuSwitcherWidget::SetUpTabList()
 {
 	if (const auto WidgetSwitcher = GetWidgetSwitcher())
 	{
-		if (const auto TabList = GetTabList(); TabList && MenuTabClass)
+		if (const auto TabList = GetTabList(); TabList && TabList->GetTabCount() <= 0 && MenuTabClass)
 		{
 			TabList->SetLinkedSwitcher(WidgetSwitcher);
 

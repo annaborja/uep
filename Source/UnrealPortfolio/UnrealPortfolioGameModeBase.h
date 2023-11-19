@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "Components/UpReputationComponent.h"
+#include "Characters/Player/Components/UpPlayerReputationComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "UnrealPortfolioGameModeBase.generated.h"
 
@@ -26,14 +26,15 @@ public:
 	bool AddNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag);
 	bool RemoveNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag);
 
-	int32 GetPlayerKarma() const { return PlayerKarma; }
-	void UpdatePlayerKarma(const int32 KarmaDelta);
-	
-	FUpRelationshipData GetPlayerRelationshipData() const { return PlayerRelationshipData; }
+	FUpReputationData GetPlayerReputationData(const FGameplayTag& TagId);
+	bool UpdatePlayerReputation_Affection(const FGameplayTag& TagId, const int8 Delta);
+	bool UpdatePlayerReputation_Esteem(const FGameplayTag& TagId, const int8 Delta);
 	
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
 	FORCEINLINE UDataTable* GetNpcDataTable() const { return NpcDataTable; }
 	FORCEINLINE UDialogueVoice* GetPlayerDialogueVoice() const { return PlayerDialogueVoice; }
+	FORCEINLINE FUpReputationData GetPlayerWorldReputationData() const { return PlayerWorldReputationData; }
+	FORCEINLINE TMap<FGameplayTag, FUpReputationData> GetPlayerNpcReputationDataMap() const { return PlayerNpcReputationDataMap; }
 	FORCEINLINE bool ShouldDebugTagSpecGrant() const { return bDebugTagSpecGrant; }
 
 protected:
@@ -55,12 +56,12 @@ private:
 	FGameplayTagContainer PlayerCharacterTags;
 	// TODO(P0): Load from saved data.
 	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
+	FUpReputationData PlayerWorldReputationData;
+	// TODO(P0): Load from saved data.
+	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
+	TMap<FGameplayTag, FUpReputationData> PlayerNpcReputationDataMap;
+	
+	// TODO(P0): Load from saved data.
+	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
 	TMap<FGameplayTag, FGameplayTagContainer> NpcCharacterTagsMap;
-
-	// TODO(P0): Load from saved data.
-	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
-	int32 PlayerKarma = 50;
-	// TODO(P0): Load from saved data.
-	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
-	FUpRelationshipData PlayerRelationshipData;
 };

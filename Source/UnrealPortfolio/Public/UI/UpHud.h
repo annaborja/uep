@@ -12,7 +12,7 @@ class AUpNpcCharacter;
 class AUpPlayerController;
 struct FUpDialogueOptionData;
 struct FUpDialogueStepData;
-struct FUpRelationshipData;
+struct FUpReputationData;
 class UUpCommonActivatableWidget;
 class UUpDialogueOverlayWidget;
 class UUpPersistentOverlayWidget;
@@ -40,12 +40,11 @@ class UNREALPORTFOLIO_API AUpHud : public AHUD
 
 public:
 	void Init(AUpPlayerController* InPlayerController);
+	
 	void OpenMainMenu() const;
-
-	// Reputation Menu
-	int32 GetPlayerKarma() const;
-	FUpRelationshipData GetPlayerRelationshipData() const;
-
+	FUpReputationData GetPlayerWorldReputationData() const;
+	TMap<FGameplayTag, FUpReputationData> GetPlayerNpcReputationDataMap() const;
+	
 	// Dialogue Flow
 	void OpenDialogueFlow();
 	void CloseDialogueFlow() const;

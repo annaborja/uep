@@ -56,9 +56,9 @@ void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
 {
 	if (!CustomPlayer) return;
 	
-	if (const auto PlayerInteractionComponent = CustomPlayer->GetPlayerInteractionComponent())
+	if (const auto InteractionComponent = CustomPlayer->GetInteractionComponent())
 	{
-		if (const auto TargetInteractable = Cast<IUpInteractable>(PlayerInteractionComponent->GetTargetInteractable()))
+		if (const auto TargetInteractable = Cast<IUpInteractable>(InteractionComponent->GetTargetInteractable()))
 		{
 			TargetInteractable->Interact(this);
 		}

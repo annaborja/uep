@@ -22,6 +22,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UUpDialogueOptionButtonWidget> DialogueOptionButtonClass;
 	
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	float DialogueOptionGap = 4.f;
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	UPanelWidget* GetDialogueOptionsContainer() const;
 };

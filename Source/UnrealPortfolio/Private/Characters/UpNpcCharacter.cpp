@@ -10,9 +10,9 @@
 #include "Components/SphereComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Components/UpDialogueComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/Constants.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 bool AUpNpcCharacter::GrantTagSpec(AUnrealPortfolioGameModeBase* GameMode, const FGameplayTag& NpcTagId, const FUpTagSpec& TagSpec)
 {
@@ -21,22 +21,17 @@ bool AUpNpcCharacter::GrantTagSpec(AUnrealPortfolioGameModeBase* GameMode, const
     	UE_LOG(LogTemp, Warning, TEXT("%s GrantTagSpec: %s (%d)"), *NpcTagId.ToString(), *TagSpec.Tag.ToString(), TagSpec.Count)
     }
 
-    if (TagSpec.IsValid())
+    bool bSuccess = false;
+
+    if (TagSpec.Count > 0)
     {
-    	bool bSuccess = false;
-
-    	if (TagSpec.Count > 0)
-    	{
-    		bSuccess = GameMode->AddNpcCharacterTag(NpcTagId, TagSpec.Tag);
-    	} else if (TagSpec.Count < 0)
-    	{
-    		bSuccess = GameMode->RemoveNpcCharacterTag(NpcTagId, TagSpec.Tag);
-    	}
-
-    	return bSuccess;
+    	bSuccess = GameMode->AddNpcCharacterTag(NpcTagId, TagSpec.Tag);
+    } else if (TagSpec.Count < 0)
+    {
+    	bSuccess = GameMode->RemoveNpcCharacterTag(NpcTagId, TagSpec.Tag);
     }
 
-    return false;
+    return bSuccess;
 }
 
 AUpNpcCharacter::AUpNpcCharacter(const FObjectInitializer& ObjectInitializer) :
@@ -82,18 +77,18 @@ void AUpNpcCharacter::BeginPlay()
 	check(DialogueVoice);
 	check(TagId.IsValid());
 
-	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
 	{
 		if (const auto NpcDataTable = GameMode->GetNpcDataTable())
 		{
-			TArray<FUpNpcData*> AllRows;
-			NpcDataTable->GetAllRows<FUpNpcData>(TEXT("NpcDataTable GetAllRows"), AllRows);
+			TArray<FUpNpcData*> AllNpcDataRows;
+			NpcDataTable->GetAllRows<FUpNpcData>(TEXT("NpcDataTable GetAllRows"), AllNpcDataRows);
 
-			for (const auto Row : AllRows)
+			for (const auto NpcDataRow : AllNpcDataRows)
 			{
-				if (Row->TagId.MatchesTagExact(TagId))
+				if (NpcDataRow->TagId.MatchesTagExact(TagId))
 				{
-					NpcData = *Row;
+					NpcData = *NpcDataRow;
 					break;
 				}
 			}
@@ -126,7 +121,7 @@ void AUpNpcCharacter::PossessedBy(AController* NewController)
 
 void AUpNpcCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
-	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
 	{
 		GameMode->GetNpcCharacterTags(TagId, TagContainer);
 	}
@@ -159,7 +154,7 @@ FText AUpNpcCharacter::GetInGameName() const
 
 void AUpNpcCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 {
-	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
 	{
 		GrantTagSpec(GameMode, TagId, TagSpec);
 	}

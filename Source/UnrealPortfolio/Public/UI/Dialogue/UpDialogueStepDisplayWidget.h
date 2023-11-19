@@ -19,9 +19,9 @@ public:
 	void DisplayDialogueStep(AUpNpcCharacter* InNpc, const FUpDialogueStepData& InDialogueStep);
 
 protected:
-	UPROPERTY(Transient, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	FText DialogueLineText;
-	UPROPERTY(Transient, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	FText NpcName;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure=false)

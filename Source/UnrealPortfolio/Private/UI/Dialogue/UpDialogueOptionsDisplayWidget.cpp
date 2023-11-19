@@ -23,7 +23,7 @@ void UUpDialogueOptionsDisplayWidget::PopulateDialogueOptions(AUpNpcCharacter* N
 			if (const auto PanelSlot = Cast<UVerticalBoxSlot>(DialogueOptionsContainer->AddChild(DialogueOptionButton));
 				PanelSlot && DialogueOptionIndex > 0)
 			{
-				PanelSlot->SetPadding(FMargin(0.0, 4.0, 0.0, 0.0));
+				PanelSlot->SetPadding(FMargin(0.0, DialogueOptionGap, 0.0, 0.0));
 			}
 
 			DialogueOptionIndex++;

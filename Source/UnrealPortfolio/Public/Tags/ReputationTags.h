@@ -4,8 +4,7 @@
 
 #include "NativeGameplayTags.h"
 
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Relationship)
-
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Reputation)
 
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Reputation_Karma)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Reputation_Affection)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Reputation_Esteem)

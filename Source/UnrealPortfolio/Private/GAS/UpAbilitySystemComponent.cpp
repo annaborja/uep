@@ -5,8 +5,8 @@
 #include "GAS/UpGasDataAsset.h"
 #include "GAS/Abilities/UpGameplayAbility.h"
 #include "Interfaces/UpCombatable.h"
-#include "Kismet/GameplayStatics.h"
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 void UUpAbilitySystemComponent::Init(AActor* InOwnerActor, AActor* InAvatarActor)
 {
@@ -28,7 +28,7 @@ void UUpAbilitySystemComponent::Init(AActor* InOwnerActor, AActor* InAvatarActor
 		}
 	}
 
-	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
 	{
 		if (const auto GasDataAsset = GameMode->GetGasDataAsset())
 		{

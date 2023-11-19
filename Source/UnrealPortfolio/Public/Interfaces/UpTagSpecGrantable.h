@@ -8,9 +8,7 @@
 
 struct FUpTagSpec;
 
-// `CannotImplementInterfaceInBlueprint` allows us to designate virtual functions as BlueprintCallable
-// (see https://forums.unrealengine.com/t/how-do-i-expose-a-c-interface-to-blueprints-with-a-blueprintcallable-function/342082/2).
-UINTERFACE(MinimalAPI, BlueprintType, meta=(CannotImplementInterfaceInBlueprint))
+UINTERFACE(MinimalAPI)
 class UUpTagSpecGrantable : public UInterface
 {
 	GENERATED_BODY()
@@ -21,6 +19,5 @@ class UNREALPORTFOLIO_API IUpTagSpecGrantable
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable)
 	virtual void GrantTagSpec(const FUpTagSpec& TagSpec) = 0;
 };

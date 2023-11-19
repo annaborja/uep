@@ -46,7 +46,7 @@ void UUpDialogueStepDisplayWidget::DisplayDialogueLine()
 	FDialogueContext DialogueContext;
 	DialogueContext.Speaker = Npc->GetDialogueVoice();
 		
-	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
 	{
 		if (const auto PlayerDialogueVoice = GameMode->GetPlayerDialogueVoice())
 		{

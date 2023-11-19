@@ -4,32 +4,11 @@
 
 #include "Characters/UpNpcCharacter.h"
 #include "Components/UpDialogueComponent.h"
-#include "Components/UpReputationComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "UI/UpCommonActivatableWidget.h"
 #include "UI/Persistent/UpPersistentOverlayWidget.h"
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
-
-int32 AUpHud::GetPlayerKarma() const
-{
-	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
-	{
-		return GameMode->GetPlayerKarma();
-	}
-
-	return -1;
-}
-
-FUpRelationshipData AUpHud::GetPlayerRelationshipData() const
-{
-	if (const auto GameMode = Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(this)))
-	{
-		return GameMode->GetPlayerRelationshipData();
-	}
-
-	return FUpRelationshipData();
-}
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 void AUpHud::Init(AUpPlayerController* InPlayerController)
 {
@@ -53,6 +32,26 @@ void AUpHud::OpenMainMenu() const
 	if (!PersistentOverlayWidget) return;
 	
 	PersistentOverlayWidget->OpenMainMenu();
+}
+
+FUpReputationData AUpHud::GetPlayerWorldReputationData() const
+{
+	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+	{
+		return GameMode->GetPlayerWorldReputationData();
+	}
+
+	return FUpReputationData();
+}
+
+TMap<FGameplayTag, FUpReputationData> AUpHud::GetPlayerNpcReputationDataMap() const
+{
+	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+	{
+		return GameMode->GetPlayerNpcReputationDataMap();
+	}
+
+	return TMap<FGameplayTag, FUpReputationData>();
 }
 
 void AUpHud::OpenDialogueFlow()
