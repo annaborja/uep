@@ -15,7 +15,10 @@ namespace EUpBttSetMovementParamsCommandType
 		ResetMaxWalkSpeed,
 		
 		SetRotationRate,
-		ResetRotationRate
+		ResetRotationRate,
+		
+		StartSprint,
+		StopSprint
 	};
 }
 

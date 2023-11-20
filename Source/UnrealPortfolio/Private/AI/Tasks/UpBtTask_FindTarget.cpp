@@ -49,18 +49,21 @@ EBTNodeResult::Type UUpBtTask_FindTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 				if (CandidateActors.Num() > 0)
 				{
 					int32 NewTargetIndex = 0;
-			
-					switch (SelectionStrategy)
+
+					if (CandidateActors.Num() > 1)
 					{
-					case EUpBttFindTargetSelectionStrategy::Random:
-						NewTargetIndex = FMath::RandRange(0, CandidateActors.Num() - 1);
-						break;
-					case EUpBttFindTargetSelectionStrategy::ClosestDistance:
-					default:
-						CandidateActors.Sort([AiPawn](const AActor& ActorA, const AActor& ActorB)
+						switch (SelectionStrategy)
 						{
-							return AiPawn->GetDistanceTo(&ActorA) < AiPawn->GetDistanceTo(&ActorB);
-						});
+						case EUpBttFindTargetSelectionStrategy::Random:
+							NewTargetIndex = FMath::RandRange(0, CandidateActors.Num() - 1);
+							break;
+						case EUpBttFindTargetSelectionStrategy::ClosestDistance:
+						default:
+							CandidateActors.Sort([AiPawn](const AActor& ActorA, const AActor& ActorB)
+							{
+								return AiPawn->GetDistanceTo(&ActorA) < AiPawn->GetDistanceTo(&ActorB);
+							});
+						}
 					}
 
 					if (CandidateActors.IsValidIndex(NewTargetIndex))

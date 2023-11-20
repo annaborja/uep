@@ -180,14 +180,15 @@ void UUpDialogueComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	check(DialogueDataTable);
-
-	TArray<FUpDialogueData*> AllDialogueDataRows;
-	DialogueDataTable->GetAllRows<FUpDialogueData>(TEXT("DialogueDataTable GetAllRows"), AllDialogueDataRows);
-
-	for (const auto DialogueDataRow : AllDialogueDataRows)
+	if (DialogueDataTable)
 	{
-		AllDialogueData.Add(*DialogueDataRow);
+		TArray<FUpDialogueData*> AllDialogueDataRows;
+		DialogueDataTable->GetAllRows<FUpDialogueData>(TEXT("DialogueDataTable GetAllRows"), AllDialogueDataRows);
+
+		for (const auto DialogueDataRow : AllDialogueDataRows)
+		{
+			AllDialogueData.Add(*DialogueDataRow);
+		}
 	}
 	
 	CustomOwner = CastChecked<AUpNpcCharacter>(GetOwner());

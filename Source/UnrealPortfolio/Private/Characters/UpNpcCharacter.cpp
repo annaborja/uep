@@ -74,9 +74,6 @@ void AUpNpcCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	check(DialogueVoice);
-	check(TagId.IsValid());
-
 	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
 	{
 		if (const auto NpcDataTable = GameMode->GetNpcDataTable())

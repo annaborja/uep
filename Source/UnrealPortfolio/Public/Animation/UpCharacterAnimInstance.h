@@ -17,6 +17,14 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 protected:
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float RunStopThresholdMultiplier = 0.5f;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
 	float GroundSpeed = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	bool bStoppedWalking = false;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	bool bStoppedRunning = false;
 };

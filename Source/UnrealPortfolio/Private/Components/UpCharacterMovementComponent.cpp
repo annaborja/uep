@@ -5,6 +5,7 @@
 UUpCharacterMovementComponent::UUpCharacterMovementComponent()
 {
 	MaxWalkSpeed = 600.f;
+	bUseAccelerationForPaths = true;
 }
 
 void UUpCharacterMovementComponent::BeginPlay()

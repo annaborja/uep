@@ -20,8 +20,13 @@ public:
 	virtual void BeginPlay() override;
 
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
+	
+	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
 
 protected:
+	UPROPERTY(EditAnywhere, Category="UP Debug")
+	bool bDebugMovement = false;
+	
 	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;
 };

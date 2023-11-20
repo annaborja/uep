@@ -48,7 +48,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UDialogueVoice> PlayerDialogueVoice;
 	
-	UPROPERTY(EditDefaultsOnly, Category="UP Debug")
+	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugTagSpecGrant = false;
 
 	// TODO(P0): Load from saved data.

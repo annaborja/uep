@@ -31,6 +31,9 @@ public:
 
 	void ToggleSprint(const bool bInWantsToSprint);
 
+	FORCEINLINE float GetMaxSprintSpeed() const { return MaxSprintSpeed; }
+	FORCEINLINE bool IsSprinting() const { return bWantsToSprint; }
+
 protected:
 	UPROPERTY(EditAnywhere, Category="UP Params|Sprint")
 	float MaxSprintSpeed = 900.f;
