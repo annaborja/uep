@@ -7,6 +7,8 @@
 #include "UI/UpCommonUserWidget.h"
 #include "UpPlayerNpcReputationDataWidget.generated.h"
 
+class UUpReputationAttributeWidget;
+
 UCLASS()
 class UNREALPORTFOLIO_API UUpPlayerNpcReputationDataWidget : public UUpCommonUserWidget
 {
@@ -14,13 +16,21 @@ class UNREALPORTFOLIO_API UUpPlayerNpcReputationDataWidget : public UUpCommonUse
 
 public:
 	void SetNpcName(const FText& InNpcName) { NpcName = InNpcName;  }
-	void SetReputationData(const FUpReputationData& InReputationData) { ReputationData = InReputationData;  }
+	
+	void PopulateReputationData(const FUpReputationData& ReputationData);
 
 	FORCEINLINE FText GetNpcName() const { return NpcName; }
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	FText NpcName;
-	UPROPERTY(BlueprintReadOnly)
-	FUpReputationData ReputationData;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TSubclassOf<UUpReputationAttributeWidget> ReputationAttributeWidgetClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	float ReputationAttributeRowGap = 8.f;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	UPanelWidget* GetReputationAttributesContainer() const;
 };

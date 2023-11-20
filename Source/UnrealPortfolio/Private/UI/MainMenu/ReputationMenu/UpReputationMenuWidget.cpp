@@ -34,7 +34,7 @@ void UUpReputationMenuWidget::PopulateNpcReputationData()
 		{
 			const auto ReputationDataWidget = CreateWidget<UUpPlayerNpcReputationDataWidget>(this, NpcReputationDataWidgetClass);
 			ReputationDataWidget->SetNpcName(UUpBlueprintFunctionLibrary::GetInGameName(this, ReputationDataMapping.Key));
-			ReputationDataWidget->SetReputationData(ReputationDataMapping.Value);
+			ReputationDataWidget->PopulateReputationData(ReputationDataMapping.Value);
 			
 			ReputationDataWidgets.Add(ReputationDataWidget);
 		}

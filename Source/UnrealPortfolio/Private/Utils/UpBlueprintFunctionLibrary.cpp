@@ -128,29 +128,34 @@ bool UUpBlueprintFunctionLibrary::HasTagId(const AActor* Actor, const FGameplayT
 
 bool UUpBlueprintFunctionLibrary::IsEntityTagSpecSatisfied(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec, const bool bProhibition)
 {
-	if (!WorldContextObject) return false;
-
-	const auto World = WorldContextObject->GetWorld();
-
-	if (!World) return false;
-
 	if (EntityTagSpec.PlayerTagSpecs.Num() > 0)
 	{
-		const auto PlayerController = World->GetFirstPlayerController();
+		const auto GameplayTagAsset = Cast<IGameplayTagAssetInterface>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
 
-		if (!PlayerController) return false;
+		if (!GameplayTagAsset) return false;
 
-		const auto GameplayTagAssetInterface = Cast<IGameplayTagAssetInterface>(PlayerController->GetCharacter());
-
-		if (!GameplayTagAssetInterface) return false;
-
-		FGameplayTagContainer PlayerGameplayTags;
-		GameplayTagAssetInterface->GetOwnedGameplayTags(PlayerGameplayTags);
+		FGameplayTagContainer PlayerTags;
+		GameplayTagAsset->GetOwnedGameplayTags(PlayerTags);
 			
 		for (const auto& PlayerTagSpec : EntityTagSpec.PlayerTagSpecs)
 		{
-			if (bProhibition && PlayerGameplayTags.HasTagExact(PlayerTagSpec.Tag)) return false;
-			if (!bProhibition && !PlayerGameplayTags.HasTagExact(PlayerTagSpec.Tag)) return false;
+			if (bProhibition && PlayerTags.HasTagExact(PlayerTagSpec.Tag)) return false;
+			if (!bProhibition && !PlayerTags.HasTagExact(PlayerTagSpec.Tag)) return false;
+		}
+	}
+
+	if (const auto GameMode = GetGameMode<AUnrealPortfolioGameModeBase>(WorldContextObject))
+	{
+		for (const auto& NpcTagToTagSpecMappings : EntityTagSpec.NpcTagSpecMappings)
+		{
+			FGameplayTagContainer NpcTags;
+			GameMode->GetNpcCharacterTags(NpcTagToTagSpecMappings.Tag, NpcTags);
+			
+			for (const auto& NpcTagSpec : NpcTagToTagSpecMappings.TagSpecs)
+			{
+				if (bProhibition && NpcTags.HasTagExact(NpcTagSpec.Tag)) return false;
+				if (!bProhibition && !NpcTags.HasTagExact(NpcTagSpec.Tag)) return false;
+			}
 		}
 	}
 
@@ -176,12 +181,9 @@ void UUpBlueprintFunctionLibrary::ProcessEntityTagSpecGrants(const UObject* Worl
 	{
 		for (const auto& NpcTagToTagSpecMappings : EntityTagSpec.NpcTagSpecMappings)
 		{
-			if (NpcTagToTagSpecMappings.Tag.MatchesTag(TAG_Npc))
+			for (const auto& NpcTagSpec : NpcTagToTagSpecMappings.TagSpecs)
 			{
-				for (const auto& NpcTagSpec : NpcTagToTagSpecMappings.TagSpecs)
-				{
-					AUpNpcCharacter::GrantTagSpec(GameMode, NpcTagToTagSpecMappings.Tag, NpcTagSpec);
-				}
+				AUpNpcCharacter::GrantTagSpec(GameMode, NpcTagToTagSpecMappings.Tag, NpcTagSpec);
 			}
 		}
 	}
