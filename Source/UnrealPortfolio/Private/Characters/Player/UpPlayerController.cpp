@@ -7,6 +7,7 @@
 #include "Characters/Player/UpPlayerCameraManager.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
+#include "Characters/Player/Components/UpPlayerMovementComponent.h"
 #include "Interfaces/UpInteractable.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/UpHud.h"
@@ -31,6 +32,7 @@ void AUpPlayerController::BeginPlay()
 	check(LookInputAction);
 	check(MoveInputAction);
 	check(PauseGameInputAction);
+	check(SprintInputAction);
 
 	CustomPlayer = CastChecked<AUpPlayerCharacter>(GetCharacter());
 
@@ -46,10 +48,20 @@ void AUpPlayerController::SetupInputComponent()
 	
 	EnhancedInputComponent->BindAction(PauseGameInputAction, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
 	
+	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ThisClass::Interact);
+	
 	EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
+
+	EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Started, this, &ThisClass::StartSprint);
+	EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Completed, this, &ThisClass::StopSprint);
+}
+
+void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
+{
+	if (CustomHud) CustomHud->OpenMainMenu();
 	
-	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ThisClass::Interact);
+	UGameplayStatics::SetGamePaused(this, true);
 }
 
 void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
@@ -63,13 +75,6 @@ void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
 			TargetInteractable->Interact(this);
 		}
 	}
-}
-
-void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
-{
-	if (CustomHud) CustomHud->OpenMainMenu();
-	
-	UGameplayStatics::SetGamePaused(this, true);
 }
 
 void AUpPlayerController::Look(const FInputActionValue& InputActionValue)
@@ -92,8 +97,28 @@ void AUpPlayerController::Move(const FInputActionValue& InputActionValue)
 	}
 }
 
+void AUpPlayerController::StartSprint(const FInputActionValue& InputActionValue)
+{
+	if (!CustomPlayer) return;
+	
+	if (const auto PlayerMovementComponent = CustomPlayer->GetPlayerMovementComponent())
+	{
+		PlayerMovementComponent->ToggleSprint(true);
+	}
+}
+
+void AUpPlayerController::StopSprint(const FInputActionValue& InputActionValue)
+{
+	if (!CustomPlayer) return;
+	
+	if (const auto PlayerMovementComponent = CustomPlayer->GetPlayerMovementComponent())
+	{
+		PlayerMovementComponent->ToggleSprint(false);
+	}
+}
+
 void AUpPlayerController::ActivateInputMappingContext(const UInputMappingContext* InputMappingContext,
-	const bool bClearExisting, const int32 Priority) const
+                                                      const bool bClearExisting, const int32 Priority) const
 {
 	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{

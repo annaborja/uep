@@ -32,7 +32,7 @@ EBTNodeResult::Type UUpBtTask_SetMovementParams::ExecuteTask(UBehaviorTreeCompon
 						MovementComponent->ResetRotationRate();
 						break;
 					default:
-						UE_LOG(LogTemp, Error, TEXT("Invalid SetMovementParams command type"))
+						UE_LOG(LogTemp, Error, TEXT("Invalid SetMovementParams command type %d"), Command.CommandType)
 						return EBTNodeResult::Failed;
 					}
 				}

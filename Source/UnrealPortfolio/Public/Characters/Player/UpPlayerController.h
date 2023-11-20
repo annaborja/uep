@@ -41,17 +41,23 @@ private:
 	TObjectPtr<UInputAction> MoveInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> PauseGameInputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> SprintInputAction;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpHud> CustomHud;
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayerCharacter> CustomPlayer;
 	
-	void Interact(const FInputActionValue& InputActionValue);
 	void PauseGame(const FInputActionValue& InputActionValue);
+	
+	void Interact(const FInputActionValue& InputActionValue);
 
 	void Look(const FInputActionValue& InputActionValue);
 	void Move(const FInputActionValue& InputActionValue);
+
+	void StartSprint(const FInputActionValue& InputActionValue);
+	void StopSprint(const FInputActionValue& InputActionValue);
 
 	void ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting = true, const int32 Priority = 0) const;
 };

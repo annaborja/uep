@@ -62,6 +62,8 @@ public:
 
 	virtual void GrantTagSpec(const FUpTagSpec& TagSpec) override;
 
+	void ToggleSprint(const bool bSprint) const;
+
 	FORCEINLINE UUpDialogueComponent* GetDialogueComponent() const { return DialogueComponent; }
 	FORCEINLINE UDialogueVoice* GetDialogueVoice() const { return DialogueVoice; }
 

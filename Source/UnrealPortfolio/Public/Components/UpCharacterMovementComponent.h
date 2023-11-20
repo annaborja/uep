@@ -6,6 +6,15 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "UpCharacterMovementComponent.generated.h"
 
+UENUM()
+namespace EUpCustomMovementMode
+{
+	enum Type : uint8
+	{
+		None
+	};
+}
+
 UCLASS()
 class UNREALPORTFOLIO_API UUpCharacterMovementComponent : public UCharacterMovementComponent
 {
@@ -15,11 +24,20 @@ public:
 	UUpCharacterMovementComponent();
 
 	virtual void BeginPlay() override;
+	virtual float GetMaxSpeed() const override;
 
 	void ResetMaxWalkSpeed();
 	void ResetRotationRate();
 
+	void ToggleSprint(const bool bInWantsToSprint);
+
+protected:
+	UPROPERTY(EditAnywhere, Category="UP Params|Sprint")
+	float MaxSprintSpeed = 900.f;
+
 private:
 	float BaseMaxWalkSpeed = 0.f;
 	FRotator BaseRotationRate;
+
+	bool bWantsToSprint = false;
 };

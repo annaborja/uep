@@ -159,3 +159,10 @@ void AUpNpcCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 		GrantTagSpec(GameMode, TagId, TagSpec);
 	}
 }
+
+void AUpNpcCharacter::ToggleSprint(const bool bSprint) const
+{
+	if (!CustomMovementComponent) return;
+
+	CustomMovementComponent->ToggleSprint(bSprint);
+}
