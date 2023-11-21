@@ -27,4 +27,7 @@ protected:
 	bool bStoppedWalking = false;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
 	bool bStoppedRunning = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	bool bIsCrouching = false;
 };

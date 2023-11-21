@@ -4,7 +4,10 @@
 
 UUpCharacterMovementComponent::UUpCharacterMovementComponent()
 {
-	MaxWalkSpeed = 600.f;
+	NavAgentProps.bCanCrouch = true;
+	
+	MaxWalkSpeed = 400.f;
+	MaxWalkSpeedCrouched = 135.f;
 	bUseAccelerationForPaths = true;
 }
 
@@ -27,7 +30,7 @@ float UUpCharacterMovementComponent::GetMaxSpeed() const
 	case EUpCustomMovementMode::None:
 	default:
 		UE_LOG(LogTemp, Error, TEXT("Invalid custom movement mode %d"), CustomMovementMode)
-		return MaxWalkSpeed;
+		return 0.f;
 	}
 }
 

@@ -34,6 +34,8 @@ private:
 	TObjectPtr<UInputMappingContext> BaseInputMappingContext;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> CrouchInputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InteractInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> LookInputAction;
@@ -50,7 +52,8 @@ private:
 	TObjectPtr<AUpPlayerCharacter> CustomPlayer;
 	
 	void PauseGame(const FInputActionValue& InputActionValue);
-	
+
+	void ToggleCrouch(const FInputActionValue& InputActionValue);
 	void Interact(const FInputActionValue& InputActionValue);
 
 	void Look(const FInputActionValue& InputActionValue);

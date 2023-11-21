@@ -36,7 +36,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, Category="UP Params|Sprint")
-	float MaxSprintSpeed = 900.f;
+	float MaxSprintSpeed = 700.f;
 
 private:
 	float BaseMaxWalkSpeed = 0.f;

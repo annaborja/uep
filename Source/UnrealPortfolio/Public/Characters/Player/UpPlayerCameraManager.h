@@ -6,6 +6,8 @@
 #include "Camera/PlayerCameraManager.h"
 #include "UpPlayerCameraManager.generated.h"
 
+class AUpPlayerCharacter;
+
 UCLASS()
 class UNREALPORTFOLIO_API AUpPlayerCameraManager : public APlayerCameraManager
 {
@@ -13,4 +15,19 @@ class UNREALPORTFOLIO_API AUpPlayerCameraManager : public APlayerCameraManager
 
 public:
 	AUpPlayerCameraManager();
+	
+protected:
+	virtual void BeginPlay() override;
+	virtual void UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime) override;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	float CrouchBlendDuration = 0.5f;
+	
+	UPROPERTY(Transient)
+	TObjectPtr<AUpPlayerCharacter> Player;
+	
+	float CrouchBlendTime;
+
+	void AdjustCameraForCrouch(FTViewTarget& OutVT, const float DeltaTime);
 };
