@@ -26,6 +26,7 @@ public:
 	explicit AUpPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void PossessedBy(AController* NewController) override;
+	virtual void Jump() override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
@@ -35,6 +36,9 @@ public:
 
 	AUpHud* GetCustomHud() const;
 
+	void AllowJump();
+	bool IsAllowedToJump() const { return bAllowedToJump; };
+	
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetInteractionComponent() const { return InteractionComponent; }
 	FORCEINLINE UUpPlayerMovementComponent* GetPlayerMovementComponent() const { return PlayerMovementComponent; }
@@ -50,6 +54,9 @@ private:
 	TObjectPtr<UUpPlayerInteractionComponent> InteractionComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpPlayerReputationComponent> ReputationComponent;
+
+	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
+	bool bAllowedToJump = true;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayerController> CustomController;

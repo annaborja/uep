@@ -56,6 +56,20 @@ void AUpPlayerCharacter::PossessedBy(AController* NewController)
 	CustomController->Init();
 }
 
+void AUpPlayerCharacter::Jump()
+{
+	if (!bAllowedToJump) return;
+
+	bAllowedToJump = false;
+	
+	if (PlayerMovementComponent)
+	{
+		PlayerMovementComponent->bNotifyApex = true;
+	}
+	
+	Super::Jump();
+}
+
 UAbilitySystemComponent* AUpPlayerCharacter::GetAbilitySystemComponent() const
 {
 	if (const auto CustomPlayerState = GetPlayerState<AUpPlayerState>())
@@ -110,4 +124,9 @@ AUpHud* AUpPlayerCharacter::GetCustomHud() const
 	if (CustomController) return CustomController->GetCustomHud();
 
 	return nullptr;
+}
+
+void AUpPlayerCharacter::AllowJump()
+{
+	bAllowedToJump = true;
 }

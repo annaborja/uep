@@ -30,6 +30,7 @@ void AUpPlayerController::BeginPlay()
 
 	check(CrouchInputAction);
 	check(InteractInputAction);
+	check(JumpInputAction);
 	check(LookInputAction);
 	check(MoveInputAction);
 	check(PauseGameInputAction);
@@ -51,12 +52,13 @@ void AUpPlayerController::SetupInputComponent()
 	
 	EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
 	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ThisClass::Interact);
-	
-	EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
-	EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
+	EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Started, this, &ThisClass::Jump);
 
 	EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Started, this, &ThisClass::StartSprint);
 	EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Completed, this, &ThisClass::StopSprint);
+	
+	EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
+	EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 }
 
 void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
@@ -92,24 +94,11 @@ void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
 	}
 }
 
-void AUpPlayerController::Look(const FInputActionValue& InputActionValue)
+void AUpPlayerController::Jump(const FInputActionValue& InputActionValue)
 {
-	const auto InputActionVector = InputActionValue.Get<FVector2D>();
-
-	AddPitchInput(InputActionVector.Y);
-	AddYawInput(InputActionVector.X);
-}
-
-void AUpPlayerController::Move(const FInputActionValue& InputActionValue)
-{
-	const auto InputActionVector = InputActionValue.Get<FVector2D>();
-	const FRotationMatrix RotationMatrix(FRotator(0.f, GetControlRotation().Yaw, 0.f));
-
-	if (CustomPlayer)
-	{
-		CustomPlayer->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::X), InputActionVector.Y);
-		CustomPlayer->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::Y), InputActionVector.X);
-	}
+	if (!CustomPlayer) return;
+	
+	CustomPlayer->Jump();
 }
 
 void AUpPlayerController::StartSprint(const FInputActionValue& InputActionValue)
@@ -132,8 +121,27 @@ void AUpPlayerController::StopSprint(const FInputActionValue& InputActionValue)
 	}
 }
 
-void AUpPlayerController::ActivateInputMappingContext(const UInputMappingContext* InputMappingContext,
-                                                      const bool bClearExisting, const int32 Priority) const
+void AUpPlayerController::Look(const FInputActionValue& InputActionValue)
+{
+	const auto InputActionVector = InputActionValue.Get<FVector2D>();
+
+	AddPitchInput(InputActionVector.Y);
+	AddYawInput(InputActionVector.X);
+}
+
+void AUpPlayerController::Move(const FInputActionValue& InputActionValue)
+{
+	const auto InputActionVector = InputActionValue.Get<FVector2D>();
+	const FRotationMatrix RotationMatrix(FRotator(0.f, GetControlRotation().Yaw, 0.f));
+
+	if (CustomPlayer)
+	{
+		CustomPlayer->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::X), InputActionVector.Y);
+		CustomPlayer->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::Y), InputActionVector.X);
+	}
+}
+
+void AUpPlayerController::ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting, const int32 Priority) const
 {
 	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{

@@ -22,6 +22,8 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
 	float GroundSpeed = 0.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	float VerticalSpeed;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
 	bool bStoppedWalking = false;
@@ -30,4 +32,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
 	bool bIsCrouching = false;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	bool bIsFalling = false;
 };

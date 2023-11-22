@@ -25,12 +25,14 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 			}
 			
 			GroundSpeed = UKismetMathLibrary::VSizeXY(MovementComponent->Velocity);
+			VerticalSpeed = MovementComponent->Velocity.Z;
 
 			// TODO(P1): This logic works fine for NPCs but doesn't work well for the player character.
 			bStoppedRunning = CurrentAcceleration.IsZero() && PrevGroundSpeed >= RunStopThreshold;
 			bStoppedWalking = CurrentAcceleration.IsZero() && PrevGroundSpeed > 0.f && PrevGroundSpeed < RunStopThreshold;
 
 			bIsCrouching = MovementComponent->IsCrouching();
+			bIsFalling = MovementComponent->IsFalling();
 		}
 	}
 }

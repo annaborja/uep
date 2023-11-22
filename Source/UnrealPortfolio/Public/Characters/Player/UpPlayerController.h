@@ -38,6 +38,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InteractInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> JumpInputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> LookInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> MoveInputAction;
@@ -55,12 +57,13 @@ private:
 
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
 	void Interact(const FInputActionValue& InputActionValue);
-
-	void Look(const FInputActionValue& InputActionValue);
-	void Move(const FInputActionValue& InputActionValue);
+	void Jump(const FInputActionValue& InputActionValue);
 
 	void StartSprint(const FInputActionValue& InputActionValue);
 	void StopSprint(const FInputActionValue& InputActionValue);
+	
+	void Look(const FInputActionValue& InputActionValue);
+	void Move(const FInputActionValue& InputActionValue);
 
 	void ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting = true, const int32 Priority = 0) const;
 };

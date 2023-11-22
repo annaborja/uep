@@ -13,4 +13,22 @@ class UNREALPORTFOLIO_API UUpPlayerMovementComponent : public UUpCharacterMoveme
 
 public:
 	UUpPlayerMovementComponent();
+
+	virtual void BeginPlay() override;
+
+protected:
+	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
+
+private:
+	UPROPERTY(EditAnywhere, Category="UP Params|Jump")
+	float JumpCooldownTime = 0.1f;
+	UPROPERTY(EditAnywhere, Category="UP Params|Jump")
+	float JumpFallGravityScale = 4.f;
+	
+	FTimerHandle JumpCooldownTimerHandle;
+	
+	UFUNCTION()
+	void AllowJump();
+	UFUNCTION()
+	void OnJumpApexReached() { GravityScale = JumpFallGravityScale; }
 };

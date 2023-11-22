@@ -2,10 +2,15 @@
 
 #include "Components/UpCharacterMovementComponent.h"
 
+#include "Characters/UpNpcCharacter.h"
+#include "Characters/Player/UpPlayerCharacter.h"
+
 UUpCharacterMovementComponent::UUpCharacterMovementComponent()
 {
 	NavAgentProps.bCanCrouch = true;
-	
+
+	GravityScale = 2.f;
+	JumpZVelocity = 640.f;
 	MaxWalkSpeed = 400.f;
 	MaxWalkSpeedCrouched = 135.f;
 	bUseAccelerationForPaths = true;
@@ -15,6 +20,10 @@ void UUpCharacterMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Character = CastChecked<AUpCharacter>(GetOwner());
+	Npc = Cast<AUpNpcCharacter>(GetOwner());
+
+	BaseGravityScale = GravityScale;
 	BaseMaxWalkSpeed = MaxWalkSpeed;
 	BaseRotationRate = RotationRate;
 }
@@ -32,19 +41,4 @@ float UUpCharacterMovementComponent::GetMaxSpeed() const
 		UE_LOG(LogTemp, Error, TEXT("Invalid custom movement mode %d"), CustomMovementMode)
 		return 0.f;
 	}
-}
-
-void UUpCharacterMovementComponent::ResetMaxWalkSpeed()
-{
-	MaxWalkSpeed = BaseMaxWalkSpeed;
-}
-
-void UUpCharacterMovementComponent::ResetRotationRate()
-{
-	RotationRate = BaseRotationRate;
-}
-
-void UUpCharacterMovementComponent::ToggleSprint(const bool bInWantsToSprint)
-{
-	bWantsToSprint = bInWantsToSprint;
 }

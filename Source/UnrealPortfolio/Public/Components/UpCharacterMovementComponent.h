@@ -6,6 +6,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "UpCharacterMovementComponent.generated.h"
 
+class AUpCharacter;
+class AUpNpcCharacter;
+class AUpPlayerCharacter;
+
 UENUM()
 namespace EUpCustomMovementMode
 {
@@ -26,19 +30,29 @@ public:
 	virtual void BeginPlay() override;
 	virtual float GetMaxSpeed() const override;
 
-	void ResetMaxWalkSpeed();
-	void ResetRotationRate();
+	void ToggleSprint(const bool bInWantsToSprint) { bWantsToSprint = bInWantsToSprint; }
 
-	void ToggleSprint(const bool bInWantsToSprint);
-
+	void ResetMaxWalkSpeed() { MaxWalkSpeed = BaseMaxWalkSpeed; }
+	void ResetRotationRate() { RotationRate = BaseRotationRate; }
+	
 	FORCEINLINE float GetMaxSprintSpeed() const { return MaxSprintSpeed; }
 	FORCEINLINE bool IsSprinting() const { return bWantsToSprint; }
 
 protected:
 	UPROPERTY(EditAnywhere, Category="UP Params|Sprint")
 	float MaxSprintSpeed = 700.f;
+	
+	UPROPERTY(Transient)
+	TObjectPtr<AUpPlayerCharacter> Player;
+	
+	float BaseGravityScale = 1.f;
 
 private:
+	UPROPERTY(Transient)
+	TObjectPtr<AUpCharacter> Character;
+	UPROPERTY(Transient)
+	TObjectPtr<AUpNpcCharacter> Npc;
+	
 	float BaseMaxWalkSpeed = 0.f;
 	FRotator BaseRotationRate;
 
