@@ -10,6 +10,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Components/UpDialogueComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -154,6 +155,19 @@ void AUpNpcCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
 	{
 		GrantTagSpec(GameMode, TagId, TagSpec);
+	}
+}
+
+void AUpNpcCharacter::JumpToLocation(const FVector& TargetLocation, const float Duration)
+{
+	const auto ActorLocation = GetActorLocation();
+	
+	SetActorRotation(FRotator(0.f, UKismetMathLibrary::FindLookAtRotation(ActorLocation, TargetLocation).Yaw, 0.f));
+
+	if (CustomMovementComponent)
+	{
+		LaunchCharacter(UUpBlueprintFunctionLibrary::CalculateVelocity(
+			ActorLocation, TargetLocation, Duration, CustomMovementComponent->GravityScale), true, true);
 	}
 }
 

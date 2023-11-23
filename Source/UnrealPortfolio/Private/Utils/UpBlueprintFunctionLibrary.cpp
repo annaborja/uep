@@ -11,6 +11,7 @@
 #include "Kismet/KismetStringLibrary.h"
 #include "Tags/NpcTags.h"
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
+#include "Utils/Constants.h"
 #include "Utils/Structs.h"
 
 AUpHud* UUpBlueprintFunctionLibrary::GetCustomHud(const UObject* WorldContextObject)
@@ -189,4 +190,12 @@ void UUpBlueprintFunctionLibrary::ProcessEntityTagSpecGrants(const UObject* Worl
 	}
 
 	// TODO(P0): Finish implementation.
+}
+
+FVector UUpBlueprintFunctionLibrary::CalculateVelocity(const FVector& FromLocation, const FVector& ToLocation, const float Duration, const float GravityScale)
+{
+	return FVector(
+	(ToLocation.X - FromLocation.X) / Duration,
+	(ToLocation.Y - FromLocation.Y) / Duration,
+	(ToLocation.Z - FromLocation.Z - FMath::Pow(Duration, 2) * 0.5f * GRAVITATIONAL_ACCELERATION * GravityScale) / Duration);
 }
