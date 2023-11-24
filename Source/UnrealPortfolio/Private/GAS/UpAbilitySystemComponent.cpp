@@ -8,7 +8,8 @@
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-void UUpAbilitySystemComponent::Init(AActor* InOwnerActor, AActor* InAvatarActor)
+void UUpAbilitySystemComponent::Init(AActor* InOwnerActor, AActor* InAvatarActor,
+	const TArray<TSubclassOf<UGameplayEffect>>& InitAttributesEffectClasses, const TArray<TSubclassOf<UGameplayAbility>>& GrantedAbilityClasses)
 {
 	InitAbilityActorInfo(InOwnerActor, InAvatarActor);
 
@@ -22,7 +23,7 @@ void UUpAbilitySystemComponent::Init(AActor* InOwnerActor, AActor* InAvatarActor
 
 	if (InAvatarActor->HasAuthority())
 	{
-		for (const auto AbilityClass : StartupAbilityClasses)
+		for (const auto AbilityClass : GrantedAbilityClasses)
 		{
 			GrantAbility(AbilityClass);
 		}
@@ -32,7 +33,7 @@ void UUpAbilitySystemComponent::Init(AActor* InOwnerActor, AActor* InAvatarActor
 	{
 		if (const auto GasDataAsset = GameMode->GetGasDataAsset())
 		{
-			for (const auto AbilityClass : GasDataAsset->GetCommonStartupAbilityClasses())
+			for (const auto AbilityClass : GasDataAsset->GetCommonGrantedAbilityClasses())
 			{
 				GrantAbility(AbilityClass);
 			}

@@ -5,12 +5,12 @@
 #include "CoreMinimal.h"
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"
 #include "UI/UpCommonUserWidget.h"
-#include "UpPlayerNpcReputationDataWidget.generated.h"
+#include "UpPlayerNpcReputationDisplayWidget.generated.h"
 
-class UUpReputationAttributeWidget;
+class UUpReputationAttributeDisplayWidget;
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpPlayerNpcReputationDataWidget : public UUpCommonUserWidget
+class UNREALPORTFOLIO_API UUpPlayerNpcReputationDisplayWidget : public UUpCommonUserWidget
 {
 	GENERATED_BODY()
 
@@ -26,7 +26,7 @@ protected:
 	FText NpcName;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TSubclassOf<UUpReputationAttributeWidget> ReputationAttributeWidgetClass;
+	TSubclassOf<UUpReputationAttributeDisplayWidget> ReputationAttributeDisplayWidgetClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float ReputationAttributeRowGap = 8.f;

@@ -28,12 +28,12 @@ struct FUpBttSetMovementParamsCommand
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	TEnumAsByte<EUpBttSetMovementParamsCommandType::Type> CommandType;
+	TEnumAsByte<EUpBttSetMovementParamsCommandType::Type> CommandType = EUpBttSetMovementParamsCommandType::ResetMaxWalkSpeed;
 	
 	UPROPERTY(EditAnywhere)
-	float FloatValue;
+	float FloatValue = 0.f;
 	UPROPERTY(EditAnywhere)
-	FVector VectorValue;
+	FVector VectorValue = FVector(0.0, 0.0, 0.0);
 };
 
 UCLASS()

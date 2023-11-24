@@ -25,7 +25,7 @@ struct FUpDialogueData : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly)
 	FUpEntityTagSpec TagProhibitions;
 	
-	UPROPERTY(EditDefaultsOnly, meta=(RowType="UpDialogueStepData"))
+	UPROPERTY(EditDefaultsOnly, meta=(RowType="/Script/UnrealPortfolio.UpDialogueStepData"))
 	TArray<FDataTableRowHandle> PotentialFirstDialogueSteps;
 };
 
@@ -37,8 +37,8 @@ struct FUpDialogueLine
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UDialogueWave> DialogueWave;
 	
-	UPROPERTY(EditDefaultsOnly)
-	FUpMontageData MontageData;
+	UPROPERTY(EditDefaultsOnly, meta=(TitleProperty="Montage"))
+	TArray<FUpMontageData> MontageData;
 };
 
 USTRUCT()
@@ -59,7 +59,7 @@ struct FUpDialogueStepData : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly)
 	FUpEntityTagSpec TagGrants;
 	
-	UPROPERTY(EditDefaultsOnly, meta=(RowType="UpDialogueOptionData"))
+	UPROPERTY(EditDefaultsOnly, meta=(RowType="/Script/UnrealPortfolio.UpDialogueOptionData"))
 	TArray<FDataTableRowHandle> PotentialDialogueOptions;
 };
 
@@ -79,7 +79,7 @@ struct FUpDialogueOptionData : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly)
 	FUpEntityTagSpec TagGrants;
 	
-	UPROPERTY(EditDefaultsOnly, meta=(RowType="UpDialogueStepData"))
+	UPROPERTY(EditDefaultsOnly, meta=(RowType="/Script/UnrealPortfolio.UpDialogueStepData"))
 	TArray<FDataTableRowHandle> PotentialNextDialogueSteps;
 };
 
@@ -108,7 +108,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="UpDialogueData"))
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpDialogueData"))
 	TObjectPtr<UDataTable> DialogueDataTable;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")

@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UI/UpCommonUserWidget.h"
-#include "UpReputationAttributeWidget.generated.h"
+#include "UpReputationAttributeDisplayWidget.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpReputationAttributeWidget : public UUpCommonUserWidget
+class UNREALPORTFOLIO_API UUpReputationAttributeDisplayWidget : public UUpCommonUserWidget
 {
 	GENERATED_BODY()
 
@@ -28,7 +28,9 @@ protected:
 	FLinearColor ProgressBarColor;
 
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	FLinearColor ProgressBarColorPositive = FLinearColor(FVector(0.008513, 0.328125, 0.069941));
+	FLinearColor ProgressBarColorPositive = FLinearColor(FVector(0.008513f, 0.328125f, 0.069941f));
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	FLinearColor ProgressBarColorNegative = FLinearColor(FVector(0.369792, 0.021746, 0.003346));
+	FLinearColor ProgressBarColorNegative = FLinearColor(FVector(0.369792f, 0.021746f, 0.003346f));
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	FLinearColor ProgressBarColorNeutral = FLinearColor(FVector(0.260417f, 0.260417f, 0.260417f));
 };

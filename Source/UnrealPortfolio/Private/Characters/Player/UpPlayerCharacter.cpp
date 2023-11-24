@@ -42,14 +42,23 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	ReputationComponent = CreateDefaultSubobject<UUpPlayerReputationComponent>(TEXT("ReputationComponent"));
 }
 
+void AUpPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	check(InitVitalAttributesEffectClass);
+	check(InitPrimaryAttributesEffectClass);
+}
+
 void AUpPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
 	if (const auto CustomPlayerState = GetPlayerState<AUpPlayerState>())
 	{
-		CastChecked<UUpAbilitySystemComponent>(CustomPlayerState->GetAbilitySystemComponent())->
-			Init(CustomPlayerState, this);
+		CastChecked<UUpAbilitySystemComponent>(CustomPlayerState->GetAbilitySystemComponent())->Init(CustomPlayerState, this,
+			TArray { InitVitalAttributesEffectClass, InitPrimaryAttributesEffectClass },
+			TArray<TSubclassOf<UGameplayAbility>> {});
 	}
 
 	CustomController = CastChecked<AUpPlayerController>(NewController);

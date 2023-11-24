@@ -6,23 +6,12 @@
 #include "GameplayTagContainer.h"
 #include "Characters/UpNpcCharacter.h"
 #include "Characters/Player/UpPlayerCharacter.h"
-#include "Characters/Player/UpPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Tags/NpcTags.h"
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/Constants.h"
 #include "Utils/Structs.h"
-
-AUpHud* UUpBlueprintFunctionLibrary::GetCustomHud(const UObject* WorldContextObject)
-{
-	if (const auto PlayerController = Cast<AUpPlayerController>(UGameplayStatics::GetPlayerController(WorldContextObject, 0)))
-	{
-		return PlayerController->GetCustomHud();
-	}
-
-	return nullptr;
-}
 
 FText UUpBlueprintFunctionLibrary::GetInGameName(const UObject* WorldContextObject, const FGameplayTag& TagId)
 {

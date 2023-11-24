@@ -10,6 +10,7 @@
 
 class UDataTable;
 class UDialogueVoice;
+class UGameplayEffect;
 class UUpGasDataAsset;
 
 UCLASS()
@@ -18,6 +19,8 @@ class UNREALPORTFOLIO_API AUnrealPortfolioGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+	AUnrealPortfolioGameModeBase();
+	
 	void GetPlayerCharacterTags(FGameplayTagContainer& OutCharacterTags) const;
 	bool AddPlayerCharacterTag(const FGameplayTag& Tag);
 	bool RemovePlayerCharacterTag(const FGameplayTag& Tag);
@@ -32,9 +35,14 @@ public:
 	
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
 	FORCEINLINE UDataTable* GetNpcDataTable() const { return NpcDataTable; }
+	
+	FORCEINLINE TSubclassOf<UGameplayEffect> GetDefaultInitPrimaryAttributesEffectClass_Character() const { return DefaultInitPrimaryAttributesEffectClass_Character; }
+	FORCEINLINE TSubclassOf<UGameplayEffect> GetDefaultInitVitalAttributesEffectClass_Character() const { return DefaultInitVitalAttributesEffectClass_Character; }
+	
 	FORCEINLINE UDialogueVoice* GetPlayerDialogueVoice() const { return PlayerDialogueVoice; }
 	FORCEINLINE FUpReputationData GetPlayerWorldReputationData() const { return PlayerWorldReputationData; }
 	FORCEINLINE TMap<FGameplayTag, FUpReputationData> GetPlayerNpcReputationDataMap() const { return PlayerNpcReputationDataMap; }
+	
 	FORCEINLINE bool ShouldDebugTagSpecGrant() const { return bDebugTagSpecGrant; }
 
 protected:
@@ -43,10 +51,15 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UUpGasDataAsset> GasDataAsset;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="UpNpcData"))
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpNpcData"))
 	TObjectPtr<UDataTable> NpcDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UDialogueVoice> PlayerDialogueVoice;
+	
+	UPROPERTY(EditAnywhere, Category="UP Assets")
+	TSubclassOf<UGameplayEffect> DefaultInitPrimaryAttributesEffectClass_Character;
+	UPROPERTY(EditAnywhere, Category="UP Assets")
+	TSubclassOf<UGameplayEffect> DefaultInitVitalAttributesEffectClass_Character;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugTagSpecGrant = false;

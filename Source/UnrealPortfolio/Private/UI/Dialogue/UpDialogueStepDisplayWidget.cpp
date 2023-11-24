@@ -23,10 +23,26 @@ void UUpDialogueStepDisplayWidget::HandleContinueAction() const
 	StopAudio();
 }
 
+void UUpDialogueStepDisplayWidget::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	OnMontageEndedDelegate.BindUFunction(this, FName("HandleMontageEnded"));
+}
+
 void UUpDialogueStepDisplayWidget::AdvanceDialogueLine()
 {
 	if (CurrentDialogueLineIndex >= DialogueStep.DialogueLines.Num() - 1)
 	{
+		if (const auto NpcMesh = Npc->GetMesh())
+		{
+			if (const auto NpcAnimInstance = NpcMesh->GetAnimInstance();
+				NpcAnimInstance && NpcAnimInstance->OnMontageEnded.Contains(OnMontageEndedDelegate))
+			{
+				NpcAnimInstance->OnMontageEnded.Remove(OnMontageEndedDelegate);
+			}
+		}
+		
 		Npc->StopAnimMontage();
 		StopAudio();
 
@@ -38,6 +54,22 @@ void UUpDialogueStepDisplayWidget::AdvanceDialogueLine()
 	{
 		CurrentDialogueLineIndex++;
 		DisplayDialogueLine();
+	}
+}
+
+void UUpDialogueStepDisplayWidget::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (!DialogueStep.DialogueLines.IsValidIndex(CurrentDialogueLineIndex)) return;
+
+	const auto DialogueLine = DialogueStep.DialogueLines[CurrentDialogueLineIndex];
+
+	if (!DialogueLine.MontageData.IsValidIndex(CurrentMontageIndex + 1)) return;
+
+	CurrentMontageIndex++;
+	
+	if (const auto MontageDatum = DialogueLine.MontageData[CurrentMontageIndex]; MontageDatum.IsValid())
+	{
+		Npc->PlayAnimMontage(MontageDatum.Montage, MontageDatum.Rate, MontageDatum.StartSection);
 	}
 }
 
@@ -74,9 +106,21 @@ void UUpDialogueStepDisplayWidget::DisplayDialogueLine()
 			}
 		}
 
-		if (const auto Montage = DialogueLine.MontageData.Montage)
+		if (DialogueLine.MontageData.IsValidIndex(0) && DialogueLine.MontageData[0].IsValid())
 		{
-			Npc->PlayAnimMontage(Montage, DialogueLine.MontageData.Rate, DialogueLine.MontageData.StartSection);
+			const auto MontageDatum = DialogueLine.MontageData[0];
+
+			Npc->PlayAnimMontage(MontageDatum.Montage, MontageDatum.Rate, MontageDatum.StartSection);
+			CurrentMontageIndex = 0;
+			
+			if (const auto NpcMesh = Npc->GetMesh())
+			{
+				if (const auto NpcAnimInstance = NpcMesh->GetAnimInstance();
+					NpcAnimInstance && !NpcAnimInstance->OnMontageEnded.Contains(OnMontageEndedDelegate))
+				{
+					NpcAnimInstance->OnMontageEnded.Add(OnMontageEndedDelegate);
+				}
+			}
 		} else
 		{
 			Npc->StopAnimMontage();

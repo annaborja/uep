@@ -2,8 +2,14 @@
 
 #include "UnrealPortfolioGameModeBase.h"
 
+#include "Characters/Player/UpPlayerState.h"
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"
 #include "Tags/NpcTags.h"
+
+AUnrealPortfolioGameModeBase::AUnrealPortfolioGameModeBase()
+{
+	PlayerStateClass = AUpPlayerState::StaticClass();
+}
 
 void AUnrealPortfolioGameModeBase::GetPlayerCharacterTags(FGameplayTagContainer& OutCharacterTags) const
 {

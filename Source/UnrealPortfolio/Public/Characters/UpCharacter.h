@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "UpCharacter.generated.h"
 
+class UGameplayEffect;
 class UUpCharacterMovementComponent;
 
 UCLASS()
@@ -24,6 +25,11 @@ public:
 	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
 
 protected:
+	UPROPERTY(EditAnywhere, Category="UP Assets")
+	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;
+	UPROPERTY(EditAnywhere, Category="UP Assets")
+	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
+	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugMovement = false;
 	

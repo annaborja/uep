@@ -12,14 +12,9 @@ class UNREALPORTFOLIO_API UUpAbilitySystemComponent : public UAbilitySystemCompo
 	GENERATED_BODY()
 
 public:
-	void Init(AActor* InOwnerActor, AActor* InAvatarActor);
+	void Init(AActor* InOwnerActor, AActor* InAvatarActor,
+		const TArray<TSubclassOf<UGameplayEffect>>& InitAttributesEffectClasses, const TArray<TSubclassOf<UGameplayAbility>>& GrantedAbilityClasses);
 
 	void GrantAbility(const TSubclassOf<UGameplayAbility> AbilityClass);
 	bool TryActivateAbilityByTag(const FGameplayTag& Tag);
-	
-private:
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TArray<TSubclassOf<UGameplayEffect>> InitAttributesEffectClasses;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TArray<TSubclassOf<UGameplayAbility>> StartupAbilityClasses;
 };

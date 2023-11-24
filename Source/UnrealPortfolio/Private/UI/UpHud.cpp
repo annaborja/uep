@@ -3,7 +3,10 @@
 #include "UI/UpHud.h"
 
 #include "Characters/UpNpcCharacter.h"
+#include "Characters/Player/UpPlayerController.h"
+#include "Characters/Player/UpPlayerState.h"
 #include "Components/UpDialogueComponent.h"
+#include "GAS/Attributes/UpAttributeSet.h"
 #include "UI/UpCommonActivatableWidget.h"
 #include "UI/Persistent/UpPersistentOverlayWidget.h"
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
@@ -17,6 +20,28 @@ void AUpHud::Init(AUpPlayerController* InPlayerController)
 	check(PersistentOverlayClass);
 	
 	CustomController = InPlayerController;
+	
+	// Bind to GAS delegates.
+	if (CustomController)
+	{
+		if (const auto PlayerState = CustomController->GetPlayerState<AUpPlayerState>())
+		{
+			if (const auto AbilitySystemComponent = Cast<UUpAbilitySystemComponent>(PlayerState->GetAbilitySystemComponent()))
+			{
+				for (const auto AttributeSet : PlayerState->GetAttributeSets())
+				{
+					for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
+					{
+						AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value())
+							.AddLambda([this, AttributeSet, TagAttributeMapping](const FOnAttributeChangeData& Data)
+							{
+								BroadcastAttributeValue(TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
+							});
+					}
+				}	
+			}
+		}
+	}
 
 	// Initialize the persistent overlay.
 	if (const auto World = GetWorld(); World && PersistentOverlayClass)
@@ -105,4 +130,9 @@ void AUpHud::SelectDialogueOption(const AUpNpcCharacter* Npc, const FUpDialogueO
 void AUpHud::BroadcastTargetInteractable(const AActor* TargetInteractable) const
 {
 	TargetInteractableDelegate.Broadcast(TargetInteractable);
+}
+
+void AUpHud::BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const
+{
+	AttributeValueDelegate.Broadcast(Tag, Attribute.GetNumericValue(AttributeSet));
 }

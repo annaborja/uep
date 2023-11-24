@@ -10,9 +10,11 @@
 
 class AUpNpcCharacter;
 class AUpPlayerController;
+struct FGameplayAttribute;
 struct FUpDialogueOptionData;
 struct FUpDialogueStepData;
 struct FUpReputationData;
+class UUpAttributeSet;
 class UUpCommonActivatableWidget;
 class UUpDialogueOverlayWidget;
 class UUpPersistentOverlayWidget;
@@ -31,6 +33,7 @@ struct FUpMenuTabData : public FTableRowBase
 	FText Label;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FUpHudAttributeValueSignature, const FGameplayTag&, Tag, const float, Value);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUpHudTargetInteractableSignature, const AActor*, TargetInteractable);
 
 UCLASS()
@@ -39,6 +42,9 @@ class UNREALPORTFOLIO_API AUpHud : public AHUD
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FUpHudAttributeValueSignature AttributeValueDelegate;
+	
 	void Init(AUpPlayerController* InPlayerController);
 	
 	void OpenMainMenu() const;
@@ -56,6 +62,8 @@ public:
 	// Delegate Broadcasts
 	void BroadcastTargetInteractable(const AActor* TargetInteractable) const;
 
+	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
+	
 	FORCEINLINE TSubclassOf<UUpDialogueOverlayWidget> GetDialogueOverlayClass() const { return DialogueOverlayClass; }
 	FORCEINLINE TSubclassOf<UUpCommonActivatableWidget> GetMenuSwitcherClass() const { return MenuSwitcherClass; }
 	
@@ -75,4 +83,6 @@ private:
 	TObjectPtr<UUpDialogueOverlayWidget> DialogueOverlayWidget;
 	UPROPERTY(Transient)
 	TObjectPtr<UUpPersistentOverlayWidget> PersistentOverlayWidget;
+
+	void BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const;
 };

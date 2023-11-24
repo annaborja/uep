@@ -4,15 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "UI/UpCommonActivatableWidget.h"
-#include "UpMainMenuMenuSwitcherWidget.generated.h"
+#include "UpMainMenuSwitcherWidget.generated.h"
 
 class UCommonActivatableWidgetSwitcher;
 class UUpMainMenuTabListWidget;
 class UUpMainMenuTabWidget;
 class UUpReputationMenuWidget;
+class UUpStatsMenuWidget;
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpMainMenuMenuSwitcherWidget : public UUpCommonActivatableWidget
+class UNREALPORTFOLIO_API UUpMainMenuSwitcherWidget : public UUpCommonActivatableWidget
 {
 	GENERATED_BODY()
 
@@ -26,6 +27,8 @@ protected:
 	UUpReputationMenuWidget* GetReputationMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UCommonActivatableWidget* GetSettingsMenu() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpStatsMenuWidget* GetStatsMenu() const;
 	
 	UFUNCTION(BlueprintCallable)
 	void HandleCloseMenuAction();
@@ -39,7 +42,7 @@ private:
 	TSubclassOf<UUpMainMenuTabWidget> MenuTabClass;
 
 	bool bDelegatesAdded = false;
-
+	
 	UFUNCTION()
 	void ResumeGame();
 	UFUNCTION()

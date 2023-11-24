@@ -93,7 +93,31 @@ void AUpNpcCharacter::BeginPlay()
 		}
 	}
 	
-	if (AbilitySystemComponent) AbilitySystemComponent->Init(this, this);
+	if (AbilitySystemComponent)
+	{
+		auto VitalAttributesEffectClass = InitVitalAttributesEffectClass;
+		auto PrimaryAttributesEffectClass = InitPrimaryAttributesEffectClass;
+		
+		TArray<TSubclassOf<UGameplayEffect>> InitAttributesEffectClasses;
+
+		if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+		{
+			if (!VitalAttributesEffectClass)
+			{
+				VitalAttributesEffectClass = GameMode->GetDefaultInitVitalAttributesEffectClass_Character();
+			}
+			
+			if (!PrimaryAttributesEffectClass)
+			{
+				PrimaryAttributesEffectClass = GameMode->GetDefaultInitPrimaryAttributesEffectClass_Character();
+			}
+		}
+
+		if (VitalAttributesEffectClass) InitAttributesEffectClasses.Add(VitalAttributesEffectClass);
+		if (PrimaryAttributesEffectClass) InitAttributesEffectClasses.Add(PrimaryAttributesEffectClass);
+		
+		AbilitySystemComponent->Init(this, this, InitAttributesEffectClasses, TArray<TSubclassOf<UGameplayAbility>> {});
+	}
 }
 
 void AUpNpcCharacter::PossessedBy(AController* NewController)

@@ -11,12 +11,11 @@ void UUpMainMenuTabListWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	if (!bDelegatesAdded)
-	{
-		OnTabButtonCreation.AddDynamic(this, &ThisClass::AddTabButton);
-		OnTabButtonRemoval.AddDynamic(this, &ThisClass::RemoveTabButton);
-		bDelegatesAdded = true;
-	}
+	OnTabButtonCreationDelegate.BindUFunction(this, FName("AddTabButton"));
+	OnTabButtonRemovalDelegate.BindUFunction(this, FName("RemoveTabButton"));
+
+	if (!OnTabButtonCreation.Contains(OnTabButtonCreationDelegate)) OnTabButtonCreation.Add(OnTabButtonCreationDelegate);
+	if (!OnTabButtonRemoval.Contains(OnTabButtonRemovalDelegate)) OnTabButtonRemoval.Add(OnTabButtonRemovalDelegate);
 }
 
 void UUpMainMenuTabListWidget::AddTabButton(FName TabId, UCommonButtonBase* TabButton)

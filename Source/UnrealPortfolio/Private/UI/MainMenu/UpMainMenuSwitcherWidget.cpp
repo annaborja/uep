@@ -1,6 +1,6 @@
 // Copyright AB. All Rights Reserved.
 
-#include "UI/MainMenu/UpMainMenuMenuSwitcherWidget.h"
+#include "UI/MainMenu/UpMainMenuSwitcherWidget.h"
 
 #include "CommonActivatableWidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
@@ -10,13 +10,14 @@
 #include "UI/MainMenu/UpMainMenuTabListWidget.h"
 #include "UI/MainMenu/UpMainMenuTabWidget.h"
 #include "UI/MainMenu/ReputationMenu/UpReputationMenuWidget.h"
+#include "UI/MainMenu/StatsMenu/UpStatsMenuWidget.h"
 
-void UUpMainMenuMenuSwitcherWidget::HandleCloseMenuAction()
+void UUpMainMenuSwitcherWidget::HandleCloseMenuAction()
 {
 	DeactivateWidget();
 }
 
-void UUpMainMenuMenuSwitcherWidget::HandleQuitGameAction() const
+void UUpMainMenuSwitcherWidget::HandleQuitGameAction() const
 {
 	if (!CustomHud) return;
 	
@@ -24,7 +25,7 @@ void UUpMainMenuMenuSwitcherWidget::HandleQuitGameAction() const
 		EQuitPreference::Quit, false);
 }
 
-void UUpMainMenuMenuSwitcherWidget::NativePreConstruct()
+void UUpMainMenuSwitcherWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
@@ -36,18 +37,31 @@ void UUpMainMenuMenuSwitcherWidget::NativePreConstruct()
 	}
 }
 
-void UUpMainMenuMenuSwitcherWidget::ResumeGame()
+void UUpMainMenuSwitcherWidget::ResumeGame()
 {
 	UGameplayStatics::SetGamePaused(this, false);
+
+	if (const auto WidgetSwitcher = GetWidgetSwitcher())
+	{
+		if (const auto StatsMenu = GetStatsMenu())
+		{
+			WidgetSwitcher->SetActiveWidget(StatsMenu);
+		}
+	}
 }
 
-void UUpMainMenuMenuSwitcherWidget::SetUpTabList()
+void UUpMainMenuSwitcherWidget::SetUpTabList()
 {
 	if (const auto WidgetSwitcher = GetWidgetSwitcher())
 	{
 		if (const auto TabList = GetTabList(); TabList && TabList->GetTabCount() <= 0 && MenuTabClass)
 		{
 			TabList->SetLinkedSwitcher(WidgetSwitcher);
+
+			if (const auto StatsMenu = GetStatsMenu())
+			{
+				TabList->RegisterTab(TAG_Menu_Stats.GetTag().GetTagName(), MenuTabClass, StatsMenu);
+			}
 
 			if (const auto ReputationMenu = GetReputationMenu())
 			{

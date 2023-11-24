@@ -9,6 +9,8 @@
 #include "UpPlayerState.generated.h"
 
 class UUpAttributeSet;
+class UUpPrimaryAttributeSet;
+class UUpVitalAttributeSet;
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpPlayerState : public APlayerState, public IAbilitySystemInterface
@@ -21,8 +23,16 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 
 	TArray<UUpAttributeSet*> GetAttributeSets() const;
-	
+
+	FORCEINLINE UUpPrimaryAttributeSet* GetPrimaryAttributeSet() { return PrimaryAttributeSet; }
+	FORCEINLINE UUpVitalAttributeSet* GetVitalAttributeSet() { return VitalAttributeSet; }
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY(VisibleAnywhere, Category="UP Runtime")
+	TObjectPtr<UUpPrimaryAttributeSet> PrimaryAttributeSet;
+	UPROPERTY(VisibleAnywhere, Category="UP Runtime")
+	TObjectPtr<UUpVitalAttributeSet> VitalAttributeSet;
 };

@@ -15,8 +15,8 @@ public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 private:
+	TScriptDelegate<FWeakObjectPtr> DialogueEndedDelegate;
+	
 	UFUNCTION()
 	void OnDialogueEnded(AAIController* AiController);
-
-	bool bDelegateAdded = false;
 };

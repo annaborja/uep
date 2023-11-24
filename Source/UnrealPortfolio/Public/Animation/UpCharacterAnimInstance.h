@@ -34,4 +34,6 @@ protected:
 	bool bIsCrouching = false;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
 	bool bIsFalling = false;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	bool bIsMovingHorizontally = false;
 };

@@ -26,18 +26,25 @@ protected:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure=false)
 	void HandleContinueAction() const;
+	
+	virtual void NativePreConstruct() override;
 
 private:
 	UPROPERTY(Transient)
 	TObjectPtr<UAudioComponent> CurrentDialogueLineAudio;
 	UPROPERTY(Transient)
 	TObjectPtr<AUpNpcCharacter> Npc;
+
+	TScriptDelegate<FWeakObjectPtr> OnMontageEndedDelegate;
 	
 	uint8 CurrentDialogueLineIndex = 0;
+	uint8 CurrentMontageIndex = 0;
 	FUpDialogueStepData DialogueStep;
 
 	UFUNCTION()
 	void AdvanceDialogueLine();
+	UFUNCTION()
+	void HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	void DisplayDialogueLine();
 	void StopAudio() const;

@@ -33,6 +33,7 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 
 			bIsCrouching = MovementComponent->IsCrouching();
 			bIsFalling = MovementComponent->IsFalling();
+			bIsMovingHorizontally = GroundSpeed > 5.f;
 		}
 	}
 }

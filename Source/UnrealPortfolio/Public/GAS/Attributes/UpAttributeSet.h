@@ -14,16 +14,16 @@
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
-using FUpTagAttributeMap = TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>>;
-
 UCLASS()
 class UNREALPORTFOLIO_API UUpAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE FUpTagAttributeMap GetTagAttributeMap() const { return TagAttributeMap; }
+	FGameplayAttribute GetAttribute(const FGameplayTag& Tag) const;
+	
+	FORCEINLINE TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> GetTagAttributeMap() const { return TagAttributeMap; }
 
 protected:
-	FUpTagAttributeMap TagAttributeMap;
+	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagAttributeMap;
 };

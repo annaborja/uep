@@ -20,7 +20,6 @@ class UNREALPORTFOLIO_API UUpBlueprintFunctionLibrary : public UBlueprintFunctio
 public:
 	template <typename T>
 	static T* GetGameMode(const UObject* WorldContextObject);
-	static AUpHud* GetCustomHud(const UObject* WorldContextObject);
 
 	static FText GetInGameName(const UObject* WorldContextObject, const FGameplayTag& TagId);
 	static FText GetInGameNameifiedText(const UObject* WorldContextObject, const FText& InText);

@@ -15,6 +15,8 @@ ESlateVisibility UUpTargetInteractableDisplayWidget::GetRootVisibility() const
 void UUpTargetInteractableDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewCustomHud)
 {
 	Super::OnCustomHudSet_Implementation(NewCustomHud);
+
+	if (!CustomHud) return;
 	
 	CustomHud->TargetInteractableDelegate.AddDynamic(this, &ThisClass::HandleTargetInteractableDelegate);
 }

@@ -6,7 +6,7 @@
 #include "Components/PanelWidget.h"
 #include "Components/VerticalBoxSlot.h"
 #include "UI/UpHud.h"
-#include "UI/MainMenu/ReputationMenu/UpPlayerNpcReputationDataWidget.h"
+#include "UI/MainMenu/ReputationMenu/UpPlayerNpcReputationDisplayWidget.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
 void UUpReputationMenuWidget::NativeOnActivated()
@@ -19,43 +19,41 @@ void UUpReputationMenuWidget::NativeOnActivated()
 		PlayerNpcReputationDataMap = CustomHud->GetPlayerNpcReputationDataMap();
 	}
 	
-	PopulateNpcReputationData();
+	PopulateNpcReputations();
 }
 
-void UUpReputationMenuWidget::PopulateNpcReputationData()
+void UUpReputationMenuWidget::PopulateNpcReputations()
 {
-	if (const auto NpcReputationDataContainer = GetNpcReputationDataContainer())
+	if (const auto NpcReputationsContainer = GetNpcReputationsContainer())
 	{
-		NpcReputationDataContainer->ClearChildren();
+		NpcReputationsContainer->ClearChildren();
 
-		TArray<UUpPlayerNpcReputationDataWidget*> ReputationDataWidgets;
+		TArray<UUpPlayerNpcReputationDisplayWidget*> Widgets;
 
-		for (const auto& ReputationDataMapping : PlayerNpcReputationDataMap)
+		for (const auto& Mapping : PlayerNpcReputationDataMap)
 		{
-			const auto ReputationDataWidget = CreateWidget<UUpPlayerNpcReputationDataWidget>(this, NpcReputationDataWidgetClass);
-			ReputationDataWidget->SetNpcName(UUpBlueprintFunctionLibrary::GetInGameName(this, ReputationDataMapping.Key));
-			ReputationDataWidget->PopulateReputationData(ReputationDataMapping.Value);
-			
-			ReputationDataWidgets.Add(ReputationDataWidget);
+			const auto Widget = CreateWidget<UUpPlayerNpcReputationDisplayWidget>(this, NpcReputationDisplayWidgetClass);
+			Widget->SetNpcName(UUpBlueprintFunctionLibrary::GetInGameName(this, Mapping.Key));
+			Widget->PopulateReputationData(Mapping.Value);
+			Widgets.Add(Widget);
 		}
 
 		// TODO(P0): Sorting isn't taking effect in the array for some reason.
-		ReputationDataWidgets.Sort([](const UUpPlayerNpcReputationDataWidget& WidgetA, const UUpPlayerNpcReputationDataWidget& WidgetB)
+		Widgets.Sort([](const UUpPlayerNpcReputationDisplayWidget& WidgetA, const UUpPlayerNpcReputationDisplayWidget& WidgetB)
 		{
 			return WidgetA.GetNpcName().ToString().Compare(WidgetB.GetNpcName().ToString());
 		});
 		
-		uint8 ReputationDataWidgetIndex = 0;
+		uint8 WidgetIndex = 0;
 
-		for (const auto ReputationDataWidget : ReputationDataWidgets)
+		for (const auto Widget : Widgets)
 		{
-			if (const auto PanelSlot = Cast<UVerticalBoxSlot>(NpcReputationDataContainer->AddChild(ReputationDataWidget));
-					PanelSlot && ReputationDataWidgetIndex > 0)
+			if (const auto Slot = Cast<UVerticalBoxSlot>(NpcReputationsContainer->AddChild(Widget)); Slot && WidgetIndex > 0)
 			{
-				PanelSlot->SetPadding(FMargin(0.0, ReputationDataRowGap, 0.0, 0.0));
+				Slot->SetPadding(FMargin(0.f, NpcReputationRowGap, 0.f, 0.f));
 			}
 				
-			ReputationDataWidgetIndex++;
+			WidgetIndex++;
 		}
 	}
 }

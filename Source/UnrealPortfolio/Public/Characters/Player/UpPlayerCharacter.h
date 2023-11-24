@@ -25,6 +25,7 @@ class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpCharacter, public IAbil
 public:
 	explicit AUpPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
+	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void Jump() override;
 

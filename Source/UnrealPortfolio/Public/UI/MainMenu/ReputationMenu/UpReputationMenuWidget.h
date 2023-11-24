@@ -8,7 +8,7 @@
 #include "UI/UpCommonActivatableWidget.h"
 #include "UpReputationMenuWidget.generated.h"
 
-class UUpPlayerNpcReputationDataWidget;
+class UUpPlayerNpcReputationDisplayWidget;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpReputationMenuWidget : public UUpCommonActivatableWidget
@@ -24,14 +24,14 @@ protected:
 	TMap<FGameplayTag, FUpReputationData> PlayerNpcReputationDataMap;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	UPanelWidget* GetNpcReputationDataContainer() const;
+	UPanelWidget* GetNpcReputationsContainer() const;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TSubclassOf<UUpPlayerNpcReputationDataWidget> NpcReputationDataWidgetClass;
+	TSubclassOf<UUpPlayerNpcReputationDisplayWidget> NpcReputationDisplayWidgetClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	float ReputationDataRowGap = 20.f;
+	float NpcReputationRowGap = 20.f;
 	
-	void PopulateNpcReputationData();
+	void PopulateNpcReputations();
 };

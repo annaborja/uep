@@ -1,0 +1,15 @@
+// Copyright AB. All Rights Reserved.
+
+#pragma once
+
+#include "NativeGameplayTags.h"
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attribute_Vital_Health)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attribute_Vital_MaxHealth)
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attribute_Primary_Creativity)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attribute_Primary_Dexterity)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attribute_Primary_Intelligence)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attribute_Primary_Resilience)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attribute_Primary_Speed)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attribute_Primary_Strength)

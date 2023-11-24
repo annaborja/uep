@@ -18,11 +18,12 @@ protected:
 	virtual void NativePreConstruct() override;
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="UpMenuTabData"))
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpMenuTabData"))
 	TObjectPtr<UDataTable> MenuTabDataTable;
 
-	bool bDelegatesAdded = false;
-	
+	TScriptDelegate<FWeakObjectPtr> OnTabButtonCreationDelegate;
+	TScriptDelegate<FWeakObjectPtr> OnTabButtonRemovalDelegate;
+
 	UFUNCTION()
 	void AddTabButton(FName TabId, UCommonButtonBase* TabButton);
 	UFUNCTION()

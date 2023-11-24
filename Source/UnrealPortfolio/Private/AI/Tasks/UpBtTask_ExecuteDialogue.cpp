@@ -11,6 +11,8 @@
 
 EBTNodeResult::Type UUpBtTask_ExecuteDialogue::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	DialogueEndedDelegate.BindUFunction(this, FName("OnDialogueEnded"));
+	
 	if (const auto AiController = OwnerComp.GetAIOwner())
 	{
 		if (const auto Npc = Cast<AUpNpcCharacter>(AiController->GetPawn()))
@@ -19,10 +21,9 @@ EBTNodeResult::Type UUpBtTask_ExecuteDialogue::ExecuteTask(UBehaviorTreeComponen
 			{
 				if (const auto PlayerController = Cast<AUpPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
 				{
-					if (!bDelegateAdded)
+					if (!DialogueComponent->DialogueEndedDelegate.Contains(DialogueEndedDelegate))
 					{
-						DialogueComponent->DialogueEndedDelegate.AddDynamic(this, &ThisClass::OnDialogueEnded);
-						bDelegateAdded = true;
+						DialogueComponent->DialogueEndedDelegate.Add(DialogueEndedDelegate);
 					}
 					
 					DialogueComponent->StartDialogue(PlayerController);
