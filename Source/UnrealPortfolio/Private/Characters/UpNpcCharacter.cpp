@@ -2,6 +2,7 @@
 
 #include "Characters/UpNpcCharacter.h"
 
+#include "UpGameInstance.h"
 #include "AI/UpAiController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -12,13 +13,12 @@
 #include "Components/UpCombatComponent.h"
 #include "Components/UpDialogueComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-bool AUpNpcCharacter::GrantTagSpec(AUnrealPortfolioGameModeBase* GameMode, const FGameplayTag& NpcTagId, const FUpTagSpec& TagSpec)
+bool AUpNpcCharacter::GrantTagSpec(UUpGameInstance* GameInstance, const FGameplayTag& NpcTagId, const FUpTagSpec& TagSpec)
 {
-	if (GameMode->ShouldDebugTagSpecGrant())
+	if (GameInstance->ShouldDebugTagSpecGrant())
     {
     	UE_LOG(LogTemp, Warning, TEXT("%s GrantTagSpec: %s (%d)"), *NpcTagId.ToString(), *TagSpec.Tag.ToString(), TagSpec.Count)
     }
@@ -27,10 +27,10 @@ bool AUpNpcCharacter::GrantTagSpec(AUnrealPortfolioGameModeBase* GameMode, const
 
     if (TagSpec.Count > 0)
     {
-    	bSuccess = GameMode->AddNpcCharacterTag(NpcTagId, TagSpec.Tag);
+    	bSuccess = GameInstance->AddNpcCharacterTag(NpcTagId, TagSpec.Tag);
     } else if (TagSpec.Count < 0)
     {
-    	bSuccess = GameMode->RemoveNpcCharacterTag(NpcTagId, TagSpec.Tag);
+    	bSuccess = GameInstance->RemoveNpcCharacterTag(NpcTagId, TagSpec.Tag);
     }
 
     return bSuccess;
@@ -77,9 +77,9 @@ void AUpNpcCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		if (const auto NpcDataTable = GameMode->GetNpcDataTable())
+		if (const auto NpcDataTable = GameInstance->GetNpcDataTable())
 		{
 			TArray<FUpNpcData*> AllNpcDataRows;
 			NpcDataTable->GetAllRows<FUpNpcData>(TEXT("NpcDataTable GetAllRows"), AllNpcDataRows);
@@ -102,16 +102,16 @@ void AUpNpcCharacter::BeginPlay()
 		
 		TArray<TSubclassOf<UGameplayEffect>> InitAttributesEffectClasses;
 
-		if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 		{
 			if (!VitalAttributesEffectClass)
 			{
-				VitalAttributesEffectClass = GameMode->GetDefaultInitVitalAttributesEffectClass_Character();
+				VitalAttributesEffectClass = GameInstance->GetDefaultInitVitalAttributesEffectClass_Character();
 			}
 			
 			if (!PrimaryAttributesEffectClass)
 			{
-				PrimaryAttributesEffectClass = GameMode->GetDefaultInitPrimaryAttributesEffectClass_Character();
+				PrimaryAttributesEffectClass = GameInstance->GetDefaultInitPrimaryAttributesEffectClass_Character();
 			}
 		}
 
@@ -145,9 +145,9 @@ void AUpNpcCharacter::PossessedBy(AController* NewController)
 
 void AUpNpcCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
-	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		GameMode->GetNpcCharacterTags(TagId, TagContainer);
+		GameInstance->GetNpcCharacterTags(TagId, TagContainer);
 	}
 
 	if (AbilitySystemComponent)
@@ -178,9 +178,9 @@ FText AUpNpcCharacter::GetInGameName() const
 
 void AUpNpcCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 {
-	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		GrantTagSpec(GameMode, TagId, TagSpec);
+		GrantTagSpec(GameInstance, TagId, TagSpec);
 	}
 }
 

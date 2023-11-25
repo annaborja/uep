@@ -2,6 +2,7 @@
 
 #include "Characters/Player/UpPlayerCharacter.h"
 
+#include "UpGameInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Characters/Player/UpPlayerState.h"
@@ -10,7 +11,6 @@
 #include "Characters/Player/Components/UpPlayerMovementComponent.h"
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/Structs.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -95,9 +95,9 @@ UAbilitySystemComponent* AUpPlayerCharacter::GetAbilitySystemComponent() const
 
 void AUpPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
-	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		GameMode->GetPlayerCharacterTags(TagContainer);
+		GameInstance->GetPlayerCharacterTags(TagContainer);
 	}
 
 	if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
@@ -110,9 +110,9 @@ void AUpPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContaine
 
 void AUpPlayerCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 {
-	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		if (GameMode->ShouldDebugTagSpecGrant())
+		if (GameInstance->ShouldDebugTagSpecGrant())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Player GrantTagSpec: %s (%d)"), *TagSpec.Tag.ToString(), TagSpec.Count)
 		}
@@ -124,10 +124,10 @@ void AUpPlayerCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 			bSuccess = ReputationComponent->HandleTagSpecGrant(TagSpec);
 		} else if (TagSpec.Count > 0)
 		{
-			bSuccess = GameMode->AddPlayerCharacterTag(TagSpec.Tag);
+			bSuccess = GameInstance->AddPlayerCharacterTag(TagSpec.Tag);
 		} else if (TagSpec.Count < 0)
 		{
-			bSuccess = GameMode->RemovePlayerCharacterTag(TagSpec.Tag);
+			bSuccess = GameInstance->RemovePlayerCharacterTag(TagSpec.Tag);
 		}
 	}
 }

@@ -2,11 +2,11 @@
 
 #include "UI/Dialogue/UpDialogueStepDisplayWidget.h"
 
+#include "UpGameInstance.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/DialogueWave.h"
 #include "UI/UpHud.h"
-#include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
 void UUpDialogueStepDisplayWidget::DisplayDialogueStep(AUpNpcCharacter* InNpc, const FUpDialogueStepData& InDialogueStep)
@@ -78,9 +78,9 @@ void UUpDialogueStepDisplayWidget::DisplayDialogueLine()
 	FDialogueContext DialogueContext;
 	DialogueContext.Speaker = Npc->GetDialogueVoice();
 		
-	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		if (const auto PlayerDialogueVoice = GameMode->GetPlayerDialogueVoice())
+		if (const auto PlayerDialogueVoice = GameInstance->GetPlayerDialogueVoice())
 		{
 			DialogueContext.Targets = TArray { PlayerDialogueVoice };
 		}

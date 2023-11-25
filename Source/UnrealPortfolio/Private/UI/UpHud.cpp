@@ -2,6 +2,7 @@
 
 #include "UI/UpHud.h"
 
+#include "UpGameInstance.h"
 #include "Characters/UpNpcCharacter.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Characters/Player/UpPlayerState.h"
@@ -10,7 +11,6 @@
 #include "UI/UpCommonActivatableWidget.h"
 #include "UI/Persistent/UpPersistentOverlayWidget.h"
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
-#include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
 void AUpHud::Init(AUpPlayerController* InPlayerController)
@@ -61,9 +61,9 @@ void AUpHud::OpenMainMenu() const
 
 FUpReputationData AUpHud::GetPlayerWorldReputationData() const
 {
-	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		return GameMode->GetPlayerWorldReputationData();
+		return GameInstance->GetPlayerWorldReputationData();
 	}
 
 	return FUpReputationData();
@@ -71,9 +71,9 @@ FUpReputationData AUpHud::GetPlayerWorldReputationData() const
 
 TMap<FGameplayTag, FUpReputationData> AUpHud::GetPlayerNpcReputationDataMap() const
 {
-	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		return GameMode->GetPlayerNpcReputationDataMap();
+		return GameInstance->GetPlayerNpcReputationDataMap();
 	}
 
 	return TMap<FGameplayTag, FUpReputationData>();

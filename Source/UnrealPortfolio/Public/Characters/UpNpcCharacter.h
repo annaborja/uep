@@ -14,12 +14,12 @@
 #include "Interfaces/UpTagSpecGrantable.h"
 #include "UpNpcCharacter.generated.h"
 
-class AUnrealPortfolioGameModeBase;
 class AUpAiController;
 class UBehaviorTree;
 class UDialogueVoice;
 class USphereComponent;
 class UUpDialogueComponent;
+class UUpGameInstance;
 
 USTRUCT()
 struct FUpNpcData : public FTableRowBase
@@ -42,7 +42,7 @@ class UNREALPORTFOLIO_API AUpNpcCharacter : public AUpCharacter, public IAbility
 	GENERATED_BODY()
 
 public:
-	static bool GrantTagSpec(AUnrealPortfolioGameModeBase* GameMode, const FGameplayTag& NpcTagId, const FUpTagSpec& TagSpec);
+	static bool GrantTagSpec(UUpGameInstance* GameInstance, const FGameplayTag& NpcTagId, const FUpTagSpec& TagSpec);
 	
 	explicit AUpNpcCharacter(const FObjectInitializer& ObjectInitializer);
 

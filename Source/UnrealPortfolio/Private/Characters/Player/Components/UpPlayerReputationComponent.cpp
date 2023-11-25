@@ -2,8 +2,8 @@
 
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"
 
+#include "UpGameInstance.h"
 #include "Tags/ReputationTags.h"
-#include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/Structs.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -19,16 +19,16 @@ UUpPlayerReputationComponent::UUpPlayerReputationComponent()
 
 bool UUpPlayerReputationComponent::HandleTagSpecGrant(const FUpTagSpec& TagSpec) const
 {
-	if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode<AUnrealPortfolioGameModeBase>(this))
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
 		if (TagSpec.Tag.MatchesTagExact(TAG_Reputation_Affection))
 		{
-			return GameMode->UpdatePlayerReputation_Affection(TagSpec.RelatedTag, TagSpec.Count);
+			return GameInstance->UpdatePlayerReputation_Affection(TagSpec.RelatedTag, TagSpec.Count);
 		}
 
 		if (TagSpec.Tag.MatchesTagExact(TAG_Reputation_Esteem))
 		{
-			return GameMode->UpdatePlayerReputation_Esteem(TagSpec.RelatedTag, TagSpec.Count);
+			return GameInstance->UpdatePlayerReputation_Esteem(TagSpec.RelatedTag, TagSpec.Count);
 		}
 	}
 

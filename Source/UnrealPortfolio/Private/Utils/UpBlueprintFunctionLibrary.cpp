@@ -4,22 +4,27 @@
 
 #include "GameplayTagAssetInterface.h"
 #include "GameplayTagContainer.h"
+#include "UpGameInstance.h"
 #include "Characters/UpNpcCharacter.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Tags/NpcTags.h"
-#include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/Constants.h"
 #include "Utils/Structs.h"
 
+UUpGameInstance* UUpBlueprintFunctionLibrary::GetGameInstance(const UObject* WorldContextObject)
+{
+	return Cast<UUpGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));
+}
+
 FText UUpBlueprintFunctionLibrary::GetInGameName(const UObject* WorldContextObject, const FGameplayTag& TagId)
 {
-	if (const auto GameMode = GetGameMode<AUnrealPortfolioGameModeBase>(WorldContextObject))
+	if (const auto GameInstance = GetGameInstance(WorldContextObject))
 	{
 		if (TagId.MatchesTag(TAG_Npc))
 		{
-			if (const auto NpcDataTable = GameMode->GetNpcDataTable())
+			if (const auto NpcDataTable = GameInstance->GetNpcDataTable())
 			{
 				TArray<FUpNpcData*> AllNpcDataRows;
 				NpcDataTable->GetAllRows<FUpNpcData>(TEXT("NpcDataTable GetAllRows"), AllNpcDataRows);
@@ -39,9 +44,9 @@ FText UUpBlueprintFunctionLibrary::GetInGameNameifiedText(const UObject* WorldCo
 {
 	auto Result = FString(InText.ToString());
 	
-	if (const auto GameMode = GetGameMode<AUnrealPortfolioGameModeBase>(WorldContextObject))
+	if (const auto GameInstance = GetGameInstance(WorldContextObject))
 	{
-		if (const auto NpcDataTable = GameMode->GetNpcDataTable())
+		if (const auto NpcDataTable = GameInstance->GetNpcDataTable())
 		{
 			FRegexMatcher Matcher(FRegexPattern(TEXT("\\[.+?\\]")), InText.ToString());
 			TArray<FUpNpcData*> AllNpcDataRows;
@@ -134,12 +139,12 @@ bool UUpBlueprintFunctionLibrary::IsEntityTagSpecSatisfied(const UObject* WorldC
 		}
 	}
 
-	if (const auto GameMode = GetGameMode<AUnrealPortfolioGameModeBase>(WorldContextObject))
+	if (const auto GameInstance = GetGameInstance(WorldContextObject))
 	{
 		for (const auto& NpcTagToTagSpecMappings : EntityTagSpec.NpcTagSpecMappings)
 		{
 			FGameplayTagContainer NpcTags;
-			GameMode->GetNpcCharacterTags(NpcTagToTagSpecMappings.Tag, NpcTags);
+			GameInstance->GetNpcCharacterTags(NpcTagToTagSpecMappings.Tag, NpcTags);
 			
 			for (const auto& NpcTagSpec : NpcTagToTagSpecMappings.TagSpecs)
 			{
@@ -167,13 +172,13 @@ void UUpBlueprintFunctionLibrary::ProcessEntityTagSpecGrants(const UObject* Worl
 		}
 	}
 
-	if (const auto GameMode = GetGameMode<AUnrealPortfolioGameModeBase>(WorldContextObject))
+	if (const auto GameInstance = GetGameInstance(WorldContextObject))
 	{
 		for (const auto& NpcTagToTagSpecMappings : EntityTagSpec.NpcTagSpecMappings)
 		{
 			for (const auto& NpcTagSpec : NpcTagToTagSpecMappings.TagSpecs)
 			{
-				AUpNpcCharacter::GrantTagSpec(GameMode, NpcTagToTagSpecMappings.Tag, NpcTagSpec);
+				AUpNpcCharacter::GrantTagSpec(GameInstance, NpcTagToTagSpecMappings.Tag, NpcTagSpec);
 			}
 		}
 	}
