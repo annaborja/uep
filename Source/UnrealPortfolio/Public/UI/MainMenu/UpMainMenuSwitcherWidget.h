@@ -10,6 +10,7 @@ class UCommonActivatableWidgetSwitcher;
 class UUpMainMenuTabListWidget;
 class UUpMainMenuTabWidget;
 class UUpReputationMenuWidget;
+class UUpSkillsMenu;
 class UUpStatsMenuWidget;
 
 UCLASS()
@@ -27,6 +28,8 @@ protected:
 	UUpReputationMenuWidget* GetReputationMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UCommonActivatableWidget* GetSettingsMenu() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSkillsMenu* GetSkillsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpStatsMenuWidget* GetStatsMenu() const;
 	

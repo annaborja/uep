@@ -30,3 +30,13 @@ void UUpDialogueOptionsDisplayWidget::PopulateDialogueOptions(AUpNpcCharacter* N
 		}
 	}
 }
+
+UWidget* UUpDialogueOptionsDisplayWidget::NativeGetDesiredFocusTarget() const
+{
+	if (const auto DialogueOptionsContainer = GetDialogueOptionsContainer())
+	{
+		return DialogueOptionsContainer->GetChildAt(0);
+	}
+	
+	return Super::NativeGetDesiredFocusTarget();
+}

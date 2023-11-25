@@ -10,6 +10,7 @@
 #include "UI/MainMenu/UpMainMenuTabListWidget.h"
 #include "UI/MainMenu/UpMainMenuTabWidget.h"
 #include "UI/MainMenu/ReputationMenu/UpReputationMenuWidget.h"
+#include "UI/MainMenu/SkillsMenu/UpSkillsMenu.h"
 #include "UI/MainMenu/StatsMenu/UpStatsMenuWidget.h"
 
 void UUpMainMenuSwitcherWidget::HandleCloseMenuAction()
@@ -61,6 +62,11 @@ void UUpMainMenuSwitcherWidget::SetUpTabList()
 			if (const auto StatsMenu = GetStatsMenu())
 			{
 				TabList->RegisterTab(TAG_Menu_Stats.GetTag().GetTagName(), MenuTabClass, StatsMenu);
+			}
+			
+			if (const auto SkillsMenu = GetSkillsMenu())
+			{
+				TabList->RegisterTab(TAG_Menu_Skills.GetTag().GetTagName(), MenuTabClass, SkillsMenu);
 			}
 
 			if (const auto ReputationMenu = GetReputationMenu())

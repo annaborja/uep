@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
+#include "Components/UpCombatComponent.h"
 #include "Components/UpDialogueComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
@@ -62,6 +63,7 @@ AUpNpcCharacter::AUpNpcCharacter(const FObjectInitializer& ObjectInitializer) :
 	}
 
 	AbilitySystemComponent = CreateDefaultSubobject<UUpAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	CombatComponent = CreateDefaultSubobject<UUpCombatComponent>(TEXT("CombatComponent"));
 	DialogueComponent = CreateDefaultSubobject<UUpDialogueComponent>(TEXT("DialogueComponent"));
 
 	InteractionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));

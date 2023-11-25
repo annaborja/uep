@@ -13,6 +13,7 @@ class AUpHud;
 class AUpPlayerController;
 class UCameraComponent;
 class USpringArmComponent;
+class UUpPlayerCombatComponent;
 class UUpPlayerInteractionComponent;
 class UUpPlayerMovementComponent;
 class UUpPlayerReputationComponent;
@@ -42,6 +43,7 @@ public:
 	
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetInteractionComponent() const { return InteractionComponent; }
+	FORCEINLINE UUpPlayerCombatComponent* GetPlayerCombatComponent() const { return PlayerCombatComponent; }
 	FORCEINLINE UUpPlayerMovementComponent* GetPlayerMovementComponent() const { return PlayerMovementComponent; }
 	FORCEINLINE UUpPlayerReputationComponent* GetReputationComponent() const { return ReputationComponent; }
 
@@ -51,6 +53,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> FollowCameraSpringArm;
 	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UUpPlayerCombatComponent> PlayerCombatComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpPlayerInteractionComponent> InteractionComponent;
 	UPROPERTY(VisibleAnywhere)

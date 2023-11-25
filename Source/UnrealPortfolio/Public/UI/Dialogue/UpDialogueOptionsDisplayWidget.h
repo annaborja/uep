@@ -27,4 +27,6 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	UPanelWidget* GetDialogueOptionsContainer() const;
+	
+	virtual UWidget* NativeGetDesiredFocusTarget() const override;
 };

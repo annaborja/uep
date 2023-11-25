@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "UpCombatable.generated.h"
 
+class UUpCombatComponent;
+
 UINTERFACE(MinimalAPI)
 class UUpCombatable : public UInterface
 {
@@ -17,5 +19,6 @@ class UNREALPORTFOLIO_API IUpCombatable
 	GENERATED_BODY()
 
 public:
+	virtual UUpCombatComponent* GetCombatComponent() const = 0;
 	virtual uint8 GetCombatLevel() const { return 1; }
 };

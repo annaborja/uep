@@ -47,8 +47,8 @@ void UUpDialogueComponent::StartDialogue(AUpPlayerController* PlayerController)
 		const auto PlayerLocation = Player->GetActorLocation();
 	
 		// TODO(P1): Lerp the rotation.
-		Player->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(PlayerLocation, OwnerLocation));
-		CustomOwner->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(OwnerLocation, PlayerLocation));
+		Player->SetActorRotation(FRotator(0.f, UKismetMathLibrary::FindLookAtRotation(PlayerLocation, OwnerLocation).Yaw, 0.f));
+		CustomOwner->SetActorRotation(FRotator(0.f, UKismetMathLibrary::FindLookAtRotation(OwnerLocation, PlayerLocation).Yaw, 0.f));
 
 		if (const auto World = GetWorld())
 		{

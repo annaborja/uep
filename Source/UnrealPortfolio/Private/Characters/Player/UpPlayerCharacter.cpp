@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Characters/Player/UpPlayerState.h"
+#include "Characters/Player/Components/UpPlayerCombatComponent.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Characters/Player/Components/UpPlayerMovementComponent.h"
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"
@@ -35,6 +36,9 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(FollowCameraSpringArm);
 	FollowCamera->SetRelativeRotation(FRotator(-8.f, 0.f, 0.f));
+
+	PlayerCombatComponent = CreateDefaultSubobject<UUpPlayerCombatComponent>(TEXT("PlayerCombatComponent"));
+	CombatComponent = PlayerCombatComponent;
 
 	PlayerMovementComponent = CastChecked<UUpPlayerMovementComponent>(GetCharacterMovement());
 
