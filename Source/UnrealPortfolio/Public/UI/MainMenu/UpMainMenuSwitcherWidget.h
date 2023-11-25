@@ -7,10 +7,14 @@
 #include "UpMainMenuSwitcherWidget.generated.h"
 
 class UCommonActivatableWidgetSwitcher;
+class UUpInventoryMenuWidget;
+class UUpJournalMenuWidget;
 class UUpMainMenuTabListWidget;
 class UUpMainMenuTabWidget;
+class UUpQuestsMenuWidget;
 class UUpReputationMenuWidget;
-class UUpSkillsMenu;
+class UUpSettingsMenuWidget;
+class UUpSkillsMenuWidget;
 class UUpStatsMenuWidget;
 
 UCLASS()
@@ -25,11 +29,17 @@ protected:
 	UCommonActivatableWidgetSwitcher* GetWidgetSwitcher() const;
 	
 	UFUNCTION(BlueprintImplementableEvent)
+	UUpInventoryMenuWidget* GetInventoryMenu() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpJournalMenuWidget* GetJournalMenu() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpQuestsMenuWidget* GetQuestsMenu() const;
+	UFUNCTION(BlueprintImplementableEvent)
 	UUpReputationMenuWidget* GetReputationMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
-	UCommonActivatableWidget* GetSettingsMenu() const;
+	UUpSettingsMenuWidget* GetSettingsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
-	UUpSkillsMenu* GetSkillsMenu() const;
+	UUpSkillsMenuWidget* GetSkillsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpStatsMenuWidget* GetStatsMenu() const;
 	

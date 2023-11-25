@@ -9,8 +9,12 @@
 #include "UI/UpHud.h"
 #include "UI/MainMenu/UpMainMenuTabListWidget.h"
 #include "UI/MainMenu/UpMainMenuTabWidget.h"
+#include "UI/MainMenu/InventoryMenu/UpInventoryMenuWidget.h"
+#include "UI/MainMenu/JournalMenu/UpJournalMenuWidget.h"
+#include "UI/MainMenu/QuestsMenu/UpQuestsMenuWidget.h"
 #include "UI/MainMenu/ReputationMenu/UpReputationMenuWidget.h"
-#include "UI/MainMenu/SkillsMenu/UpSkillsMenu.h"
+#include "UI/MainMenu/SettingsMenu/UpSettingsMenuWidget.h"
+#include "UI/MainMenu/SkillsMenu/UpSkillsMenuWidget.h"
 #include "UI/MainMenu/StatsMenu/UpStatsMenuWidget.h"
 
 void UUpMainMenuSwitcherWidget::HandleCloseMenuAction()
@@ -44,9 +48,9 @@ void UUpMainMenuSwitcherWidget::ResumeGame()
 
 	if (const auto WidgetSwitcher = GetWidgetSwitcher())
 	{
-		if (const auto StatsMenu = GetStatsMenu())
+		if (const auto Menu = GetQuestsMenu())
 		{
-			WidgetSwitcher->SetActiveWidget(StatsMenu);
+			WidgetSwitcher->SetActiveWidget(Menu);
 		}
 	}
 }
@@ -58,25 +62,40 @@ void UUpMainMenuSwitcherWidget::SetUpTabList()
 		if (const auto TabList = GetTabList(); TabList && TabList->GetTabCount() <= 0 && MenuTabClass)
 		{
 			TabList->SetLinkedSwitcher(WidgetSwitcher);
-
-			if (const auto StatsMenu = GetStatsMenu())
+			
+			if (const auto Menu = GetQuestsMenu())
 			{
-				TabList->RegisterTab(TAG_Menu_Stats.GetTag().GetTagName(), MenuTabClass, StatsMenu);
+				TabList->RegisterTab(TAG_Menu_Quests.GetTag().GetTagName(), MenuTabClass, Menu);
+			}
+
+			if (const auto Menu = GetInventoryMenu())
+			{
+				TabList->RegisterTab(TAG_Menu_Inventory.GetTag().GetTagName(), MenuTabClass, Menu);
+			}
+
+			if (const auto Menu = GetStatsMenu())
+			{
+				TabList->RegisterTab(TAG_Menu_Stats.GetTag().GetTagName(), MenuTabClass, Menu);
+			}
+
+			if (const auto Menu = GetSkillsMenu())
+			{
+				TabList->RegisterTab(TAG_Menu_Skills.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 			
-			if (const auto SkillsMenu = GetSkillsMenu())
+			if (const auto Menu = GetReputationMenu())
 			{
-				TabList->RegisterTab(TAG_Menu_Skills.GetTag().GetTagName(), MenuTabClass, SkillsMenu);
+				TabList->RegisterTab(TAG_Menu_Reputation.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 
-			if (const auto ReputationMenu = GetReputationMenu())
+			if (const auto Menu = GetJournalMenu())
 			{
-				TabList->RegisterTab(TAG_Menu_Reputation.GetTag().GetTagName(), MenuTabClass, ReputationMenu);
+				TabList->RegisterTab(TAG_Menu_Journal.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 
-			if (const auto SettingsMenu = GetSettingsMenu())
+			if (const auto Menu = GetSettingsMenu())
 			{
-				TabList->RegisterTab(TAG_Menu_Settings.GetTag().GetTagName(), MenuTabClass, SettingsMenu);
+				TabList->RegisterTab(TAG_Menu_Settings.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 		}
 	}
