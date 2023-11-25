@@ -37,11 +37,9 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	FollowCamera->SetupAttachment(FollowCameraSpringArm);
 	FollowCamera->SetRelativeRotation(FRotator(-8.f, 0.f, 0.f));
 
-	PlayerCombatComponent = CreateDefaultSubobject<UUpPlayerCombatComponent>(TEXT("PlayerCombatComponent"));
-	CombatComponent = PlayerCombatComponent;
-
 	PlayerMovementComponent = CastChecked<UUpPlayerMovementComponent>(GetCharacterMovement());
 
+	CombatComponent = CreateDefaultSubobject<UUpPlayerCombatComponent>(TEXT("CombatComponent"));
 	InteractionComponent = CreateDefaultSubobject<UUpPlayerInteractionComponent>(TEXT("InteractionComponent"));
 	ReputationComponent = CreateDefaultSubobject<UUpPlayerReputationComponent>(TEXT("ReputationComponent"));
 }

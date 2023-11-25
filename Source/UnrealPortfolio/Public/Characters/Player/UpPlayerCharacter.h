@@ -6,6 +6,8 @@
 #include "AbilitySystemInterface.h"
 #include "GameplayTagAssetInterface.h"
 #include "Characters/UpCharacter.h"
+#include "Characters/Player/Components/UpPlayerCombatComponent.h"
+#include "Interfaces/UpCombatable.h"
 #include "Interfaces/UpTagSpecGrantable.h"
 #include "UpPlayerCharacter.generated.h"
 
@@ -13,13 +15,13 @@ class AUpHud;
 class AUpPlayerController;
 class UCameraComponent;
 class USpringArmComponent;
-class UUpPlayerCombatComponent;
 class UUpPlayerInteractionComponent;
 class UUpPlayerMovementComponent;
 class UUpPlayerReputationComponent;
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface, public IUpTagSpecGrantable
+class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface,
+	public IUpCombatable, public IUpTagSpecGrantable
 {
 	GENERATED_BODY()
 
@@ -32,6 +34,8 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	virtual UUpCombatComponent* GetCombatComponent() const override { return CombatComponent; }
+
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 
 	virtual void GrantTagSpec(const FUpTagSpec& TagSpec) override;
@@ -43,7 +47,7 @@ public:
 	
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetInteractionComponent() const { return InteractionComponent; }
-	FORCEINLINE UUpPlayerCombatComponent* GetPlayerCombatComponent() const { return PlayerCombatComponent; }
+	FORCEINLINE UUpPlayerCombatComponent* GetPlayerCombatComponent() const { return CombatComponent; }
 	FORCEINLINE UUpPlayerMovementComponent* GetPlayerMovementComponent() const { return PlayerMovementComponent; }
 	FORCEINLINE UUpPlayerReputationComponent* GetReputationComponent() const { return ReputationComponent; }
 
@@ -54,7 +58,7 @@ private:
 	TObjectPtr<USpringArmComponent> FollowCameraSpringArm;
 	
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UUpPlayerCombatComponent> PlayerCombatComponent;
+	TObjectPtr<UUpPlayerCombatComponent> CombatComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpPlayerInteractionComponent> InteractionComponent;
 	UPROPERTY(VisibleAnywhere)

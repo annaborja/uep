@@ -3,6 +3,7 @@
 #include "Characters/UpCharacter.h"
 
 #include "Components/UpCharacterMovementComponent.h"
+#include "Components/UpInventoryComponent.h"
 
 AUpCharacter::AUpCharacter()
 {
@@ -14,4 +15,6 @@ void AUpCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
+
+	InventoryComponent = CreateDefaultSubobject<UUpInventoryComponent>(TEXT("InventoryComponent"));
 }

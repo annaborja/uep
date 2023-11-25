@@ -8,6 +8,7 @@
 #include "Characters/UpCharacter.h"
 #include "Engine/DataTable.h"
 #include "GAS/UpAbilitySystemComponent.h"
+#include "Interfaces/UpCombatable.h"
 #include "Interfaces/UpInteractable.h"
 #include "Interfaces/UpNameable.h"
 #include "Interfaces/UpTagIdable.h"
@@ -37,7 +38,7 @@ struct FUpNpcData : public FTableRowBase
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpNpcCharacter : public AUpCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface,
-	public IUpInteractable, public IUpNameable, public IUpTagIdable, public IUpTagSpecGrantable
+	public IUpCombatable, public IUpInteractable, public IUpNameable, public IUpTagIdable, public IUpTagSpecGrantable
 {
 	GENERATED_BODY()
 
@@ -52,6 +53,8 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 	
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
+
+	virtual UUpCombatComponent* GetCombatComponent() const override { return CombatComponent; }
 
 	virtual bool CanInteract() const override;
 	virtual void Interact(AUpPlayerController* PlayerController) override;
@@ -71,6 +74,8 @@ public:
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpAbilitySystemComponent> AbilitySystemComponent;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UUpCombatComponent> CombatComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpDialogueComponent> DialogueComponent;
 	UPROPERTY(VisibleAnywhere)

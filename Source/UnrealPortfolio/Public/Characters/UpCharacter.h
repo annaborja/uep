@@ -4,15 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Interfaces/UpCombatable.h"
+#include "Interfaces/UpInventoriable.h"
 #include "UpCharacter.generated.h"
 
 class UGameplayEffect;
 class UUpCharacterMovementComponent;
-class UUpCombatComponent;
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpCharacter : public ACharacter, public IUpCombatable
+class UNREALPORTFOLIO_API AUpCharacter : public ACharacter, public IUpInventoriable
 {
 	GENERATED_BODY()
 
@@ -22,13 +21,16 @@ public:
 
 	virtual void BeginPlay() override;
 
-	virtual UUpCombatComponent* GetCombatComponent() const override { return CombatComponent; }
+	virtual UUpInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
 	
 	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
 
 protected:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UUpInventoryComponent> InventoryComponent;
+	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;
 	UPROPERTY(EditAnywhere, Category="UP Assets")
@@ -37,8 +39,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugMovement = false;
 
-	UPROPERTY(Transient)
-	TObjectPtr<UUpCombatComponent> CombatComponent;
 	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;
 };
