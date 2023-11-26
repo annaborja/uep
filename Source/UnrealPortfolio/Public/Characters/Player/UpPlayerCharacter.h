@@ -31,6 +31,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void Jump() override;
+	virtual void StopJumping() override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 

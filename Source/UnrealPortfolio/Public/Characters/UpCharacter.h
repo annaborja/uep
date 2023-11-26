@@ -23,9 +23,9 @@ public:
 
 	virtual UUpInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 
+	void SetYaw(const float InYaw);
+
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
-	
-	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -35,9 +35,6 @@ protected:
 	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
-	
-	UPROPERTY(EditAnywhere, Category="UP Debug")
-	bool bDebugMovement = false;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;

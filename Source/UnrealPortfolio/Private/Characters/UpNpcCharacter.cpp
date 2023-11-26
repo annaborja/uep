@@ -97,26 +97,10 @@ void AUpNpcCharacter::BeginPlay()
 	
 	if (AbilitySystemComponent)
 	{
-		auto VitalAttributesEffectClass = InitVitalAttributesEffectClass;
-		auto PrimaryAttributesEffectClass = InitPrimaryAttributesEffectClass;
-		
 		TArray<TSubclassOf<UGameplayEffect>> InitAttributesEffectClasses;
-
-		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
-		{
-			if (!VitalAttributesEffectClass)
-			{
-				VitalAttributesEffectClass = GameInstance->GetDefaultInitVitalAttributesEffectClass_Character();
-			}
-			
-			if (!PrimaryAttributesEffectClass)
-			{
-				PrimaryAttributesEffectClass = GameInstance->GetDefaultInitPrimaryAttributesEffectClass_Character();
-			}
-		}
-
-		if (VitalAttributesEffectClass) InitAttributesEffectClasses.Add(VitalAttributesEffectClass);
-		if (PrimaryAttributesEffectClass) InitAttributesEffectClasses.Add(PrimaryAttributesEffectClass);
+		
+		if (InitVitalAttributesEffectClass) InitAttributesEffectClasses.Add(InitVitalAttributesEffectClass);
+		if (InitPrimaryAttributesEffectClass) InitAttributesEffectClasses.Add(InitPrimaryAttributesEffectClass);
 		
 		AbilitySystemComponent->Init(this, this, InitAttributesEffectClasses, TArray<TSubclassOf<UGameplayAbility>> {});
 	}
@@ -187,14 +171,21 @@ void AUpNpcCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 void AUpNpcCharacter::JumpToLocation(const FVector& TargetLocation, const float Duration)
 {
 	const auto ActorLocation = GetActorLocation();
-	
-	SetActorRotation(FRotator(0.f, UKismetMathLibrary::FindLookAtRotation(ActorLocation, TargetLocation).Yaw, 0.f));
+
+	SetYaw(UKismetMathLibrary::FindLookAtRotation(ActorLocation, TargetLocation).Yaw);
 
 	if (CustomMovementComponent)
 	{
 		LaunchCharacter(UUpBlueprintFunctionLibrary::CalculateVelocity(
 			ActorLocation, TargetLocation, Duration, CustomMovementComponent->GravityScale), true, true);
 	}
+}
+
+void AUpNpcCharacter::Mantle()
+{
+	if (!CustomMovementComponent) return;
+	
+	CustomMovementComponent->TryMantle();
 }
 
 void AUpNpcCharacter::ToggleSprint(const bool bSprint) const

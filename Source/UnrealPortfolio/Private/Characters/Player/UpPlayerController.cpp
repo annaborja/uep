@@ -97,7 +97,7 @@ void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
 void AUpPlayerController::Jump(const FInputActionValue& InputActionValue)
 {
 	if (!CustomPlayer) return;
-	
+
 	CustomPlayer->Jump();
 }
 

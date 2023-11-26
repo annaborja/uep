@@ -15,6 +15,9 @@ public:
 	UUpPlayerMovementComponent();
 
 	virtual void BeginPlay() override;
+	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
+
+	void ToggleCustomPressedJump(const bool bInCustomPressedJump) { bCustomPressedJump = bInCustomPressedJump; }
 
 protected:
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
@@ -24,6 +27,9 @@ private:
 	float JumpCooldownTime = 0.1f;
 	UPROPERTY(EditAnywhere, Category="UP Params|Jump")
 	float JumpFallGravityScale = 4.f;
+	
+	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
+	bool bCustomPressedJump = false;
 	
 	FTimerHandle JumpCooldownTimerHandle;
 	

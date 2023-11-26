@@ -37,8 +37,6 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	FollowCamera->SetupAttachment(FollowCameraSpringArm);
 	FollowCamera->SetRelativeRotation(FRotator(-8.f, 0.f, 0.f));
 
-	PlayerMovementComponent = CastChecked<UUpPlayerMovementComponent>(GetCharacterMovement());
-
 	CombatComponent = CreateDefaultSubobject<UUpPlayerCombatComponent>(TEXT("CombatComponent"));
 	InteractionComponent = CreateDefaultSubobject<UUpPlayerInteractionComponent>(TEXT("InteractionComponent"));
 	ReputationComponent = CreateDefaultSubobject<UUpPlayerReputationComponent>(TEXT("ReputationComponent"));
@@ -50,6 +48,8 @@ void AUpPlayerCharacter::BeginPlay()
 
 	check(InitVitalAttributesEffectClass);
 	check(InitPrimaryAttributesEffectClass);
+	
+	PlayerMovementComponent = CastChecked<UUpPlayerMovementComponent>(GetCharacterMovement());
 }
 
 void AUpPlayerCharacter::PossessedBy(AController* NewController)
@@ -76,9 +76,20 @@ void AUpPlayerCharacter::Jump()
 	if (PlayerMovementComponent)
 	{
 		PlayerMovementComponent->bNotifyApex = true;
+		PlayerMovementComponent->ToggleCustomPressedJump(true);
 	}
 	
 	Super::Jump();
+
+	// Override the default jump logic with our custom logic.
+	bPressedJump = false;
+}
+
+void AUpPlayerCharacter::StopJumping()
+{
+	if (PlayerMovementComponent) PlayerMovementComponent->ToggleCustomPressedJump(false);
+	
+	Super::StopJumping();
 }
 
 UAbilitySystemComponent* AUpPlayerCharacter::GetAbilitySystemComponent() const

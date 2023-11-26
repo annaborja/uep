@@ -66,6 +66,7 @@ public:
 	virtual void GrantTagSpec(const FUpTagSpec& TagSpec) override;
 
 	void JumpToLocation(const FVector& TargetLocation, const float Duration);
+	void Mantle();
 	void ToggleSprint(const bool bSprint) const;
 
 	FORCEINLINE UUpDialogueComponent* GetDialogueComponent() const { return DialogueComponent; }

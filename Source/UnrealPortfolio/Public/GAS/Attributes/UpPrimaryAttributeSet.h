@@ -17,12 +17,12 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere)
-	FGameplayAttributeData Creativity;
-	ATTRIBUTE_ACCESSORS(UUpPrimaryAttributeSet, Creativity)
-	
-	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData Dexterity;
 	ATTRIBUTE_ACCESSORS(UUpPrimaryAttributeSet, Dexterity)
+	
+	UPROPERTY(VisibleAnywhere)
+	FGameplayAttributeData Instinct;
+	ATTRIBUTE_ACCESSORS(UUpPrimaryAttributeSet, Instinct)
 	
 	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData Intelligence;

@@ -59,6 +59,10 @@ USTRUCT()
 struct FUpMontageData
 {
 	GENERATED_BODY()
+	
+	FUpMontageData() {}
+	explicit FUpMontageData(UAnimMontage* InMontage, const float InRate = 1.f, const FName& InStartSection = FName()) :
+		Montage(InMontage), Rate(InRate), StartSection(InStartSection) {}
 
 	bool IsValid() const { return Montage != nullptr; }
 	

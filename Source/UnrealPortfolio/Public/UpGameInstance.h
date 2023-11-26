@@ -10,7 +10,6 @@
 
 class UDataTable;
 class UDialogueVoice;
-class UGameplayEffect;
 class UUpGasDataAsset;
 
 UCLASS()
@@ -36,9 +35,6 @@ public:
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
 	FORCEINLINE UDataTable* GetNpcDataTable() const { return NpcDataTable; }
 	
-	FORCEINLINE TSubclassOf<UGameplayEffect> GetDefaultInitPrimaryAttributesEffectClass_Character() const { return DefaultInitPrimaryAttributesEffectClass_Character; }
-	FORCEINLINE TSubclassOf<UGameplayEffect> GetDefaultInitVitalAttributesEffectClass_Character() const { return DefaultInitVitalAttributesEffectClass_Character; }
-	
 	FORCEINLINE UDialogueVoice* GetPlayerDialogueVoice() const { return PlayerDialogueVoice; }
 	FORCEINLINE FUpReputationData GetPlayerWorldReputationData() const { return PlayerWorldReputationData; }
 	FORCEINLINE TMap<FGameplayTag, FUpReputationData> GetPlayerNpcReputationDataMap() const { return PlayerNpcReputationDataMap; }
@@ -52,11 +48,6 @@ private:
 	TObjectPtr<UDataTable> NpcDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UDialogueVoice> PlayerDialogueVoice;
-	
-	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> DefaultInitPrimaryAttributesEffectClass_Character;
-	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> DefaultInitVitalAttributesEffectClass_Character;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugTagSpecGrant = false;

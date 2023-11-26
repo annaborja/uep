@@ -18,7 +18,7 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 			const auto CurrentAcceleration = MovementComponent->GetCurrentAcceleration();
 			const auto RunStopThreshold = MovementComponent->GetMaxSprintSpeed() * RunStopThresholdMultiplier;
 			
-			if (Character->ShouldDebugMovement())
+			if (MovementComponent->ShouldDebugMovement())
 			{
 				UE_LOG(LogTemp, Warning, TEXT("%s GroundSpeed prev = %g; Acceleration current = %s"),
 					*Character->GetName(), PrevGroundSpeed, *CurrentAcceleration.ToString())

@@ -40,15 +40,15 @@ void UUpDialogueComponent::StartDialogue(AUpPlayerController* PlayerController)
 {
 	if (!CustomOwner) return;
 
-	if (const auto Player = PlayerController->GetCharacter())
+	if (const auto Player = PlayerController->GetCustomPlayer())
 	{
 		// Make the actors face each other.
 		const auto OwnerLocation = CustomOwner->GetActorLocation();
 		const auto PlayerLocation = Player->GetActorLocation();
 	
 		// TODO(P1): Lerp the rotation.
-		Player->SetActorRotation(FRotator(0.f, UKismetMathLibrary::FindLookAtRotation(PlayerLocation, OwnerLocation).Yaw, 0.f));
-		CustomOwner->SetActorRotation(FRotator(0.f, UKismetMathLibrary::FindLookAtRotation(OwnerLocation, PlayerLocation).Yaw, 0.f));
+		Player->SetYaw(UKismetMathLibrary::FindLookAtRotation(PlayerLocation, OwnerLocation).Yaw);
+		CustomOwner->SetYaw(UKismetMathLibrary::FindLookAtRotation(OwnerLocation, PlayerLocation).Yaw);
 
 		if (const auto World = GetWorld())
 		{

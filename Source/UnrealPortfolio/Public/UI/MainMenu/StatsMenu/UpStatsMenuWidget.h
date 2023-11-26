@@ -32,7 +32,7 @@ private:
 		TAG_Attribute_Primary_Speed,
 		TAG_Attribute_Primary_Dexterity,
 		TAG_Attribute_Primary_Intelligence,
-		TAG_Attribute_Primary_Creativity
+		TAG_Attribute_Primary_Instinct
 	};
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float PrimaryAttributeRowGap = 20.f;

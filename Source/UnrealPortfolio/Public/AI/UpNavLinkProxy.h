@@ -10,7 +10,8 @@ UENUM()
 namespace EUpNavLinkProxyNavigationType {
 	enum Type : uint8
 	{
-		Jump
+		Jump,
+		Mantle
 	};
 }
 

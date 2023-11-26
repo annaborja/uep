@@ -17,6 +17,34 @@ void UUpPlayerMovementComponent::BeginPlay()
 	Player->OnReachedJumpApex.AddDynamic(this, &ThisClass::OnJumpApexReached);
 }
 
+void UUpPlayerMovementComponent::UpdateCharacterStateBeforeMovement(const float DeltaSeconds)
+{
+	// If the player is trying to jump...
+	if (bCustomPressedJump)
+	{
+		// Try mantling.
+		if (TryMantle())
+		{
+			if (Player) Player->StopJumping();
+		} else
+		{
+			// If mantling didn't work, revert to UE's default jump behavior.
+			bCustomPressedJump = false;
+
+			if (Player)
+			{
+				Player->bPressedJump = true;
+				Player->CheckJumpInput(DeltaSeconds);
+			}
+		}
+	} else if (MovementMode == MOVE_Falling)
+	{
+		TryMantle();
+	}
+	
+	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
+}
+
 void UUpPlayerMovementComponent::OnMovementModeChanged(const EMovementMode PreviousMovementMode, const uint8 PreviousCustomMode)
 {
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);

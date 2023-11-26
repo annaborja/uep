@@ -3,10 +3,11 @@
 #include "Components/UpInventoryComponent.h"
 
 #include "Tags/ItemTags.h"
+#include "Utils/Structs.h"
 
-bool UUpInventoryComponent::IsItemTag(const FGameplayTag& InTag)
+bool UUpInventoryComponent::ShouldHandleTagSpecGrant(const FUpTagSpec& TagSpec)
 {
-	return InTag.MatchesTag(TAG_Item);
+	return TagSpec.Tag.MatchesTag(TAG_Item);
 }
 
 UUpInventoryComponent::UUpInventoryComponent()

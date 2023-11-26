@@ -12,9 +12,6 @@ void UUpGameInstance::Init()
 	check(GasDataAsset);
 	check(NpcDataTable);
 	check(PlayerDialogueVoice);
-	
-	check(DefaultInitPrimaryAttributesEffectClass_Character);
-	check(DefaultInitVitalAttributesEffectClass_Character);
 }
 
 void UUpGameInstance::GetPlayerCharacterTags(FGameplayTagContainer& OutCharacterTags) const
