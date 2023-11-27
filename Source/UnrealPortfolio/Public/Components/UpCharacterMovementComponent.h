@@ -80,6 +80,8 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UAnimMontage> MantlesMontage;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<UAnimMontage> MantleTransitionsMontage;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<AUpCharacter> Character;

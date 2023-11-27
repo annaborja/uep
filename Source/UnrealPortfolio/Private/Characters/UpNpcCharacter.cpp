@@ -194,3 +194,15 @@ void AUpNpcCharacter::ToggleSprint(const bool bSprint) const
 
 	CustomMovementComponent->ToggleSprint(bSprint);
 }
+
+void AUpNpcCharacter::SetTargetMoveLocation(const FVector& InTargetMoveLocation)
+{
+	TargetMoveLocation = InTargetMoveLocation;
+	bHasTargetMoveLocation = true;
+}
+
+void AUpNpcCharacter::UnsetTargetMoveLocation()
+{
+	TargetMoveLocation = FVector();
+	bHasTargetMoveLocation = false;
+}

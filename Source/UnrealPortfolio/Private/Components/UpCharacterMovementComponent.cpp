@@ -25,6 +25,7 @@ void UUpCharacterMovementComponent::BeginPlay()
 	Super::BeginPlay();
 
 	check(MantlesMontage);
+	check(MantleTransitionsMontage);
 
 	Character = CastChecked<AUpCharacter>(GetOwner());
 	Npc = Cast<AUpNpcCharacter>(GetOwner());
@@ -80,6 +81,14 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 	if (!HasAnimRootMotion() && bHadAnimRootMotion && MovementMode == MOVE_Flying)
 	{
 		SetMovementMode(MOVE_Walking);
+
+		if (Npc && Npc->HasTargetMoveLocation() && Npc->GetTargetMoveLocation() != Npc->GetActorLocation())
+		{
+			if (const auto TargetMoveLocation = Npc->GetTargetMoveLocation(); TargetMoveLocation != Npc->GetActorLocation())
+			{
+				Npc->LaunchCharacter(TargetMoveLocation - Npc->GetActorLocation(), true, false);
+			}
+		}
 	}
 
 	// Check whether a root motion source has just finished.
@@ -111,7 +120,7 @@ bool UUpCharacterMovementComponent::TryMantle()
 			const auto ForwardNormal2d = UpdatedComponent->GetForwardVector().GetSafeNormal2D();
 		
 			// The valid forward distance of the mantle is based on the character's velocity.
-			const auto ValidForwardDistance = FMath::Clamp(Velocity.Dot(ForwardNormal2d),
+			const auto ValidForwardDistance = FMath::Clamp(UKismetMathLibrary::VSizeXY(Velocity) * 0.25f,
 				CapsuleRadius + MantleMinDistanceOffset, UKismetMathLibrary::Conv_FloatToDouble(MantleMaxDistance));
 		
 			// Enable mantling starting from the height at which the character can't just step up onto something.
@@ -192,7 +201,7 @@ bool UUpCharacterMovementComponent::TryMantle()
 			FCollisionQueryParams CollisionQueryParams;
 			CollisionQueryParams.AddIgnoredActor(Character);
 		
-			if (World->OverlapAnyTestByProfile(CapsuleClearanceLocation, FQuat::Identity, TEXT("BlockAll"),
+			if (World->OverlapBlockingTestByProfile(CapsuleClearanceLocation, FQuat::Identity, TEXT("BlockAll"),
 				CollisionShape, CollisionQueryParams))
 			{
 				if (bDebugMantle)
@@ -219,7 +228,7 @@ bool UUpCharacterMovementComponent::TryMantle()
 			//   - the character is falling with downward velocity
 			const auto bTallMantle = (MovementMode == MOVE_Walking && SurfaceHeight > CapsuleHalfHeight * 2.0) ||
 				(MovementMode == MOVE_Falling && VerticalSpeed < 0.0 &&
-					!World->OverlapAnyTestByProfile(TallMantleStartLocation, FQuat::Identity, TEXT("BlockAll"),
+					!World->OverlapBlockingTestByProfile(TallMantleStartLocation, FQuat::Identity, TEXT("BlockAll"),
 						CollisionShape, CollisionQueryParams));
 
 			const auto MantleStartLocation = bTallMantle ? TallMantleStartLocation :
@@ -265,9 +274,9 @@ bool UUpCharacterMovementComponent::TryMantle()
 				TransitionMontageStartSection = TEXT("MantleShortTransition");
 			}
 
-			if (MantlesMontage)
+			if (MantleTransitionsMontage)
 			{
-				Character->PlayAnimMontage(MantlesMontage, TransitionMontageRate, TransitionMontageStartSection);
+				Character->PlayAnimMontage(MantleTransitionsMontage, TransitionMontageRate, TransitionMontageStartSection);
 			}
 			
 			return true;

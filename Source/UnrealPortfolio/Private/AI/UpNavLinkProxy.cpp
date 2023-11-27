@@ -30,6 +30,7 @@ void AUpNavLinkProxy::HandleSmartLinkReached(AActor* MovingActor, const FVector&
 		case EUpNavLinkProxyNavigationType::Mantle:
 			Npc->SetYaw(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), DestinationPoint).Yaw);
 			Npc->Mantle();
+			Npc->SetTargetMoveLocation(DestinationPoint);
 			break;
 		default:
 			UE_LOG(LogTemp, Error, TEXT("Invalid NavLinkProxy navigation type %d"), NavigationType)

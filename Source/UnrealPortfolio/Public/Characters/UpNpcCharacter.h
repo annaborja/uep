@@ -69,8 +69,14 @@ public:
 	void Mantle();
 	void ToggleSprint(const bool bSprint) const;
 
+	void SetTargetMoveLocation(const FVector& InTargetMoveLocation);
+	void UnsetTargetMoveLocation();
+
 	FORCEINLINE UUpDialogueComponent* GetDialogueComponent() const { return DialogueComponent; }
 	FORCEINLINE UDialogueVoice* GetDialogueVoice() const { return DialogueVoice; }
+	
+	FORCEINLINE FVector GetTargetMoveLocation() const { return TargetMoveLocation; }
+	FORCEINLINE bool HasTargetMoveLocation() const { return bHasTargetMoveLocation; }
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -96,4 +102,7 @@ private:
 	TObjectPtr<AUpAiController> AiController;
 
 	FUpNpcData NpcData;
+
+	FVector TargetMoveLocation;
+	bool bHasTargetMoveLocation = false;
 };
