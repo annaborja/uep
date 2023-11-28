@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UpPlayerCharacter.h"
 #include "GameFramework/PlayerController.h"
 #include "UpPlayerController.generated.h"
 
@@ -47,14 +48,19 @@ private:
 	TObjectPtr<UInputAction> PauseGameInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> SprintInputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> ToggleCameraInputAction;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpHud> CustomHud;
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayerCharacter> CustomPlayer;
+
+	TEnumAsByte<EUpPlayerCameraViewType::Type> CurrentCameraViewType = EUpPlayerCameraViewType::ThirdPerson;
 	
 	void PauseGame(const FInputActionValue& InputActionValue);
 
+	void ToggleCamera(const FInputActionValue& InputActionValue);
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
 	void Interact(const FInputActionValue& InputActionValue);
 	void Jump(const FInputActionValue& InputActionValue);

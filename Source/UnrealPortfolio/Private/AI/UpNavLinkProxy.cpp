@@ -28,10 +28,22 @@ void AUpNavLinkProxy::HandleSmartLinkReached(AActor* MovingActor, const FVector&
 			Npc->JumpToLocation(DestinationPoint, MovementDuration);
 			break;
 		case EUpNavLinkProxyNavigationType::Mantle:
-			Npc->SetYaw(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), DestinationPoint).Yaw);
-			Npc->Mantle();
-			Npc->SetTargetMoveLocation(DestinationPoint);
-			break;
+			{
+				Npc->SetYaw(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), DestinationPoint).Yaw);
+			
+				uint8 NumAttempts = 0;
+			
+				while (!Npc->Mantle())
+				{
+					// Avoid an infinite loop.
+					if (++NumAttempts > 100) return;
+
+					Npc->SetActorLocation(Npc->GetActorLocation() + Npc->GetActorForwardVector());
+				}
+			
+				Npc->SetRootMotionTargetLocation(DestinationPoint);
+				break;
+			}
 		default:
 			UE_LOG(LogTemp, Error, TEXT("Invalid NavLinkProxy navigation type %d"), NavigationType)
 		}

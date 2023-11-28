@@ -66,17 +66,17 @@ public:
 	virtual void GrantTagSpec(const FUpTagSpec& TagSpec) override;
 
 	void JumpToLocation(const FVector& TargetLocation, const float Duration);
-	void Mantle();
+	bool Mantle() const;
 	void ToggleSprint(const bool bSprint) const;
 
-	void SetTargetMoveLocation(const FVector& InTargetMoveLocation);
-	void UnsetTargetMoveLocation();
+	void SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation);
+	void UnsetRootMotionTargetLocation();
 
 	FORCEINLINE UUpDialogueComponent* GetDialogueComponent() const { return DialogueComponent; }
 	FORCEINLINE UDialogueVoice* GetDialogueVoice() const { return DialogueVoice; }
 	
-	FORCEINLINE FVector GetTargetMoveLocation() const { return TargetMoveLocation; }
-	FORCEINLINE bool HasTargetMoveLocation() const { return bHasTargetMoveLocation; }
+	FORCEINLINE FVector GetRootMotionTargetLocation() const { return RootMotionTargetLocation; }
+	FORCEINLINE bool HasRootMotionTargetLocation() const { return bHasRootMotionTargetLocation; }
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -103,6 +103,6 @@ private:
 
 	FUpNpcData NpcData;
 
-	FVector TargetMoveLocation;
-	bool bHasTargetMoveLocation = false;
+	FVector RootMotionTargetLocation;
+	bool bHasRootMotionTargetLocation = false;
 };

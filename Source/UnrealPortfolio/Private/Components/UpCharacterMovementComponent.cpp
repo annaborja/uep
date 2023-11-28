@@ -82,12 +82,14 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 	{
 		SetMovementMode(MOVE_Walking);
 
-		if (Npc && Npc->HasTargetMoveLocation() && Npc->GetTargetMoveLocation() != Npc->GetActorLocation())
+		if (Npc && Npc->HasRootMotionTargetLocation())
 		{
-			if (const auto TargetMoveLocation = Npc->GetTargetMoveLocation(); TargetMoveLocation != Npc->GetActorLocation())
+			if (const auto RootMotionTargetLocation = Npc->GetRootMotionTargetLocation(); RootMotionTargetLocation != Npc->GetActorLocation())
 			{
-				Npc->LaunchCharacter(TargetMoveLocation - Npc->GetActorLocation(), true, false);
+				Npc->LaunchCharacter(RootMotionTargetLocation - Npc->GetActorLocation(), true, false);
 			}
+
+			Npc->UnsetRootMotionTargetLocation();
 		}
 	}
 

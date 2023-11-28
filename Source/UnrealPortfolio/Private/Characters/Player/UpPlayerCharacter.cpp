@@ -19,7 +19,6 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 {
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
-	bUseControllerRotationYaw = false;
 
 	if (const auto Mesh = GetMesh())
 	{
@@ -27,19 +26,16 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 		Mesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	}
 	
-	FollowCameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("FollowCameraSpringArm"));
-	FollowCameraSpringArm->SetupAttachment(GetRootComponent());
-	FollowCameraSpringArm->TargetArmLength = 300.f;
-	FollowCameraSpringArm->SocketOffset = FVector(0.f, 0.f, 108.f);
-	FollowCameraSpringArm->bUsePawnControlRotation = true;
-	
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(FollowCameraSpringArm);
-	FollowCamera->SetRelativeRotation(FRotator(-8.f, 0.f, 0.f));
-
 	CombatComponent = CreateDefaultSubobject<UUpPlayerCombatComponent>(TEXT("CombatComponent"));
 	InteractionComponent = CreateDefaultSubobject<UUpPlayerInteractionComponent>(TEXT("InteractionComponent"));
 	ReputationComponent = CreateDefaultSubobject<UUpPlayerReputationComponent>(TEXT("ReputationComponent"));
+	
+	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
+	CameraSpringArm->SetupAttachment(GetRootComponent());
+	
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(CameraSpringArm);
+	ActivateCameraView(EUpPlayerCameraViewType::ThirdPerson);
 }
 
 void AUpPlayerCharacter::BeginPlay()
@@ -141,14 +137,46 @@ void AUpPlayerCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 	}
 }
 
+EUpPlayerCameraViewType::Type AUpPlayerCharacter::ActivateCameraView(const EUpPlayerCameraViewType::Type CameraViewType)
+{
+	switch (CameraViewType)
+	{
+	case EUpPlayerCameraViewType::FirstPerson:
+		if (const auto Mesh = GetMesh())
+		{
+			Camera->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), TEXT("HeadCameraSocket"));
+			Camera->SetRelativeLocation(FVector(0.f, 0.f, 10.f));
+			Camera->SetRelativeRotation(FRotator());
+			Camera->bUsePawnControlRotation = true;
+
+			bUseControllerRotationYaw = true;
+		}
+		
+		break;
+	case EUpPlayerCameraViewType::ThirdPerson:
+		CameraSpringArm->TargetArmLength = 300.f;
+		CameraSpringArm->SocketOffset = FVector(0.f, 0.f, 108.f);
+		CameraSpringArm->bUsePawnControlRotation = true;
+	
+		Camera->AttachToComponent(CameraSpringArm, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false));
+		Camera->SetRelativeLocation(FVector());
+		Camera->SetRelativeRotation(FRotator(-8.f, 0.f, 0.f));
+		Camera->bUsePawnControlRotation = false;
+
+		bUseControllerRotationYaw = false;
+		break;
+	case EUpPlayerCameraViewType::ThirdPersonShoulder:
+		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Invalid player camera view type %d"), CameraViewType)
+	}
+
+	return CameraViewType;
+}
+
 AUpHud* AUpPlayerCharacter::GetCustomHud() const
 {
 	if (CustomController) return CustomController->GetCustomHud();
 
 	return nullptr;
-}
-
-void AUpPlayerCharacter::AllowJump()
-{
-	bAllowedToJump = true;
 }

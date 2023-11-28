@@ -19,6 +19,17 @@ class UUpPlayerInteractionComponent;
 class UUpPlayerMovementComponent;
 class UUpPlayerReputationComponent;
 
+UENUM(BlueprintType)
+namespace EUpPlayerCameraViewType
+{
+	enum Type : uint8
+	{
+		FirstPerson,
+		ThirdPerson,
+		ThirdPersonShoulder
+	};
+}
+
 UCLASS()
 class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface,
 	public IUpCombatable, public IUpTagSpecGrantable
@@ -41,11 +52,14 @@ public:
 
 	virtual void GrantTagSpec(const FUpTagSpec& TagSpec) override;
 
+	UFUNCTION(BlueprintCallable)
+	EUpPlayerCameraViewType::Type ActivateCameraView(const EUpPlayerCameraViewType::Type CameraViewType);
+
 	AUpHud* GetCustomHud() const;
 
-	void AllowJump();
+	void AllowJump() { bAllowedToJump = true; }
 	bool IsAllowedToJump() const { return bAllowedToJump; };
-	
+
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetInteractionComponent() const { return InteractionComponent; }
 	FORCEINLINE UUpPlayerCombatComponent* GetPlayerCombatComponent() const { return CombatComponent; }
@@ -54,9 +68,9 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UCameraComponent> FollowCamera;
+	TObjectPtr<UCameraComponent> Camera;
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USpringArmComponent> FollowCameraSpringArm;
+	TObjectPtr<USpringArmComponent> CameraSpringArm;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpPlayerCombatComponent> CombatComponent;

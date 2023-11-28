@@ -181,11 +181,11 @@ void AUpNpcCharacter::JumpToLocation(const FVector& TargetLocation, const float 
 	}
 }
 
-void AUpNpcCharacter::Mantle()
+bool AUpNpcCharacter::Mantle() const
 {
-	if (!CustomMovementComponent) return;
+	if (!CustomMovementComponent) return false;
 	
-	CustomMovementComponent->TryMantle();
+	return CustomMovementComponent->TryMantle();
 }
 
 void AUpNpcCharacter::ToggleSprint(const bool bSprint) const
@@ -195,14 +195,14 @@ void AUpNpcCharacter::ToggleSprint(const bool bSprint) const
 	CustomMovementComponent->ToggleSprint(bSprint);
 }
 
-void AUpNpcCharacter::SetTargetMoveLocation(const FVector& InTargetMoveLocation)
+void AUpNpcCharacter::SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation)
 {
-	TargetMoveLocation = InTargetMoveLocation;
-	bHasTargetMoveLocation = true;
+	RootMotionTargetLocation = InRootMotionTargetLocation;
+	bHasRootMotionTargetLocation = true;
 }
 
-void AUpNpcCharacter::UnsetTargetMoveLocation()
+void AUpNpcCharacter::UnsetRootMotionTargetLocation()
 {
-	TargetMoveLocation = FVector();
-	bHasTargetMoveLocation = false;
+	RootMotionTargetLocation = FVector();
+	bHasRootMotionTargetLocation = false;
 }

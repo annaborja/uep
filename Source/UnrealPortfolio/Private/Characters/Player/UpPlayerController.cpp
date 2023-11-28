@@ -35,6 +35,7 @@ void AUpPlayerController::BeginPlay()
 	check(MoveInputAction);
 	check(PauseGameInputAction);
 	check(SprintInputAction);
+	check(ToggleCameraInputAction);
 
 	CustomPlayer = CastChecked<AUpPlayerCharacter>(GetCharacter());
 
@@ -50,6 +51,7 @@ void AUpPlayerController::SetupInputComponent()
 	
 	EnhancedInputComponent->BindAction(PauseGameInputAction, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
 	
+	EnhancedInputComponent->BindAction(ToggleCameraInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCamera);
 	EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
 	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ThisClass::Interact);
 	EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Started, this, &ThisClass::Jump);
@@ -66,6 +68,26 @@ void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
 	if (CustomHud) CustomHud->OpenMainMenu();
 	
 	UGameplayStatics::SetGamePaused(this, true);
+}
+
+void AUpPlayerController::ToggleCamera(const FInputActionValue& InputActionValue)
+{
+	if (!CustomPlayer) return;
+	
+	switch (CurrentCameraViewType)
+	{
+	case EUpPlayerCameraViewType::FirstPerson:
+		CurrentCameraViewType = CustomPlayer->ActivateCameraView(EUpPlayerCameraViewType::ThirdPerson);
+		break;
+	case EUpPlayerCameraViewType::ThirdPerson:
+		CurrentCameraViewType = CustomPlayer->ActivateCameraView(EUpPlayerCameraViewType::ThirdPersonShoulder);
+		break;
+	case EUpPlayerCameraViewType::ThirdPersonShoulder:
+		CurrentCameraViewType = CustomPlayer->ActivateCameraView(EUpPlayerCameraViewType::FirstPerson);
+		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Invalid player camera view type %d"), CurrentCameraViewType)
+	}
 }
 
 void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue)
