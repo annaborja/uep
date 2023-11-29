@@ -4,10 +4,12 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Camera/CameraActor.h"
 #include "Characters/Player/UpPlayerCameraManager.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Characters/Player/Components/UpPlayerMovementComponent.h"
+#include "GameFramework/DefaultPawn.h"
 #include "Interfaces/UpInteractable.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/UpHud.h"
@@ -35,7 +37,8 @@ void AUpPlayerController::BeginPlay()
 	check(MoveInputAction);
 	check(PauseGameInputAction);
 	check(SprintInputAction);
-	check(ToggleCameraInputAction);
+	check(ToggleCameraViewInputAction);
+	check(ToggleDebugCameraInputAction);
 
 	CustomPlayer = CastChecked<AUpPlayerCharacter>(GetCharacter());
 
@@ -49,9 +52,11 @@ void AUpPlayerController::SetupInputComponent()
 
 	const auto EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 	
+	EnhancedInputComponent->BindAction(ToggleCameraViewInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCameraView);
+	EnhancedInputComponent->BindAction(ToggleDebugCameraInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleDebugCamera);
+	
 	EnhancedInputComponent->BindAction(PauseGameInputAction, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
 	
-	EnhancedInputComponent->BindAction(ToggleCameraInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCamera);
 	EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
 	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ThisClass::Interact);
 	EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Started, this, &ThisClass::Jump);
@@ -63,31 +68,35 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 }
 
+void AUpPlayerController::ToggleCameraView(const FInputActionValue& InputActionValue)
+{
+	if (!CustomPlayer) return;
+
+	CustomPlayer->ToggleCameraView();
+}
+
+void AUpPlayerController::ToggleDebugCamera(const FInputActionValue& InputActionValue)
+{
+	if (IsValid(DebugPawn))
+	{
+		DebugPawn->Destroy();
+
+		TArray<AActor*> OutActors;
+		UGameplayStatics::GetAllActorsOfClass(this, AUpPlayerCharacter::StaticClass(), OutActors);
+
+		if (OutActors.IsValidIndex(0)) Possess(Cast<APawn>(OutActors[0]));
+	} else
+	{
+		DebugPawn = GetWorld()->SpawnActor<ADefaultPawn>(CustomPlayer->GetActorLocation(), CustomPlayer->GetActorRotation());
+		Possess(DebugPawn);
+	}
+}
+
 void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
 {
 	if (CustomHud) CustomHud->OpenMainMenu();
 	
 	UGameplayStatics::SetGamePaused(this, true);
-}
-
-void AUpPlayerController::ToggleCamera(const FInputActionValue& InputActionValue)
-{
-	if (!CustomPlayer) return;
-	
-	switch (CurrentCameraViewType)
-	{
-	case EUpPlayerCameraViewType::FirstPerson:
-		CurrentCameraViewType = CustomPlayer->ActivateCameraView(EUpPlayerCameraViewType::ThirdPerson);
-		break;
-	case EUpPlayerCameraViewType::ThirdPerson:
-		CurrentCameraViewType = CustomPlayer->ActivateCameraView(EUpPlayerCameraViewType::ThirdPersonShoulder);
-		break;
-	case EUpPlayerCameraViewType::ThirdPersonShoulder:
-		CurrentCameraViewType = CustomPlayer->ActivateCameraView(EUpPlayerCameraViewType::FirstPerson);
-		break;
-	default:
-		UE_LOG(LogTemp, Warning, TEXT("Invalid player camera view type %d"), CurrentCameraViewType)
-	}
 }
 
 void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue)

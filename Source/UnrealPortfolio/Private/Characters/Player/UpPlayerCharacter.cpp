@@ -35,17 +35,23 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CameraSpringArm);
-	ActivateCameraView(EUpPlayerCameraViewType::ThirdPerson);
 }
 
 void AUpPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	check(AnimClass_FirstPerson);
+	check(AnimClass_ThirdPerson);
+	check(SkeletalMesh_FirstPerson);
+	check(SkeletalMesh_ThirdPerson);
+	
 	check(InitVitalAttributesEffectClass);
 	check(InitPrimaryAttributesEffectClass);
 	
 	PlayerMovementComponent = CastChecked<UUpPlayerMovementComponent>(GetCharacterMovement());
+	
+	ActivateCameraView(EUpPlayerCameraViewType::ThirdPerson);
 }
 
 void AUpPlayerCharacter::PossessedBy(AController* NewController)
@@ -144,22 +150,34 @@ EUpPlayerCameraViewType::Type AUpPlayerCharacter::ActivateCameraView(const EUpPl
 	case EUpPlayerCameraViewType::FirstPerson:
 		if (const auto Mesh = GetMesh())
 		{
-			Camera->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), TEXT("HeadCameraSocket"));
-			Camera->SetRelativeLocation(FVector(0.f, 0.f, 10.f));
-			Camera->SetRelativeRotation(FRotator());
-			Camera->bUsePawnControlRotation = true;
-
-			bUseControllerRotationYaw = true;
+			Mesh->SetSkeletalMesh(SkeletalMesh_FirstPerson);
+			Mesh->SetAnimClass(AnimClass_FirstPerson);
+			Mesh->SetCastShadow(false);
 		}
 		
+		CameraSpringArm->TargetArmLength = 5.f;
+		CameraSpringArm->SocketOffset = FVector(10.f, 0.f, 70.f);
+		CameraSpringArm->bUsePawnControlRotation = true;
+
+		Camera->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+		Camera->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
+		Camera->bUsePawnControlRotation = false;
+
+		bUseControllerRotationYaw = true;
 		break;
 	case EUpPlayerCameraViewType::ThirdPerson:
+		if (const auto Mesh = GetMesh())
+		{
+			Mesh->SetSkeletalMesh(SkeletalMesh_ThirdPerson);
+			Mesh->SetAnimClass(AnimClass_ThirdPerson);
+			Mesh->SetCastShadow(true);
+		}
+		
 		CameraSpringArm->TargetArmLength = 300.f;
 		CameraSpringArm->SocketOffset = FVector(0.f, 0.f, 108.f);
 		CameraSpringArm->bUsePawnControlRotation = true;
 	
-		Camera->AttachToComponent(CameraSpringArm, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false));
-		Camera->SetRelativeLocation(FVector());
+		Camera->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 		Camera->SetRelativeRotation(FRotator(-8.f, 0.f, 0.f));
 		Camera->bUsePawnControlRotation = false;
 
@@ -179,4 +197,22 @@ AUpHud* AUpPlayerCharacter::GetCustomHud() const
 	if (CustomController) return CustomController->GetCustomHud();
 
 	return nullptr;
+}
+
+void AUpPlayerCharacter::ToggleCameraView()
+{
+	switch (CurrentCameraViewType)
+	{
+	case EUpPlayerCameraViewType::FirstPerson:
+		CurrentCameraViewType = ActivateCameraView(EUpPlayerCameraViewType::ThirdPerson);
+		break;
+	case EUpPlayerCameraViewType::ThirdPerson:
+		CurrentCameraViewType = ActivateCameraView(EUpPlayerCameraViewType::ThirdPersonShoulder);
+		break;
+	case EUpPlayerCameraViewType::ThirdPersonShoulder:
+		CurrentCameraViewType = ActivateCameraView(EUpPlayerCameraViewType::FirstPerson);
+		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Invalid player camera view type %d"), CurrentCameraViewType)
+	}
 }

@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "UpPlayerController.generated.h"
 
+class ADefaultPawn;
 class AUpHud;
 class AUpPlayerCharacter;
 struct FInputActionValue;
@@ -49,18 +50,23 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> SprintInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> ToggleCameraInputAction;
+	TObjectPtr<UInputAction> ToggleCameraViewInputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> ToggleDebugCameraInputAction;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpHud> CustomHud;
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayerCharacter> CustomPlayer;
-
-	TEnumAsByte<EUpPlayerCameraViewType::Type> CurrentCameraViewType = EUpPlayerCameraViewType::ThirdPerson;
+	
+	UPROPERTY(Transient)
+	TObjectPtr<ADefaultPawn> DebugPawn;
+	
+	void ToggleCameraView(const FInputActionValue& InputActionValue);
+	void ToggleDebugCamera(const FInputActionValue& InputActionValue);
 	
 	void PauseGame(const FInputActionValue& InputActionValue);
 
-	void ToggleCamera(const FInputActionValue& InputActionValue);
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
 	void Interact(const FInputActionValue& InputActionValue);
 	void Jump(const FInputActionValue& InputActionValue);

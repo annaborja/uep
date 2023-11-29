@@ -56,10 +56,12 @@ public:
 	EUpPlayerCameraViewType::Type ActivateCameraView(const EUpPlayerCameraViewType::Type CameraViewType);
 
 	AUpHud* GetCustomHud() const;
+	void ToggleCameraView();
 
 	void AllowJump() { bAllowedToJump = true; }
 	bool IsAllowedToJump() const { return bAllowedToJump; };
 
+	FORCEINLINE EUpPlayerCameraViewType::Type GetCurrentCameraViewType() const { return CurrentCameraViewType; }
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetInteractionComponent() const { return InteractionComponent; }
 	FORCEINLINE UUpPlayerCombatComponent* GetPlayerCombatComponent() const { return CombatComponent; }
@@ -79,6 +81,16 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpPlayerReputationComponent> ReputationComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TSubclassOf<UAnimInstance> AnimClass_FirstPerson;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TSubclassOf<UAnimInstance> AnimClass_ThirdPerson;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<USkeletalMesh> SkeletalMesh_FirstPerson;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<USkeletalMesh> SkeletalMesh_ThirdPerson;
+	
 	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
 	bool bAllowedToJump = true;
 
@@ -86,4 +98,6 @@ private:
 	TObjectPtr<AUpPlayerController> CustomController;
 	UPROPERTY(Transient)
 	TObjectPtr<UUpPlayerMovementComponent> PlayerMovementComponent;
+	
+	TEnumAsByte<EUpPlayerCameraViewType::Type> CurrentCameraViewType = EUpPlayerCameraViewType::ThirdPerson;
 };

@@ -15,9 +15,9 @@ struct FUpHitBoxData : public FTableRowBase
 	GENERATED_BODY();
 
 	UPROPERTY(EditDefaultsOnly)
-	FVector StartLocationOffset;
+	FVector StartLocationOffset = FVector(0.f, 0.f, 0.f);
 	UPROPERTY(EditDefaultsOnly)
-	FVector EndLocationOffset;
+	FVector EndLocationOffset = FVector(0.f, 0.f, 0.f);
 	
 	UPROPERTY(EditDefaultsOnly)
 	float HalfSize = 0.f;
