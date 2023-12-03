@@ -2,7 +2,6 @@
 
 #include "Components/UpCharacterMovementComponent.h"
 
-#include "Characters/UpNpcCharacter.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -28,11 +27,13 @@ void UUpCharacterMovementComponent::BeginPlay()
 	check(MantleTransitionsMontage);
 
 	Character = CastChecked<AUpCharacter>(GetOwner());
-	Npc = Cast<AUpNpcCharacter>(GetOwner());
+	PlayableCharacter = CastChecked<AUpPlayableCharacter>(GetOwner());
 
 	BaseGravityScale = GravityScale;
 	BaseMaxWalkSpeed = MaxWalkSpeed;
 	BaseRotationRate = RotationRate;
+	
+	OnPlayerJumpApexReachedDelegate.BindUFunction(this, FName("OnPlayerJumpApexReached"));
 }
 
 float UUpCharacterMovementComponent::GetMaxSpeed() const
@@ -47,6 +48,28 @@ float UUpCharacterMovementComponent::GetMaxSpeed() const
 	default:
 		UE_LOG(LogTemp, Error, TEXT("Invalid custom movement mode %d"), CustomMovementMode)
 		return 0.f;
+	}
+}
+
+void UUpCharacterMovementComponent::OnMovementModeChanged(const EMovementMode PreviousMovementMode, const uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
+
+	if (bIsPlayer && PlayableCharacter)
+	{
+		if (PreviousMovementMode == MOVE_Falling)
+		{
+			GravityScale = BaseGravityScale;
+		}
+
+		// We use the flying movement mode for special jump mechanics like mantling.
+		if (PreviousMovementMode == MOVE_Falling || PreviousMovementMode == MOVE_Flying)
+		{
+			if (!PlayableCharacter->IsAllowedToJump())
+			{
+				PlayableCharacter->GetWorldTimerManager().SetTimer(JumpCooldownTimerHandle, this, &ThisClass::AllowJump, JumpCooldownTime);
+			}
+		}
 	}
 }
 
@@ -69,6 +92,29 @@ void UUpCharacterMovementComponent::UpdateCharacterStateBeforeMovement(const flo
 
 		bTransitionRootMotionSourceFinished = false;
 	}
+
+	if (bIsPlayer && PlayableCharacter)
+	{
+		// If the player is trying to jump...
+		if (bCustomPressedJump)
+		{
+			// Try mantling.
+			if (TryMantle())
+			{
+				PlayableCharacter->StopJumping();
+			} else
+			{
+				// If mantling didn't work, revert to UE's default jump behavior.
+				bCustomPressedJump = false;
+
+				PlayableCharacter->bPressedJump = true;
+				PlayableCharacter->CheckJumpInput(DeltaSeconds);
+			}
+		} else if (MovementMode == MOVE_Falling)
+		{
+			TryMantle();
+		}
+	}
 	
 	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
 }
@@ -82,14 +128,14 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 	{
 		SetMovementMode(MOVE_Walking);
 
-		if (Npc && Npc->HasRootMotionTargetLocation())
+		if (Character && Character->HasRootMotionTargetLocation())
 		{
-			if (const auto RootMotionTargetLocation = Npc->GetRootMotionTargetLocation(); RootMotionTargetLocation != Npc->GetActorLocation())
+			if (const auto RootMotionTargetLocation = Character->GetRootMotionTargetLocation(); RootMotionTargetLocation != Character->GetActorLocation())
 			{
-				Npc->LaunchCharacter(RootMotionTargetLocation - Npc->GetActorLocation(), true, false);
+				Character->LaunchCharacter(RootMotionTargetLocation - Character->GetActorLocation(), true, false);
 			}
 
-			Npc->UnsetRootMotionTargetLocation();
+			Character->UnsetRootMotionTargetLocation();
 		}
 	}
 
@@ -102,6 +148,28 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 	}
 	
 	bHadAnimRootMotion = HasAnimRootMotion();
+}
+
+void UUpCharacterMovementComponent::InitForPlayer()
+{
+	bIsPlayer = true;
+	bOrientRotationToMovement = true;
+    
+	if (Character && !Character->OnReachedJumpApex.Contains(OnPlayerJumpApexReachedDelegate))
+	{
+		Character->OnReachedJumpApex.Add(OnPlayerJumpApexReachedDelegate);
+	}
+}
+
+void UUpCharacterMovementComponent::TearDownForPlayer()
+{
+	bIsPlayer = false;
+	bOrientRotationToMovement = false;
+    	
+	if (Character && Character->OnReachedJumpApex.Contains(OnPlayerJumpApexReachedDelegate))
+	{
+		Character->OnReachedJumpApex.Remove(OnPlayerJumpApexReachedDelegate);
+	}
 }
 
 bool UUpCharacterMovementComponent::TryMantle()
@@ -286,6 +354,13 @@ bool UUpCharacterMovementComponent::TryMantle()
 	}
 
 	return false;
+}
+
+void UUpCharacterMovementComponent::AllowJump()
+{
+	if (!PlayableCharacter) return;
+
+	PlayableCharacter->AllowJump();
 }
 
 bool UUpCharacterMovementComponent::IsCustomMovementModeActive( const EUpCustomMovementMode::Type InCustomMovementMode) const

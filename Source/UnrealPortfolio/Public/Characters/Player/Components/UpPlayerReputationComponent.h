@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Utils/Structs.h"
 #include "UpPlayerReputationComponent.generated.h"
 
 struct FUpTagSpec;
@@ -33,8 +32,7 @@ public:
 	static constexpr uint8 EsteemMaxValue = 100;
 	
 	static bool ShouldHandleTagSpecGrant(const FUpTagSpec& TagSpec);
+	static bool HandleTagSpecGrant(const UObject* WorldContextObject, const FUpTagSpec& TagSpec);
 	
 	UUpPlayerReputationComponent();
-
-	bool HandleTagSpecGrant(const FUpTagSpec& TagSpec) const;
 };

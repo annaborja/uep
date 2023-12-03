@@ -2,12 +2,13 @@
 
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 
-#include "Characters/Player/UpPlayerCharacter.h"
+#include "Characters/UpPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Interfaces/UpInteractable.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "UI/UpHud.h"
 #include "Utils/Constants.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 UUpPlayerInteractionComponent::UUpPlayerInteractionComponent()
 {
@@ -19,19 +20,19 @@ void UUpPlayerInteractionComponent::TickComponent(const float DeltaTime, const E
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (!CustomOwner) return;
+	if (!PlayableCharacter || !PlayableCharacter->IsPlayer()) return;
 	
 	TArray<FHitResult> OutHits;
 	
-	if (const auto Capsule = CustomOwner->GetCapsuleComponent())
+	if (const auto Capsule = PlayableCharacter->GetCapsuleComponent())
 	{
-		const auto OwnerLocation = CustomOwner->GetActorLocation();
+		const auto OwnerLocation = PlayableCharacter->GetActorLocation();
 	
 		UKismetSystemLibrary::BoxTraceMulti(this,
-			OwnerLocation, OwnerLocation + CustomOwner->GetActorForwardVector() * TraceLength,
+			OwnerLocation, OwnerLocation + PlayableCharacter->GetActorForwardVector() * TraceLength,
 			FVector(10.f, Capsule->GetUnscaledCapsuleRadius(), Capsule->GetUnscaledCapsuleHalfHeight()),
-			CustomOwner->GetActorRotation(), UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_INTERACTION), false,
-			TArray<AActor*> { CustomOwner }, bDebugInteractionTrace ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, OutHits, true);
+			PlayableCharacter->GetActorRotation(), UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_INTERACTION), false,
+			TArray<AActor*> { PlayableCharacter }, bDebugInteractionTrace ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, OutHits, true);
 	}
 
 	FHitResult InteractableHit;
@@ -46,7 +47,7 @@ void UUpPlayerInteractionComponent::TickComponent(const float DeltaTime, const E
 
 	const auto NewTargetInteractable = InteractableHit.GetActor();
 
-	if (const auto Hud = CustomOwner->GetCustomHud(); NewTargetInteractable != TargetInteractable)
+	if (const auto Hud = UUpBlueprintFunctionLibrary::GetCustomHud(this); NewTargetInteractable != TargetInteractable)
 	{
 		Hud->BroadcastTargetInteractable(NewTargetInteractable);
 	}
@@ -58,5 +59,5 @@ void UUpPlayerInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CustomOwner = CastChecked<AUpPlayerCharacter>(GetOwner());
+	PlayableCharacter = CastChecked<AUpPlayableCharacter>(GetOwner());
 }

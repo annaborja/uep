@@ -19,6 +19,7 @@ class UNREALPORTFOLIO_API UUpBlueprintFunctionLibrary : public UBlueprintFunctio
 	GENERATED_BODY()
 
 public:
+	static AUpHud* GetCustomHud(const UObject* WorldContextObject);
 	static UUpGameInstance* GetGameInstance(const UObject* WorldContextObject);
 
 	static FText GetInGameName(const UObject* WorldContextObject, const FGameplayTag& TagId);

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagAssetInterface.h"
-#include "Characters/UpCharacter.h"
+#include "UpPlayableCharacter.h"
 #include "Engine/DataTable.h"
 #include "GAS/UpAbilitySystemComponent.h"
 #include "Interfaces/UpCombatable.h"
@@ -37,7 +37,7 @@ struct FUpNpcData : public FTableRowBase
 };
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpNpcCharacter : public AUpCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface,
+class UNREALPORTFOLIO_API AUpNpcCharacter : public AUpPlayableCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface,
 	public IUpCombatable, public IUpInteractable, public IUpNameable, public IUpTagIdable, public IUpTagSpecGrantable
 {
 	GENERATED_BODY()
@@ -59,7 +59,7 @@ public:
 	virtual bool CanInteract() const override;
 	virtual void Interact(AUpPlayerController* PlayerController) override;
 
-	virtual FText GetInGameName() const override;
+	virtual FText GetInGameName() const override { return NpcData.Name; }
 
 	virtual FGameplayTag GetTagId() const override { return TagId; }
 
@@ -69,14 +69,8 @@ public:
 	bool Mantle() const;
 	void ToggleSprint(const bool bSprint) const;
 
-	void SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation);
-	void UnsetRootMotionTargetLocation();
-
 	FORCEINLINE UUpDialogueComponent* GetDialogueComponent() const { return DialogueComponent; }
 	FORCEINLINE UDialogueVoice* GetDialogueVoice() const { return DialogueVoice; }
-	
-	FORCEINLINE FVector GetRootMotionTargetLocation() const { return RootMotionTargetLocation; }
-	FORCEINLINE bool HasRootMotionTargetLocation() const { return bHasRootMotionTargetLocation; }
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -102,7 +96,4 @@ private:
 	TObjectPtr<AUpAiController> AiController;
 
 	FUpNpcData NpcData;
-
-	FVector RootMotionTargetLocation;
-	bool bHasRootMotionTargetLocation = false;
 };

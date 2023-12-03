@@ -7,7 +7,6 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/Player/UpPlayerController.h"
-#include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Components/UpCombatComponent.h"
@@ -40,28 +39,12 @@ AUpNpcCharacter::AUpNpcCharacter(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UUpCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	AIControllerClass = AUpAiController::StaticClass();
-	
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationYaw = false;
 
 	if (const auto CharacterMovement = GetCharacterMovement())
 	{
 		CharacterMovement->bUseControllerDesiredRotation = true;
 	}
 	
-	if (const auto CapsuleComponent = GetCapsuleComponent())
-	{
-		CapsuleComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	}
-
-	if (const auto Mesh = GetMesh())
-	{
-		Mesh->SetRelativeLocation(FVector(0.f, 0.f, -91.f));
-		Mesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-		Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	}
-
 	AbilitySystemComponent = CreateDefaultSubobject<UUpAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	CombatComponent = CreateDefaultSubobject<UUpCombatComponent>(TEXT("CombatComponent"));
 	DialogueComponent = CreateDefaultSubobject<UUpDialogueComponent>(TEXT("DialogueComponent"));
@@ -155,11 +138,6 @@ void AUpNpcCharacter::Interact(AUpPlayerController* PlayerController)
 	}
 }
 
-FText AUpNpcCharacter::GetInGameName() const
-{
-	return NpcData.Name;
-}
-
 void AUpNpcCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 {
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
@@ -193,16 +171,4 @@ void AUpNpcCharacter::ToggleSprint(const bool bSprint) const
 	if (!CustomMovementComponent) return;
 
 	CustomMovementComponent->ToggleSprint(bSprint);
-}
-
-void AUpNpcCharacter::SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation)
-{
-	RootMotionTargetLocation = InRootMotionTargetLocation;
-	bHasRootMotionTargetLocation = true;
-}
-
-void AUpNpcCharacter::UnsetRootMotionTargetLocation()
-{
-	RootMotionTargetLocation = FVector();
-	bHasRootMotionTargetLocation = false;
 }

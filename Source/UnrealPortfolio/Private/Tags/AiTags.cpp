@@ -4,4 +4,4 @@
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ai_Script, "AI.Script")
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ai_Script_DialogueSystem_B_MeetPlayer, "AI.Script.DialogueSystem.B.MeetPlayer")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ai_Script_Ally_B_MeetPlayer, "AI.Script.Ally.B.MeetPlayer")

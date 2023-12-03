@@ -2,7 +2,7 @@
 
 #include "Characters/Player/UpPlayerCameraManager.h"
 
-#include "Characters/Player/UpPlayerCharacter.h"
+#include "Characters/UpPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -18,7 +18,7 @@ void AUpPlayerCameraManager::BeginPlay()
 
 	if (const auto Controller = GetOwningPlayerController())
 	{
-		Player = CastChecked<AUpPlayerCharacter>(Controller->GetCharacter());
+		PlayableCharacter = CastChecked<AUpPlayableCharacter>(Controller->GetCharacter());
 	}
 }
 
@@ -31,13 +31,13 @@ void AUpPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, const float D
 
 void AUpPlayerCameraManager::AdjustCameraForCrouch(FTViewTarget& OutVT, const float DeltaTime)
 {
-	if (!Player) return;
+	if (!PlayableCharacter) return;
 
-	if (const auto MovementComponent = Player->GetCharacterMovement(); MovementComponent && MovementComponent->IsMovingOnGround())
+	if (const auto MovementComponent = PlayableCharacter->GetCharacterMovement(); MovementComponent && MovementComponent->IsMovingOnGround())
 	{
 		// Read the capsule half-height from the default object
 		// since the capsule half-height of the character instance will change based on its crouch state.
-		const auto DefaultCapsuleHalfHeight = Player->GetClass()->GetDefaultObject<ACharacter>()->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		const auto DefaultCapsuleHalfHeight = PlayableCharacter->GetClass()->GetDefaultObject<ACharacter>()->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 		const FVector TargetCrouchOffset(0, 0, MovementComponent->GetCrouchedHalfHeight() - DefaultCapsuleHalfHeight);
 		
 		auto Offset = FMath::Lerp(FVector::ZeroVector, TargetCrouchOffset,

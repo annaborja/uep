@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "UpPlayerInteractionComponent.generated.h"
 
-class AUpPlayerCharacter;
+class AUpPlayableCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UNREALPORTFOLIO_API UUpPlayerInteractionComponent : public UActorComponent
@@ -30,9 +30,8 @@ private:
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float TraceLength = 150.f;
 	
-	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
-	TObjectPtr<AActor> TargetInteractable;
-
 	UPROPERTY(Transient)
-	TObjectPtr<AUpPlayerCharacter> CustomOwner;
+	TObjectPtr<AUpPlayableCharacter> PlayableCharacter;
+	UPROPERTY(Transient)
+	TObjectPtr<AActor> TargetInteractable;
 };

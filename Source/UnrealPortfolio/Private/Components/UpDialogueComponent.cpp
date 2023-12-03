@@ -6,7 +6,6 @@
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "Characters/UpNpcCharacter.h"
-#include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "UI/UpHud.h"
@@ -40,21 +39,22 @@ void UUpDialogueComponent::StartDialogue(AUpPlayerController* PlayerController)
 {
 	if (!CustomOwner) return;
 
-	if (const auto Player = PlayerController->GetCustomPlayer())
+	if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
 	{
 		// Make the actors face each other.
 		const auto OwnerLocation = CustomOwner->GetActorLocation();
-		const auto PlayerLocation = Player->GetActorLocation();
+		const auto PossessedCharacterLocation = PossessedCharacter->GetActorLocation();
 	
 		// TODO(P1): Lerp the rotation.
-		Player->SetYaw(UKismetMathLibrary::FindLookAtRotation(PlayerLocation, OwnerLocation).Yaw);
-		CustomOwner->SetYaw(UKismetMathLibrary::FindLookAtRotation(OwnerLocation, PlayerLocation).Yaw);
+		PossessedCharacter->SetYaw(UKismetMathLibrary::FindLookAtRotation(PossessedCharacterLocation, OwnerLocation).Yaw);
+		CustomOwner->SetYaw(UKismetMathLibrary::FindLookAtRotation(OwnerLocation, PossessedCharacterLocation).Yaw);
 
 		if (const auto World = GetWorld())
 		{
 			// Create an over-the-shoulder dialogue camera.
-			const auto CameraLocation = PlayerLocation + Player->GetActorForwardVector() * DialogueCameraOffsetForward +
-				Player->GetActorRightVector() * DialogueCameraOffsetRight + Player->GetActorUpVector() * DialogueCameraOffsetUp;
+			const auto CameraLocation = PossessedCharacterLocation +
+				PossessedCharacter->GetActorForwardVector() * DialogueCameraOffsetForward +
+				PossessedCharacter->GetActorRightVector() * DialogueCameraOffsetRight + PossessedCharacter->GetActorUpVector() * DialogueCameraOffsetUp;
 			const auto CameraRotation = UKismetMathLibrary::FindLookAtRotation(
 				CameraLocation, OwnerLocation + CustomOwner->GetActorUpVector() * DialogueCameraLookTargetOffsetUp);
 
@@ -105,9 +105,9 @@ void UUpDialogueComponent::EndDialogue(AUpPlayerController* PlayerController)
 		Hud->CloseDialogueFlow();
 	}
 
-	if (const auto Player = PlayerController->GetCharacter())
+	if (const auto PossessedCharacter = PlayerController->GetCharacter())
 	{
-		PlayerController->SetViewTargetWithBlend(Player, DialogueCameraBlendTime, VTBlend_Linear, 0.f, true);
+		PlayerController->SetViewTargetWithBlend(PossessedCharacter, DialogueCameraBlendTime, VTBlend_Linear, 0.f, true);
 	}
 
 	if (const auto World = GetWorld(); World && DialogueCamera)

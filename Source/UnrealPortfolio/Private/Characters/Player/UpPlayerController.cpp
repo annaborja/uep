@@ -4,11 +4,11 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Camera/CameraActor.h"
 #include "Characters/Player/UpPlayerCameraManager.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
-#include "Characters/Player/Components/UpPlayerMovementComponent.h"
+#include "Characters/Player/Components/UpPlayerPartyComponent.h"
+#include "Components/UpCharacterMovementComponent.h"
 #include "GameFramework/DefaultPawn.h"
 #include "Interfaces/UpInteractable.h"
 #include "Kismet/GameplayStatics.h"
@@ -19,9 +19,10 @@ AUpPlayerController::AUpPlayerController(): APlayerController()
 	PlayerCameraManagerClass = AUpPlayerCameraManager::StaticClass();
 }
 
-void AUpPlayerController::Init() const
+void AUpPlayerController::Init()
 {
 	ActivateInputMappingContext(BaseInputMappingContext);
+	bInitialized = true;
 }
 
 void AUpPlayerController::BeginPlay()
@@ -37,13 +38,19 @@ void AUpPlayerController::BeginPlay()
 	check(MoveInputAction);
 	check(PauseGameInputAction);
 	check(SprintInputAction);
+	check(SwitchCharacterInputAction);
 	check(ToggleCameraViewInputAction);
 	check(ToggleDebugCameraInputAction);
 
-	CustomPlayer = CastChecked<AUpPlayerCharacter>(GetCharacter());
-
 	CustomHud = CastChecked<AUpHud>(GetHUD());
 	CustomHud->Init(this);
+}
+
+void AUpPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	
+	PossessedCharacter = Cast<AUpPlayableCharacter>(InPawn);
 }
 
 void AUpPlayerController::SetupInputComponent()
@@ -56,6 +63,7 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ToggleDebugCameraInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleDebugCamera);
 	
 	EnhancedInputComponent->BindAction(PauseGameInputAction, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
+	EnhancedInputComponent->BindAction(SwitchCharacterInputAction, ETriggerEvent::Triggered, this, &ThisClass::StartCharacterSwitch);
 	
 	EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
 	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ThisClass::Interact);
@@ -70,24 +78,38 @@ void AUpPlayerController::SetupInputComponent()
 
 void AUpPlayerController::ToggleCameraView(const FInputActionValue& InputActionValue)
 {
-	if (!CustomPlayer) return;
-
-	CustomPlayer->ToggleCameraView();
+	if (!PossessedCharacter) return;
+	
+	switch (CurrentCameraViewType)
+	{
+	case EUpPlayerCameraViewType::FirstPerson:
+		PossessedCharacter->ActivateCameraView(EUpPlayerCameraViewType::ThirdPerson);
+		break;
+	case EUpPlayerCameraViewType::ThirdPerson:
+		PossessedCharacter->ActivateCameraView(EUpPlayerCameraViewType::ThirdPerson_OverTheShoulder);
+		break;
+	case EUpPlayerCameraViewType::ThirdPerson_OverTheShoulder:
+		PossessedCharacter->ActivateCameraView(EUpPlayerCameraViewType::FirstPerson);
+		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Invalid player camera view type %d"), CurrentCameraViewType)
+	}
 }
 
 void AUpPlayerController::ToggleDebugCamera(const FInputActionValue& InputActionValue)
 {
 	if (IsValid(DebugPawn))
 	{
-		DebugPawn->Destroy();
-
-		TArray<AActor*> OutActors;
-		UGameplayStatics::GetAllActorsOfClass(this, AUpPlayerCharacter::StaticClass(), OutActors);
-
-		if (OutActors.IsValidIndex(0)) Possess(Cast<APawn>(OutActors[0]));
-	} else
+		if (DebugCharacter)
+		{
+			Possess(DebugCharacter);
+			DebugCharacter = nullptr;
+			DebugPawn->Destroy();
+		}
+	} else if (const auto World = GetWorld(); World && PossessedCharacter)
 	{
-		DebugPawn = GetWorld()->SpawnActor<ADefaultPawn>(CustomPlayer->GetActorLocation(), CustomPlayer->GetActorRotation());
+		DebugCharacter = PossessedCharacter;
+		DebugPawn = World->SpawnActor<ADefaultPawn>(PossessedCharacter->GetActorLocation(), PossessedCharacter->GetActorRotation());
 		Possess(DebugPawn);
 	}
 }
@@ -99,24 +121,29 @@ void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
 	UGameplayStatics::SetGamePaused(this, true);
 }
 
+void AUpPlayerController::StartCharacterSwitch(const FInputActionValue& InputActionValue)
+{
+	UUpPlayerPartyComponent::SwitchCharacter(this);
+}
+
 void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue)
 {
-	if (!CustomPlayer) return;
+	if (!PossessedCharacter) return;
 
-	if (CustomPlayer->bIsCrouched)
+	if (PossessedCharacter->bIsCrouched)
 	{
-		CustomPlayer->UnCrouch();
+		PossessedCharacter->UnCrouch();
 	} else
 	{
-		CustomPlayer->Crouch();
+		PossessedCharacter->Crouch();
 	}
 }
 
 void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
 {
-	if (!CustomPlayer) return;
+	if (!PossessedCharacter) return;
 	
-	if (const auto InteractionComponent = CustomPlayer->GetInteractionComponent())
+	if (const auto InteractionComponent = PossessedCharacter->GetPlayerInteractionComponent())
 	{
 		if (const auto TargetInteractable = Cast<IUpInteractable>(InteractionComponent->GetTargetInteractable()))
 		{
@@ -127,28 +154,28 @@ void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
 
 void AUpPlayerController::Jump(const FInputActionValue& InputActionValue)
 {
-	if (!CustomPlayer) return;
+	if (!PossessedCharacter) return;
 
-	CustomPlayer->Jump();
+	PossessedCharacter->Jump();
 }
 
 void AUpPlayerController::StartSprint(const FInputActionValue& InputActionValue)
 {
-	if (!CustomPlayer) return;
+	if (!PossessedCharacter) return;
 	
-	if (const auto PlayerMovementComponent = CustomPlayer->GetPlayerMovementComponent())
+	if (const auto MovementComponent = PossessedCharacter->GetCustomMovementComponent())
 	{
-		PlayerMovementComponent->ToggleSprint(true);
+		MovementComponent->ToggleSprint(true);
 	}
 }
 
 void AUpPlayerController::StopSprint(const FInputActionValue& InputActionValue)
 {
-	if (!CustomPlayer) return;
+	if (!PossessedCharacter) return;
 	
-	if (const auto PlayerMovementComponent = CustomPlayer->GetPlayerMovementComponent())
+	if (const auto MovementComponent = PossessedCharacter->GetCustomMovementComponent())
 	{
-		PlayerMovementComponent->ToggleSprint(false);
+		MovementComponent->ToggleSprint(false);
 	}
 }
 
@@ -165,10 +192,10 @@ void AUpPlayerController::Move(const FInputActionValue& InputActionValue)
 	const auto InputActionVector = InputActionValue.Get<FVector2D>();
 	const FRotationMatrix RotationMatrix(FRotator(0.f, GetControlRotation().Yaw, 0.f));
 
-	if (CustomPlayer)
+	if (PossessedCharacter)
 	{
-		CustomPlayer->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::X), InputActionVector.Y);
-		CustomPlayer->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::Y), InputActionVector.X);
+		PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::X), InputActionVector.Y);
+		PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::Y), InputActionVector.X);
 	}
 }
 

@@ -13,6 +13,16 @@
 #include "Utils/Constants.h"
 #include "Utils/Structs.h"
 
+AUpHud* UUpBlueprintFunctionLibrary::GetCustomHud(const UObject* WorldContextObject)
+{
+	if (const auto PlayerController = Cast<AUpPlayerController>(UGameplayStatics::GetPlayerController(WorldContextObject, 0)))
+	{
+		return PlayerController->GetCustomHud();
+	}
+
+	return nullptr;
+}
+
 UUpGameInstance* UUpBlueprintFunctionLibrary::GetGameInstance(const UObject* WorldContextObject)
 {
 	return Cast<UUpGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));

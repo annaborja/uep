@@ -12,14 +12,9 @@ bool UUpPlayerReputationComponent::ShouldHandleTagSpecGrant(const FUpTagSpec& Ta
 	return TagSpec.Tag.MatchesTag(TAG_Reputation);
 }
 
-UUpPlayerReputationComponent::UUpPlayerReputationComponent()
+bool UUpPlayerReputationComponent::HandleTagSpecGrant(const UObject* WorldContextObject, const FUpTagSpec& TagSpec)
 {
-	PrimaryComponentTick.bCanEverTick = false;
-}
-
-bool UUpPlayerReputationComponent::HandleTagSpecGrant(const FUpTagSpec& TagSpec) const
-{
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(WorldContextObject))
 	{
 		if (TagSpec.Tag.MatchesTagExact(TAG_Reputation_Affection))
 		{
@@ -33,4 +28,9 @@ bool UUpPlayerReputationComponent::HandleTagSpecGrant(const FUpTagSpec& TagSpec)
 	}
 
 	return false;
+}
+
+UUpPlayerReputationComponent::UUpPlayerReputationComponent()
+{
+	PrimaryComponentTick.bCanEverTick = false;
 }

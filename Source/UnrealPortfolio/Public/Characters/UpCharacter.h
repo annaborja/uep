@@ -24,8 +24,14 @@ public:
 	virtual UUpInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 
 	void SetYaw(const float InYaw);
+	
+	void SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation);
+	void UnsetRootMotionTargetLocation();
 
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
+	
+	FORCEINLINE FVector GetRootMotionTargetLocation() const { return RootMotionTargetLocation; }
+	FORCEINLINE bool HasRootMotionTargetLocation() const { return bHasRootMotionTargetLocation; }
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -38,4 +44,7 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;
+	
+	FVector RootMotionTargetLocation;
+	bool bHasRootMotionTargetLocation = false;
 };

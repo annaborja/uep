@@ -3,16 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UpPlayerCharacter.h"
 #include "GameFramework/PlayerController.h"
 #include "UpPlayerController.generated.h"
 
 class ADefaultPawn;
 class AUpHud;
-class AUpPlayerCharacter;
+class AUpPlayableCharacter;
 struct FInputActionValue;
 class UInputAction;
 class UInputMappingContext;
+
+UENUM(BlueprintType)
+namespace EUpPlayerCameraViewType
+{
+	enum Type : uint8
+	{
+		FirstPerson,
+		ThirdPerson,
+		ThirdPerson_OverTheShoulder
+	};
+}
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpPlayerController : public APlayerController
@@ -22,13 +32,18 @@ class UNREALPORTFOLIO_API AUpPlayerController : public APlayerController
 public:
 	AUpPlayerController();
 	
-	void Init() const;
+	void Init();
 
+	void SetCurrentCameraViewType(const EUpPlayerCameraViewType::Type InCameraViewType) { CurrentCameraViewType = InCameraViewType; }
+	
+	FORCEINLINE TEnumAsByte<EUpPlayerCameraViewType::Type> GetCurrentCameraViewType() const { return CurrentCameraViewType; }
 	FORCEINLINE AUpHud* GetCustomHud() const { return CustomHud; }
-	FORCEINLINE AUpPlayerCharacter* GetCustomPlayer() const { return CustomPlayer; }
+	FORCEINLINE AUpPlayableCharacter* GetPossessedCharacter() const { return PossessedCharacter; }
+	FORCEINLINE bool IsInitialized() const { return bInitialized; }
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* InPawn) override;
 	virtual void SetupInputComponent() override;
 
 private:
@@ -50,6 +65,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> SprintInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> SwitchCharacterInputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> ToggleCameraViewInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> ToggleDebugCameraInputAction;
@@ -57,15 +74,20 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<AUpHud> CustomHud;
 	UPROPERTY(Transient)
-	TObjectPtr<AUpPlayerCharacter> CustomPlayer;
-	
+	TObjectPtr<AUpPlayableCharacter> DebugCharacter;
 	UPROPERTY(Transient)
 	TObjectPtr<ADefaultPawn> DebugPawn;
+	UPROPERTY(Transient)
+	TObjectPtr<AUpPlayableCharacter> PossessedCharacter;
+	
+	TEnumAsByte<EUpPlayerCameraViewType::Type> CurrentCameraViewType = EUpPlayerCameraViewType::ThirdPerson;
+	bool bInitialized = false;
 	
 	void ToggleCameraView(const FInputActionValue& InputActionValue);
 	void ToggleDebugCamera(const FInputActionValue& InputActionValue);
 	
 	void PauseGame(const FInputActionValue& InputActionValue);
+	void StartCharacterSwitch(const FInputActionValue& InputActionValue);
 
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
 	void Interact(const FInputActionValue& InputActionValue);

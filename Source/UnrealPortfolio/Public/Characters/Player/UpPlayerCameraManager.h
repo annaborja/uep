@@ -6,7 +6,7 @@
 #include "Camera/PlayerCameraManager.h"
 #include "UpPlayerCameraManager.generated.h"
 
-class AUpPlayerCharacter;
+class AUpPlayableCharacter;
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpPlayerCameraManager : public APlayerCameraManager
@@ -25,7 +25,7 @@ private:
 	float CrouchBlendDuration = 0.5f;
 	
 	UPROPERTY(Transient)
-	TObjectPtr<AUpPlayerCharacter> Player;
+	TObjectPtr<AUpPlayableCharacter> PlayableCharacter;
 	
 	float CrouchBlendTime;
 

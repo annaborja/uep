@@ -8,8 +8,7 @@
 #include "UpCharacterMovementComponent.generated.h"
 
 class AUpCharacter;
-class AUpNpcCharacter;
-class AUpPlayerCharacter;
+class AUpPlayableCharacter;
 
 UENUM()
 namespace EUpCustomMovementMode
@@ -30,25 +29,38 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual float GetMaxSpeed() const override;
+	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
 	virtual void UpdateCharacterStateAfterMovement(float DeltaSeconds) override;
 
-	void ToggleSprint(const bool bInWantsToSprint) { bWantsToSprint = bInWantsToSprint; }
-	bool TryMantle();
+	void InitForPlayer();
+	void TearDownForPlayer();
 
 	void ResetMaxWalkSpeed() { MaxWalkSpeed = BaseMaxWalkSpeed; }
 	void ResetRotationRate() { RotationRate = BaseRotationRate; }
-	
+	void ToggleCustomPressedJump(const bool bInCustomPressedJump) { bCustomPressedJump = bInCustomPressedJump; }
+	void ToggleSprint(const bool bInWantsToSprint) { bWantsToSprint = bInWantsToSprint; }
+	bool TryMantle();
+
 	FORCEINLINE float GetMaxSprintSpeed() const { return MaxSprintSpeed; }
 	FORCEINLINE bool IsSprinting() const { return bWantsToSprint; }
-	
 	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
 
-protected:
+private:
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<UAnimMontage> MantlesMontage;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<UAnimMontage> MantleTransitionsMontage;
+
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugMantle = false;
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugMovement = false;
+
+	UPROPERTY(EditAnywhere, Category="UP Params|Jump")
+	float JumpCooldownTime = 0.1f;
+	UPROPERTY(EditAnywhere, Category="UP Params|Jump")
+	float JumpFallGravityScale = 4.f;
 
 	UPROPERTY(EditAnywhere, Category="UP Params|Mantle")
 	uint8 NumMantleFrontTraceDivisions = 8;
@@ -68,39 +80,40 @@ protected:
 	float MantleMaxSurfaceAngle = 40.f;
 	UPROPERTY(EditAnywhere, Category="UP Params|Mantle")
 	float MantleMaxAlignmentAngle = 45.f;
-	
+
 	UPROPERTY(EditAnywhere, Category="UP Params|Sprint")
 	float MaxSprintSpeed = 700.f;
-	
-	UPROPERTY(Transient)
-	TObjectPtr<AUpPlayerCharacter> Player;
-	
-	float BaseGravityScale = 1.f;
 
-private:
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TObjectPtr<UAnimMontage> MantlesMontage;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TObjectPtr<UAnimMontage> MantleTransitionsMontage;
-	
 	UPROPERTY(Transient)
 	TObjectPtr<AUpCharacter> Character;
 	UPROPERTY(Transient)
-	TObjectPtr<AUpNpcCharacter> Npc;
-	
+	TObjectPtr<AUpPlayableCharacter> PlayableCharacter;
+
+	float BaseGravityScale = 1.f;
 	float BaseMaxWalkSpeed = 0.f;
 	FRotator BaseRotationRate;
-	
-	bool bHadAnimRootMotion = false;
+
 	bool bWantsToSprint = false;
+
+	TScriptDelegate<FWeakObjectPtr> OnPlayerJumpApexReachedDelegate;
+	FTimerHandle JumpCooldownTimerHandle;
+	bool bCustomPressedJump = false;
+
+	bool bHadAnimRootMotion = false;
+	bool bIsPlayer = false;
 
 	TSharedPtr<FRootMotionSource_MoveToForce> TransitionRootMotionSource;
 	uint16 TransitionRootMotionSourceId;
 	bool bTransitionRootMotionSourceFinished = false;
 	FUpMontageData PostTransitionMontageData;
 
+	UFUNCTION()
+	void AllowJump();
+	UFUNCTION()
+	void OnPlayerJumpApexReached() { GravityScale = JumpFallGravityScale; }
+
 	bool IsCustomMovementModeActive(const EUpCustomMovementMode::Type InCustomMovementMode) const;
-	
+
 	FVector GetMantleStartLocation(const FHitResult& FrontSurfaceHit, const FHitResult& TopSurfaceHit,
 		const float CapsuleHalfHeight, const float CapsuleRadius, const float MinMantleHeight, const bool bTallMantle) const;
 };
