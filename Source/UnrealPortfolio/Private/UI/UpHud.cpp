@@ -9,12 +9,14 @@
 #include "Components/UpDialogueComponent.h"
 #include "GAS/Attributes/UpAttributeSet.h"
 #include "UI/UpCommonActivatableWidget.h"
+#include "UI/CharacterSwitcher/UpCharacterSwitcherWidget.h"
 #include "UI/Persistent/UpPersistentOverlayWidget.h"
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
 void AUpHud::Init(AUpPlayerController* InPlayerController)
 {
+	check(CharacterSwitcherClass);
 	check(DialogueOverlayClass);
 	check(MenuSwitcherClass);
 	check(PersistentOverlayClass);
@@ -77,6 +79,13 @@ TMap<FGameplayTag, FUpReputationData> AUpHud::GetPlayerNpcReputationDataMap() co
 	}
 
 	return TMap<FGameplayTag, FUpReputationData>();
+}
+
+void AUpHud::OpenCharacterSwitcher()
+{
+	if (!PersistentOverlayWidget) return;
+	
+	 CharacterSwitcherWidget = PersistentOverlayWidget->OpenCharacterSwitcher();
 }
 
 void AUpHud::OpenDialogueFlow()

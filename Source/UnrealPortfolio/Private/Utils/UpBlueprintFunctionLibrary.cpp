@@ -47,6 +47,7 @@ FText UUpBlueprintFunctionLibrary::GetInGameName(const UObject* WorldContextObje
 		}
 	}
 
+	UE_LOG(LogTemp, Error, TEXT("GetInGameName: No data found for tag ID %s"), *TagId.ToString())
 	return FText::FromString(TagId.ToString());
 }
 
@@ -64,8 +65,11 @@ FText UUpBlueprintFunctionLibrary::GetInGameNameifiedText(const UObject* WorldCo
 	
 			while (Matcher.FindNext())
 			{
-				// Just in case we have a bug somewhere, avoid an infinite loop.
-				if (++i > 100) break;
+				if (++i > 100)
+				{
+					UE_LOG(LogTemp, Error, TEXT("GetInGameNameifiedText: Infinite loop break hit"))
+					break;
+				}
 
 				if (AllNpcDataRows.Num() <= 0)
 				{
@@ -90,6 +94,9 @@ FText UUpBlueprintFunctionLibrary::GetInGameNameifiedText(const UObject* WorldCo
 				if (NpcData.IsValid())
 				{
 					UKismetStringLibrary::ReplaceInline(Result, "[" + CaptureGroup + "]", NpcData.Name.ToString());
+				} else
+				{
+					UE_LOG(LogTemp, Error, TEXT("GetInGameNameifiedText: No NPC data found for capture group %s"), *CaptureGroup)
 				}
 			}
 		}
@@ -110,6 +117,8 @@ FGameplayTag UUpBlueprintFunctionLibrary::GetNormalizedTag(const FGameplayTag& T
 
 bool UUpBlueprintFunctionLibrary::HasTag(const AActor* Actor, const FGameplayTag& Tag)
 {
+	if (!ValidateTag(Tag, TEXT("HasTag"))) return false;
+	
 	if (const auto GameplayTagAsset = Cast<IGameplayTagAssetInterface>(Actor))
 	{
 		FGameplayTagContainer TagContainer;
@@ -123,6 +132,8 @@ bool UUpBlueprintFunctionLibrary::HasTag(const AActor* Actor, const FGameplayTag
 
 bool UUpBlueprintFunctionLibrary::HasTagId(const AActor* Actor, const FGameplayTag& Tag)
 {
+	if (!ValidateTag(Tag, TEXT("HasTagId"))) return false;
+	
 	if (const auto TagIdable = Cast<IUpTagIdable>(Actor))
 	{
 		return TagIdable->GetTagId().MatchesTagExact(Tag);
@@ -131,69 +142,159 @@ bool UUpBlueprintFunctionLibrary::HasTagId(const AActor* Actor, const FGameplayT
 	return false;
 }
 
+bool UUpBlueprintFunctionLibrary::ValidateTag(const FGameplayTag& Tag, const FString& FuncName)
+{
+	if (!Tag.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: Invalid tag %s"), *FuncName, *Tag.ToString())
+		return false;
+	}
+	
+	return true;
+}
+
+bool UUpBlueprintFunctionLibrary::ValidateNpcTag(const FGameplayTag& Tag, const FString& FuncName)
+{
+	if (!ValidateTag(Tag, FuncName)) return false;
+
+	if (!Tag.MatchesTag(TAG_Npc))
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: Non-NPC tag %s"), *FuncName, *Tag.ToString())
+		return false;
+	}
+		
+	return true;
+}
+
 bool UUpBlueprintFunctionLibrary::IsEntityTagSpecSatisfied(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec, const bool bProhibition)
 {
-	if (EntityTagSpec.PlayerTagSpecs.Num() > 0)
-	{
-		const auto GameplayTagAsset = Cast<IGameplayTagAssetInterface>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
-
-		if (!GameplayTagAsset) return false;
-
-		FGameplayTagContainer PlayerTags;
-		GameplayTagAsset->GetOwnedGameplayTags(PlayerTags);
-			
-		for (const auto& PlayerTagSpec : EntityTagSpec.PlayerTagSpecs)
-		{
-			if (bProhibition && PlayerTags.HasTagExact(PlayerTagSpec.Tag)) return false;
-			if (!bProhibition && !PlayerTags.HasTagExact(PlayerTagSpec.Tag)) return false;
-		}
-	}
-
 	if (const auto GameInstance = GetGameInstance(WorldContextObject))
 	{
+		if (EntityTagSpec.PlayerTagSpecs.Num() > 0)
+		{
+			FGameplayTagContainer PlayerCharacterTags;
+			GameInstance->GetPlayerCharacterTags(PlayerCharacterTags);
+			
+			for (const auto& PlayerTagSpec : EntityTagSpec.PlayerTagSpecs)
+			{
+				if (!ValidateTagSpec(PlayerTagSpec, TEXT("IsEntityTagSpecSatisfied"))) return false;
+				
+				if (bProhibition && PlayerCharacterTags.HasTagExact(PlayerTagSpec.Tag)) return false;
+				if (!bProhibition && !PlayerCharacterTags.HasTagExact(PlayerTagSpec.Tag)) return false;
+			}
+		}
+		
 		for (const auto& NpcTagToTagSpecMappings : EntityTagSpec.NpcTagSpecMappings)
 		{
-			FGameplayTagContainer NpcTags;
-			GameInstance->GetNpcCharacterTags(NpcTagToTagSpecMappings.Tag, NpcTags);
+			const auto NpcTagId = NpcTagToTagSpecMappings.Tag;
+
+			if (!ValidateNpcTag(NpcTagId, TEXT("IsEntityTagSpecSatisfied"))) return false;
+			
+			FGameplayTagContainer NpcCharacterTags;
+			GameInstance->GetNpcCharacterTags(NpcTagId, NpcCharacterTags);
 			
 			for (const auto& NpcTagSpec : NpcTagToTagSpecMappings.TagSpecs)
 			{
-				if (bProhibition && NpcTags.HasTagExact(NpcTagSpec.Tag)) return false;
-				if (!bProhibition && !NpcTags.HasTagExact(NpcTagSpec.Tag)) return false;
+				if (!ValidateTagSpec(NpcTagSpec, TEXT("IsEntityTagSpecSatisfied"))) return false;
+				
+				if (bProhibition && NpcCharacterTags.HasTagExact(NpcTagSpec.Tag)) return false;
+				if (!bProhibition && !NpcCharacterTags.HasTagExact(NpcTagSpec.Tag)) return false;
 			}
 		}
+		
+		// TODO(P0): Finish implementation.
+
+		return true;
 	}
 
-	// TODO(P0): Finish implementation.
-
-	return true;
+	return false;
 }
 
 void UUpBlueprintFunctionLibrary::ProcessEntityTagSpecGrants(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec)
 {
-	if (EntityTagSpec.PlayerTagSpecs.Num() > 0)
+	for (const auto& PlayerTagSpec : EntityTagSpec.PlayerTagSpecs)
 	{
-		if (const auto Player = Cast<AUpPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0)))
-		{
-			for (const auto& PlayerTagSpec : EntityTagSpec.PlayerTagSpecs)
-			{
-				Player->GrantTagSpec(PlayerTagSpec);
-			}
-		}
+		if (!ValidateTagSpec(PlayerTagSpec, TEXT("ProcessEntityTagSpecGrants"))) continue;
+		
+		GrantPlayerTagSpec(WorldContextObject, PlayerTagSpec);
 	}
 
-	if (const auto GameInstance = GetGameInstance(WorldContextObject))
+	for (const auto& NpcTagToTagSpecMappings : EntityTagSpec.NpcTagSpecMappings)
 	{
-		for (const auto& NpcTagToTagSpecMappings : EntityTagSpec.NpcTagSpecMappings)
+		const auto NpcTagId = NpcTagToTagSpecMappings.Tag;
+
+		if (!ValidateNpcTag(NpcTagId, TEXT("ProcessEntityTagSpecGrants"))) continue;
+		
+		for (const auto& NpcTagSpec : NpcTagToTagSpecMappings.TagSpecs)
 		{
-			for (const auto& NpcTagSpec : NpcTagToTagSpecMappings.TagSpecs)
-			{
-				AUpNpcCharacter::GrantTagSpec(GameInstance, NpcTagToTagSpecMappings.Tag, NpcTagSpec);
-			}
+			if (!ValidateTagSpec(NpcTagSpec, TEXT("ProcessEntityTagSpecGrants"))) continue;
+			
+			GrantNpcTagSpec(WorldContextObject, NpcTagId, NpcTagSpec);
 		}
 	}
 
 	// TODO(P0): Finish implementation.
+}
+
+bool UUpBlueprintFunctionLibrary::ValidateTagSpec(const FUpTagSpec& TagSpec, const FString& FuncName)
+{
+	if (!TagSpec.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: Invalid tag spec %s (%d)"), *FuncName, *TagSpec.Tag.ToString(), TagSpec.Count)
+		return false;
+	}
+
+	return true;
+}
+
+void UUpBlueprintFunctionLibrary::GrantNpcTagSpec(const UObject* WorldContextObject, const FGameplayTag& NpcTagId, const FUpTagSpec& TagSpec)
+{
+	if (!ValidateNpcTag(NpcTagId, TEXT("GrantNpcTagSpec"))) return;
+	if (!ValidateTagSpec(TagSpec, TEXT("GrantNpcTagSpec"))) return;
+	
+	if (const auto GameInstance = GetGameInstance(WorldContextObject))
+	{
+		if (GameInstance->ShouldDebugTagSpecGrant())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s GrantTagSpec: %s (%d)"), *NpcTagId.ToString(), *TagSpec.Tag.ToString(), TagSpec.Count)
+		}
+		
+		bool bSuccess = false;
+		
+		if (TagSpec.Count > 0)
+		{
+			bSuccess = GameInstance->AddNpcCharacterTag(NpcTagId, TagSpec.Tag);
+		} else if (TagSpec.Count < 0)
+		{
+			bSuccess = GameInstance->RemoveNpcCharacterTag(NpcTagId, TagSpec.Tag);
+		}
+	}
+}
+
+void UUpBlueprintFunctionLibrary::GrantPlayerTagSpec(const UObject* WorldContextObject, const FUpTagSpec& TagSpec)
+{
+	if (!ValidateTagSpec(TagSpec, TEXT("GrantPlayerTagSpec"))) return;
+	
+	if (const auto GameInstance = GetGameInstance(WorldContextObject))
+	{
+		if (GameInstance->ShouldDebugTagSpecGrant())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player GrantTagSpec: %s (%d)"), *TagSpec.Tag.ToString(), TagSpec.Count)
+		}
+		
+		bool bSuccess = false;
+		
+		if (UUpPlayerReputationComponent::ShouldHandleTagSpecGrant(TagSpec))
+		{
+			bSuccess = UUpPlayerReputationComponent::HandleTagSpecGrant(WorldContextObject, TagSpec);
+		} else if (TagSpec.Count > 0)
+		{
+			bSuccess = GameInstance->AddPlayerCharacterTag(TagSpec.Tag);
+		} else if (TagSpec.Count < 0)
+		{
+			bSuccess = GameInstance->RemovePlayerCharacterTag(TagSpec.Tag);
+		}
+	}
 }
 
 FVector UUpBlueprintFunctionLibrary::CalculateVelocity(const FVector& FromLocation, const FVector& ToLocation, const float Duration, const float GravityScale)

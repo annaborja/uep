@@ -4,6 +4,7 @@
 
 #include "GameplayEffect.h"
 #include "Tags/NpcTags.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 void UUpGameInstance::Init()
 {
@@ -14,14 +15,16 @@ void UUpGameInstance::Init()
 	check(PlayerDialogueVoice);
 }
 
-void UUpGameInstance::GetPlayerCharacterTags(FGameplayTagContainer& OutCharacterTags) const
+void UUpGameInstance::GetPlayerCharacterTags(FGameplayTagContainer& OutTags) const
 {
-	OutCharacterTags.AppendTags(PlayerCharacterTags);
+	OutTags.AppendTags(PlayerCharacterTags);
 }
 
 bool UUpGameInstance::AddPlayerCharacterTag(const FGameplayTag& Tag)
 {
-	if (!Tag.IsValid() || PlayerCharacterTags.HasTagExact(Tag)) return false;
+	if (!UUpBlueprintFunctionLibrary::ValidateTag(Tag, TEXT("AddPlayerCharacterTag"))) return false;
+	
+	if (PlayerCharacterTags.HasTagExact(Tag)) return false;
 
 	PlayerCharacterTags.AddTag(Tag);
 	
@@ -30,23 +33,26 @@ bool UUpGameInstance::AddPlayerCharacterTag(const FGameplayTag& Tag)
 
 bool UUpGameInstance::RemovePlayerCharacterTag(const FGameplayTag& Tag)
 {
-	if (!Tag.IsValid() || !PlayerCharacterTags.HasTagExact(Tag)) return false;
+	if (!UUpBlueprintFunctionLibrary::ValidateTag(Tag, TEXT("RemovePlayerCharacterTag"))) return false;
+	
+	if (!PlayerCharacterTags.HasTagExact(Tag)) return false;
 
 	PlayerCharacterTags.RemoveTag(Tag);
 	
 	return true;
 }
 
-void UUpGameInstance::GetNpcCharacterTags(const FGameplayTag& NpcTagId, FGameplayTagContainer& OutCharacterTags)
+void UUpGameInstance::GetNpcCharacterTags(const FGameplayTag& NpcTagId, FGameplayTagContainer& OutTags)
 {
-	if (!NpcTagId.IsValid() || !NpcTagId.MatchesTag(TAG_Npc)) return;
+	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcCharacterTags"))) return;
 	
-	OutCharacterTags.AppendTags(NpcCharacterTagsMap.FindOrAdd(NpcTagId));
+	OutTags.AppendTags(NpcCharacterTagsMap.FindOrAdd(NpcTagId));
 }
 
 bool UUpGameInstance::AddNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag)
 {
-	if (!NpcTagId.IsValid() || !NpcTagId.MatchesTag(TAG_Npc) || !Tag.IsValid()) return false;
+	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("AddNpcCharacterTag"))) return false;
+	if (!UUpBlueprintFunctionLibrary::ValidateTag(Tag, TEXT("AddNpcCharacterTag"))) return false;
 	
 	auto& CharacterTags = NpcCharacterTagsMap.FindOrAdd(NpcTagId);
 	
@@ -59,7 +65,8 @@ bool UUpGameInstance::AddNpcCharacterTag(const FGameplayTag& NpcTagId, const FGa
 
 bool UUpGameInstance::RemoveNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag)
 {
-	if (!NpcTagId.IsValid() || !NpcTagId.MatchesTag(TAG_Npc) || !Tag.IsValid()) return false;
+	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("RemoveNpcCharacterTag"))) return false;
+	if (!UUpBlueprintFunctionLibrary::ValidateTag(Tag, TEXT("RemoveNpcCharacterTag"))) return false;
 	
 	auto& CharacterTags = NpcCharacterTagsMap.FindOrAdd(NpcTagId);
 	
@@ -70,19 +77,44 @@ bool UUpGameInstance::RemoveNpcCharacterTag(const FGameplayTag& NpcTagId, const 
 	return true;
 }
 
+void UUpGameInstance::GetPartyMemberTags(FGameplayTagContainer& OutTags) const
+{
+	OutTags.AppendTags(PartyMemberTags);
+}
+
+void UUpGameInstance::AddPartyMember(const FGameplayTag& NpcTagId)
+{
+	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("AddPartyMember"))) return;
+	
+	PartyMemberTags.AddTag(NpcTagId);
+}
+
+void UUpGameInstance::RemovePartyMember(const FGameplayTag& NpcTagId)
+{
+	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("RemovePartyMember"))) return;
+	
+	PartyMemberTags.RemoveTag(NpcTagId);
+}
+
 FUpReputationData UUpGameInstance::GetPlayerReputationData(const FGameplayTag& TagId)
 {
-	if (TagId.IsValid())
-	{
-		if (TagId.MatchesTag(TAG_Npc)) return PlayerNpcReputationDataMap.FindOrAdd(TagId);
-	}
+	if (!UUpBlueprintFunctionLibrary::ValidateTag(TagId, TEXT("GetPlayerReputationData"))) return FUpReputationData();
+	
+	if (TagId.MatchesTag(TAG_Npc)) return PlayerNpcReputationDataMap.FindOrAdd(TagId);
 
+	UE_LOG(LogTemp, Error, TEXT("GetPlayerReputationData: Unmatched tag ID %s"), *TagId.ToString())
 	return FUpReputationData();
 }
 
 bool UUpGameInstance::UpdatePlayerReputation_Affection(const FGameplayTag& TagId, const int8 Delta)
 {
-	if (!TagId.IsValid() || Delta == 0) return false;
+	if (!UUpBlueprintFunctionLibrary::ValidateTag(TagId, TEXT("UpdatePlayerReputation_Affection"))) return false;
+	
+	if (Delta == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UpdatePlayerReputation_Affection: Delta == 0 for tag ID %s"), *TagId.ToString())
+		return false;
+	}
 
 	if (TagId.MatchesTag(TAG_Npc))
 	{
@@ -94,12 +126,19 @@ bool UUpGameInstance::UpdatePlayerReputation_Affection(const FGameplayTag& TagId
 		return true;
 	}
 
+	UE_LOG(LogTemp, Error, TEXT("UpdatePlayerReputation_Affection: Unmatched tag ID %s"), *TagId.ToString())
 	return false;
 }
 
 bool UUpGameInstance::UpdatePlayerReputation_Esteem(const FGameplayTag& TagId, const int8 Delta)
 {
-	if (!TagId.IsValid() || Delta == 0) return false;
+	if (!UUpBlueprintFunctionLibrary::ValidateTag(TagId, TEXT("UpdatePlayerReputation_Esteem"))) return false;
+	
+	if (Delta == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UpdatePlayerReputation_Esteem: Delta == 0 for tag ID %s"), *TagId.ToString())
+		return false;
+	}
 	
 	if (TagId.MatchesTag(TAG_Npc))
 	{
@@ -111,5 +150,6 @@ bool UUpGameInstance::UpdatePlayerReputation_Esteem(const FGameplayTag& TagId, c
 		return true;
 	}
 
+	UE_LOG(LogTemp, Error, TEXT("UpdatePlayerReputation_Esteem: Unmatched tag ID %s"), *TagId.ToString())
 	return false;
 }

@@ -15,6 +15,7 @@ class UUpQuestsMenuWidget;
 class UUpReputationMenuWidget;
 class UUpSettingsMenuWidget;
 class UUpSkillsMenuWidget;
+class UUpSquadMenuWidget;
 class UUpStatsMenuWidget;
 
 UCLASS()
@@ -40,6 +41,8 @@ protected:
 	UUpSettingsMenuWidget* GetSettingsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpSkillsMenuWidget* GetSkillsMenu() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMenuWidget* GetSquadMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpStatsMenuWidget* GetStatsMenu() const;
 	

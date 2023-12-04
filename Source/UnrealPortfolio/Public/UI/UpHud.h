@@ -15,6 +15,7 @@ struct FUpDialogueOptionData;
 struct FUpDialogueStepData;
 struct FUpReputationData;
 class UUpAttributeSet;
+class UUpCharacterSwitcherWidget;
 class UUpCommonActivatableWidget;
 class UUpDialogueOverlayWidget;
 class UUpPersistentOverlayWidget;
@@ -51,7 +52,8 @@ public:
 	FUpReputationData GetPlayerWorldReputationData() const;
 	TMap<FGameplayTag, FUpReputationData> GetPlayerNpcReputationDataMap() const;
 	
-	// Dialogue Flow
+	void OpenCharacterSwitcher();
+	
 	void OpenDialogueFlow();
 	void CloseDialogueFlow() const;
 	void DisplayDialogueStep(AUpNpcCharacter* Npc, const FUpDialogueStepData& DialogueStep) const;
@@ -64,12 +66,15 @@ public:
 
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
 	
+	FORCEINLINE TSubclassOf<UUpCharacterSwitcherWidget> GetCharacterSwitcherClass() const { return CharacterSwitcherClass; }
 	FORCEINLINE TSubclassOf<UUpDialogueOverlayWidget> GetDialogueOverlayClass() const { return DialogueOverlayClass; }
 	FORCEINLINE TSubclassOf<UUpCommonActivatableWidget> GetMenuSwitcherClass() const { return MenuSwitcherClass; }
 	
 	FUpHudTargetInteractableSignature TargetInteractableDelegate;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TSubclassOf<UUpCharacterSwitcherWidget> CharacterSwitcherClass;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UUpDialogueOverlayWidget> DialogueOverlayClass;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
@@ -79,6 +84,9 @@ private:
 	
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayerController> CustomController;
+	
+	UPROPERTY(Transient)
+	TObjectPtr<UUpCharacterSwitcherWidget> CharacterSwitcherWidget;
 	UPROPERTY(Transient)
 	TObjectPtr<UUpDialogueOverlayWidget> DialogueOverlayWidget;
 	UPROPERTY(Transient)

@@ -87,7 +87,7 @@ private:
 	void ToggleDebugCamera(const FInputActionValue& InputActionValue);
 	
 	void PauseGame(const FInputActionValue& InputActionValue);
-	void StartCharacterSwitch(const FInputActionValue& InputActionValue);
+	void OpenCharacterSwitcher(const FInputActionValue& InputActionValue);
 
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
 	void Interact(const FInputActionValue& InputActionValue);

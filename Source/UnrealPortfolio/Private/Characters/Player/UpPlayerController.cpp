@@ -7,7 +7,6 @@
 #include "Characters/Player/UpPlayerCameraManager.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
-#include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "GameFramework/DefaultPawn.h"
 #include "Interfaces/UpInteractable.h"
@@ -63,7 +62,7 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ToggleDebugCameraInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleDebugCamera);
 	
 	EnhancedInputComponent->BindAction(PauseGameInputAction, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
-	EnhancedInputComponent->BindAction(SwitchCharacterInputAction, ETriggerEvent::Triggered, this, &ThisClass::StartCharacterSwitch);
+	EnhancedInputComponent->BindAction(SwitchCharacterInputAction, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
 	
 	EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
 	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ThisClass::Interact);
@@ -121,9 +120,11 @@ void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
 	UGameplayStatics::SetGamePaused(this, true);
 }
 
-void AUpPlayerController::StartCharacterSwitch(const FInputActionValue& InputActionValue)
+void AUpPlayerController::OpenCharacterSwitcher(const FInputActionValue& InputActionValue)
 {
-	UUpPlayerPartyComponent::SwitchCharacter(this);
+	if (!CustomHud) return;
+
+	CustomHud->OpenCharacterSwitcher();
 }
 
 void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue)

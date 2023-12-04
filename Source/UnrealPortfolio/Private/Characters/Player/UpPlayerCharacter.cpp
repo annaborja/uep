@@ -9,7 +9,6 @@
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Utils/Structs.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
 AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializer) :
@@ -52,24 +51,5 @@ void AUpPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContaine
 
 void AUpPlayerCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 {
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
-	{
-		if (GameInstance->ShouldDebugTagSpecGrant())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player GrantTagSpec: %s (%d)"), *TagSpec.Tag.ToString(), TagSpec.Count)
-		}
-	
-		bool bSuccess = false;
-
-		if (UUpPlayerReputationComponent::ShouldHandleTagSpecGrant(TagSpec))
-		{
-			bSuccess = UUpPlayerReputationComponent::HandleTagSpecGrant(this, TagSpec);
-		} else if (TagSpec.Count > 0)
-		{
-			bSuccess = GameInstance->AddPlayerCharacterTag(TagSpec.Tag);
-		} else if (TagSpec.Count < 0)
-		{
-			bSuccess = GameInstance->RemovePlayerCharacterTag(TagSpec.Tag);
-		}
-	}
+	UUpBlueprintFunctionLibrary::GrantPlayerTagSpec(this, TagSpec);
 }

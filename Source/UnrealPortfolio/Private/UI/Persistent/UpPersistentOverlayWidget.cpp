@@ -5,22 +5,43 @@
 #include "Input/CommonUIActionRouterBase.h"
 #include "UI/UpHud.h"
 #include "UI/UpCommonActivatableWidget.h"
+#include "UI/CharacterSwitcher/UpCharacterSwitcherWidget.h"
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
 
 void UUpPersistentOverlayWidget::OpenMainMenu() const
 {
-	if (const auto MenuWidgetContainer = GetMenuWidgetContainer(); MenuWidgetContainer && CustomHud)
+	if (const auto MainMenuWidgetContainer = GetMainMenuWidgetContainer(); MainMenuWidgetContainer && CustomHud)
 	{
 		if (const auto WidgetClass = CustomHud->GetMenuSwitcherClass())
 		{
 			// `AddWidget()` will handle grabbing an existing instance of the given widget class (if any).
-			MenuWidgetContainer->AddWidget<UUpCommonActivatableWidget>(WidgetClass, [this](UUpCommonActivatableWidget& AddedWidget)
+			MainMenuWidgetContainer->AddWidget<UUpCommonActivatableWidget>(WidgetClass, [this](UUpCommonActivatableWidget& AddedWidget)
 			{
 				AddedWidget.SetCustomHud(CustomHud);
 			});
 		}
 	}
+}
+
+UUpCharacterSwitcherWidget* UUpPersistentOverlayWidget::OpenCharacterSwitcher() const
+{
+	UUpCharacterSwitcherWidget* Widget = nullptr;
+
+	if (const auto CharacterSwitcherContainer = GetCharacterSwitcherContainer(); CharacterSwitcherContainer && CustomHud)
+	{
+		if (const auto WidgetClass = CustomHud->GetCharacterSwitcherClass())
+		{
+			// `AddWidget()` will handle grabbing an existing instance of the given widget class (if any).
+			CharacterSwitcherContainer->AddWidget<UUpCharacterSwitcherWidget>(WidgetClass, [this, &Widget](UUpCharacterSwitcherWidget& AddedWidget)
+			{
+				Widget = &AddedWidget;
+				AddedWidget.SetCustomHud(CustomHud);
+			});
+		}
+	}
+	
+	return Widget;
 }
 
 UUpDialogueOverlayWidget* UUpPersistentOverlayWidget::OpenDialogueFlow() const
@@ -54,14 +75,19 @@ void UUpPersistentOverlayWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	if (const auto DialogueWidgetContainer = GetDialogueWidgetContainer())
+	if (const auto WidgetContainer = GetMainMenuWidgetContainer())
 	{
-		DialogueWidgetContainer->OnDisplayedWidgetChanged().AddUObject(this, &ThisClass::OnDisplayedWidgetChanged);
+		WidgetContainer->OnDisplayedWidgetChanged().AddUObject(this, &ThisClass::OnDisplayedWidgetChanged);
 	}
 
-	if (const auto MenuWidgetContainer = GetMenuWidgetContainer())
+	if (const auto WidgetContainer = GetCharacterSwitcherContainer())
 	{
-		MenuWidgetContainer->OnDisplayedWidgetChanged().AddUObject(this, &ThisClass::OnDisplayedWidgetChanged);
+		WidgetContainer->OnDisplayedWidgetChanged().AddUObject(this, &ThisClass::OnDisplayedWidgetChanged);
+	}
+
+	if (const auto WidgetContainer = GetDialogueWidgetContainer())
+	{
+		WidgetContainer->OnDisplayedWidgetChanged().AddUObject(this, &ThisClass::OnDisplayedWidgetChanged);
 	}
 }
 
@@ -80,12 +106,17 @@ void UUpPersistentOverlayWidget::OnDisplayedWidgetChanged(UCommonActivatableWidg
 
 bool UUpPersistentOverlayWidget::IsDescendentWidgetActivated() const
 {
-	if (const auto MenuWidgetContainer = GetMenuWidgetContainer(); MenuWidgetContainer && MenuWidgetContainer->GetActiveWidget())
+	if (const auto WidgetContainer = GetMainMenuWidgetContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
+	{
+		return true;
+	}
+
+	if (const auto WidgetContainer = GetCharacterSwitcherContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
 	{
 		return true;
 	}
 	
-	if (const auto DialogueWidgetContainer = GetDialogueWidgetContainer(); DialogueWidgetContainer && DialogueWidgetContainer->GetActiveWidget())
+	if (const auto WidgetContainer = GetDialogueWidgetContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
 	{
 		return true;
 	}

@@ -15,26 +15,6 @@
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-bool AUpNpcCharacter::GrantTagSpec(UUpGameInstance* GameInstance, const FGameplayTag& NpcTagId, const FUpTagSpec& TagSpec)
-{
-	if (GameInstance->ShouldDebugTagSpecGrant())
-    {
-    	UE_LOG(LogTemp, Warning, TEXT("%s GrantTagSpec: %s (%d)"), *NpcTagId.ToString(), *TagSpec.Tag.ToString(), TagSpec.Count)
-    }
-
-    bool bSuccess = false;
-
-    if (TagSpec.Count > 0)
-    {
-    	bSuccess = GameInstance->AddNpcCharacterTag(NpcTagId, TagSpec.Tag);
-    } else if (TagSpec.Count < 0)
-    {
-    	bSuccess = GameInstance->RemoveNpcCharacterTag(NpcTagId, TagSpec.Tag);
-    }
-
-    return bSuccess;
-}
-
 AUpNpcCharacter::AUpNpcCharacter(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UUpCharacterMovementComponent>(CharacterMovementComponentName))
 {
@@ -140,10 +120,7 @@ void AUpNpcCharacter::Interact(AUpPlayerController* PlayerController)
 
 void AUpNpcCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 {
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
-	{
-		GrantTagSpec(GameInstance, TagId, TagSpec);
-	}
+	UUpBlueprintFunctionLibrary::GrantNpcTagSpec(this, TagId, TagSpec);
 }
 
 void AUpNpcCharacter::JumpToLocation(const FVector& TargetLocation, const float Duration)

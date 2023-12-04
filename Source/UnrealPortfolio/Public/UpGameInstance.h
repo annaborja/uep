@@ -20,13 +20,17 @@ class UNREALPORTFOLIO_API UUpGameInstance : public UGameInstance
 public:
 	virtual void Init() override;
 	
-	void GetPlayerCharacterTags(FGameplayTagContainer& OutCharacterTags) const;
+	void GetPlayerCharacterTags(FGameplayTagContainer& OutTags) const;
 	bool AddPlayerCharacterTag(const FGameplayTag& Tag);
 	bool RemovePlayerCharacterTag(const FGameplayTag& Tag);
 	
-	void GetNpcCharacterTags(const FGameplayTag& NpcTagId, FGameplayTagContainer& OutCharacterTags);
+	void GetNpcCharacterTags(const FGameplayTag& NpcTagId, FGameplayTagContainer& OutTags);
 	bool AddNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag);
 	bool RemoveNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag);
+
+	void GetPartyMemberTags(FGameplayTagContainer& OutTags) const;
+	void AddPartyMember(const FGameplayTag& NpcTagId);
+	void RemovePartyMember(const FGameplayTag& NpcTagId);
 
 	FUpReputationData GetPlayerReputationData(const FGameplayTag& TagId);
 	bool UpdatePlayerReputation_Affection(const FGameplayTag& TagId, const int8 Delta);
@@ -51,18 +55,22 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugTagSpecGrant = false;
-
-	// TODO(P0): Load from saved data.
-	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
-	FGameplayTagContainer PlayerCharacterTags;
-	// TODO(P0): Load from saved data.
-	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
-	FUpReputationData PlayerWorldReputationData;
-	// TODO(P0): Load from saved data.
-	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
-	TMap<FGameplayTag, FUpReputationData> PlayerNpcReputationDataMap;
 	
 	// TODO(P0): Load from saved data.
-	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime")
+	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Tags")
+	FGameplayTagContainer PlayerCharacterTags;
+	// TODO(P0): Load from saved data.
+	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Tags")
 	TMap<FGameplayTag, FGameplayTagContainer> NpcCharacterTagsMap;
+	
+	// TODO(P0): Load from saved data.
+	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Party")
+	FGameplayTagContainer PartyMemberTags;
+	
+	// TODO(P0): Load from saved data.
+	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Reputation")
+	FUpReputationData PlayerWorldReputationData;
+	// TODO(P0): Load from saved data.
+	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Reputation")
+	TMap<FGameplayTag, FUpReputationData> PlayerNpcReputationDataMap;
 };

@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Structs.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "Kismet/GameplayStatics.h"
 #include "UpBlueprintFunctionLibrary.generated.h"
 
 class AUpHud;
 struct FGameplayTag;
 struct FUpEntityTagSpec;
+struct FUpTagSpec;
 class UUpGameInstance;
 
 UCLASS()
@@ -29,8 +30,16 @@ public:
 	static bool HasTag(const AActor* Actor, const FGameplayTag& Tag);
 	static bool HasTagId(const AActor* Actor, const FGameplayTag& Tag);
 	
+	static bool ValidateTag(const FGameplayTag& Tag, const FString& FuncName);
+	static bool ValidateNpcTag(const FGameplayTag& Tag, const FString& FuncName);
+	
 	static bool IsEntityTagSpecSatisfied(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec, const bool bProhibition = false);
 	static void ProcessEntityTagSpecGrants(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec);
+	
+	static bool ValidateTagSpec(const FUpTagSpec& TagSpec, const FString& FuncName);
+	
+	static void GrantNpcTagSpec(const UObject* WorldContextObject, const FGameplayTag& NpcTagId, const FUpTagSpec& TagSpec);
+	static void GrantPlayerTagSpec(const UObject* WorldContextObject, const FUpTagSpec& TagSpec);
 
 	static FVector CalculateVelocity(const FVector& FromLocation, const FVector& ToLocation, const float Duration, const float GravityScale = 1.f);
 };

@@ -15,6 +15,7 @@
 #include "UI/MainMenu/ReputationMenu/UpReputationMenuWidget.h"
 #include "UI/MainMenu/SettingsMenu/UpSettingsMenuWidget.h"
 #include "UI/MainMenu/SkillsMenu/UpSkillsMenuWidget.h"
+#include "UI/MainMenu/SquadMenu/UpSquadMenuWidget.h"
 #include "UI/MainMenu/StatsMenu/UpStatsMenuWidget.h"
 
 void UUpMainMenuSwitcherWidget::HandleCloseMenuAction()
@@ -48,7 +49,7 @@ void UUpMainMenuSwitcherWidget::ResumeGame()
 
 	if (const auto WidgetSwitcher = GetWidgetSwitcher())
 	{
-		if (const auto Menu = GetQuestsMenu())
+		if (const auto Menu = GetSquadMenu())
 		{
 			WidgetSwitcher->SetActiveWidget(Menu);
 		}
@@ -62,6 +63,11 @@ void UUpMainMenuSwitcherWidget::SetUpTabList()
 		if (const auto TabList = GetTabList(); TabList && TabList->GetTabCount() <= 0 && MenuTabClass)
 		{
 			TabList->SetLinkedSwitcher(WidgetSwitcher);
+
+			if (const auto Menu = GetSquadMenu())
+			{
+				TabList->RegisterTab(TAG_Menu_Squad.GetTag().GetTagName(), MenuTabClass, Menu);
+			}
 			
 			if (const auto Menu = GetQuestsMenu())
 			{

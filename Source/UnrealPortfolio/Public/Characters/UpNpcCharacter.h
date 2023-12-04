@@ -43,8 +43,6 @@ class UNREALPORTFOLIO_API AUpNpcCharacter : public AUpPlayableCharacter, public 
 	GENERATED_BODY()
 
 public:
-	static bool GrantTagSpec(UUpGameInstance* GameInstance, const FGameplayTag& NpcTagId, const FUpTagSpec& TagSpec);
-	
 	explicit AUpNpcCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;

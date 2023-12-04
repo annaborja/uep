@@ -6,9 +6,10 @@
 #include "UI/UpCommonUserWidget.h"
 #include "UpPersistentOverlayWidget.generated.h"
 
-class UUpDialogueOverlayWidget;
 class UCommonActivatableWidget;
 class UCommonActivatableWidgetContainerBase;
+class UUpCharacterSwitcherWidget;
+class UUpDialogueOverlayWidget;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpPersistentOverlayWidget : public UUpCommonUserWidget
@@ -17,13 +18,16 @@ class UNREALPORTFOLIO_API UUpPersistentOverlayWidget : public UUpCommonUserWidge
 
 public:
 	void OpenMainMenu() const;
+	UUpCharacterSwitcherWidget* OpenCharacterSwitcher() const;
 	UUpDialogueOverlayWidget* OpenDialogueFlow() const;
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
+	UCommonActivatableWidgetContainerBase* GetCharacterSwitcherContainer() const;
+	UFUNCTION(BlueprintImplementableEvent)
 	UCommonActivatableWidgetContainerBase* GetDialogueWidgetContainer() const;
 	UFUNCTION(BlueprintImplementableEvent)
-	UCommonActivatableWidgetContainerBase* GetMenuWidgetContainer() const;
+	UCommonActivatableWidgetContainerBase* GetMainMenuWidgetContainer() const;
 
 	UFUNCTION(BlueprintCallable)
 	ESlateVisibility GetTargetInteractableDisplayVisibility() const;
