@@ -6,13 +6,16 @@
 
 TOptional<FUIInputConfig> UUpCommonActivatableWidget::GetDesiredInputConfig() const
 {
-	if (InputMode == ECommonInputMode::Menu)
+	switch (InputMode)
 	{
+		// If we're in All input mode, we assume that we want to enable mouse usage and visibility.
+	case ECommonInputMode::All:
 		// In Menu input mode, UE intentionally registers game inputs if mouse capture is enabled.
+	case ECommonInputMode::Menu:
 		return FUIInputConfig(InputMode, EMouseCaptureMode::NoCapture);
+	default:
+		return FUIInputConfig(InputMode, EMouseCaptureMode::CapturePermanently);
 	}
-	
-	return FUIInputConfig(InputMode, EMouseCaptureMode::CapturePermanently);
 }
 
 void UUpCommonActivatableWidget::SetCustomHud(AUpHud* InCustomHud)

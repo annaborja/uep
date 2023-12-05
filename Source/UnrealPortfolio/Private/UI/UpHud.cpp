@@ -81,16 +81,34 @@ TMap<FGameplayTag, FUpReputationData> AUpHud::GetPlayerNpcReputationDataMap() co
 	return TMap<FGameplayTag, FUpReputationData>();
 }
 
-void AUpHud::OpenCharacterSwitcher()
+bool AUpHud::OpenCharacterSwitcher()
 {
-	if (!PersistentOverlayWidget) return;
+	if (!PersistentOverlayWidget) return false;
 	
-	 CharacterSwitcherWidget = PersistentOverlayWidget->OpenCharacterSwitcher();
+	// `OpenCharacterSwitcher()` may be triggered continuously through player input.
+	if (CharacterSwitcherWidget && CharacterSwitcherWidget->IsActivated()) return false;
+	
+	CharacterSwitcherWidget = PersistentOverlayWidget->OpenCharacterSwitcher();
+	
+	return true;
+}
+
+void AUpHud::CloseCharacterSwitcher() const
+{
+	if (!CharacterSwitcherWidget) return;
+	
+	CharacterSwitcherWidget->DeactivateWidget();
 }
 
 void AUpHud::OpenDialogueFlow()
 {
 	if (!PersistentOverlayWidget) return;
+	
+	if (DialogueOverlayWidget && DialogueOverlayWidget->IsActivated())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Dialogue flow already open"))
+		return;
+	}
 	
 	DialogueOverlayWidget = PersistentOverlayWidget->OpenDialogueFlow();
 }

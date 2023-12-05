@@ -52,7 +52,8 @@ public:
 	FUpReputationData GetPlayerWorldReputationData() const;
 	TMap<FGameplayTag, FUpReputationData> GetPlayerNpcReputationDataMap() const;
 	
-	void OpenCharacterSwitcher();
+	bool OpenCharacterSwitcher();
+	void CloseCharacterSwitcher() const;
 	
 	void OpenDialogueFlow();
 	void CloseDialogueFlow() const;
@@ -61,7 +62,6 @@ public:
 	void DisplayDialogueOptions(AUpNpcCharacter* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const;
 	void SelectDialogueOption(const AUpNpcCharacter* Npc, const FUpDialogueOptionData& DialogueOption) const;
 
-	// Delegate Broadcasts
 	void BroadcastTargetInteractable(const AActor* TargetInteractable) const;
 
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
@@ -69,6 +69,9 @@ public:
 	FORCEINLINE TSubclassOf<UUpCharacterSwitcherWidget> GetCharacterSwitcherClass() const { return CharacterSwitcherClass; }
 	FORCEINLINE TSubclassOf<UUpDialogueOverlayWidget> GetDialogueOverlayClass() const { return DialogueOverlayClass; }
 	FORCEINLINE TSubclassOf<UUpCommonActivatableWidget> GetMenuSwitcherClass() const { return MenuSwitcherClass; }
+	
+	FORCEINLINE UUpCharacterSwitcherWidget* GetCharacterSwitcher() const { return CharacterSwitcherWidget; }
+	FORCEINLINE UUpPersistentOverlayWidget* GetPersistentOverlay() const { return PersistentOverlayWidget; }
 	
 	FUpHudTargetInteractableSignature TargetInteractableDelegate;
 

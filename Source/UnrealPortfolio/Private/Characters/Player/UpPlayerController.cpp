@@ -24,20 +24,49 @@ void AUpPlayerController::Init()
 	bInitialized = true;
 }
 
+void AUpPlayerController::CloseCharacterSwitcher()
+{
+	if (!CustomHud) return;
+
+	CustomHud->CloseCharacterSwitcher();
+	DisableMouse();
+
+	if (CharacterSwitcherInputMappingContext)
+	{
+		DeactivateInputMappingContext(CharacterSwitcherInputMappingContext);
+	}
+}
+
+void AUpPlayerController::EnableMouse()
+{
+	bShowMouseCursor = true;
+	bEnableClickEvents = true;
+	bEnableMouseOverEvents = true;
+}
+
+void AUpPlayerController::DisableMouse()
+{
+	bShowMouseCursor = false;
+	bEnableClickEvents = false;
+	bEnableMouseOverEvents = false;
+}
+
 void AUpPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	check(BaseInputMappingContext);
+	check(CharacterSwitcherInputMappingContext);
 
 	check(CrouchInputAction);
 	check(InteractInputAction);
 	check(JumpInputAction);
 	check(LookInputAction);
 	check(MoveInputAction);
+	check(NavigateCharacterSwitcherInputAction);
+	check(OpenCharacterSwitcherInputAction);
 	check(PauseGameInputAction);
 	check(SprintInputAction);
-	check(SwitchCharacterInputAction);
 	check(ToggleCameraViewInputAction);
 	check(ToggleDebugCameraInputAction);
 
@@ -62,10 +91,13 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ToggleDebugCameraInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleDebugCamera);
 	
 	EnhancedInputComponent->BindAction(PauseGameInputAction, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
-	EnhancedInputComponent->BindAction(SwitchCharacterInputAction, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
+	// We trigger Interact on Completed to avoid interfering with the OpenCharacterSwitcher action.
+	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Completed, this, &ThisClass::Interact);
+	
+	EnhancedInputComponent->BindAction(OpenCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
+	EnhancedInputComponent->BindAction(NavigateCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::NavigateCharacterSwitcher);
 	
 	EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
-	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ThisClass::Interact);
 	EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Started, this, &ThisClass::Jump);
 
 	EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Started, this, &ThisClass::StartSprint);
@@ -120,11 +152,37 @@ void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
 	UGameplayStatics::SetGamePaused(this, true);
 }
 
+void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+	
+	if (const auto InteractionComponent = PossessedCharacter->GetPlayerInteractionComponent())
+	{
+		if (const auto TargetInteractable = Cast<IUpInteractable>(InteractionComponent->GetTargetInteractable()))
+		{
+			TargetInteractable->Interact(this);
+		}
+	}
+}
+
 void AUpPlayerController::OpenCharacterSwitcher(const FInputActionValue& InputActionValue)
 {
 	if (!CustomHud) return;
 
-	CustomHud->OpenCharacterSwitcher();
+	if (CustomHud->OpenCharacterSwitcher())
+	{
+		EnableMouse();
+	}
+
+	if (CharacterSwitcherInputMappingContext)
+	{
+		ActivateInputMappingContext(CharacterSwitcherInputMappingContext, false, 1);
+	}
+}
+
+void AUpPlayerController::NavigateCharacterSwitcher(const FInputActionValue& InputActionValue)
+{
+	UE_LOG(LogTemp, Warning, TEXT("navigate char switcher"))
 }
 
 void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue)
@@ -137,19 +195,6 @@ void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue
 	} else
 	{
 		PossessedCharacter->Crouch();
-	}
-}
-
-void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
-{
-	if (!PossessedCharacter) return;
-	
-	if (const auto InteractionComponent = PossessedCharacter->GetPlayerInteractionComponent())
-	{
-		if (const auto TargetInteractable = Cast<IUpInteractable>(InteractionComponent->GetTargetInteractable()))
-		{
-			TargetInteractable->Interact(this);
-		}
 	}
 }
 
@@ -207,5 +252,13 @@ void AUpPlayerController::ActivateInputMappingContext(const UInputMappingContext
 		if (bClearExisting) Subsystem->ClearAllMappings();
 		
 		Subsystem->AddMappingContext(InputMappingContext, Priority);
+	}
+}
+
+void AUpPlayerController::DeactivateInputMappingContext(const UInputMappingContext* InputMappingContext) const
+{
+	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->RemoveMappingContext(InputMappingContext);
 	}
 }

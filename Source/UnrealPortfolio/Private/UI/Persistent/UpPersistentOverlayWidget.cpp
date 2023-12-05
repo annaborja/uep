@@ -9,6 +9,26 @@
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
 
+bool UUpPersistentOverlayWidget::IsDescendentWidgetActivated() const
+{
+	if (const auto WidgetContainer = GetMainMenuWidgetContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
+	{
+		return true;
+	}
+
+	if (const auto WidgetContainer = GetCharacterSwitcherContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
+	{
+		return true;
+	}
+	
+	if (const auto WidgetContainer = GetDialogueWidgetContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void UUpPersistentOverlayWidget::OpenMainMenu() const
 {
 	if (const auto MainMenuWidgetContainer = GetMainMenuWidgetContainer(); MainMenuWidgetContainer && CustomHud)
@@ -102,24 +122,4 @@ void UUpPersistentOverlayWidget::OnDisplayedWidgetChanged(UCommonActivatableWidg
 			ActionRouter->SetActiveUIInputConfig(FUIInputConfig(ECommonInputMode::Game, EMouseCaptureMode::CapturePermanently));
 		}
 	}
-}
-
-bool UUpPersistentOverlayWidget::IsDescendentWidgetActivated() const
-{
-	if (const auto WidgetContainer = GetMainMenuWidgetContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
-	{
-		return true;
-	}
-
-	if (const auto WidgetContainer = GetCharacterSwitcherContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
-	{
-		return true;
-	}
-	
-	if (const auto WidgetContainer = GetDialogueWidgetContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
-	{
-		return true;
-	}
-
-	return false;
 }
