@@ -3,22 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CommonButtonBase.h"
 #include "Components/UpDialogueComponent.h"
+#include "UI/UpCommonButtonBase.h"
 #include "UpDialogueOptionButtonWidget.generated.h"
 
-class AUpHud;
 class AUpNpcCharacter;
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpDialogueOptionButtonWidget : public UCommonButtonBase
+class UNREALPORTFOLIO_API UUpDialogueOptionButtonWidget : public UUpCommonButtonBase
 {
 	GENERATED_BODY()
 
 public:
 	void SetDialogueOption(const FUpDialogueOptionData& InDialogueOption);
 	
-	void SetCustomHud(AUpHud* InCustomHud) { CustomHud = InCustomHud; }
 	void SetNpc(AUpNpcCharacter* InNpc) { Npc = InNpc; }
 
 protected:
@@ -28,8 +26,6 @@ protected:
 	virtual void NativePreConstruct() override;
 
 private:
-	UPROPERTY(Transient)
-	TObjectPtr<AUpHud> CustomHud;
 	UPROPERTY(Transient)
 	TObjectPtr<AUpNpcCharacter> Npc;
 	

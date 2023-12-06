@@ -4,6 +4,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Characters/UpNpcCharacter.h"
 #include "Characters/Player/UpPlayerCameraManager.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
@@ -24,6 +25,20 @@ void AUpPlayerController::Init()
 	bInitialized = true;
 }
 
+void AUpPlayerController::EnableMouse()
+{
+	bShowMouseCursor = true;
+	bEnableClickEvents = true;
+	bEnableMouseOverEvents = true;
+}
+
+void AUpPlayerController::DisableMouse()
+{
+	bShowMouseCursor = false;
+	bEnableClickEvents = false;
+	bEnableMouseOverEvents = false;
+}
+
 void AUpPlayerController::CloseCharacterSwitcher()
 {
 	if (!CustomHud) return;
@@ -37,18 +52,9 @@ void AUpPlayerController::CloseCharacterSwitcher()
 	}
 }
 
-void AUpPlayerController::EnableMouse()
+void AUpPlayerController::SwitchCharacter(AUpNpcCharacter* Npc)
 {
-	bShowMouseCursor = true;
-	bEnableClickEvents = true;
-	bEnableMouseOverEvents = true;
-}
-
-void AUpPlayerController::DisableMouse()
-{
-	bShowMouseCursor = false;
-	bEnableClickEvents = false;
-	bEnableMouseOverEvents = false;
+	Possess(Npc);
 }
 
 void AUpPlayerController::BeginPlay()

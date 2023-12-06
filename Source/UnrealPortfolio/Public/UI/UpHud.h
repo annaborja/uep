@@ -54,6 +54,7 @@ public:
 	
 	bool OpenCharacterSwitcher();
 	void CloseCharacterSwitcher() const;
+	void SwitchCharacter(AUpNpcCharacter* Npc) const;
 	
 	void OpenDialogueFlow();
 	void CloseDialogueFlow() const;

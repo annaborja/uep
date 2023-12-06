@@ -8,6 +8,7 @@
 
 class ADefaultPawn;
 class AUpHud;
+class AUpNpcCharacter;
 class AUpPlayableCharacter;
 struct FInputActionValue;
 class UInputAction;
@@ -33,9 +34,11 @@ public:
 	AUpPlayerController();
 	
 	void Init();
-	void CloseCharacterSwitcher();
 	void EnableMouse();
 	void DisableMouse();
+	
+	void CloseCharacterSwitcher();
+	void SwitchCharacter(AUpNpcCharacter* Npc);
 	
 	void SetCurrentCameraViewType(const EUpPlayerCameraViewType::Type InCameraViewType) { CurrentCameraViewType = InCameraViewType; }
 	

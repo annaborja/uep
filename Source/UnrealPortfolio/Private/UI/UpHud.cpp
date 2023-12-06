@@ -100,6 +100,13 @@ void AUpHud::CloseCharacterSwitcher() const
 	CharacterSwitcherWidget->DeactivateWidget();
 }
 
+void AUpHud::SwitchCharacter(AUpNpcCharacter* Npc) const
+{
+	if (!CustomController) return;
+
+	CustomController->SwitchCharacter(Npc);
+}
+
 void AUpHud::OpenDialogueFlow()
 {
 	if (!PersistentOverlayWidget) return;

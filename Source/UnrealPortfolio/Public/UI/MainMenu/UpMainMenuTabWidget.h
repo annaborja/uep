@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CommonButtonBase.h"
+#include "UI/UpCommonButtonBase.h"
 #include "UpMainMenuTabWidget.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpMainMenuTabWidget : public UCommonButtonBase
+class UNREALPORTFOLIO_API UUpMainMenuTabWidget : public UUpCommonButtonBase
 {
 	GENERATED_BODY()
 
