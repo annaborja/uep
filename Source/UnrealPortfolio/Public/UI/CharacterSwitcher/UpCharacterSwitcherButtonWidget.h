@@ -16,7 +16,8 @@ namespace EUpCharacterSwitcherButtonState
 	{
 		Empty,
 		Unavailable,
-		Available
+		Available,
+		Active
 	};
 }
 

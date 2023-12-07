@@ -52,7 +52,7 @@ public:
 	FUpReputationData GetPlayerWorldReputationData() const;
 	TMap<FGameplayTag, FUpReputationData> GetPlayerNpcReputationDataMap() const;
 	
-	bool OpenCharacterSwitcher();
+	void OpenCharacterSwitcher();
 	void CloseCharacterSwitcher() const;
 	void SwitchCharacter(AUpNpcCharacter* Npc) const;
 	

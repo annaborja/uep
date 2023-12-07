@@ -29,14 +29,14 @@ FReply UUpCharacterSwitcherWidget::NativeOnKeyUp(const FGeometry& InGeometry, co
 {
 	if (CustomHud)
 	{
-		if (const auto PlayerController = CustomHud->GetCustomController())
+		if (const auto CustomController = CustomHud->GetCustomController())
 		{
-			if (const auto InputAction = PlayerController->GetCloseCharacterSwitcherInputAction())
+			if (const auto InputAction = CustomController->GetCloseCharacterSwitcherInputAction())
 			{
-				if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+				if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(CustomController->GetLocalPlayer());
 					Subsystem && Subsystem->QueryKeysMappedToAction(InputAction).Contains(InKeyEvent.GetKey()))
 				{
-					PlayerController->CloseCharacterSwitcher();
+					CustomController->CloseCharacterSwitcher();
 				}
 			}
 		}
@@ -51,9 +51,9 @@ void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const
 
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		if (const auto PlayerController = CustomHud->GetCustomController())
+		if (const auto CustomController = CustomHud->GetCustomController())
 		{
-			if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
+			if (const auto PossessedCharacter = CustomController->GetPossessedCharacter())
 			{
 				FGameplayTagContainer OutTags;
 				GameInstance->GetPartyMemberTags(OutTags);
@@ -67,7 +67,7 @@ void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const
 				TArray<AActor*> OverlapActors;
 				UKismetSystemLibrary::SphereOverlapActors(this, SpherePosition, OverlapSphereRadius,
 					TArray<TEnumAsByte<EObjectTypeQuery>> { UEngineTypes::ConvertToObjectType(ECC_Pawn) },
-					AUpNpcCharacter::StaticClass(), TArray<AActor*> { PossessedCharacter }, OverlapActors);
+					AUpNpcCharacter::StaticClass(), TArray<AActor*> {}, OverlapActors);
 
 				if (bDebugOverlapSphere)
 				{

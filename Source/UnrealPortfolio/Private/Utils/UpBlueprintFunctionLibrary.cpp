@@ -7,6 +7,7 @@
 #include "UpGameInstance.h"
 #include "Characters/UpNpcCharacter.h"
 #include "Characters/Player/UpPlayerCharacter.h"
+#include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Tags/NpcTags.h"
@@ -293,6 +294,11 @@ void UUpBlueprintFunctionLibrary::GrantPlayerTagSpec(const UObject* WorldContext
 		} else if (TagSpec.Count < 0)
 		{
 			bSuccess = GameInstance->RemovePlayerCharacterTag(TagSpec.Tag);
+		}
+
+		if (bSuccess)
+		{
+			UUpPlayerPartyComponent::OnPlayerTagSpecGranted(WorldContextObject, TagSpec);
 		}
 	}
 }

@@ -11,13 +11,13 @@ void UUpPlayerNpcReputationDisplayWidget::PopulateReputationData(const FUpReputa
 	if (const auto ReputationAttributesContainer = GetReputationAttributesContainer(); ReputationAttributesContainer && ReputationAttributeDisplayWidgetClass)
 	{
 		const auto AffectionWidget = CreateWidget<UUpReputationAttributeDisplayWidget>(this, ReputationAttributeDisplayWidgetClass);
-		AffectionWidget->SetLabel(FText::FromString(TEXT("Affection")));
+		AffectionWidget->SetLabel(AffectionLabel);
 		AffectionWidget->PopulateValue(ReputationData.Affection,
 			UUpPlayerReputationComponent::AffectionMinValue, UUpPlayerReputationComponent::AffectionMaxValue);
 		
 		const auto EsteemWidget = CreateWidget<UUpReputationAttributeDisplayWidget>(this, ReputationAttributeDisplayWidgetClass);
-		EsteemWidget->SetLabel(FText::FromString(TEXT("Esteem")));
-		AffectionWidget->PopulateValue(ReputationData.Esteem,
+		EsteemWidget->SetLabel(EsteemLabel);
+		EsteemWidget->PopulateValue(ReputationData.Esteem,
 			UUpPlayerReputationComponent::EsteemMinValue, UUpPlayerReputationComponent::EsteemMaxValue);
 			
 		ReputationAttributesContainer->AddChild(AffectionWidget);

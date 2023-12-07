@@ -12,7 +12,7 @@ class UNREALPORTFOLIO_API UUpReputationAttributeDisplayWidget : public UUpCommon
 	GENERATED_BODY()
 
 public:
-	void SetLabel(const FText& InLabel) { Label = InLabel;  }
+	void SetLabel(const FText& InLabel) { Label = InLabel; }
 	
 	void PopulateValue(const int32 InValue, const int32 MinValue, const int32 MaxValue);
 	

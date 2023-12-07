@@ -31,6 +31,7 @@ public:
 	static constexpr uint8 AffectionMaxValue = 100;
 	static constexpr uint8 EsteemMaxValue = 100;
 	
+	static bool IsReputationTagSpec(const FUpTagSpec& TagSpec);
 	static bool ShouldHandleTagSpecGrant(const FUpTagSpec& TagSpec);
 	static bool HandleTagSpecGrant(const UObject* WorldContextObject, const FUpTagSpec& TagSpec);
 	

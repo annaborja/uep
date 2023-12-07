@@ -29,6 +29,10 @@ protected:
 	TSubclassOf<UUpReputationAttributeDisplayWidget> ReputationAttributeDisplayWidgetClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	FText AffectionLabel = FText::FromString(TEXT("Affection"));
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	FText EsteemLabel = FText::FromString(TEXT("Esteem"));
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float ReputationAttributeRowGap = 8.f;
 
 	UFUNCTION(BlueprintImplementableEvent)

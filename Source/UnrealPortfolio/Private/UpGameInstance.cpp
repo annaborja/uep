@@ -3,6 +3,7 @@
 #include "UpGameInstance.h"
 
 #include "GameplayEffect.h"
+#include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Tags/NpcTags.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -77,6 +78,18 @@ bool UUpGameInstance::RemoveNpcCharacterTag(const FGameplayTag& NpcTagId, const 
 	return true;
 }
 
+FUpPartyMembershipSpec UUpGameInstance::GetPartyMembershipSpec(const FGameplayTag& TagId) const
+{
+	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(TagId, TEXT("GetPartyMembershipSpec"))) return FUpPartyMembershipSpec();
+
+	if (const auto PartyMembershipSpec = PartyMembershipSpecMap.Find(TagId))
+	{
+		return *PartyMembershipSpec;
+	}
+	
+	return FUpPartyMembershipSpec();
+}
+
 void UUpGameInstance::GetPartyMemberTags(FGameplayTagContainer& OutTags) const
 {
 	OutTags.AppendTags(PartyMemberTags);
@@ -84,6 +97,7 @@ void UUpGameInstance::GetPartyMemberTags(FGameplayTagContainer& OutTags) const
 
 void UUpGameInstance::AddPartyMember(const FGameplayTag& NpcTagId)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Add party member %s"), *NpcTagId.ToString())
 	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("AddPartyMember"))) return;
 	
 	PartyMemberTags.AddTag(NpcTagId);
@@ -91,6 +105,7 @@ void UUpGameInstance::AddPartyMember(const FGameplayTag& NpcTagId)
 
 void UUpGameInstance::RemovePartyMember(const FGameplayTag& NpcTagId)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Remove party member %s"), *NpcTagId.ToString())
 	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("RemovePartyMember"))) return;
 	
 	PartyMemberTags.RemoveTag(NpcTagId);

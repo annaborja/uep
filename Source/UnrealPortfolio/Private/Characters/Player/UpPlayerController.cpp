@@ -21,7 +21,8 @@ AUpPlayerController::AUpPlayerController(): APlayerController()
 
 void AUpPlayerController::Init()
 {
-	ActivateInputMappingContext(BaseInputMappingContext);
+	if (BaseInputMappingContext) ActivateInputMappingContext(BaseInputMappingContext);
+	
 	bInitialized = true;
 }
 
@@ -46,10 +47,7 @@ void AUpPlayerController::CloseCharacterSwitcher()
 	CustomHud->CloseCharacterSwitcher();
 	DisableMouse();
 
-	if (CharacterSwitcherInputMappingContext)
-	{
-		DeactivateInputMappingContext(CharacterSwitcherInputMappingContext);
-	}
+	if (BaseInputMappingContext) ActivateInputMappingContext(BaseInputMappingContext);
 }
 
 void AUpPlayerController::SwitchCharacter(AUpNpcCharacter* Npc)
@@ -177,15 +175,10 @@ void AUpPlayerController::OpenCharacterSwitcher(const FInputActionValue& InputAc
 {
 	if (!CustomHud) return;
 
-	if (CustomHud->OpenCharacterSwitcher())
-	{
-		EnableMouse();
-	}
+	CustomHud->OpenCharacterSwitcher();
+	EnableMouse();
 
-	if (CharacterSwitcherInputMappingContext)
-	{
-		ActivateInputMappingContext(CharacterSwitcherInputMappingContext, false, 1);
-	}
+	if (CharacterSwitcherInputMappingContext) ActivateInputMappingContext(CharacterSwitcherInputMappingContext);
 }
 
 void AUpPlayerController::TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue)
@@ -195,7 +188,7 @@ void AUpPlayerController::TriggerCloseCharacterSwitcher(const FInputActionValue&
 
 void AUpPlayerController::NavigateCharacterSwitcher(const FInputActionValue& InputActionValue)
 {
-	UE_LOG(LogTemp, Warning, TEXT("navigate char switcher"))
+	UE_LOG(LogTemp, Warning, TEXT("[temp] navigate char switcher"))
 }
 
 void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue)

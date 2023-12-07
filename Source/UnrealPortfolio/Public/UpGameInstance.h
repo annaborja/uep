@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"
 #include "Engine/GameInstance.h"
 #include "UpGameInstance.generated.h"
@@ -28,6 +29,9 @@ public:
 	bool AddNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag);
 	bool RemoveNpcCharacterTag(const FGameplayTag& NpcTagId, const FGameplayTag& Tag);
 
+	FUpPartyMembershipSpec GetPartyMembershipSpec(const FGameplayTag& TagId) const;
+	TMap<FGameplayTag, FUpPartyMembershipSpec> GetPartyMembershipSpecMap() const { return PartyMembershipSpecMap; }
+	
 	void GetPartyMemberTags(FGameplayTagContainer& OutTags) const;
 	void AddPartyMember(const FGameplayTag& NpcTagId);
 	void RemovePartyMember(const FGameplayTag& NpcTagId);
@@ -55,6 +59,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugTagSpecGrant = false;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	TMap<FGameplayTag, FUpPartyMembershipSpec> PartyMembershipSpecMap;
 	
 	// TODO(P0): Load from saved data.
 	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Tags")

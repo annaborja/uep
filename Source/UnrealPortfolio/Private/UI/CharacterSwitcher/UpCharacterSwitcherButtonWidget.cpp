@@ -12,23 +12,35 @@ void UUpCharacterSwitcherButtonWidget::SetNpc(AUpNpcCharacter* InNpc)
 
 	if (Npc)
 	{
-		CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Available;
 		Label = Npc->GetInGameName();
+
+		if (CustomHud)
+		{
+			if (const auto CustomController = CustomHud->GetCustomController(); CustomController && CustomController->GetPossessedCharacter() == Npc)
+			{
+				CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Active;
+				SetIsEnabled(false);
+				
+				return;
+			}
+		}
+		
+		CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Available;
 		SetIsEnabled(true);
-	} else
-	{
-		CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Empty;
-		Label = FText();
-		SetIsEnabled(false);
+		
+		return;
 	}
+	
+	Label = FText();
+	CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Empty;
+	SetIsEnabled(false);
 }
 
 void UUpCharacterSwitcherButtonWidget::SetNpcTag(const FGameplayTag& NpcTag)
 {
 	Npc = nullptr;
-	CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Unavailable;
 	Label = UUpBlueprintFunctionLibrary::GetInGameName(this, NpcTag);
-	
+	CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Unavailable;
 	SetIsEnabled(false);
 }
 

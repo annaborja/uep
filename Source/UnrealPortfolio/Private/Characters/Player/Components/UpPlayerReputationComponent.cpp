@@ -7,9 +7,14 @@
 #include "Utils/Structs.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-bool UUpPlayerReputationComponent::ShouldHandleTagSpecGrant(const FUpTagSpec& TagSpec)
+bool UUpPlayerReputationComponent::IsReputationTagSpec(const FUpTagSpec& TagSpec)
 {
 	return TagSpec.Tag.MatchesTag(TAG_Reputation);
+}
+
+bool UUpPlayerReputationComponent::ShouldHandleTagSpecGrant(const FUpTagSpec& TagSpec)
+{
+	return IsReputationTagSpec(TagSpec);
 }
 
 bool UUpPlayerReputationComponent::HandleTagSpecGrant(const UObject* WorldContextObject, const FUpTagSpec& TagSpec)

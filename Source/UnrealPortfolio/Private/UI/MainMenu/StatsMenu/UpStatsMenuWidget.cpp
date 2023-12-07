@@ -21,9 +21,9 @@ void UUpStatsMenuWidget::PopulatePrimaryAttributes()
 {
 	if (!CustomHud) return;
 	
-	if (const auto PlayerController = CustomHud->GetCustomController())
+	if (const auto CustomController = CustomHud->GetCustomController())
 	{
-		if (const auto PlayerState = PlayerController->GetPlayerState<AUpPlayerState>())
+		if (const auto PlayerState = CustomController->GetPlayerState<AUpPlayerState>())
 		{
 			if (const auto PrimaryAttributeSet = PlayerState->GetPrimaryAttributeSet())
 			{

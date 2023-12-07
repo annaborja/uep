@@ -3,14 +3,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UpPlayerReputationComponent.h"
 #include "Components/ActorComponent.h"
 #include "UpPlayerPartyComponent.generated.h"
+
+USTRUCT()
+struct FUpPartyMembershipSpec
+{
+	GENERATED_BODY()
+
+	bool IsValid() const { return bCanJoinParty; }
+
+	UPROPERTY(EditAnywhere)
+	bool bCanJoinParty = false;
+	
+	UPROPERTY(EditAnywhere)
+	FUpReputationData PlayerReputationData;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UNREALPORTFOLIO_API UUpPlayerPartyComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
+	static bool IsPartyMembershipSpecSatisfied(const FUpPartyMembershipSpec& PartyMembershipSpec, const FUpReputationData& PlayerReputationData);
+	
+	static void OnPlayerTagSpecGranted(const UObject* WorldContextObject, const FUpTagSpec& GrantedTagSpec);
+	
 	UUpPlayerPartyComponent();
 };
