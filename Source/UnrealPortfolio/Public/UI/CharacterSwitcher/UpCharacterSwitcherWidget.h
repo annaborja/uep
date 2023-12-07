@@ -17,14 +17,12 @@ class UNREALPORTFOLIO_API UUpCharacterSwitcherWidget : public UUpCommonActivatab
 protected:
 	virtual UWidget* NativeGetDesiredFocusTarget() const override;
 	virtual void NativeOnActivated() override;
-	virtual void NativeOnDeactivated() override;
+	virtual FReply NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	TArray<UUpCharacterSwitcherButtonWidget*> GetCharacterSwitcherButtons() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UCommonButtonBase* GetDefaultFocusButton() const;
-	UFUNCTION(BlueprintCallable)
-	void HandleAnyKeyReleased(const FKey& Key);
 
 private:
 	UPROPERTY(EditAnywhere, Category="UP Debug")
@@ -33,7 +31,5 @@ private:
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	int32 OverlapSphereRadius = 10000;
 	
-	bool bCanClose = false;
-
 	void PopulateCharacterSwitcherButtons() const;
 };

@@ -54,6 +54,7 @@ void AUpPlayerController::CloseCharacterSwitcher()
 
 void AUpPlayerController::SwitchCharacter(AUpNpcCharacter* Npc)
 {
+	CloseCharacterSwitcher();
 	Possess(Npc);
 }
 
@@ -64,6 +65,7 @@ void AUpPlayerController::BeginPlay()
 	check(BaseInputMappingContext);
 	check(CharacterSwitcherInputMappingContext);
 
+	check(CloseCharacterSwitcherInputAction);
 	check(CrouchInputAction);
 	check(InteractInputAction);
 	check(JumpInputAction);
@@ -97,10 +99,10 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ToggleDebugCameraInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleDebugCamera);
 	
 	EnhancedInputComponent->BindAction(PauseGameInputAction, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
-	// We trigger Interact on Completed to avoid interfering with the OpenCharacterSwitcher action.
-	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Completed, this, &ThisClass::Interact);
+	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ThisClass::Interact);
 	
 	EnhancedInputComponent->BindAction(OpenCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
+	EnhancedInputComponent->BindAction(CloseCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::TriggerCloseCharacterSwitcher);
 	EnhancedInputComponent->BindAction(NavigateCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::NavigateCharacterSwitcher);
 	
 	EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
@@ -184,6 +186,11 @@ void AUpPlayerController::OpenCharacterSwitcher(const FInputActionValue& InputAc
 	{
 		ActivateInputMappingContext(CharacterSwitcherInputMappingContext, false, 1);
 	}
+}
+
+void AUpPlayerController::TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue)
+{
+	CloseCharacterSwitcher();
 }
 
 void AUpPlayerController::NavigateCharacterSwitcher(const FInputActionValue& InputActionValue)

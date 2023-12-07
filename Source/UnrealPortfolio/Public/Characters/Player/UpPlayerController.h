@@ -42,9 +42,9 @@ public:
 	
 	void SetCurrentCameraViewType(const EUpPlayerCameraViewType::Type InCameraViewType) { CurrentCameraViewType = InCameraViewType; }
 	
+	FORCEINLINE UInputAction* GetCloseCharacterSwitcherInputAction() const { return CloseCharacterSwitcherInputAction; }
 	FORCEINLINE TEnumAsByte<EUpPlayerCameraViewType::Type> GetCurrentCameraViewType() const { return CurrentCameraViewType; }
 	FORCEINLINE AUpHud* GetCustomHud() const { return CustomHud; }
-	FORCEINLINE UInputAction* GetOpenCharacterSwitcherInputAction() const { return OpenCharacterSwitcherInputAction; }
 	FORCEINLINE AUpPlayableCharacter* GetPossessedCharacter() const { return PossessedCharacter; }
 	FORCEINLINE bool IsInitialized() const { return bInitialized; }
 
@@ -59,6 +59,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
 	TObjectPtr<UInputMappingContext> CharacterSwitcherInputMappingContext;
 	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> CloseCharacterSwitcherInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> CrouchInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
@@ -102,6 +104,7 @@ private:
 	void Interact(const FInputActionValue& InputActionValue);
 	
 	void OpenCharacterSwitcher(const FInputActionValue& InputActionValue);
+	void TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue);
 	void NavigateCharacterSwitcher(const FInputActionValue& InputActionValue);
 
 	void ToggleCrouch(const FInputActionValue& InputActionValue);

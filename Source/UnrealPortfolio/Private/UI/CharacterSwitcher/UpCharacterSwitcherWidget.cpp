@@ -25,35 +25,24 @@ void UUpCharacterSwitcherWidget::NativeOnActivated()
 	PopulateCharacterSwitcherButtons();
 }
 
-void UUpCharacterSwitcherWidget::NativeOnDeactivated()
+FReply UUpCharacterSwitcherWidget::NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
-	Super::NativeOnDeactivated();
-
-	bCanClose = false;
-}
-
-void UUpCharacterSwitcherWidget::HandleAnyKeyReleased(const FKey& Key)
-{
-	if (!CustomHud) return;
-	
-	if (const auto PlayerController = CustomHud->GetCustomController())
+	if (CustomHud)
 	{
-		if (const auto OpenCharacterSwitcherInputAction = PlayerController->GetOpenCharacterSwitcherInputAction())
+		if (const auto PlayerController = CustomHud->GetCustomController())
 		{
-			if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-				Subsystem && Subsystem->QueryKeysMappedToAction(OpenCharacterSwitcherInputAction).Contains(Key))
+			if (const auto InputAction = PlayerController->GetCloseCharacterSwitcherInputAction())
 			{
-				// HACK: Without this boolean guard, we'll see the UI flash once before remaining open.
-				if (bCanClose)
+				if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+					Subsystem && Subsystem->QueryKeysMappedToAction(InputAction).Contains(InKeyEvent.GetKey()))
 				{
 					PlayerController->CloseCharacterSwitcher();
-				} else
-				{
-					bCanClose = true;
 				}
 			}
 		}
 	}
+	
+	return Super::NativeOnKeyUp(InGeometry, InKeyEvent);
 }
 
 void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const

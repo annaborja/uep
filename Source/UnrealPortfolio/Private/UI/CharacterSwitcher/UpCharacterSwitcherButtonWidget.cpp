@@ -37,7 +37,8 @@ void UUpCharacterSwitcherButtonWidget::NativePreConstruct()
 	Super::NativePreConstruct();
 
 	SetIsEnabled(false);
-
+	
+	OnClicked().Clear();
 	OnClicked().AddLambda([this]
 	{
 		if (!CustomHud || !Npc) return;
