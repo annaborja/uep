@@ -31,24 +31,22 @@ UUpGameInstance* UUpBlueprintFunctionLibrary::GetGameInstance(const UObject* Wor
 
 FText UUpBlueprintFunctionLibrary::GetInGameName(const UObject* WorldContextObject, const FGameplayTag& TagId)
 {
-	if (const auto GameInstance = GetGameInstance(WorldContextObject))
+	if (ValidateTag(TagId, TEXT("GetInGameName")))
 	{
-		if (TagId.MatchesTag(TAG_Npc))
+		if (const auto GameInstance = GetGameInstance(WorldContextObject))
 		{
-			if (const auto NpcDataTable = GameInstance->GetNpcDataTable())
+			if (TagId.MatchesTag(TAG_Npc))
 			{
-				TArray<FUpNpcData*> AllNpcDataRows;
-				NpcDataTable->GetAllRows<FUpNpcData>(TEXT("NpcDataTable GetAllRows"), AllNpcDataRows);
-
-				for (const auto NpcDataRow : AllNpcDataRows)
+				if (const auto NpcData = GameInstance->GetNpcData(TagId); NpcData.IsValid())
 				{
-					if (NpcDataRow->TagId.MatchesTagExact(TagId)) return NpcDataRow->Name;
+					return NpcData.Name;
 				}
 			}
 		}
 	}
 
 	UE_LOG(LogTemp, Error, TEXT("GetInGameName: No data found for tag ID %s"), *TagId.ToString())
+	
 	return FText::FromString(TagId.ToString());
 }
 

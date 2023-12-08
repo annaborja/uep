@@ -9,8 +9,6 @@ bool UUpPlayerPartyComponent::IsPartyMembershipSpecSatisfied(const FUpPartyMembe
 {
 	if (!PartyMembershipSpec.IsValid()) return false;
 
-	UE_LOG(LogTemp, Warning, TEXT("Player affection: %d, spec affection: %d"), PlayerReputationData.Affection, PartyMembershipSpec.PlayerReputationData.Affection)
-	UE_LOG(LogTemp, Warning, TEXT("Player esteem: %d, spec esteem: %d"), PlayerReputationData.Esteem, PartyMembershipSpec.PlayerReputationData.Esteem)
 	if (PlayerReputationData.Affection < PartyMembershipSpec.PlayerReputationData.Affection) return false;
 	if (PlayerReputationData.Esteem < PartyMembershipSpec.PlayerReputationData.Esteem) return false;
 
@@ -19,7 +17,7 @@ bool UUpPlayerPartyComponent::IsPartyMembershipSpecSatisfied(const FUpPartyMembe
 
 void UUpPlayerPartyComponent::OnPlayerTagSpecGranted(const UObject* WorldContextObject, const FUpTagSpec& GrantedTagSpec)
 {
-	if (!UUpPlayerReputationComponent::IsReputationTagSpec(GrantedTagSpec)) return;
+	if (!UUpPlayerReputationComponent::IsReputationTag(GrantedTagSpec.Tag)) return;
 	
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(WorldContextObject))
 	{

@@ -42,20 +42,7 @@ void AUpNpcCharacter::BeginPlay()
 
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		if (const auto NpcDataTable = GameInstance->GetNpcDataTable())
-		{
-			TArray<FUpNpcData*> AllNpcDataRows;
-			NpcDataTable->GetAllRows<FUpNpcData>(TEXT("NpcDataTable GetAllRows"), AllNpcDataRows);
-
-			for (const auto NpcDataRow : AllNpcDataRows)
-			{
-				if (NpcDataRow->TagId.MatchesTagExact(TagId))
-				{
-					NpcData = *NpcDataRow;
-					break;
-				}
-			}
-		}
+		NpcData = GameInstance->GetNpcData(TagId);
 	}
 	
 	if (AbilitySystemComponent)

@@ -12,7 +12,6 @@
 #include "UI/CharacterSwitcher/UpCharacterSwitcherWidget.h"
 #include "UI/Persistent/UpPersistentOverlayWidget.h"
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
-#include "Utils/UpBlueprintFunctionLibrary.h"
 
 void AUpHud::Init(AUpPlayerController* InPlayerController)
 {
@@ -59,26 +58,6 @@ void AUpHud::OpenMainMenu() const
 	if (!PersistentOverlayWidget) return;
 	
 	PersistentOverlayWidget->OpenMainMenu();
-}
-
-FUpReputationData AUpHud::GetPlayerWorldReputationData() const
-{
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
-	{
-		return GameInstance->GetPlayerWorldReputationData();
-	}
-
-	return FUpReputationData();
-}
-
-TMap<FGameplayTag, FUpReputationData> AUpHud::GetPlayerNpcReputationDataMap() const
-{
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
-	{
-		return GameInstance->GetPlayerNpcReputationDataMap();
-	}
-
-	return TMap<FGameplayTag, FUpReputationData>();
 }
 
 void AUpHud::OpenCharacterSwitcher()

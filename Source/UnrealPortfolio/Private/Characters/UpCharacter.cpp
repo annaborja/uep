@@ -5,7 +5,6 @@
 #include "GameplayEffect.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
-#include "Components/UpInventoryComponent.h"
 
 AUpCharacter::AUpCharacter()
 {
@@ -26,8 +25,6 @@ AUpCharacter::AUpCharacter()
 		Mesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 		Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	}
-	
-	InventoryComponent = CreateDefaultSubobject<UUpInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 void AUpCharacter::BeginPlay()

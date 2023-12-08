@@ -27,6 +27,14 @@ void UUpCharacterSwitcherButtonWidget::SetNpc(AUpNpcCharacter* InNpc)
 		
 		CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Available;
 		SetIsEnabled(true);
+
+		OnClicked().Clear();
+		OnClicked().AddLambda([this]
+		{
+			if (!CustomHud || !Npc) return;
+
+			CustomHud->SwitchCharacter(Npc);
+		});
 		
 		return;
 	}
@@ -49,12 +57,5 @@ void UUpCharacterSwitcherButtonWidget::NativePreConstruct()
 	Super::NativePreConstruct();
 
 	SetIsEnabled(false);
-	
 	OnClicked().Clear();
-	OnClicked().AddLambda([this]
-	{
-		if (!CustomHud || !Npc) return;
-
-		CustomHud->SwitchCharacter(Npc);
-	});
 }

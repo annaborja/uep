@@ -9,6 +9,7 @@
 #include "Engine/GameInstance.h"
 #include "UpGameInstance.generated.h"
 
+struct FUpNpcData;
 class UDataTable;
 class UDialogueVoice;
 class UUpGasDataAsset;
@@ -20,6 +21,8 @@ class UNREALPORTFOLIO_API UUpGameInstance : public UGameInstance
 
 public:
 	virtual void Init() override;
+	
+	FUpNpcData GetNpcData(const FGameplayTag& NpcTagId) const;
 	
 	void GetPlayerCharacterTags(FGameplayTagContainer& OutTags) const;
 	bool AddPlayerCharacterTag(const FGameplayTag& Tag);

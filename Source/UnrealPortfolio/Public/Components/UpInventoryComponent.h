@@ -35,7 +35,9 @@ class UNREALPORTFOLIO_API UUpInventoryComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
+	static bool IsInventoryTag(const FGameplayTag& Tag);
 	static bool ShouldHandleTagSpecGrant(const FUpTagSpec& TagSpec);
+	static bool HandleTagSpecGrant(const UObject* WorldContextObject, const FUpTagSpec& TagSpec);
 	
 	UUpInventoryComponent();
 };

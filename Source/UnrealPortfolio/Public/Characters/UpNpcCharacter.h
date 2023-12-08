@@ -34,6 +34,11 @@ struct FUpNpcData : public FTableRowBase
 	
 	UPROPERTY(EditDefaultsOnly);
 	FText Name;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UTexture2D> Image_FullBody;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UTexture2D> Image_Head;
 };
 
 UCLASS()

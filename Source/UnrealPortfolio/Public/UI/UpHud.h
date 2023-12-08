@@ -13,7 +13,6 @@ class AUpPlayerController;
 struct FGameplayAttribute;
 struct FUpDialogueOptionData;
 struct FUpDialogueStepData;
-struct FUpReputationData;
 class UUpAttributeSet;
 class UUpCharacterSwitcherWidget;
 class UUpCommonActivatableWidget;
@@ -47,10 +46,7 @@ public:
 	FUpHudAttributeValueSignature AttributeValueDelegate;
 	
 	void Init(AUpPlayerController* InPlayerController);
-	
 	void OpenMainMenu() const;
-	FUpReputationData GetPlayerWorldReputationData() const;
-	TMap<FGameplayTag, FUpReputationData> GetPlayerNpcReputationDataMap() const;
 	
 	void OpenCharacterSwitcher();
 	void CloseCharacterSwitcher() const;

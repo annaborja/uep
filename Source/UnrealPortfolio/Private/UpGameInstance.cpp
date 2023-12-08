@@ -3,6 +3,7 @@
 #include "UpGameInstance.h"
 
 #include "GameplayEffect.h"
+#include "Characters/UpNpcCharacter.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Tags/NpcTags.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -14,6 +15,27 @@ void UUpGameInstance::Init()
 	check(GasDataAsset);
 	check(NpcDataTable);
 	check(PlayerDialogueVoice);
+}
+
+FUpNpcData UUpGameInstance::GetNpcData(const FGameplayTag& NpcTagId) const
+{
+	FUpNpcData Result;
+
+	if (UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcData")) && NpcDataTable)  
+	{
+		TArray<FUpNpcData*> AllNpcDataRows;
+		NpcDataTable->GetAllRows<FUpNpcData>(TEXT("NpcDataTable GetAllRows"), AllNpcDataRows);
+
+		for (const auto NpcDataRow : AllNpcDataRows)
+		{
+			if (NpcDataRow->TagId.MatchesTagExact(NpcTagId))
+			{
+				Result = *NpcDataRow;
+			}
+		}
+	}
+
+	return Result;
 }
 
 void UUpGameInstance::GetPlayerCharacterTags(FGameplayTagContainer& OutTags) const

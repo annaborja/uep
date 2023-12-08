@@ -2,10 +2,10 @@
 
 #include "UI/MainMenu/ReputationMenu/UpReputationMenuWidget.h"
 
+#include "UpGameInstance.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/PanelWidget.h"
 #include "Components/VerticalBoxSlot.h"
-#include "UI/UpHud.h"
 #include "UI/MainMenu/ReputationMenu/UpPlayerNpcReputationDisplayWidget.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -13,10 +13,10 @@ void UUpReputationMenuWidget::NativeOnActivated()
 {
 	Super::NativeOnActivated();
 
-	if (CustomHud)
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		PlayerWorldReputationData = CustomHud->GetPlayerWorldReputationData();
-		PlayerNpcReputationDataMap = CustomHud->GetPlayerNpcReputationDataMap();
+		PlayerWorldReputationData = GameInstance->GetPlayerWorldReputationData();
+		PlayerNpcReputationDataMap = GameInstance->GetPlayerNpcReputationDataMap();
 	}
 	
 	PopulateNpcReputations();
