@@ -7,14 +7,12 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Tags/UiTags.h"
 #include "UI/UpHud.h"
-#include "UI/MainMenu/UpMainMenuTabListWidget.h"
-#include "UI/MainMenu/UpMainMenuTabWidget.h"
+#include "UI/Basic/UpTabListWidget.h"
+#include "UI/Basic/UpTabWidget.h"
 #include "UI/MainMenu/InventoryMenu/UpInventoryMenuWidget.h"
 #include "UI/MainMenu/JournalMenu/UpJournalMenuWidget.h"
 #include "UI/MainMenu/QuestsMenu/UpQuestsMenuWidget.h"
-#include "UI/MainMenu/ReputationMenu/UpReputationMenuWidget.h"
 #include "UI/MainMenu/SettingsMenu/UpSettingsMenuWidget.h"
-#include "UI/MainMenu/SkillsMenu/UpSkillsMenuWidget.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMenuWidget.h"
 #include "UI/MainMenu/StatsMenu/UpStatsMenuWidget.h"
 
@@ -31,16 +29,18 @@ void UUpMainMenuSwitcherWidget::HandleQuitGameAction() const
 		EQuitPreference::Quit, false);
 }
 
-void UUpMainMenuSwitcherWidget::NativePreConstruct()
+void UUpMainMenuSwitcherWidget::NativeOnActivated()
 {
-	Super::NativePreConstruct();
+	Super::NativeOnActivated();
 
-	if (!bDelegatesAdded)
-	{
-		OnActivated().AddUObject(this, &ThisClass::SetUpTabList);
-		OnDeactivated().AddUObject(this, &ThisClass::ResumeGame);
-		bDelegatesAdded = true;
-	}
+	SetUpTabList();
+}
+
+void UUpMainMenuSwitcherWidget::NativeOnDeactivated()
+{
+	Super::NativeOnDeactivated();
+
+	ResumeGame();
 }
 
 void UUpMainMenuSwitcherWidget::ResumeGame()
@@ -82,16 +82,6 @@ void UUpMainMenuSwitcherWidget::SetUpTabList()
 			if (const auto Menu = GetStatsMenu())
 			{
 				TabList->RegisterTab(TAG_Menu_Stats.GetTag().GetTagName(), MenuTabClass, Menu);
-			}
-
-			if (const auto Menu = GetSkillsMenu())
-			{
-				TabList->RegisterTab(TAG_Menu_Skills.GetTag().GetTagName(), MenuTabClass, Menu);
-			}
-			
-			if (const auto Menu = GetReputationMenu())
-			{
-				TabList->RegisterTab(TAG_Menu_Reputation.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 
 			if (const auto Menu = GetJournalMenu())

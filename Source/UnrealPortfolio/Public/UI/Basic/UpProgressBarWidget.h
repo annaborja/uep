@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UI/UpCommonUserWidget.h"
-#include "UpReputationAttributeDisplayWidget.generated.h"
+#include "UpProgressBarWidget.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpReputationAttributeDisplayWidget : public UUpCommonUserWidget
+class UNREALPORTFOLIO_API UUpProgressBarWidget : public UUpCommonUserWidget
 {
 	GENERATED_BODY()
 

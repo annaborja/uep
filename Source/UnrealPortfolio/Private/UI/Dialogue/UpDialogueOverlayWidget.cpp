@@ -29,11 +29,11 @@ void UUpDialogueOverlayWidget::DisplayDialogueOptions(AUpNpcCharacter* Npc, cons
 	}
 }
 
-void UUpDialogueOverlayWidget::NativePreConstruct()
+void UUpDialogueOverlayWidget::NativeOnDeactivated()
 {
-	Super::NativePreConstruct();
+	Super::NativeOnDeactivated();
 
-	OnDeactivated().AddUObject(this, &ThisClass::ActivateDialogueStepDisplay);
+	ActivateDialogueStepDisplay();
 }
 
 void UUpDialogueOverlayWidget::ActivateDialogueStepDisplay() const

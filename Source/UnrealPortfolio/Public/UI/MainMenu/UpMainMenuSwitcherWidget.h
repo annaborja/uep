@@ -9,14 +9,12 @@
 class UCommonActivatableWidgetSwitcher;
 class UUpInventoryMenuWidget;
 class UUpJournalMenuWidget;
-class UUpMainMenuTabListWidget;
-class UUpMainMenuTabWidget;
 class UUpQuestsMenuWidget;
-class UUpReputationMenuWidget;
 class UUpSettingsMenuWidget;
-class UUpSkillsMenuWidget;
 class UUpSquadMenuWidget;
 class UUpStatsMenuWidget;
+class UUpTabListWidget;
+class UUpTabWidget;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpMainMenuSwitcherWidget : public UUpCommonActivatableWidget
@@ -25,7 +23,7 @@ class UNREALPORTFOLIO_API UUpMainMenuSwitcherWidget : public UUpCommonActivatabl
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
-	UUpMainMenuTabListWidget* GetTabList() const;
+	UUpTabListWidget* GetTabList() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UCommonActivatableWidgetSwitcher* GetWidgetSwitcher() const;
 	
@@ -36,11 +34,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpQuestsMenuWidget* GetQuestsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
-	UUpReputationMenuWidget* GetReputationMenu() const;
-	UFUNCTION(BlueprintImplementableEvent)
 	UUpSettingsMenuWidget* GetSettingsMenu() const;
-	UFUNCTION(BlueprintImplementableEvent)
-	UUpSkillsMenuWidget* GetSkillsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpSquadMenuWidget* GetSquadMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
@@ -50,17 +44,14 @@ protected:
 	void HandleCloseMenuAction();
 	UFUNCTION(BlueprintCallable, BlueprintPure=false)
 	void HandleQuitGameAction() const;
-	
-	virtual void NativePreConstruct() override;
+
+	virtual void NativeOnActivated() override;
+	virtual void NativeOnDeactivated() override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TSubclassOf<UUpMainMenuTabWidget> MenuTabClass;
-
-	bool bDelegatesAdded = false;
+	TSubclassOf<UUpTabWidget> MenuTabClass;
 	
-	UFUNCTION()
 	void ResumeGame();
-	UFUNCTION()
 	void SetUpTabList();
 };

@@ -14,10 +14,12 @@ struct FUpReputationData
 {
 	GENERATED_BODY()
 
+	bool IsValid() const { return Affection >= 0 && Esteem >= 0; }
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	uint8 Affection = 50;
+	int32 Affection = -1;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	uint8 Esteem = 50;
+	int32 Esteem = -1;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

@@ -1,8 +1,8 @@
 // Copyright AB. All Rights Reserved.
 
-#include "UI/MainMenu/ReputationMenu/UpReputationAttributeDisplayWidget.h"
+#include "UI/Basic/UpProgressBarWidget.h"
 
-void UUpReputationAttributeDisplayWidget::PopulateValue(const int32 InValue, const int32 MinValue, const int32 MaxValue)
+void UUpProgressBarWidget::PopulateValue(const int32 InValue, const int32 MinValue, const int32 MaxValue)
 {
 	Value = InValue;
 	ProgressBarPercentage = static_cast<float>(Value - MinValue) / static_cast<float>(MaxValue - MinValue);

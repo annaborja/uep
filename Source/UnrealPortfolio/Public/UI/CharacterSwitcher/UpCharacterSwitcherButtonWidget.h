@@ -34,6 +34,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TEnumAsByte<EUpCharacterSwitcherButtonState::Type> CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Empty;
 	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UTexture2D> Image;
+	UPROPERTY(BlueprintReadOnly)
 	FText Label;
 	
 	virtual void NativePreConstruct() override;

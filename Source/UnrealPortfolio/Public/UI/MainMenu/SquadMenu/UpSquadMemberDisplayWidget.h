@@ -3,8 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Characters/UpNpcCharacter.h"
 #include "UI/UpCommonUserWidget.h"
 #include "UpSquadMemberDisplayWidget.generated.h"
+
+class UCommonActivatableWidgetSwitcher;
+class UUpSquadMemberInventoryMenuWidget;
+class UUpSquadMemberStatsMenuWidget;
+class UUpTabListWidget;
+class UUpTabWidget;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpSquadMemberDisplayWidget : public UUpCommonUserWidget
@@ -12,11 +19,25 @@ class UNREALPORTFOLIO_API UUpSquadMemberDisplayWidget : public UUpCommonUserWidg
 	GENERATED_BODY()
 
 public:
-	void SetNpcName(const FText& InNpcName) { NpcName = InNpcName;  }
-
-	FORCEINLINE FText GetNpcName() const { return NpcName; }
+	void PopulateNpcData(const FUpNpcData& InNpcData);
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	FText NpcName;
+	FUpNpcData NpcData;
+
+	virtual void NativePreConstruct() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpTabListWidget* GetTabList() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UCommonActivatableWidgetSwitcher* GetTabContentSwitcher() const;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberStatsMenuWidget* GetSquadMemberStatsMenu() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberInventoryMenuWidget* GetSquadMemberInventoryMenu() const;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TSubclassOf<UUpTabWidget> TabClass;
 };

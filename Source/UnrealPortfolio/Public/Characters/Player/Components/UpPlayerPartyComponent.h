@@ -12,11 +12,8 @@ struct FUpPartyMembershipSpec
 {
 	GENERATED_BODY()
 
-	bool IsValid() const { return bCanJoinParty; }
+	bool IsValid() const { return PlayerReputationData.IsValid(); }
 
-	UPROPERTY(EditAnywhere)
-	bool bCanJoinParty = false;
-	
 	UPROPERTY(EditAnywhere)
 	FUpReputationData PlayerReputationData;
 };

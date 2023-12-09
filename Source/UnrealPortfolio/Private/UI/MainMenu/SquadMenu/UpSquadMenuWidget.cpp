@@ -33,7 +33,8 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 
 		TArray<FGameplayTag> NpcTags;
 		PartyMemberTags.GetGameplayTagArray(NpcTags);
-		
+
+		// TODO(P0): Sorting doesn't seem to be working for some reason.
 		NpcTags.Sort([this] (const FGameplayTag& TagA, const FGameplayTag& TagB)
 		{
 			return UUpBlueprintFunctionLibrary::GetInGameName(this, TagA).ToString().Compare(
@@ -48,22 +49,25 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 		
 		for (const auto& NpcTag : NpcTags)
 		{
+			FUpNpcData NpcData;
+			
+			if (GameInstance)
+			{
+				NpcData = GameInstance->GetNpcData(NpcTag);
+			}
+			
 			if (SquadMemberDisplayWidgetClass)
 			{
 				const auto Widget = CreateWidget<UUpSquadMemberDisplayWidget>(this, SquadMemberDisplayWidgetClass);
-				Widget->SetNpcName(UUpBlueprintFunctionLibrary::GetInGameName(this, NpcTag));
+
+				if (NpcData.IsValid()) Widget->PopulateNpcData(NpcData);
+
 				Carousel->AddChild(Widget);
 			}
 
 			if (SquadMemberNavButtonClass && Nav)
 			{
 				const auto Widget = CreateWidget<UUpSquadMemberNavButtonWidget>(this, SquadMemberNavButtonClass);
-				FUpNpcData NpcData;
-
-				if (GameInstance)
-				{
-					NpcData = GameInstance->GetNpcData(NpcTag);
-				}
 
 				if (NpcData.IsValid()) Widget->SetImage(NpcData.Image_Head);
 

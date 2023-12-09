@@ -5,15 +5,18 @@
 #include "CoreMinimal.h"
 #include "Tags/AttributeTags.h"
 #include "UI/UpCommonActivatableWidget.h"
-#include "UpStatsMenuWidget.generated.h"
+#include "UpSquadMemberInventoryMenuWidget.generated.h"
 
-struct FGameplayTag;
+class UUpAbilitySystemComponent;
 class UUpAttributeBarWidget;
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpStatsMenuWidget : public UUpCommonActivatableWidget
+class UNREALPORTFOLIO_API UUpSquadMemberInventoryMenuWidget : public UUpCommonActivatableWidget
 {
 	GENERATED_BODY()
+
+public:
+	void SetAbilitySystemComponent(UUpAbilitySystemComponent* InAbilitySystemComponent);
 
 protected:
 	virtual void NativeOnActivated() override;
@@ -36,6 +39,9 @@ private:
 	};
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float PrimaryAttributeRowGap = 20.f;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUpAbilitySystemComponent> AbilitySystemComponent;
 
 	void PopulatePrimaryAttributes();
 };

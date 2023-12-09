@@ -22,7 +22,7 @@ class USphereComponent;
 class UUpDialogueComponent;
 class UUpGameInstance;
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FUpNpcData : public FTableRowBase
 {
 	GENERATED_BODY()
@@ -32,12 +32,12 @@ struct FUpNpcData : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag TagId;
 	
-	UPROPERTY(EditDefaultsOnly);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly);
 	FText Name;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UTexture2D> Image_FullBody;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UTexture2D> Image_Head;
 };
 
@@ -72,6 +72,9 @@ public:
 	bool Mantle() const;
 	void ToggleSprint(const bool bSprint) const;
 
+	FORCEINLINE UTexture2D* GetImage_FullBody() const { return NpcData.Image_FullBody; }
+	FORCEINLINE UTexture2D* GetImage_Head() const { return NpcData.Image_Head; }
+	
 	FORCEINLINE UUpDialogueComponent* GetDialogueComponent() const { return DialogueComponent; }
 	FORCEINLINE UDialogueVoice* GetDialogueVoice() const { return DialogueVoice; }
 

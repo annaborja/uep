@@ -2,6 +2,7 @@
 
 #include "UI/CharacterSwitcher/UpCharacterSwitcherButtonWidget.h"
 
+#include "UpGameInstance.h"
 #include "Characters/UpNpcCharacter.h"
 #include "UI/UpHud.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -13,6 +14,7 @@ void UUpCharacterSwitcherButtonWidget::SetNpc(AUpNpcCharacter* InNpc)
 	if (Npc)
 	{
 		Label = Npc->GetInGameName();
+		Image = Npc->GetImage_Head();
 
 		if (CustomHud)
 		{
@@ -40,6 +42,7 @@ void UUpCharacterSwitcherButtonWidget::SetNpc(AUpNpcCharacter* InNpc)
 	}
 	
 	Label = FText();
+	Image = nullptr;
 	CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Empty;
 	SetIsEnabled(false);
 }
@@ -47,9 +50,18 @@ void UUpCharacterSwitcherButtonWidget::SetNpc(AUpNpcCharacter* InNpc)
 void UUpCharacterSwitcherButtonWidget::SetNpcTag(const FGameplayTag& NpcTag)
 {
 	Npc = nullptr;
-	Label = UUpBlueprintFunctionLibrary::GetInGameName(this, NpcTag);
 	CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Unavailable;
 	SetIsEnabled(false);
+	
+	FUpNpcData NpcData;
+	
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	{
+		NpcData = GameInstance->GetNpcData(NpcTag);
+	}
+	
+	Label = NpcData.Name;
+	Image = NpcData.Image_Head;
 }
 
 void UUpCharacterSwitcherButtonWidget::NativePreConstruct()

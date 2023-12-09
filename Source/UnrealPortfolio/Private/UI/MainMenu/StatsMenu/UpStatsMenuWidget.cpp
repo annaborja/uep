@@ -7,8 +7,9 @@
 #include "Characters/Player/UpPlayerState.h"
 #include "Components/PanelWidget.h"
 #include "Components/VerticalBoxSlot.h"
+#include "GAS/Attributes/UpPrimaryAttributeSet.h"
+#include "UI/Basic/UpAttributeBarWidget.h"
 #include "UI/UpHud.h"
-#include "UI/MainMenu/StatsMenu/UpPrimaryAttributeDisplayWidget.h"
 
 void UUpStatsMenuWidget::NativeOnActivated()
 {
@@ -35,7 +36,7 @@ void UUpStatsMenuWidget::PopulatePrimaryAttributes()
 		
 					for (const auto& Tag : PrimaryAttributeTags)
 					{
-						const auto Widget = CreateWidget<UUpPrimaryAttributeDisplayWidget>(this, PrimaryAttributeDisplayWidgetClass);
+						const auto Widget = CreateWidget<UUpAttributeBarWidget>(this, PrimaryAttributeDisplayWidgetClass);
 						Widget->SetCustomHud(CustomHud);
 						Widget->PopulateAttribute(Tag, PrimaryAttributeSet);
 

@@ -30,7 +30,7 @@ public:
 	void DisplayDialogueOptions(AUpNpcCharacter* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const;
 
 protected:
-	virtual void NativePreConstruct() override;
+	virtual void NativeOnDeactivated() override;
 
 private:
 	UFUNCTION()
