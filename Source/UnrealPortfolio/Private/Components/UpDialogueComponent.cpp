@@ -183,7 +183,7 @@ void UUpDialogueComponent::BeginPlay()
 	if (DialogueDataTable)
 	{
 		TArray<FUpDialogueData*> AllDialogueDataRows;
-		DialogueDataTable->GetAllRows<FUpDialogueData>(TEXT("DialogueDataTable GetAllRows"), AllDialogueDataRows);
+		DialogueDataTable->GetAllRows(TEXT("DialogueDataTable GetAllRows"), AllDialogueDataRows);
 
 		for (const auto DialogueDataRow : AllDialogueDataRows)
 		{

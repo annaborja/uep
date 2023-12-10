@@ -50,7 +50,7 @@ FText UUpBlueprintFunctionLibrary::GetInGameName(const UObject* WorldContextObje
 	return FText::FromString(TagId.ToString());
 }
 
-FText UUpBlueprintFunctionLibrary::GetInGameNameifiedText(const UObject* WorldContextObject, const FText& InText)
+FText UUpBlueprintFunctionLibrary::GetInGameNameifiedText(const UObject* WorldContextObject, const FText InText)
 {
 	auto Result = FString(InText.ToString());
 	
@@ -141,7 +141,7 @@ bool UUpBlueprintFunctionLibrary::HasTagId(const AActor* Actor, const FGameplayT
 	return false;
 }
 
-bool UUpBlueprintFunctionLibrary::ValidateTag(const FGameplayTag& Tag, const FString& FuncName)
+bool UUpBlueprintFunctionLibrary::ValidateTag(const FGameplayTag& Tag, const FString FuncName)
 {
 	if (!Tag.IsValid())
 	{
@@ -152,7 +152,7 @@ bool UUpBlueprintFunctionLibrary::ValidateTag(const FGameplayTag& Tag, const FSt
 	return true;
 }
 
-bool UUpBlueprintFunctionLibrary::ValidateNpcTag(const FGameplayTag& Tag, const FString& FuncName)
+bool UUpBlueprintFunctionLibrary::ValidateNpcTag(const FGameplayTag& Tag, const FString FuncName)
 {
 	if (!ValidateTag(Tag, FuncName)) return false;
 
@@ -235,7 +235,7 @@ void UUpBlueprintFunctionLibrary::ProcessEntityTagSpecGrants(const UObject* Worl
 	// TODO(P0): Finish implementation.
 }
 
-bool UUpBlueprintFunctionLibrary::ValidateTagSpec(const FUpTagSpec& TagSpec, const FString& FuncName)
+bool UUpBlueprintFunctionLibrary::ValidateTagSpec(const FUpTagSpec& TagSpec, const FString FuncName)
 {
 	if (!TagSpec.IsValid())
 	{

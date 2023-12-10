@@ -10,8 +10,6 @@
 class UCommonActivatableWidgetSwitcher;
 class UUpSquadMemberInventoryMenuWidget;
 class UUpSquadMemberStatsMenuWidget;
-class UUpTabListWidget;
-class UUpTabWidget;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpSquadMemberDisplayWidget : public UUpCommonUserWidget
@@ -20,24 +18,17 @@ class UNREALPORTFOLIO_API UUpSquadMemberDisplayWidget : public UUpCommonUserWidg
 
 public:
 	void PopulateNpcData(const FUpNpcData& InNpcData);
+	void SetActiveSubMenu(const FGameplayTag& SubMenuTag);
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	FUpNpcData NpcData;
 
-	virtual void NativePreConstruct() override;
-
 	UFUNCTION(BlueprintImplementableEvent)
-	UUpTabListWidget* GetTabList() const;
-	UFUNCTION(BlueprintImplementableEvent)
-	UCommonActivatableWidgetSwitcher* GetTabContentSwitcher() const;
+	UCommonActivatableWidgetSwitcher* GetSubMenuSwitcher() const;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpSquadMemberStatsMenuWidget* GetSquadMemberStatsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpSquadMemberInventoryMenuWidget* GetSquadMemberInventoryMenu() const;
-
-private:
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TSubclassOf<UUpTabWidget> TabClass;
 };

@@ -14,7 +14,7 @@ struct FUpTagSpec
 	FUpTagSpec() {}
 	explicit FUpTagSpec(const FGameplayTag& InTag, const int32& InCount = 1) : Tag(InTag), Count(InCount) {}
 	
-	bool IsValid() const { return Tag.IsValid() && Count != 0; }
+	bool IsValid() const { return Tag.IsValid(); }
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag Tag;

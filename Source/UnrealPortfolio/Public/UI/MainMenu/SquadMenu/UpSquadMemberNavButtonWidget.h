@@ -15,6 +15,15 @@ public:
 	void SetImage(UTexture2D* InImage) { Image = InImage; }
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	float RenderOpacitySelected = 1.f;
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	float RenderOpacityDeselected = 0.5f;
+	
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UTexture2D> Image;
+
+	virtual void NativePreConstruct() override;
+	virtual void NativeOnSelected(bool bBroadcast) override;
+	virtual void NativeOnDeselected(bool bBroadcast) override;
 };

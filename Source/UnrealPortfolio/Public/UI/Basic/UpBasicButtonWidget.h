@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UI/UpCommonButtonBase.h"
-#include "UpTabWidget.generated.h"
+#include "UpBasicButtonWidget.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpTabWidget : public UUpCommonButtonBase
+class UNREALPORTFOLIO_API UUpBasicButtonWidget : public UUpCommonButtonBase
 {
 	GENERATED_BODY()
 

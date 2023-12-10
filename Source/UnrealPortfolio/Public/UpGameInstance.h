@@ -6,6 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"
+#include "Components/UpInventoryComponent.h"
 #include "Engine/GameInstance.h"
 #include "UpGameInstance.generated.h"
 
@@ -42,6 +43,8 @@ public:
 	FUpReputationData GetPlayerReputationData(const FGameplayTag& TagId);
 	bool UpdatePlayerReputation_Affection(const FGameplayTag& TagId, const int8 Delta);
 	bool UpdatePlayerReputation_Esteem(const FGameplayTag& TagId, const int8 Delta);
+
+	FUpInventory GetNpcInventory(const FGameplayTag& NpcTagId);
 	
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
 	FORCEINLINE UDataTable* GetNpcDataTable() const { return NpcDataTable; }
@@ -83,4 +86,8 @@ private:
 	// TODO(P0): Load from saved data.
 	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Reputation")
 	TMap<FGameplayTag, FUpReputationData> PlayerNpcReputationDataMap;
+
+	// TODO(P0): Load from saved data.
+	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Inventory")
+	TMap<FGameplayTag, FUpInventory> NpcInventoryMap;
 };

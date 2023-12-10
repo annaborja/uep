@@ -24,7 +24,7 @@ FUpNpcData UUpGameInstance::GetNpcData(const FGameplayTag& NpcTagId) const
 	if (UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcData")) && NpcDataTable)  
 	{
 		TArray<FUpNpcData*> AllNpcDataRows;
-		NpcDataTable->GetAllRows<FUpNpcData>(TEXT("NpcDataTable GetAllRows"), AllNpcDataRows);
+		NpcDataTable->GetAllRows(TEXT("NpcDataTable GetAllRows"), AllNpcDataRows);
 
 		for (const auto NpcDataRow : AllNpcDataRows)
 		{
@@ -189,4 +189,11 @@ bool UUpGameInstance::UpdatePlayerReputation_Esteem(const FGameplayTag& TagId, c
 
 	UE_LOG(LogTemp, Error, TEXT("UpdatePlayerReputation_Esteem: Unmatched tag ID %s"), *TagId.ToString())
 	return false;
+}
+
+FUpInventory UUpGameInstance::GetNpcInventory(const FGameplayTag& NpcTagId)
+{
+	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcInventory"))) return FUpInventory();
+	
+	return NpcInventoryMap.FindOrAdd(NpcTagId);
 }
