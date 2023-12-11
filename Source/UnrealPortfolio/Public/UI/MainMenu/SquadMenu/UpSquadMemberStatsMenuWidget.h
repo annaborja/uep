@@ -3,12 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Characters/UpNpcCharacter.h"
 #include "Tags/AttributeTags.h"
 #include "UI/UpCommonActivatableWidget.h"
 #include "UpSquadMemberStatsMenuWidget.generated.h"
 
+class AUpNpcCharacter;
 struct FUpReputationData;
-class UUpAbilitySystemComponent;
+class UAbilitySystemComponent;
 class UUpAttributeBarWidget;
 class UUpProgressBarWidget;
 
@@ -18,12 +20,13 @@ class UNREALPORTFOLIO_API UUpSquadMemberStatsMenuWidget : public UUpCommonActiva
 	GENERATED_BODY()
 
 public:
-	void PopulatePlayerSentiment(const FUpReputationData& PlayerReputationData);
-	void SetAbilitySystemComponent(UUpAbilitySystemComponent* InAbilitySystemComponent);
+	void SetNpc(const AUpNpcCharacter* Npc);
+	void SetNpcTagId(const FGameplayTag& NpcTagId);
 
 protected:
-	virtual void NativeOnActivated() override;
-
+	UPROPERTY(BlueprintReadOnly)
+	bool bHasFullData = false;
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	UPanelWidget* GetPrimaryAttributesContainer() const;
 	UFUNCTION(BlueprintImplementableEvent)
@@ -37,25 +40,23 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	TArray<FGameplayTag> PrimaryAttributeTags {
-		TAG_Attribute_Primary_Resilience,
 		TAG_Attribute_Primary_Strength,
 		TAG_Attribute_Primary_Speed,
 		TAG_Attribute_Primary_Dexterity,
+		TAG_Attribute_Primary_Resilience,
 		TAG_Attribute_Primary_Intelligence,
 		TAG_Attribute_Primary_Instinct
 	};
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	float PrimaryAttributeRowGap = 20.f;
+	float PrimaryAttributeRowGap = 32.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	FText AffectionLabel = FText::FromString(TEXT("Affection"));
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	FText EsteemLabel = FText::FromString(TEXT("Esteem"));
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	float SentimentAttributeRowGap = 8.f;
+	float SentimentAttributeRowGap = 12.f;
 
-	UPROPERTY(Transient)
-	TObjectPtr<UUpAbilitySystemComponent> AbilitySystemComponent;
-
-	void PopulatePrimaryAttributes();
+	void PopulatePrimaryAttributes(const AUpNpcCharacter* Npc);
+	void PopulatePlayerSentiment(const FGameplayTag& NpcTagId);
 };

@@ -2,13 +2,68 @@
 
 #include "UI/MainMenu/SquadMenu/UpSquadMemberStatsMenuWidget.h"
 
+#include "AbilitySystemComponent.h"
+#include "UpGameInstance.h"
+#include "Characters/UpNpcCharacter.h"
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"
 #include "Components/PanelWidget.h"
 #include "Components/VerticalBoxSlot.h"
+#include "GAS/Attributes/UpPrimaryAttributeSet.h"
+#include "UI/Basic/UpAttributeBarWidget.h"
 #include "UI/Basic/UpProgressBarWidget.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
-void UUpSquadMemberStatsMenuWidget::PopulatePlayerSentiment(const FUpReputationData& PlayerReputationData)
+void UUpSquadMemberStatsMenuWidget::SetNpc(const AUpNpcCharacter* Npc)
 {
+	bHasFullData = true;
+	
+	PopulatePrimaryAttributes(Npc);
+	PopulatePlayerSentiment(Npc->GetTagId());
+}
+
+void UUpSquadMemberStatsMenuWidget::SetNpcTagId(const FGameplayTag& NpcTagId)
+{
+	bHasFullData = false;
+	
+	PopulatePlayerSentiment(NpcTagId);
+}
+
+void UUpSquadMemberStatsMenuWidget::PopulatePrimaryAttributes(const AUpNpcCharacter* Npc)
+{
+	if (const auto PrimaryAttributesContainer = GetPrimaryAttributesContainer())
+	{
+		PrimaryAttributesContainer->ClearChildren();
+
+		if (const auto PrimaryAttributeSet = Npc->GetPrimaryAttributeSet())
+		{
+			uint8 PrimaryAttributeIndex = 0;
+
+			for (const auto& Tag : PrimaryAttributeTags)
+			{
+				const auto Widget = CreateWidget<UUpAttributeBarWidget>(this, PrimaryAttributeDisplayWidgetClass);
+				Widget->SetCustomHud(CustomHud);
+				Widget->PopulateAttribute(Tag, PrimaryAttributeSet);
+
+				if (const auto Slot = Cast<UVerticalBoxSlot>(PrimaryAttributesContainer->AddChild(Widget)); Slot && PrimaryAttributeIndex > 0)
+				{
+					Slot->SetPadding(FMargin(0.f, PrimaryAttributeRowGap, 0.f, 0.f));
+				}
+
+				PrimaryAttributeIndex++;
+			}
+		}
+	}
+}
+
+void UUpSquadMemberStatsMenuWidget::PopulatePlayerSentiment(const FGameplayTag& NpcTagId)
+{
+	FUpReputationData PlayerReputationData;
+			
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	{
+		PlayerReputationData = GameInstance->GetPlayerReputationData(NpcTagId);
+	}
+
 	if (const auto Container = GetPlayerSentimentAttributesContainer(); Container && SentimentAttributeDisplayWidgetClass)
 	{
 		const auto AffectionWidget = CreateWidget<UUpProgressBarWidget>(this, SentimentAttributeDisplayWidgetClass);
@@ -28,19 +83,4 @@ void UUpSquadMemberStatsMenuWidget::PopulatePlayerSentiment(const FUpReputationD
 			PanelSlot->SetPadding(FMargin(0.f, SentimentAttributeRowGap, 0.f, 0.f));
 		}
 	}
-}
-
-void UUpSquadMemberStatsMenuWidget::SetAbilitySystemComponent(UUpAbilitySystemComponent* InAbilitySystemComponent)
-{
-}
-
-void UUpSquadMemberStatsMenuWidget::NativeOnActivated()
-{
-	Super::NativeOnActivated();
-
-	PopulatePrimaryAttributes();
-}
-
-void UUpSquadMemberStatsMenuWidget::PopulatePrimaryAttributes()
-{
 }

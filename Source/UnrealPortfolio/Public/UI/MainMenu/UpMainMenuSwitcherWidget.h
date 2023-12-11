@@ -9,10 +9,8 @@
 class UCommonActivatableWidgetSwitcher;
 class UUpInventoryMenuWidget;
 class UUpJournalMenuWidget;
-class UUpQuestsMenuWidget;
 class UUpSettingsMenuWidget;
 class UUpSquadMenuWidget;
-class UUpStatsMenuWidget;
 class UUpTabListWidget;
 class UUpTabWidget;
 
@@ -32,13 +30,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpJournalMenuWidget* GetJournalMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
-	UUpQuestsMenuWidget* GetQuestsMenu() const;
-	UFUNCTION(BlueprintImplementableEvent)
 	UUpSettingsMenuWidget* GetSettingsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpSquadMenuWidget* GetSquadMenu() const;
-	UFUNCTION(BlueprintImplementableEvent)
-	UUpStatsMenuWidget* GetStatsMenu() const;
 	
 	UFUNCTION(BlueprintCallable)
 	void HandleCloseMenuAction();

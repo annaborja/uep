@@ -22,4 +22,6 @@ protected:
 	FText Name;
 	UPROPERTY(BlueprintReadOnly)
 	float Value;
+	UPROPERTY(BlueprintReadOnly)
+	float Percentage;
 };

@@ -11,10 +11,8 @@
 #include "UI/Basic/UpTabWidget.h"
 #include "UI/MainMenu/InventoryMenu/UpInventoryMenuWidget.h"
 #include "UI/MainMenu/JournalMenu/UpJournalMenuWidget.h"
-#include "UI/MainMenu/QuestsMenu/UpQuestsMenuWidget.h"
 #include "UI/MainMenu/SettingsMenu/UpSettingsMenuWidget.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMenuWidget.h"
-#include "UI/MainMenu/StatsMenu/UpStatsMenuWidget.h"
 
 void UUpMainMenuSwitcherWidget::HandleCloseMenuAction()
 {
@@ -69,19 +67,9 @@ void UUpMainMenuSwitcherWidget::SetUpTabList()
 				TabList->RegisterTab(TAG_Menu_Squad.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 			
-			if (const auto Menu = GetQuestsMenu())
-			{
-				TabList->RegisterTab(TAG_Menu_Quests.GetTag().GetTagName(), MenuTabClass, Menu);
-			}
-
 			if (const auto Menu = GetInventoryMenu())
 			{
 				TabList->RegisterTab(TAG_Menu_Inventory.GetTag().GetTagName(), MenuTabClass, Menu);
-			}
-
-			if (const auto Menu = GetStatsMenu())
-			{
-				TabList->RegisterTab(TAG_Menu_Stats.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 
 			if (const auto Menu = GetJournalMenu())

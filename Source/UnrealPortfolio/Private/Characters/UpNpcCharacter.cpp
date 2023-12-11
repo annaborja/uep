@@ -11,6 +11,8 @@
 #include "Components/UpCharacterMovementComponent.h"
 #include "Components/UpCombatComponent.h"
 #include "Components/UpDialogueComponent.h"
+#include "GAS/Attributes/UpPrimaryAttributeSet.h"
+#include "GAS/Attributes/UpVitalAttributeSet.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -28,6 +30,9 @@ AUpNpcCharacter::AUpNpcCharacter(const FObjectInitializer& ObjectInitializer) :
 	AbilitySystemComponent = CreateDefaultSubobject<UUpAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	CombatComponent = CreateDefaultSubobject<UUpCombatComponent>(TEXT("CombatComponent"));
 	DialogueComponent = CreateDefaultSubobject<UUpDialogueComponent>(TEXT("DialogueComponent"));
+
+	VitalAttributeSet = CreateDefaultSubobject<UUpVitalAttributeSet>(TEXT("VitalAttributeSet"));
+	PrimaryAttributeSet = CreateDefaultSubobject<UUpPrimaryAttributeSet>(TEXT("PrimaryAttributeSet"));
 
 	InteractionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));
 	InteractionSphere->SetupAttachment(GetRootComponent());

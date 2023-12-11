@@ -17,12 +17,17 @@ class UNREALPORTFOLIO_API UUpSquadMemberDisplayWidget : public UUpCommonUserWidg
 	GENERATED_BODY()
 
 public:
-	void PopulateNpcData(const FUpNpcData& InNpcData);
-	void SetActiveSubMenu(const FGameplayTag& SubMenuTag);
+	void SetNpc(AUpNpcCharacter* InNpc);
+	void SetNpcData(const FUpNpcData InNpcData);
+	
+	void SetActiveSubMenu(const FGameplayTag& SubMenuTag) const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	FUpNpcData NpcData;
+	
+	UPROPERTY(Transient)
+	TObjectPtr<AUpNpcCharacter> Npc;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	UCommonActivatableWidgetSwitcher* GetSubMenuSwitcher() const;
@@ -31,4 +36,6 @@ protected:
 	UUpSquadMemberStatsMenuWidget* GetSquadMemberStatsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpSquadMemberInventoryMenuWidget* GetSquadMemberInventoryMenu() const;
+
+	void PopulateSubMenuData() const;
 };

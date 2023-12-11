@@ -21,6 +21,8 @@ class UDialogueVoice;
 class USphereComponent;
 class UUpDialogueComponent;
 class UUpGameInstance;
+class UUpPrimaryAttributeSet;
+class UUpVitalAttributeSet;
 
 USTRUCT(BlueprintType)
 struct FUpNpcData : public FTableRowBase
@@ -72,6 +74,10 @@ public:
 	bool Mantle() const;
 	void ToggleSprint(const bool bSprint) const;
 
+	FORCEINLINE FUpNpcData GetNpcData() const { return NpcData; }
+	FORCEINLINE UUpPrimaryAttributeSet* GetPrimaryAttributeSet() const { return PrimaryAttributeSet; }
+	FORCEINLINE UUpVitalAttributeSet* GetVitalAttributeSet() const { return VitalAttributeSet; }
+	
 	FORCEINLINE UTexture2D* GetImage_FullBody() const { return NpcData.Image_FullBody; }
 	FORCEINLINE UTexture2D* GetImage_Head() const { return NpcData.Image_Head; }
 	
@@ -97,6 +103,11 @@ private:
 	FGameplayTag TagId;
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float InteractionSphereRadius = 100.f;
+
+	UPROPERTY(VisibleAnywhere, Category="UP Runtime")
+	TObjectPtr<UUpPrimaryAttributeSet> PrimaryAttributeSet;
+	UPROPERTY(VisibleAnywhere, Category="UP Runtime")
+	TObjectPtr<UUpVitalAttributeSet> VitalAttributeSet;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpAiController> AiController;

@@ -7,6 +7,7 @@
 #include "Characters/UpNpcCharacter.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/PanelWidget.h"
+#include "Kismet/GameplayStatics.h"
 #include "UI/UpHud.h"
 #include "UI/Basic/UpBasicButtonWidget.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMemberDisplayWidget.h"
@@ -93,7 +94,7 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 				UUpBlueprintFunctionLibrary::GetInGameName(this, TagB).ToString());
 		});
 	}
-	
+
 	if (const auto Carousel = GetSquadMembersCarousel())
 	{
 		Carousel->ClearChildren();
@@ -104,26 +105,48 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 
 		if (Nav) Nav->ClearChildren();
 		
+		TArray<AActor*> NpcActors;
+		UGameplayStatics::GetAllActorsOfClass(this, AUpNpcCharacter::StaticClass(), NpcActors);
+		
 		for (const auto& SquadMemberTag : SquadMemberTags)
 		{
+			AUpNpcCharacter* Npc = nullptr;
 			FUpNpcData NpcData;
+
+			for (const auto Actor : NpcActors)
+			{
+				if (UUpBlueprintFunctionLibrary::HasTagId(Actor, SquadMemberTag))
+				{
+					Npc = Cast<AUpNpcCharacter>(Actor);
+					break;
+				}
+			}
 			
-			if (GameInstance)
+			if (Npc)
+			{
+				NpcData = Npc->GetNpcData();
+			} else if (GameInstance)
 			{
 				NpcData = GameInstance->GetNpcData(SquadMemberTag);
 			}
 			
 			if (SquadMemberDisplayWidgetClass)
 			{
-				const auto Widget = CreateWidget<UUpSquadMemberDisplayWidget>(this, SquadMemberDisplayWidgetClass);
-				
-				if (NpcData.IsValid()) Widget->PopulateNpcData(NpcData);
+				auto Widget = CreateWidget<UUpSquadMemberDisplayWidget>(this, SquadMemberDisplayWidgetClass);
+
+				if (Npc)
+				{
+					Widget->SetNpc(Npc);
+				} else
+				{
+					Widget->SetNpcData(NpcData);
+				}
 				
 				SubMenuNavigationDelegate.AddLambda([Widget](const FGameplayTag SubMenuTag)
 				{
 					Widget->SetActiveSubMenu(SubMenuTag);
 				});
-
+				
 				Carousel->AddChild(Widget);
 			}
 

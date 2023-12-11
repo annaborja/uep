@@ -10,6 +10,10 @@ void UUpAttributeBarWidget::PopulateAttribute(const FGameplayTag& Tag, const UUp
 
 	if (!Attribute.IsValid()) return;
 
+	constexpr int32 MinValue = 0;
+	constexpr int32 MaxValue = 100;
+
 	Name = FText::FromString(Attribute.AttributeName);
 	Value = Attribute.GetNumericValue(AttributeSet);
+	Percentage = (Value - MinValue) / static_cast<float>(MaxValue - MinValue);
 }

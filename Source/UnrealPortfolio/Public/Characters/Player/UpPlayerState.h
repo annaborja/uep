@@ -24,8 +24,8 @@ public:
 
 	TArray<UUpAttributeSet*> GetAttributeSets() const;
 
-	FORCEINLINE UUpPrimaryAttributeSet* GetPrimaryAttributeSet() { return PrimaryAttributeSet; }
-	FORCEINLINE UUpVitalAttributeSet* GetVitalAttributeSet() { return VitalAttributeSet; }
+	FORCEINLINE UUpPrimaryAttributeSet* GetPrimaryAttributeSet() const { return PrimaryAttributeSet; }
+	FORCEINLINE UUpVitalAttributeSet* GetVitalAttributeSet() const { return VitalAttributeSet; }
 
 private:
 	UPROPERTY(VisibleAnywhere)

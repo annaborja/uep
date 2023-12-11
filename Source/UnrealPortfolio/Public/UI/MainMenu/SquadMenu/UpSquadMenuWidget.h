@@ -53,7 +53,7 @@ private:
 	TSubclassOf<UUpSquadMemberSubMenuNavButtonWidget> SubMenuNavButtonClass;
 
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	float SquadMemberNavButtonGap = 8.f;
+	float SquadMemberNavButtonGap = 12.f;
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	TArray<FGameplayTag> SubMenuTags { TAG_Menu_SquadMember_Stats, TAG_Menu_SquadMember_Inventory };
 
