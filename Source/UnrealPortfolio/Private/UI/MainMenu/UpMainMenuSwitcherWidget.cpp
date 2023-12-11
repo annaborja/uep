@@ -9,7 +9,6 @@
 #include "UI/UpHud.h"
 #include "UI/Basic/UpTabListWidget.h"
 #include "UI/Basic/UpTabWidget.h"
-#include "UI/MainMenu/InventoryMenu/UpInventoryMenuWidget.h"
 #include "UI/MainMenu/JournalMenu/UpJournalMenuWidget.h"
 #include "UI/MainMenu/SettingsMenu/UpSettingsMenuWidget.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMenuWidget.h"
@@ -41,7 +40,7 @@ void UUpMainMenuSwitcherWidget::NativeOnDeactivated()
 	ResumeGame();
 }
 
-void UUpMainMenuSwitcherWidget::ResumeGame()
+void UUpMainMenuSwitcherWidget::ResumeGame() const
 {
 	UGameplayStatics::SetGamePaused(this, false);
 
@@ -54,7 +53,7 @@ void UUpMainMenuSwitcherWidget::ResumeGame()
 	}
 }
 
-void UUpMainMenuSwitcherWidget::SetUpTabList()
+void UUpMainMenuSwitcherWidget::SetUpTabList() const
 {
 	if (const auto WidgetSwitcher = GetWidgetSwitcher())
 	{
@@ -67,11 +66,6 @@ void UUpMainMenuSwitcherWidget::SetUpTabList()
 				TabList->RegisterTab(TAG_Menu_Squad.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 			
-			if (const auto Menu = GetInventoryMenu())
-			{
-				TabList->RegisterTab(TAG_Menu_Inventory.GetTag().GetTagName(), MenuTabClass, Menu);
-			}
-
 			if (const auto Menu = GetJournalMenu())
 			{
 				TabList->RegisterTab(TAG_Menu_Journal.GetTag().GetTagName(), MenuTabClass, Menu);

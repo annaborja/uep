@@ -23,7 +23,7 @@ class UNREALPORTFOLIO_API UUpGameInstance : public UGameInstance
 public:
 	virtual void Init() override;
 	
-	FUpNpcData GetNpcData(const FGameplayTag& NpcTagId) const;
+	FUpNpcData GetNpcData(const FGameplayTag& NpcTagId);
 	
 	void GetPlayerCharacterTags(FGameplayTagContainer& OutTags) const;
 	bool AddPlayerCharacterTag(const FGameplayTag& Tag);
@@ -44,6 +44,7 @@ public:
 	bool UpdatePlayerReputation_Affection(const FGameplayTag& TagId, const int8 Delta);
 	bool UpdatePlayerReputation_Esteem(const FGameplayTag& TagId, const int8 Delta);
 
+	FUpItemData GetItemData(const FGameplayTag& ItemTagId);
 	FUpInventory GetNpcInventory(const FGameplayTag& NpcTagId);
 	
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
@@ -58,10 +59,13 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UUpGasDataAsset> GasDataAsset;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpNpcData"))
-	TObjectPtr<UDataTable> NpcDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UDialogueVoice> PlayerDialogueVoice;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpItemData"))
+	TObjectPtr<UDataTable> ItemDataTable;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpNpcData"))
+	TObjectPtr<UDataTable> NpcDataTable;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugTagSpecGrant = false;
@@ -90,4 +94,9 @@ private:
 	// TODO(P0): Load from saved data.
 	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Inventory")
 	TMap<FGameplayTag, FUpInventory> NpcInventoryMap;
+
+	UPROPERTY(Transient)
+	TArray<FUpItemData> AllItemData;
+	UPROPERTY(Transient)
+	TArray<FUpNpcData> AllNpcData;
 };

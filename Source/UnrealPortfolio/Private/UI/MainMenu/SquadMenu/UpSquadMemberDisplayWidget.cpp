@@ -54,4 +54,9 @@ void UUpSquadMemberDisplayWidget::PopulateSubMenuData() const
 			SubMenu->SetNpcTagId(NpcData.TagId);
 		}
 	}
+	
+	if (const auto SubMenu = GetSquadMemberInventoryMenu())
+	{
+		if (NpcData.IsValid()) SubMenu->SetNpcTagId(NpcData.TagId);
+	}
 }

@@ -9,8 +9,6 @@
 #include "UpSquadMemberStatsMenuWidget.generated.h"
 
 class AUpNpcCharacter;
-struct FUpReputationData;
-class UAbilitySystemComponent;
 class UUpAttributeBarWidget;
 class UUpProgressBarWidget;
 

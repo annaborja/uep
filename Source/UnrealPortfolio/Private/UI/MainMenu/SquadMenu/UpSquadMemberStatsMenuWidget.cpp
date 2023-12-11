@@ -2,7 +2,6 @@
 
 #include "UI/MainMenu/SquadMenu/UpSquadMemberStatsMenuWidget.h"
 
-#include "AbilitySystemComponent.h"
 #include "UpGameInstance.h"
 #include "Characters/UpNpcCharacter.h"
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"

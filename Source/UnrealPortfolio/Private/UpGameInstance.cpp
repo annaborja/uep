@@ -15,22 +15,41 @@ void UUpGameInstance::Init()
 	check(GasDataAsset);
 	check(NpcDataTable);
 	check(PlayerDialogueVoice);
-}
 
-FUpNpcData UUpGameInstance::GetNpcData(const FGameplayTag& NpcTagId) const
-{
-	FUpNpcData Result;
-
-	if (UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcData")) && NpcDataTable)  
+	if (NpcDataTable)
 	{
 		TArray<FUpNpcData*> AllNpcDataRows;
 		NpcDataTable->GetAllRows(TEXT("NpcDataTable GetAllRows"), AllNpcDataRows);
 
-		for (const auto NpcDataRow : AllNpcDataRows)
+		for (const auto Row : AllNpcDataRows)
 		{
-			if (NpcDataRow->TagId.MatchesTagExact(NpcTagId))
+			AllNpcData.Add(*Row);
+		}
+	}
+
+	if (ItemDataTable)
+	{
+		TArray<FUpItemData*> AllItemDataRows;
+		ItemDataTable->GetAllRows(TEXT("ItemDataTable GetAllRows"), AllItemDataRows);
+
+		for (const auto Row : AllItemDataRows)
+		{
+			AllItemData.Add(*Row);
+		}
+	}
+}
+
+FUpNpcData UUpGameInstance::GetNpcData(const FGameplayTag& NpcTagId)
+{
+	FUpNpcData Result;
+
+	if (UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcData")))  
+	{
+		for (const auto Data : AllNpcData)
+		{
+			if (Data.TagId.MatchesTagExact(NpcTagId))
 			{
-				Result = *NpcDataRow;
+				Result = Data;
 			}
 		}
 	}
@@ -189,6 +208,24 @@ bool UUpGameInstance::UpdatePlayerReputation_Esteem(const FGameplayTag& TagId, c
 
 	UE_LOG(LogTemp, Error, TEXT("UpdatePlayerReputation_Esteem: Unmatched tag ID %s"), *TagId.ToString())
 	return false;
+}
+
+FUpItemData UUpGameInstance::GetItemData(const FGameplayTag& ItemTagId)
+{
+	FUpItemData Result;
+
+	if (UUpBlueprintFunctionLibrary::ValidateItemTag(ItemTagId, TEXT("GetItemData")))  
+	{
+		for (const auto Data : AllItemData)
+		{
+			if (Data.TagId.MatchesTagExact(ItemTagId))
+			{
+				Result = Data;
+			}
+		}
+	}
+
+	return Result;
 }
 
 FUpInventory UUpGameInstance::GetNpcInventory(const FGameplayTag& NpcTagId)

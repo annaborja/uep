@@ -24,28 +24,30 @@ namespace EUpItemEquipmentSlot
 	};
 }
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FUpItemData : public FTableRowBase
 {
 	GENERATED_BODY();
+
+	bool IsValid() const { return TagId.IsValid() && !Name.IsEmpty(); }
 	
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag TagId;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTag ItemCategory;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText Name;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText Description;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UTexture2D> Image;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TEnumAsByte<EUpItemEquipmentSlot::Type> EquipmentSlot = EUpItemEquipmentSlot::None;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FUpTagSpec UsageEffect;
 };
 
@@ -53,14 +55,14 @@ USTRUCT()
 struct FUpInventoryItemData
 {
 	GENERATED_BODY()
+	
+	bool IsValid() const { return ItemTagId.IsValid(); }
 
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag ItemTagId;
 	
 	UPROPERTY(EditDefaultsOnly)
-	uint8 Condition = 100;
-	UPROPERTY(EditDefaultsOnly)
-	uint8 Quantity = 1;
+	TMap<uint8, uint8> ConditionQuantityMap;
 };
 
 USTRUCT()
@@ -69,7 +71,7 @@ struct FUpInventory
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly)
-	TMap<uint8, FUpInventoryItemData> ItemConditionMap;
+	TMap<FGameplayTag, FUpInventoryItemData> InventoryDataMap;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

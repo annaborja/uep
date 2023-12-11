@@ -7,7 +7,6 @@
 #include "UpMainMenuSwitcherWidget.generated.h"
 
 class UCommonActivatableWidgetSwitcher;
-class UUpInventoryMenuWidget;
 class UUpJournalMenuWidget;
 class UUpSettingsMenuWidget;
 class UUpSquadMenuWidget;
@@ -25,8 +24,6 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	UCommonActivatableWidgetSwitcher* GetWidgetSwitcher() const;
 	
-	UFUNCTION(BlueprintImplementableEvent)
-	UUpInventoryMenuWidget* GetInventoryMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpJournalMenuWidget* GetJournalMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
@@ -46,6 +43,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UUpTabWidget> MenuTabClass;
 	
-	void ResumeGame();
-	void SetUpTabList();
+	void ResumeGame() const;
+	void SetUpTabList() const;
 };

@@ -10,6 +10,7 @@
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
+#include "Tags/ItemTags.h"
 #include "Tags/NpcTags.h"
 #include "Utils/Constants.h"
 #include "Utils/Structs.h"
@@ -149,6 +150,19 @@ bool UUpBlueprintFunctionLibrary::ValidateTag(const FGameplayTag& Tag, const FSt
 		return false;
 	}
 	
+	return true;
+}
+
+bool UUpBlueprintFunctionLibrary::ValidateItemTag(const FGameplayTag& Tag, const FString FuncName)
+{
+	if (!ValidateTag(Tag, FuncName)) return false;
+
+	if (!Tag.MatchesTag(TAG_Item))
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: Non-item tag %s"), *FuncName, *Tag.ToString())
+		return false;
+	}
+		
 	return true;
 }
 
