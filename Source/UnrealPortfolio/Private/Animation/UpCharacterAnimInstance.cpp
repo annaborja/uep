@@ -12,6 +12,8 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 
 	if (const auto Character = Cast<AUpCharacter>(TryGetPawnOwner()))
 	{
+		ArmingState = Character->GetArmingState();
+		
 		if (const auto MovementComponent = Character->GetCustomMovementComponent())
 		{
 			const auto PrevGroundSpeed = GroundSpeed;

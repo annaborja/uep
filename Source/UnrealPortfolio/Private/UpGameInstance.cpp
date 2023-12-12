@@ -234,3 +234,20 @@ FUpInventory UUpGameInstance::GetNpcInventory(const FGameplayTag& NpcTagId)
 	
 	return NpcInventoryMap.FindOrAdd(NpcTagId);
 }
+
+void UUpGameInstance::PopulatePlayerEquipmentSlot(const EUpCharacterEquipmentSlot::Type CharacterEquipmentSlot, const FUpItemInstance& ItemInstance)
+{
+	PlayerEquipment.PopulateEquipmentSlot(CharacterEquipmentSlot, ItemInstance);
+}
+
+FUpCharacterEquipment UUpGameInstance::GetNpcEquipment(const FGameplayTag& NpcTagId)
+{
+	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcEquipment"))) return FUpCharacterEquipment();
+	
+	return NpcEquipmentMap.FindOrAdd(NpcTagId);
+}
+
+void UUpGameInstance::PopulateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpCharacterEquipmentSlot::Type CharacterEquipmentSlot, const FUpItemInstance& ItemInstance)
+{
+	GetNpcEquipment(NpcTagId).PopulateEquipmentSlot(CharacterEquipmentSlot, ItemInstance);
+}

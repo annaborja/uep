@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Characters/UpNpcCharacter.h"
 #include "Components/UpInventoryComponent.h"
 #include "UI/UpCommonActivatableWidget.h"
 #include "UpSquadMemberInventoryMenuWidget.generated.h"
 
+class AUpNpcCharacter;
 class UUpSquadMemberInventoryItemDisplayWidget;
 
 UCLASS()
@@ -15,6 +17,7 @@ class UNREALPORTFOLIO_API UUpSquadMemberInventoryMenuWidget : public UUpCommonAc
 	GENERATED_BODY()
 
 public:
+	void SetNpc(AUpNpcCharacter* InNpc);
 	void SetNpcTagId(const FGameplayTag& NpcTagId);
 
 protected:
@@ -28,7 +31,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float InventoryItemGap = 16.f;
 
+	UPROPERTY(Transient)
+	TObjectPtr<AUpNpcCharacter> Npc;
+
 	FUpInventory Inventory;
 
+	void PopulateInventory(const FGameplayTag& NpcTagId);
 	void PopulateInventoryItems();
 };

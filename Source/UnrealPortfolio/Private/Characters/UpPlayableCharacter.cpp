@@ -69,6 +69,8 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpPlayerCameraViewType::Typ
 			Camera->bUsePawnControlRotation = false;
 		}
 
+		bUseControllerRotationPitch = true;
+		bUseControllerRotationRoll = true;
 		bUseControllerRotationYaw = true;
 		break;
 	case EUpPlayerCameraViewType::ThirdPerson:
@@ -88,6 +90,8 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpPlayerCameraViewType::Typ
 			Camera->bUsePawnControlRotation = false;
 		}
 
+		bUseControllerRotationPitch = false;
+		bUseControllerRotationRoll = false;
 		bUseControllerRotationYaw = false;
 		break;
 	case EUpPlayerCameraViewType::ThirdPerson_OverTheShoulder:
@@ -107,6 +111,8 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpPlayerCameraViewType::Typ
 			Camera->bUsePawnControlRotation = false;
 		}
 
+		bUseControllerRotationPitch = false;
+		bUseControllerRotationRoll = false;
 		bUseControllerRotationYaw = false;
 		break;
 	default:

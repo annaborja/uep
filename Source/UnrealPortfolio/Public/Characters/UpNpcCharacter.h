@@ -8,6 +8,7 @@
 #include "UpPlayableCharacter.h"
 #include "Engine/DataTable.h"
 #include "GAS/UpAbilitySystemComponent.h"
+#include "Interfaces/UpCharacterEquippable.h"
 #include "Interfaces/UpCombatable.h"
 #include "Interfaces/UpInteractable.h"
 #include "Interfaces/UpNameable.h"
@@ -45,7 +46,7 @@ struct FUpNpcData : public FTableRowBase
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpNpcCharacter : public AUpPlayableCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface,
-	public IUpCombatable, public IUpInteractable, public IUpNameable, public IUpTagIdable, public IUpTagSpecGrantable
+	public IUpCharacterEquippable, public IUpCombatable, public IUpInteractable, public IUpNameable, public IUpTagIdable, public IUpTagSpecGrantable
 {
 	GENERATED_BODY()
 
@@ -58,6 +59,8 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 	
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
+
+	virtual FUpCharacterEquipment GetCharacterEquipment() const override;
 
 	virtual UUpCombatComponent* GetCombatComponent() const override { return CombatComponent; }
 

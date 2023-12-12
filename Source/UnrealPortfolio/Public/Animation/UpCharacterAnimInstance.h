@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "Characters/UpCharacter.h"
 #include "UpCharacterAnimInstance.generated.h"
 
 class AUpCharacter;
@@ -36,4 +37,7 @@ protected:
 	bool bIsFalling = false;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
 	bool bIsMovingHorizontally = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	TEnumAsByte<EUpCharacterArmingState::Type> ArmingState = EUpCharacterArmingState::Unarmed;
 };

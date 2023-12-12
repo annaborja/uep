@@ -83,6 +83,10 @@ private:
 	TObjectPtr<UInputAction> ToggleCameraViewInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> ToggleDebugCameraInputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> Weapon1InputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> Weapon2InputAction;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpHud> CustomHud;
@@ -106,6 +110,9 @@ private:
 	void OpenCharacterSwitcher(const FInputActionValue& InputActionValue);
 	void TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue);
 	void NavigateCharacterSwitcher(const FInputActionValue& InputActionValue);
+	
+	void ToggleWeapon1(const FInputActionValue& InputActionValue);
+	void ToggleWeapon2(const FInputActionValue& InputActionValue);
 
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
 	void Jump(const FInputActionValue& InputActionValue);

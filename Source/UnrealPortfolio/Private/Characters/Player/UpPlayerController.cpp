@@ -75,6 +75,8 @@ void AUpPlayerController::BeginPlay()
 	check(SprintInputAction);
 	check(ToggleCameraViewInputAction);
 	check(ToggleDebugCameraInputAction);
+	check(Weapon1InputAction);
+	check(Weapon2InputAction);
 
 	CustomHud = CastChecked<AUpHud>(GetHUD());
 	CustomHud->Init(this);
@@ -102,6 +104,9 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(OpenCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
 	EnhancedInputComponent->BindAction(CloseCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::TriggerCloseCharacterSwitcher);
 	EnhancedInputComponent->BindAction(NavigateCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::NavigateCharacterSwitcher);
+	
+	EnhancedInputComponent->BindAction(Weapon1InputAction, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon1);
+	EnhancedInputComponent->BindAction(Weapon2InputAction, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon2);
 	
 	EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
 	EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Started, this, &ThisClass::Jump);
@@ -189,6 +194,30 @@ void AUpPlayerController::TriggerCloseCharacterSwitcher(const FInputActionValue&
 void AUpPlayerController::NavigateCharacterSwitcher(const FInputActionValue& InputActionValue)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[temp] navigate char switcher"))
+}
+
+void AUpPlayerController::ToggleWeapon1(const FInputActionValue& InputActionValue)
+{
+	if (const auto CharacterEquippable = Cast<IUpCharacterEquippable>(PossessedCharacter))
+	{
+		if (const auto Weapon1 = CharacterEquippable->GetCharacterEquipment().Weapon1; Weapon1.IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[temp] toggle weapon 1"))
+			PossessedCharacter->EquipItem(Weapon1);
+		}
+	}
+}
+
+void AUpPlayerController::ToggleWeapon2(const FInputActionValue& InputActionValue)
+{
+	if (const auto CharacterEquippable = Cast<IUpCharacterEquippable>(PossessedCharacter))
+	{
+		if (const auto Weapon2 = CharacterEquippable->GetCharacterEquipment().Weapon2; Weapon2.IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[temp] toggle weapon 2"))
+			PossessedCharacter->EquipItem(Weapon2);
+		}
+	}
 }
 
 void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue)

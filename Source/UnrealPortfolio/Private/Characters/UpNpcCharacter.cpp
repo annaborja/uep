@@ -97,6 +97,16 @@ void AUpNpcCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) 
 	}
 }
 
+FUpCharacterEquipment AUpNpcCharacter::GetCharacterEquipment() const
+{
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	{
+		return GameInstance->GetNpcEquipment(TagId);
+	}
+
+	return FUpCharacterEquipment();
+}
+
 bool AUpNpcCharacter::CanInteract() const
 {
 	return DialogueComponent->HasAvailableDialogue();

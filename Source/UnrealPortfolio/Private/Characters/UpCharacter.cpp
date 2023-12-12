@@ -3,8 +3,11 @@
 #include "Characters/UpCharacter.h"
 
 #include "GameplayEffect.h"
+#include "UpGameInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
+#include "Components/UpInventoryComponent.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 AUpCharacter::AUpCharacter()
 {
@@ -52,4 +55,23 @@ void AUpCharacter::UnsetRootMotionTargetLocation()
 {
 	RootMotionTargetLocation = FVector();
 	bHasRootMotionTargetLocation = false;
+}
+
+void AUpCharacter::EquipItem(const FUpItemInstance& ItemInstance)
+{
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	{
+		if (const auto ItemData = GameInstance->GetItemData(ItemInstance.ItemTagId); ItemData.IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Equip item %s"), *ItemData.Name.ToString())
+
+			if (ArmingState == EUpCharacterArmingState::ArmedPistol)
+			{
+				ArmingState = EUpCharacterArmingState::Unarmed;
+			} else
+			{
+				ArmingState = EUpCharacterArmingState::ArmedPistol;
+			}
+		}
+	}
 }
