@@ -11,8 +11,10 @@
 #include "Components/UpCharacterMovementComponent.h"
 #include "Components/UpCombatComponent.h"
 #include "Components/UpDialogueComponent.h"
+#include "Engine/StaticMeshActor.h"
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 #include "GAS/Attributes/UpVitalAttributeSet.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -105,6 +107,46 @@ FUpCharacterEquipment AUpNpcCharacter::GetCharacterEquipment() const
 	}
 
 	return FUpCharacterEquipment();
+}
+
+void AUpNpcCharacter::ActivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot, const FUpCharacterEquipmentSlotData& EquipmentSlotData)
+{
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	{
+		if (const auto& ItemData = GameInstance->GetItemData(EquipmentSlotData.ItemInstance.ItemTagId); ItemData.IsValid())
+		{
+			ArmingState = EUpCharacterArmingState::ArmedPistol;
+			GameInstance->ActivateNpcEquipmentSlot(TagId, EquipmentSlot);
+
+			if (const auto World = GetWorld(); World && ItemData.StaticMeshActorClass)
+			{
+				if (const auto Mesh = GetMesh())
+				{
+					const auto SpawnLocation = GetActorLocation();
+					const auto SpawnRotation= GetActorRotation();
+				
+					FActorSpawnParameters SpawnParams;
+					SpawnParams.Owner = this;
+
+					const auto WeaponActor = World->SpawnActor(ItemData.StaticMeshActorClass, &SpawnLocation, &SpawnRotation, SpawnParams);
+					WeaponActor->SetActorEnableCollision(false);
+					WeaponActor->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), FName("DominantHandWeaponSocket"));
+				}
+			}
+		}
+	}
+}
+
+void AUpNpcCharacter::DeactivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot, const FUpCharacterEquipmentSlotData& EquipmentSlotData)
+{
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	{
+		if (const auto& ItemData = GameInstance->GetItemData(EquipmentSlotData.ItemInstance.ItemTagId); ItemData.IsValid())
+		{
+			ArmingState = EUpCharacterArmingState::Unarmed;
+			GameInstance->DeactivateNpcEquipmentSlot(TagId, EquipmentSlot);
+		}
+	}
 }
 
 bool AUpNpcCharacter::CanInteract() const

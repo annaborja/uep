@@ -40,6 +40,11 @@ void AUpPlayerController::DisableMouse()
 	bEnableMouseOverEvents = false;
 }
 
+bool AUpPlayerController::IsDebugCameraActive() const
+{
+	return IsValid(DebugPawn);
+}
+
 void AUpPlayerController::CloseCharacterSwitcher()
 {
 	if (!CustomHud) return;
@@ -140,20 +145,30 @@ void AUpPlayerController::ToggleCameraView(const FInputActionValue& InputActionV
 
 void AUpPlayerController::ToggleDebugCamera(const FInputActionValue& InputActionValue)
 {
-	if (IsValid(DebugPawn))
+	if (!PossessedCharacter) return;
+
+	if (CurrentCameraViewType == EUpPlayerCameraViewType::FirstPerson_Debug)
 	{
-		if (DebugCharacter)
-		{
-			Possess(DebugCharacter);
-			DebugCharacter = nullptr;
-			DebugPawn->Destroy();
-		}
-	} else if (const auto World = GetWorld(); World && PossessedCharacter)
+		PossessedCharacter->ActivateCameraView(EUpPlayerCameraViewType::FirstPerson);
+	} else
 	{
-		DebugCharacter = PossessedCharacter;
-		DebugPawn = World->SpawnActor<ADefaultPawn>(PossessedCharacter->GetActorLocation(), PossessedCharacter->GetActorRotation());
-		Possess(DebugPawn);
+		PossessedCharacter->ActivateCameraView(EUpPlayerCameraViewType::FirstPerson_Debug);
 	}
+	
+	// if (IsValid(DebugPawn))
+	// {
+	// 	if (DebugCharacter)
+	// 	{
+	// 		Possess(DebugCharacter);
+	// 		DebugCharacter = nullptr;
+	// 		DebugPawn->Destroy();
+	// 	}
+	// } else if (const auto World = GetWorld(); World && PossessedCharacter)
+	// {
+	// 	DebugCharacter = PossessedCharacter;
+	// 	DebugPawn = World->SpawnActor<ADefaultPawn>(PossessedCharacter->GetActorLocation(), PossessedCharacter->GetActorRotation());
+	// 	Possess(DebugPawn);
+	// }
 }
 
 void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
@@ -198,24 +213,28 @@ void AUpPlayerController::NavigateCharacterSwitcher(const FInputActionValue& Inp
 
 void AUpPlayerController::ToggleWeapon1(const FInputActionValue& InputActionValue)
 {
-	if (const auto CharacterEquippable = Cast<IUpCharacterEquippable>(PossessedCharacter))
-	{
-		if (const auto Weapon1 = CharacterEquippable->GetCharacterEquipment().Weapon1; Weapon1.IsValid())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("[temp] toggle weapon 1"))
-			PossessedCharacter->EquipItem(Weapon1);
-		}
-	}
+	ToggleWeapon(EUpCharacterEquipmentSlot::Weapon1);
 }
 
 void AUpPlayerController::ToggleWeapon2(const FInputActionValue& InputActionValue)
 {
+	ToggleWeapon(EUpCharacterEquipmentSlot::Weapon2);
+}
+
+void AUpPlayerController::ToggleWeapon(const EUpCharacterEquipmentSlot::Type EquipmentSlot) const
+{
 	if (const auto CharacterEquippable = Cast<IUpCharacterEquippable>(PossessedCharacter))
 	{
-		if (const auto Weapon2 = CharacterEquippable->GetCharacterEquipment().Weapon2; Weapon2.IsValid())
+		if (const auto& EquipmentSlotData = CharacterEquippable->GetCharacterEquipment().GetEquipmentSlotData(EquipmentSlot);
+			EquipmentSlotData.IsValid())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[temp] toggle weapon 2"))
-			PossessedCharacter->EquipItem(Weapon2);
+			if (EquipmentSlotData.bActivated)
+			{
+				CharacterEquippable->DeactivateEquipment(EquipmentSlot, EquipmentSlotData);
+			} else
+			{
+				CharacterEquippable->ActivateEquipment(EquipmentSlot, EquipmentSlotData);
+			}
 		}
 	}
 }

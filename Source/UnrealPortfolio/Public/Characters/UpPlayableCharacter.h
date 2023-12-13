@@ -68,5 +68,7 @@ private:
 	void InitForPlayer();
 	void TearDownForPlayer();
 	
-	void SetUpThirdPersonMesh() const;
+	void SetUpFirstPersonMesh();
+	void SetUpThirdPersonCamera() const;
+	void SetUpThirdPersonMesh();
 };

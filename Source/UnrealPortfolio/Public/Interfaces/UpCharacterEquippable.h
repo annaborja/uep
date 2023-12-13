@@ -19,4 +19,7 @@ class UNREALPORTFOLIO_API IUpCharacterEquippable
 
 public:
 	virtual FUpCharacterEquipment GetCharacterEquipment() const = 0;
+	
+	virtual void ActivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot, const FUpCharacterEquipmentSlotData& EquipmentSlotData) = 0;
+	virtual void DeactivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot, const FUpCharacterEquipmentSlotData& EquipmentSlotData) = 0;
 };

@@ -66,7 +66,7 @@ struct FUpItemData : public FTableRowBase
 	FText Description;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<AStaticMeshActor> StaticMeshActor;
+	TSubclassOf<AStaticMeshActor> StaticMeshActorClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UTexture2D> Image_Small;
@@ -112,29 +112,55 @@ struct FUpItemInstance
 };
 
 USTRUCT()
+struct FUpCharacterEquipmentSlotData
+{
+	GENERATED_BODY()
+
+	FUpCharacterEquipmentSlotData() {}
+	explicit FUpCharacterEquipmentSlotData(const FUpItemInstance InItemInstance, const bool bInActivated = false) :
+		ItemInstance(InItemInstance), bActivated(bInActivated) {}
+
+	bool IsValid() const { return ItemInstance.IsValid(); }
+
+	UPROPERTY(EditDefaultsOnly)
+	FUpItemInstance ItemInstance;
+	
+	UPROPERTY(EditDefaultsOnly)
+	bool bActivated = false;
+};
+
+USTRUCT()
 struct FUpCharacterEquipment
 {
 	GENERATED_BODY()
 
-	void PopulateEquipmentSlot(const EUpCharacterEquipmentSlot::Type EquipmentSlot, const FUpItemInstance ItemInstance)
+	void ActivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot)
 	{
-		switch (EquipmentSlot)
-		{
-		case EUpCharacterEquipmentSlot::Weapon1:
-			Weapon1 = ItemInstance;
-			break;
-		case EUpCharacterEquipmentSlot::Weapon2:
-			Weapon2 = ItemInstance;
-			break;
-		default:
-			break;
-		}
+		EquipmentSlotMap.FindOrAdd(EquipmentSlot).bActivated = true;
+	}
+	
+	void DeactivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot)
+	{
+		EquipmentSlotMap.FindOrAdd(EquipmentSlot).bActivated = false;
+	}
+
+	FUpCharacterEquipmentSlotData GetEquipmentSlotData(const EUpCharacterEquipmentSlot::Type EquipmentSlot)
+	{
+		return EquipmentSlotMap.FindOrAdd(EquipmentSlot);
+	}
+
+	void PopulateEquipmentSlot(const EUpCharacterEquipmentSlot::Type EquipmentSlot, const FUpItemInstance& ItemInstance)
+	{
+		EquipmentSlotMap.Add(EquipmentSlot, FUpCharacterEquipmentSlotData(ItemInstance));
+	}
+
+	void EmptyEquipmentSlot(const EUpCharacterEquipmentSlot::Type EquipmentSlot)
+	{
+		EquipmentSlotMap.Add(EquipmentSlot, FUpCharacterEquipmentSlotData());
 	}
 
 	UPROPERTY(EditDefaultsOnly)
-	FUpItemInstance Weapon1;
-	UPROPERTY(EditDefaultsOnly)
-	FUpItemInstance Weapon2;
+	TMap<TEnumAsByte<EUpCharacterEquipmentSlot::Type>, FUpCharacterEquipmentSlotData> EquipmentSlotMap;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

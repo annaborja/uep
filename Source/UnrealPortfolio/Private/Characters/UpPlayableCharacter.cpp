@@ -8,6 +8,7 @@
 #include "Characters/Player/UpPlayerController.h"
 #include "Characters/Player/UpPlayerState.h"
 #include "Components/UpCharacterMovementComponent.h"
+#include "Engine/StaticMeshActor.h"
 #include "GameFramework/SpringArmComponent.h"
 
 void AUpPlayableCharacter::BeginPlay()
@@ -48,12 +49,7 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpPlayerCameraViewType::Typ
 	switch (CameraViewType)
 	{
 	case EUpPlayerCameraViewType::FirstPerson:
-		if (const auto Mesh = GetMesh())
-		{
-			Mesh->SetSkeletalMesh(SkeletalMesh_FirstPerson);
-			Mesh->SetAnimClass(AnimClass_FirstPerson);
-			Mesh->SetCastShadow(false);
-		}
+		SetUpFirstPersonMesh();
 
 		if (CameraSpringArm)
 		{
@@ -69,31 +65,14 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpPlayerCameraViewType::Typ
 			Camera->bUsePawnControlRotation = false;
 		}
 
-		bUseControllerRotationPitch = true;
-		bUseControllerRotationRoll = true;
-		bUseControllerRotationYaw = true;
 		break;
 	case EUpPlayerCameraViewType::ThirdPerson:
-		SetUpThirdPersonMesh();
-
-		if (CameraSpringArm)
 		{
-			CameraSpringArm->TargetArmLength = 300.f;
-			CameraSpringArm->SocketOffset = FVector(0.f, 0.f, 108.f);
-			CameraSpringArm->bUsePawnControlRotation = true;
+			SetUpThirdPersonMesh();
+			SetUpThirdPersonCamera();
+		
+			break;
 		}
-
-		if (Camera)
-		{
-			Camera->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
-			Camera->SetRelativeRotation(FRotator(-8.f, 0.f, 0.f));
-			Camera->bUsePawnControlRotation = false;
-		}
-
-		bUseControllerRotationPitch = false;
-		bUseControllerRotationRoll = false;
-		bUseControllerRotationYaw = false;
-		break;
 	case EUpPlayerCameraViewType::ThirdPerson_OverTheShoulder:
 		SetUpThirdPersonMesh();
 
@@ -111,9 +90,11 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpPlayerCameraViewType::Typ
 			Camera->bUsePawnControlRotation = false;
 		}
 
-		bUseControllerRotationPitch = false;
-		bUseControllerRotationRoll = false;
-		bUseControllerRotationYaw = false;
+		break;
+	case EUpPlayerCameraViewType::FirstPerson_Debug:
+		SetUpFirstPersonMesh();
+		SetUpThirdPersonCamera();
+		
 		break;
 	default:
 		UE_LOG(LogTemp, Warning, TEXT("Invalid player camera view type %d"), CameraViewType)
@@ -199,10 +180,10 @@ void AUpPlayableCharacter::InitForPlayer()
 
 void AUpPlayableCharacter::TearDownForPlayer()
 {
+	if (CustomPlayerController && !CustomPlayerController->IsDebugCameraActive()) SetUpThirdPersonMesh();
+	
 	CustomPlayerController = nullptr;
 	bIsPlayer = false;
-
-	SetUpThirdPersonMesh();
 	
 	if (!Cast<AUpPlayerCharacter>(this))
 	{
@@ -228,12 +209,72 @@ void AUpPlayableCharacter::TearDownForPlayer()
 	if (CustomMovementComponent) CustomMovementComponent->TearDownForPlayer();
 }
 
-void AUpPlayableCharacter::SetUpThirdPersonMesh() const
+void AUpPlayableCharacter::SetUpFirstPersonMesh()
 {
+	if (const auto Mesh = GetMesh())
+	{
+		Mesh->SetSkeletalMesh(SkeletalMesh_FirstPerson);
+		Mesh->SetAnimClass(AnimClass_FirstPerson);
+		Mesh->SetCastShadow(false);
+	}
+
+	for (const auto Actor : AttachedStaticMeshActors)
+	{
+		Actor->GetStaticMeshComponent()->SetCastShadow(false);
+	}
+	
+	if (CustomMovementComponent)
+	{
+		CustomMovementComponent->bOrientRotationToMovement = false;
+	}
+
+	bUseControllerRotationPitch = true;
+	bUseControllerRotationRoll = true;
+	bUseControllerRotationYaw = true;
+}
+
+void AUpPlayableCharacter::SetUpThirdPersonCamera() const
+{
+	if (CameraSpringArm)
+	{
+		CameraSpringArm->TargetArmLength = 300.f;
+		CameraSpringArm->SocketOffset = FVector(0.f, 0.f, 108.f);
+		CameraSpringArm->bUsePawnControlRotation = true;
+	}
+
+	if (Camera)
+	{
+		Camera->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+		Camera->SetRelativeRotation(FRotator(-8.f, 0.f, 0.f));
+		Camera->bUsePawnControlRotation = false;
+	}
+}
+
+void AUpPlayableCharacter::SetUpThirdPersonMesh()
+{
+	// In first-person mode, the character actor follows the controller rotation.
+	// Make sure we don't retain any pitch rotation when switching from first-person to third-person.
+	const auto CurrentActorRotation = GetActorRotation();
+	SetActorRotation(FRotator(0.f, CurrentActorRotation.Yaw, CurrentActorRotation.Roll));
+	
 	if (const auto Mesh = GetMesh())
 	{
 		Mesh->SetSkeletalMesh(SkeletalMesh_ThirdPerson);
 		Mesh->SetAnimClass(AnimClass_ThirdPerson);
 		Mesh->SetCastShadow(true);
 	}
+
+	for (const auto Actor : AttachedStaticMeshActors)
+	{
+		Actor->GetStaticMeshComponent()->SetCastShadow(true);
+	}
+
+	if (CustomMovementComponent)
+	{
+		CustomMovementComponent->bOrientRotationToMovement = true;
+	}
+	
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
 }

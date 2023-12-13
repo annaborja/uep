@@ -49,8 +49,11 @@ public:
 	
 	FUpCharacterEquipment GetPlayerEquipment() const { return PlayerEquipment; }
 	void PopulatePlayerEquipmentSlot(const EUpCharacterEquipmentSlot::Type CharacterEquipmentSlot, const FUpItemInstance& ItemInstance);
+	
 	FUpCharacterEquipment GetNpcEquipment(const FGameplayTag& NpcTagId);
 	void PopulateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpCharacterEquipmentSlot::Type CharacterEquipmentSlot, const FUpItemInstance& ItemInstance);
+	void ActivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpCharacterEquipmentSlot::Type CharacterEquipmentSlot);
+	void DeactivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpCharacterEquipmentSlot::Type CharacterEquipmentSlot);
 	
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
 	FORCEINLINE UDataTable* GetNpcDataTable() const { return NpcDataTable; }

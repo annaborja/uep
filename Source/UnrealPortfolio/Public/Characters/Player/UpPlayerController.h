@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/UpInventoryComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "UpPlayerController.generated.h"
 
@@ -20,6 +21,7 @@ namespace EUpPlayerCameraViewType
 	enum Type : uint8
 	{
 		FirstPerson,
+		FirstPerson_Debug,
 		ThirdPerson,
 		ThirdPerson_OverTheShoulder
 	};
@@ -36,6 +38,7 @@ public:
 	void Init();
 	void EnableMouse();
 	void DisableMouse();
+	bool IsDebugCameraActive() const;
 	
 	void CloseCharacterSwitcher();
 	void SwitchCharacter(AUpNpcCharacter* Npc);
@@ -110,9 +113,10 @@ private:
 	void OpenCharacterSwitcher(const FInputActionValue& InputActionValue);
 	void TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue);
 	void NavigateCharacterSwitcher(const FInputActionValue& InputActionValue);
-	
+
 	void ToggleWeapon1(const FInputActionValue& InputActionValue);
 	void ToggleWeapon2(const FInputActionValue& InputActionValue);
+	void ToggleWeapon(const EUpCharacterEquipmentSlot::Type EquipmentSlot) const;
 
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
 	void Jump(const FInputActionValue& InputActionValue);

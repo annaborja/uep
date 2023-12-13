@@ -6,8 +6,7 @@
 #include "GameFramework/Character.h"
 #include "UpCharacter.generated.h"
 
-struct FUpCharacterEquipment;
-struct FUpItemInstance;
+class AStaticMeshActor;
 class UGameplayEffect;
 class UUpCharacterMovementComponent;
 
@@ -36,8 +35,6 @@ public:
 	void SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation);
 	void UnsetRootMotionTargetLocation();
 
-	void EquipItem(const FUpItemInstance& ItemInstance);
-
 	FORCEINLINE EUpCharacterArmingState::Type GetArmingState() const { return ArmingState; }
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
 	
@@ -50,6 +47,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
 
+	UPROPERTY(Transient)
+	TArray<AStaticMeshActor*> AttachedStaticMeshActors;
 	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;
 	
