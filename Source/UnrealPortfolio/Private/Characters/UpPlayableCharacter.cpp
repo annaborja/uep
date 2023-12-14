@@ -218,10 +218,7 @@ void AUpPlayableCharacter::SetUpFirstPersonMesh()
 		Mesh->SetCastShadow(false);
 	}
 
-	for (const auto Actor : AttachedStaticMeshActors)
-	{
-		Actor->GetStaticMeshComponent()->SetCastShadow(false);
-	}
+	if (WeaponActor) WeaponActor->GetStaticMeshComponent()->SetCastShadow(false);
 	
 	if (CustomMovementComponent)
 	{
@@ -264,10 +261,7 @@ void AUpPlayableCharacter::SetUpThirdPersonMesh()
 		Mesh->SetCastShadow(true);
 	}
 
-	for (const auto Actor : AttachedStaticMeshActors)
-	{
-		Actor->GetStaticMeshComponent()->SetCastShadow(true);
-	}
+	if (WeaponActor) WeaponActor->GetStaticMeshComponent()->SetCastShadow(true);
 
 	if (CustomMovementComponent)
 	{

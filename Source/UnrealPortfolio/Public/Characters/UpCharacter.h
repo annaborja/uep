@@ -48,9 +48,10 @@ protected:
 	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
 
 	UPROPERTY(Transient)
-	TArray<AStaticMeshActor*> AttachedStaticMeshActors;
-	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;
+	
+	UPROPERTY(Transient)
+	TObjectPtr<AStaticMeshActor> WeaponActor;
 	
 	UPROPERTY(Transient)
 	TEnumAsByte<EUpCharacterArmingState::Type> ArmingState = EUpCharacterArmingState::Unarmed;

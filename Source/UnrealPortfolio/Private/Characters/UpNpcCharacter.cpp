@@ -128,9 +128,13 @@ void AUpNpcCharacter::ActivateEquipment(const EUpCharacterEquipmentSlot::Type Eq
 					FActorSpawnParameters SpawnParams;
 					SpawnParams.Owner = this;
 
-					const auto WeaponActor = World->SpawnActor(ItemData.StaticMeshActorClass, &SpawnLocation, &SpawnRotation, SpawnParams);
-					WeaponActor->SetActorEnableCollision(false);
-					WeaponActor->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), FName("DominantHandWeaponSocket"));
+					WeaponActor = Cast<AStaticMeshActor>(World->SpawnActor(ItemData.StaticMeshActorClass, &SpawnLocation, &SpawnRotation, SpawnParams));
+					
+					if (IsValid(WeaponActor))
+					{
+						WeaponActor->SetActorEnableCollision(false);
+						WeaponActor->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), FName("DominantHandWeaponSocket"));
+					}
 				}
 			}
 		}
@@ -145,6 +149,12 @@ void AUpNpcCharacter::DeactivateEquipment(const EUpCharacterEquipmentSlot::Type 
 		{
 			ArmingState = EUpCharacterArmingState::Unarmed;
 			GameInstance->DeactivateNpcEquipmentSlot(TagId, EquipmentSlot);
+
+			if (IsValid(WeaponActor))
+			{
+				WeaponActor->Destroy();
+				WeaponActor = nullptr;
+			}
 		}
 	}
 }
