@@ -9,6 +9,7 @@
 
 class UCommonActivatableWidgetSwitcher;
 class UUpSquadMemberInventoryMenuWidget;
+class UUpSquadMemberSkillsMenuWidget;
 class UUpSquadMemberStatsMenuWidget;
 
 UCLASS()
@@ -36,6 +37,8 @@ protected:
 	UUpSquadMemberStatsMenuWidget* GetSquadMemberStatsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpSquadMemberInventoryMenuWidget* GetSquadMemberInventoryMenu() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberSkillsMenuWidget* GetSquadMemberSkillsMenu() const;
 
 	void PopulateSubMenuData() const;
 };

@@ -3,13 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/UpNpcCharacter.h"
 #include "Components/UpInventoryComponent.h"
 #include "UI/UpCommonActivatableWidget.h"
 #include "UpSquadMemberInventoryMenuWidget.generated.h"
 
 class AUpNpcCharacter;
-class UUpSquadMemberInventoryItemDisplayWidget;
+struct FGameplayTag;
+struct FUpCharacterEquipment;
+class UUpSquadMemberEquipmentItemDisplayWidget;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpSquadMemberInventoryMenuWidget : public UUpCommonActivatableWidget
@@ -18,24 +19,28 @@ class UNREALPORTFOLIO_API UUpSquadMemberInventoryMenuWidget : public UUpCommonAc
 
 public:
 	void SetNpc(AUpNpcCharacter* InNpc);
-	void SetNpcTagId(const FGameplayTag& NpcTagId);
+	void SetNpcTagId(const FGameplayTag& NpcTagId) const;
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
-	UPanelWidget* GetInventoryItemsContainer() const;
+	UUpSquadMemberEquipmentItemDisplayWidget* GetWeapon1Display() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberEquipmentItemDisplayWidget* GetWeapon2Display() const;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberEquipmentItemDisplayWidget* GetItem1Display() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberEquipmentItemDisplayWidget* GetItem2Display() const;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberEquipmentItemDisplayWidget* GetHelmetDisplay() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberEquipmentItemDisplayWidget* GetArmorDisplay() const;
 	
 private:
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TSubclassOf<UUpSquadMemberInventoryItemDisplayWidget> InventoryItemDisplayWidgetClass;
-
-	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	float InventoryItemGap = 16.f;
-
 	UPROPERTY(Transient)
 	TObjectPtr<AUpNpcCharacter> Npc;
 
-	FUpInventory Inventory;
-
-	void PopulateInventory(const FGameplayTag& NpcTagId);
-	void PopulateInventoryItems();
+	void PopulateEquipment(const FGameplayTag& NpcTagId) const;
+	static void PopulateEquipmentItemDisplay(UUpSquadMemberEquipmentItemDisplayWidget* Widget, const FUpCharacterEquipment& Equipment, const EUpEquipmentSlot::Type EquipmentSlot);
 };

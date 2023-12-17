@@ -12,7 +12,7 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 
 	if (const auto Character = Cast<AUpCharacter>(TryGetPawnOwner()))
 	{
-		ArmingState = Character->GetArmingState();
+		Posture = Character->GetPosture();
 		
 		if (const auto MovementComponent = Character->GetCustomMovementComponent())
 		{

@@ -4,13 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Characters/UpCharacter.h"
 #include "Components/ActorComponent.h"
 #include "Engine/DataTable.h"
+#include "Tags/ItemTags.h"
 #include "Utils/Structs.h"
 #include "UpInventoryComponent.generated.h"
 
 class AStaticMeshActor;
 struct FUpTagSpec;
+class UUpGameplayAbility;
 
 UENUM(BlueprintType)
 namespace EUpItemCategory
@@ -25,25 +28,16 @@ namespace EUpItemCategory
 }
 
 UENUM()
-namespace EUpItemEquipmentSlot
-{
-	enum Type : uint8
-	{
-		None,
-		DominantHand,
-		NonDominantHand,
-		EitherHand,
-		BothHands
-	};
-}
-
-UENUM()
-namespace EUpCharacterEquipmentSlot
+namespace EUpEquipmentSlot
 {
 	enum Type : uint8
 	{
 		Weapon1,
-		Weapon2
+		Weapon2,
+		Item1,
+		Item2,
+		Helmet,
+		Armor
 	};
 }
 
@@ -58,25 +52,30 @@ struct FUpItemData : public FTableRowBase
 	FGameplayTag TagId;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TEnumAsByte<EUpItemCategory::Type> ItemCategory;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText Name;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText Description;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AStaticMeshActor> StaticMeshActorClass;
+	TEnumAsByte<EUpItemCategory::Type> ItemCategory;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UTexture2D> Image_Small;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UTexture2D> Image_Large;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TEnumAsByte<EUpItemEquipmentSlot::Type> EquipmentSlot = EUpItemEquipmentSlot::None;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AStaticMeshActor> StaticMeshActorClass;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TEnumAsByte<EUpCharacterPosture::Type> ResultingPosture = EUpCharacterPosture::Casual;
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag SocketTag = TAG_Socket_None;
+	
+	UPROPERTY(EditDefaultsOnly)
 	FUpTagSpec UsageEffect;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UUpGameplayAbility*> GrantedAbilities;
 };
 
 USTRUCT()
@@ -112,12 +111,12 @@ struct FUpItemInstance
 };
 
 USTRUCT()
-struct FUpCharacterEquipmentSlotData
+struct FUpEquipmentSlotData
 {
 	GENERATED_BODY()
 
-	FUpCharacterEquipmentSlotData() {}
-	explicit FUpCharacterEquipmentSlotData(const FUpItemInstance InItemInstance, const bool bInActivated = false) :
+	FUpEquipmentSlotData() {}
+	explicit FUpEquipmentSlotData(const FUpItemInstance InItemInstance, const bool bInActivated = false) :
 		ItemInstance(InItemInstance), bActivated(bInActivated) {}
 
 	bool IsValid() const { return ItemInstance.IsValid(); }
@@ -134,33 +133,33 @@ struct FUpCharacterEquipment
 {
 	GENERATED_BODY()
 
-	void ActivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot)
+	void ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 	{
 		EquipmentSlotMap.FindOrAdd(EquipmentSlot).bActivated = true;
 	}
 	
-	void DeactivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot)
+	void DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 	{
 		EquipmentSlotMap.FindOrAdd(EquipmentSlot).bActivated = false;
 	}
 
-	FUpCharacterEquipmentSlotData GetEquipmentSlotData(const EUpCharacterEquipmentSlot::Type EquipmentSlot)
+	FUpEquipmentSlotData GetEquipmentSlotData(const EUpEquipmentSlot::Type EquipmentSlot)
 	{
 		return EquipmentSlotMap.FindOrAdd(EquipmentSlot);
 	}
 
-	void PopulateEquipmentSlot(const EUpCharacterEquipmentSlot::Type EquipmentSlot, const FUpItemInstance& ItemInstance)
+	void PopulateEquipmentSlot(const EUpEquipmentSlot::Type EquipmentSlot, const FUpItemInstance& ItemInstance)
 	{
-		EquipmentSlotMap.Add(EquipmentSlot, FUpCharacterEquipmentSlotData(ItemInstance));
+		EquipmentSlotMap.Add(EquipmentSlot, FUpEquipmentSlotData(ItemInstance));
 	}
 
-	void EmptyEquipmentSlot(const EUpCharacterEquipmentSlot::Type EquipmentSlot)
+	void EmptyEquipmentSlot(const EUpEquipmentSlot::Type EquipmentSlot)
 	{
-		EquipmentSlotMap.Add(EquipmentSlot, FUpCharacterEquipmentSlotData());
+		EquipmentSlotMap.Add(EquipmentSlot, FUpEquipmentSlotData());
 	}
 
 	UPROPERTY(EditDefaultsOnly)
-	TMap<TEnumAsByte<EUpCharacterEquipmentSlot::Type>, FUpCharacterEquipmentSlotData> EquipmentSlotMap;
+	TMap<TEnumAsByte<EUpEquipmentSlot::Type>, FUpEquipmentSlotData> EquipmentSlotMap;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

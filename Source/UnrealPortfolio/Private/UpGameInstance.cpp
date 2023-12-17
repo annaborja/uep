@@ -235,9 +235,9 @@ FUpInventory UUpGameInstance::GetNpcInventory(const FGameplayTag& NpcTagId)
 	return NpcInventoryMap.FindOrAdd(NpcTagId);
 }
 
-void UUpGameInstance::PopulatePlayerEquipmentSlot(const EUpCharacterEquipmentSlot::Type CharacterEquipmentSlot, const FUpItemInstance& ItemInstance)
+void UUpGameInstance::PopulatePlayerEquipmentSlot(const EUpEquipmentSlot::Type EquipmentSlot, const FUpItemInstance& ItemInstance)
 {
-	PlayerEquipment.PopulateEquipmentSlot(CharacterEquipmentSlot, ItemInstance);
+	PlayerEquipment.PopulateEquipmentSlot(EquipmentSlot, ItemInstance);
 }
 
 FUpCharacterEquipment UUpGameInstance::GetNpcEquipment(const FGameplayTag& NpcTagId)
@@ -247,23 +247,23 @@ FUpCharacterEquipment UUpGameInstance::GetNpcEquipment(const FGameplayTag& NpcTa
 	return NpcEquipmentMap.FindOrAdd(NpcTagId);
 }
 
-void UUpGameInstance::PopulateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpCharacterEquipmentSlot::Type CharacterEquipmentSlot, const FUpItemInstance& ItemInstance)
+void UUpGameInstance::PopulateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpEquipmentSlot::Type EquipmentSlot, const FUpItemInstance& ItemInstance)
 {
 	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("PopulateNpcEquipmentSlot"))) return;
 	
-	NpcEquipmentMap.FindOrAdd(NpcTagId).PopulateEquipmentSlot(CharacterEquipmentSlot, ItemInstance);
+	NpcEquipmentMap.FindOrAdd(NpcTagId).PopulateEquipmentSlot(EquipmentSlot, ItemInstance);
 }
 
-void UUpGameInstance::ActivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpCharacterEquipmentSlot::Type CharacterEquipmentSlot)
+void UUpGameInstance::ActivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("ActivateNpcEquipmentSlot"))) return;
 	
-	NpcEquipmentMap.FindOrAdd(NpcTagId).ActivateEquipment(CharacterEquipmentSlot);
+	NpcEquipmentMap.FindOrAdd(NpcTagId).ActivateEquipment(EquipmentSlot);
 }
 
-void UUpGameInstance::DeactivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpCharacterEquipmentSlot::Type CharacterEquipmentSlot)
+void UUpGameInstance::DeactivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("DeactivateNpcEquipmentSlot"))) return;
 	
-	NpcEquipmentMap.FindOrAdd(NpcTagId).DeactivateEquipment(CharacterEquipmentSlot);
+	NpcEquipmentMap.FindOrAdd(NpcTagId).DeactivateEquipment(EquipmentSlot);
 }

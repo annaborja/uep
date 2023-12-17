@@ -109,31 +109,44 @@ FUpCharacterEquipment AUpNpcCharacter::GetCharacterEquipment() const
 	return FUpCharacterEquipment();
 }
 
-void AUpNpcCharacter::ActivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot, const FUpCharacterEquipmentSlotData& EquipmentSlotData)
+void AUpNpcCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot, const FUpEquipmentSlotData& EquipmentSlotData)
 {
+	DeactivateEquipment(EquipmentSlot);
+	
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
+		GameInstance->ActivateNpcEquipmentSlot(TagId, EquipmentSlot);
+		
 		if (const auto& ItemData = GameInstance->GetItemData(EquipmentSlotData.ItemInstance.ItemTagId); ItemData.IsValid())
 		{
-			ArmingState = EUpCharacterArmingState::ArmedPistol;
-			GameInstance->ActivateNpcEquipmentSlot(TagId, EquipmentSlot);
-
-			if (const auto World = GetWorld(); World && ItemData.StaticMeshActorClass)
+			if (ItemData.ResultingPosture != EUpCharacterPosture::Casual)
 			{
-				if (const auto Mesh = GetMesh())
-				{
-					const auto SpawnLocation = GetActorLocation();
-					const auto SpawnRotation= GetActorRotation();
-				
-					FActorSpawnParameters SpawnParams;
-					SpawnParams.Owner = this;
+				Posture = ItemData.ResultingPosture;
+			}
 
-					WeaponActor = Cast<AStaticMeshActor>(World->SpawnActor(ItemData.StaticMeshActorClass, &SpawnLocation, &SpawnRotation, SpawnParams));
-					
-					if (IsValid(WeaponActor))
+			if (ItemData.StaticMeshActorClass)
+			{
+				if (const auto World = GetWorld())
+				{
+					if (const auto Mesh = GetMesh())
 					{
-						WeaponActor->SetActorEnableCollision(false);
-						WeaponActor->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), FName("DominantHandWeaponSocket"));
+						const auto SpawnLocation = GetActorLocation();
+						const auto SpawnRotation= GetActorRotation();
+				
+						FActorSpawnParameters SpawnParams;
+						SpawnParams.Owner = this;
+
+						if (ItemData.ItemCategory == EUpItemCategory::Weapon)
+						{
+							WeaponActor = Cast<AStaticMeshActor>(World->SpawnActor(ItemData.StaticMeshActorClass, &SpawnLocation, &SpawnRotation, SpawnParams));
+					
+							if (IsValid(WeaponActor))
+							{
+								WeaponActor->SetActorEnableCollision(false);
+								WeaponActor->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false),
+									ItemData.SocketTag.IsValid() ? ItemData.SocketTag.GetTagName() : NAME_None);
+							}
+						}
 					}
 				}
 			}
@@ -141,19 +154,27 @@ void AUpNpcCharacter::ActivateEquipment(const EUpCharacterEquipmentSlot::Type Eq
 	}
 }
 
-void AUpNpcCharacter::DeactivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot, const FUpCharacterEquipmentSlotData& EquipmentSlotData)
+void AUpNpcCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		if (const auto& ItemData = GameInstance->GetItemData(EquipmentSlotData.ItemInstance.ItemTagId); ItemData.IsValid())
+		if (const auto& EquipmentSlotData = GameInstance->GetNpcEquipment(TagId).GetEquipmentSlotData(EquipmentSlot);
+			EquipmentSlotData.IsValid() && EquipmentSlotData.bActivated)
 		{
-			ArmingState = EUpCharacterArmingState::Unarmed;
 			GameInstance->DeactivateNpcEquipmentSlot(TagId, EquipmentSlot);
-
-			if (IsValid(WeaponActor))
+			
+			if (const auto& ItemData = GameInstance->GetItemData(EquipmentSlotData.ItemInstance.ItemTagId); ItemData.IsValid())
 			{
-				WeaponActor->Destroy();
-				WeaponActor = nullptr;
+				if (ItemData.ResultingPosture != EUpCharacterPosture::Casual)
+				{
+					Posture = EUpCharacterPosture::Casual;
+				}
+
+				if (ItemData.ItemCategory == EUpItemCategory::Weapon && IsValid(WeaponActor))
+				{
+					WeaponActor->Destroy();
+					WeaponActor = nullptr;
+				}
 			}
 		}
 	}

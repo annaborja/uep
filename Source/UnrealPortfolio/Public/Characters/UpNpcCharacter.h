@@ -61,8 +61,8 @@ public:
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 
 	virtual FUpCharacterEquipment GetCharacterEquipment() const override;
-	virtual void ActivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot, const FUpCharacterEquipmentSlotData& EquipmentSlotData) override;
-	virtual void DeactivateEquipment(const EUpCharacterEquipmentSlot::Type EquipmentSlot, const FUpCharacterEquipmentSlotData& EquipmentSlotData) override;
+	virtual void ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot, const FUpEquipmentSlotData& EquipmentSlotData) override;
+	virtual void DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot) override;
 
 	virtual UUpCombatComponent* GetCombatComponent() const override { return CombatComponent; }
 

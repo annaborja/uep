@@ -213,15 +213,15 @@ void AUpPlayerController::NavigateCharacterSwitcher(const FInputActionValue& Inp
 
 void AUpPlayerController::ToggleWeapon1(const FInputActionValue& InputActionValue)
 {
-	ToggleWeapon(EUpCharacterEquipmentSlot::Weapon1);
+	ToggleWeapon(EUpEquipmentSlot::Weapon1);
 }
 
 void AUpPlayerController::ToggleWeapon2(const FInputActionValue& InputActionValue)
 {
-	ToggleWeapon(EUpCharacterEquipmentSlot::Weapon2);
+	ToggleWeapon(EUpEquipmentSlot::Weapon2);
 }
 
-void AUpPlayerController::ToggleWeapon(const EUpCharacterEquipmentSlot::Type EquipmentSlot) const
+void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlot) const
 {
 	if (const auto CharacterEquippable = Cast<IUpCharacterEquippable>(PossessedCharacter))
 	{
@@ -230,7 +230,7 @@ void AUpPlayerController::ToggleWeapon(const EUpCharacterEquipmentSlot::Type Equ
 		{
 			if (EquipmentSlotData.bActivated)
 			{
-				CharacterEquippable->DeactivateEquipment(EquipmentSlot, EquipmentSlotData);
+				CharacterEquippable->DeactivateEquipment(EquipmentSlot);
 			} else
 			{
 				CharacterEquippable->ActivateEquipment(EquipmentSlot, EquipmentSlotData);

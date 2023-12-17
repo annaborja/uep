@@ -11,11 +11,13 @@ class UGameplayEffect;
 class UUpCharacterMovementComponent;
 
 UENUM(BlueprintType)
-namespace EUpCharacterArmingState
+namespace EUpCharacterPosture
 {
 	enum Type : uint8 {
-		Unarmed,
-		ArmedPistol
+		Casual,
+		ArmedPistol,
+		ArmedRevolver,
+		ArmedRifle
 	};
 }
 
@@ -35,7 +37,7 @@ public:
 	void SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation);
 	void UnsetRootMotionTargetLocation();
 
-	FORCEINLINE EUpCharacterArmingState::Type GetArmingState() const { return ArmingState; }
+	FORCEINLINE EUpCharacterPosture::Type GetPosture() const { return Posture; }
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
 	
 	FORCEINLINE FVector GetRootMotionTargetLocation() const { return RootMotionTargetLocation; }
@@ -54,7 +56,7 @@ protected:
 	TObjectPtr<AStaticMeshActor> WeaponActor;
 	
 	UPROPERTY(Transient)
-	TEnumAsByte<EUpCharacterArmingState::Type> ArmingState = EUpCharacterArmingState::Unarmed;
+	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
 	
 	FVector RootMotionTargetLocation;
 	bool bHasRootMotionTargetLocation = false;

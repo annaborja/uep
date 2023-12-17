@@ -6,6 +6,7 @@
 #include "UpGameInstance.h"
 #include "Tags/UiTags.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMemberInventoryMenuWidget.h"
+#include "UI/MainMenu/SquadMenu/UpSquadMemberSkillsMenuWidget.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMemberStatsMenuWidget.h"
 
 void UUpSquadMemberDisplayWidget::SetNpc(AUpNpcCharacter* InNpc)
@@ -33,6 +34,9 @@ void UUpSquadMemberDisplayWidget::SetActiveSubMenu(const FGameplayTag& SubMenuTa
 		if (SubMenuTag.MatchesTagExact(TAG_Menu_SquadMember_Inventory))
 		{
 			Widget = GetSquadMemberInventoryMenu();
+		} else if (SubMenuTag.MatchesTagExact(TAG_Menu_SquadMember_Skills))
+		{
+			Widget = GetSquadMemberSkillsMenu();
 		} else
 		{
 			Widget = GetSquadMemberStatsMenu();

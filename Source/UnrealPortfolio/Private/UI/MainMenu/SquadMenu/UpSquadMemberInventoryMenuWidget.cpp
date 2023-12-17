@@ -4,48 +4,67 @@
 
 #include "UpGameInstance.h"
 #include "Characters/UpNpcCharacter.h"
-#include "Components/PanelWidget.h"
-#include "UI/MainMenu/SquadMenu/UpSquadMemberInventoryItemDisplayWidget.h"
+#include "UI/MainMenu/SquadMenu/UpSquadMemberEquipmentItemDisplayWidget.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
 void UUpSquadMemberInventoryMenuWidget::SetNpc(AUpNpcCharacter* InNpc)
 {
 	Npc = InNpc;
 	
-	PopulateInventory(Npc->GetTagId());
+	PopulateEquipment(Npc->GetTagId());
 }
 
-void UUpSquadMemberInventoryMenuWidget::SetNpcTagId(const FGameplayTag& NpcTagId)
+void UUpSquadMemberInventoryMenuWidget::SetNpcTagId(const FGameplayTag& NpcTagId) const
 {
-	PopulateInventory(NpcTagId);
+	PopulateEquipment(NpcTagId);
 }
 
-void UUpSquadMemberInventoryMenuWidget::PopulateInventory(const FGameplayTag& NpcTagId)
+void UUpSquadMemberInventoryMenuWidget::PopulateEquipment(const FGameplayTag& NpcTagId) const
 {
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		Inventory = GameInstance->GetNpcInventory(NpcTagId);
-	}
+		const auto Equipment = GameInstance->GetNpcEquipment(NpcTagId);
 
-	PopulateInventoryItems();
+		if (const auto Widget = GetWeapon1Display())
+		{
+			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Weapon1);
+		}
+
+		if (const auto Widget = GetWeapon2Display())
+		{
+			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Weapon2);
+		}
+
+		if (const auto Widget = GetItem1Display())
+		{
+			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Item1);
+		}
+
+		if (const auto Widget = GetItem2Display())
+		{
+			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Item2);
+		}
+
+		if (const auto Widget = GetHelmetDisplay())
+		{
+			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Helmet);
+		}
+
+		if (const auto Widget = GetArmorDisplay())
+		{
+			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Armor);
+		}
+	}
 }
 
-void UUpSquadMemberInventoryMenuWidget::PopulateInventoryItems()
+void UUpSquadMemberInventoryMenuWidget::PopulateEquipmentItemDisplay(UUpSquadMemberEquipmentItemDisplayWidget* Widget,
+	const FUpCharacterEquipment& Equipment, const EUpEquipmentSlot::Type EquipmentSlot)
 {
-	if (const auto InventoryItemsContainer = GetInventoryItemsContainer(); InventoryItemsContainer && InventoryItemDisplayWidgetClass)
+	if (const auto EquipmentSlotDataPtr = Equipment.EquipmentSlotMap.Find(EquipmentSlot))
 	{
-		for (const auto InventoryData : Inventory.InventoryDataMap)
+		if (const auto EquipmentSlotData = *EquipmentSlotDataPtr; EquipmentSlotData.IsValid())
 		{
-			const auto Widget = CreateWidget<UUpSquadMemberInventoryItemDisplayWidget>(this, InventoryItemDisplayWidgetClass);
-			Widget->SetCustomHud(CustomHud);
-			Widget->PopulateInventoryItemData(InventoryData.Key, InventoryData.Value, Npc);
-
-			InventoryItemsContainer->AddChild(Widget);
-
-			// if (const auto Slot = Cast<UVerticalBoxSlot>(PrimaryAttributesContainer->AddChild(Widget)); Slot && PrimaryAttributeIndex > 0)
-			// {
-			// Slot->SetPadding(FMargin(0.f, PrimaryAttributeRowGap, 0.f, 0.f));
-			// }
+			Widget->PopulateEquipmentItemData(EquipmentSlotData.ItemInstance.ItemTagId);
 		}
 	}
 }

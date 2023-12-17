@@ -116,7 +116,7 @@ private:
 
 	void ToggleWeapon1(const FInputActionValue& InputActionValue);
 	void ToggleWeapon2(const FInputActionValue& InputActionValue);
-	void ToggleWeapon(const EUpCharacterEquipmentSlot::Type EquipmentSlot) const;
+	void ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlot) const;
 
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
 	void Jump(const FInputActionValue& InputActionValue);

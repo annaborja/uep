@@ -39,5 +39,5 @@ protected:
 	bool bIsMovingHorizontally = false;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
-	TEnumAsByte<EUpCharacterArmingState::Type> ArmingState = EUpCharacterArmingState::Unarmed;
+	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
 };
