@@ -54,7 +54,7 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpPlayerCameraViewType::Typ
 		if (CameraSpringArm)
 		{
 			CameraSpringArm->TargetArmLength = 5.f;
-			CameraSpringArm->SocketOffset = FVector(10.f, 0.f, 70.f);
+			CameraSpringArm->SocketOffset = FVector(10.f, 0.f, 75.f);
 			CameraSpringArm->bUsePawnControlRotation = true;
 		}
 
@@ -173,9 +173,9 @@ void AUpPlayableCharacter::InitForPlayer()
 		PlayerInteractionComponent->RegisterComponent();
 	}
 
-	if (CustomPlayerController) ActivateCameraView(CustomPlayerController->GetCurrentCameraViewType());
-		
 	if (CustomMovementComponent) CustomMovementComponent->InitForPlayer();
+	
+	if (CustomPlayerController) ActivateCameraView(CustomPlayerController->GetCurrentCameraViewType());
 }
 
 void AUpPlayableCharacter::TearDownForPlayer()
