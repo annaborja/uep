@@ -17,4 +17,5 @@ public:
 
 	void GrantAbility(const TSubclassOf<UGameplayAbility> AbilityClass);
 	bool TryActivateAbilityByTag(const FGameplayTag& Tag);
+	void RevokeAbility(const TSubclassOf<UGameplayAbility> AbilityClass);
 };

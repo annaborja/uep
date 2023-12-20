@@ -69,3 +69,19 @@ bool UUpAbilitySystemComponent::TryActivateAbilityByTag(const FGameplayTag& Tag)
 
 	return false;
 }
+
+void UUpAbilitySystemComponent::RevokeAbility(const TSubclassOf<UGameplayAbility> AbilityClass)
+{
+	FGameplayAbilitySpecHandle SpecHandle;
+	
+	for (const auto& AbilitySpec : ActivatableAbilities.Items)
+	{
+		if (AbilitySpec.Ability.GetClass() == AbilityClass)
+		{
+			SpecHandle = AbilitySpec.Handle;
+			break;
+		}
+	}
+
+	if (SpecHandle.IsValid()) ClearAbility(SpecHandle);
+}

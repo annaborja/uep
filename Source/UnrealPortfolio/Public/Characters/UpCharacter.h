@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Utils/Enums.h"
 #include "UpCharacter.generated.h"
 
 class AStaticMeshActor;
@@ -36,7 +37,9 @@ public:
 	
 	void SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation);
 	void UnsetRootMotionTargetLocation();
-
+	
+	virtual EUpCameraView::Type GetCameraView() const { return EUpCameraView::ThirdPerson; }
+	
 	FORCEINLINE EUpCharacterPosture::Type GetPosture() const { return Posture; }
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
 	

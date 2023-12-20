@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Abilities/GameplayAbility.h"
 #include "Characters/UpCharacter.h"
 #include "Components/ActorComponent.h"
 #include "Engine/DataTable.h"
@@ -13,6 +14,7 @@
 
 class AStaticMeshActor;
 struct FUpTagSpec;
+class UGameplayAbility;
 class UUpGameplayAbility;
 
 UENUM(BlueprintType)
@@ -40,6 +42,30 @@ namespace EUpEquipmentSlot
 		Armor
 	};
 }
+
+UENUM()
+namespace EUpAbilityGrantDuration
+{
+	enum Type : uint8
+	{
+		WhileEquipped,
+		Permanent
+	};
+}
+
+USTRUCT(BlueprintType)
+struct FUpAbilityGrantSpec
+{
+	GENERATED_BODY()
+
+	bool IsValid() const { return AbilityClass != nullptr; }
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayAbility> AbilityClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	TEnumAsByte<EUpAbilityGrantDuration::Type> GrantDuration = EUpAbilityGrantDuration::Permanent;
+};
 
 USTRUCT(BlueprintType)
 struct FUpItemData : public FTableRowBase
@@ -75,7 +101,7 @@ struct FUpItemData : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly)
 	FUpTagSpec UsageEffect;
 	UPROPERTY(EditDefaultsOnly)
-	TArray<UUpGameplayAbility*> GrantedAbilities;
+	TArray<FUpAbilityGrantSpec> AbilityGrantSpecs;
 };
 
 USTRUCT()

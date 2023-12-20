@@ -44,11 +44,11 @@ void AUpPlayableCharacter::UnPossessed()
 	if (CustomPlayerController) TearDownForPlayer();
 }
 
-void AUpPlayableCharacter::ActivateCameraView(const EUpPlayerCameraViewType::Type CameraViewType)
+void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type InCameraView)
 {
-	switch (CameraViewType)
+	switch (InCameraView)
 	{
-	case EUpPlayerCameraViewType::FirstPerson:
+	case EUpCameraView::FirstPerson:
 		SetUpFirstPersonMesh();
 
 		if (CameraSpringArm)
@@ -66,14 +66,14 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpPlayerCameraViewType::Typ
 		}
 
 		break;
-	case EUpPlayerCameraViewType::ThirdPerson:
+	case EUpCameraView::ThirdPerson:
 		{
 			SetUpThirdPersonMesh();
 			SetUpThirdPersonCamera();
 		
 			break;
 		}
-	case EUpPlayerCameraViewType::ThirdPerson_OverTheShoulder:
+	case EUpCameraView::ThirdPerson_OverTheShoulder:
 		SetUpThirdPersonMesh();
 
 		if (CameraSpringArm)
@@ -91,16 +91,16 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpPlayerCameraViewType::Typ
 		}
 
 		break;
-	case EUpPlayerCameraViewType::FirstPerson_Debug:
+	case EUpCameraView::FirstPerson_Debug:
 		SetUpFirstPersonMesh();
 		SetUpThirdPersonCamera();
 		
 		break;
 	default:
-		UE_LOG(LogTemp, Warning, TEXT("Invalid player camera view type %d"), CameraViewType)
+		UE_LOG(LogTemp, Warning, TEXT("Invalid camera view %d"), InCameraView)
 	}
 
-	if (CustomPlayerController) CustomPlayerController->SetCurrentCameraViewType(CameraViewType);
+	if (CustomPlayerController) CustomPlayerController->SetCameraView(InCameraView);
 }
 
 void AUpPlayableCharacter::Jump()
@@ -132,6 +132,13 @@ void AUpPlayableCharacter::StopJumping()
 	if (bIsPlayer && CustomMovementComponent) CustomMovementComponent->ToggleCustomPressedJump(false);
 	
 	Super::StopJumping();
+}
+
+EUpCameraView::Type AUpPlayableCharacter::GetCameraView() const
+{
+	if (CustomPlayerController) return CustomPlayerController->GetCameraView();
+	
+	return Super::GetCameraView();
 }
 
 void AUpPlayableCharacter::InitForPlayer()
@@ -175,7 +182,7 @@ void AUpPlayableCharacter::InitForPlayer()
 
 	if (CustomMovementComponent) CustomMovementComponent->InitForPlayer();
 	
-	if (CustomPlayerController) ActivateCameraView(CustomPlayerController->GetCurrentCameraViewType());
+	if (CustomPlayerController) ActivateCameraView(CustomPlayerController->GetCameraView());
 }
 
 void AUpPlayableCharacter::TearDownForPlayer()

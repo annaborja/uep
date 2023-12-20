@@ -25,12 +25,14 @@ public:
 	virtual void UnPossessed() override;
 
 	UFUNCTION(BlueprintCallable)
-	void ActivateCameraView(const EUpPlayerCameraViewType::Type CameraViewType);
+	void ActivateCameraView(const EUpCameraView::Type CameraViewType);
 
 	virtual void Jump() override;
 	virtual void StopJumping() override;
 	void AllowJump() { bAllowedToJump = true; }
 	bool IsAllowedToJump() const { return bAllowedToJump; };
+
+	virtual EUpCameraView::Type GetCameraView() const override;
 	
 	FORCEINLINE AUpPlayerController* GetCustomPlayerController() const { return CustomPlayerController; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetPlayerInteractionComponent() const { return PlayerInteractionComponent; }

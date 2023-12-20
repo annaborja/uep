@@ -12,6 +12,7 @@
 #include "GameFramework/DefaultPawn.h"
 #include "Interfaces/UpInteractable.h"
 #include "Kismet/GameplayStatics.h"
+#include "Tags/CombatTags.h"
 #include "UI/UpHud.h"
 
 AUpPlayerController::AUpPlayerController(): APlayerController()
@@ -61,15 +62,36 @@ void AUpPlayerController::SwitchCharacter(AUpNpcCharacter* Npc)
 	Possess(Npc);
 }
 
+void AUpPlayerController::ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting, const int32 Priority) const
+{
+	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		if (bClearExisting) Subsystem->ClearAllMappings();
+		
+		Subsystem->AddMappingContext(InputMappingContext, Priority);
+	}
+}
+
+void AUpPlayerController::DeactivateInputMappingContext(const UInputMappingContext* InputMappingContext) const
+{
+	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->RemoveMappingContext(InputMappingContext);
+	}
+}
+
 void AUpPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	check(BaseInputMappingContext);
 	check(CharacterSwitcherInputMappingContext);
+	check(GunInputMappingContext);
 
+	check(AimGunInputAction);
 	check(CloseCharacterSwitcherInputAction);
 	check(CrouchInputAction);
+	check(FireGunInputAction);
 	check(InteractInputAction);
 	check(JumpInputAction);
 	check(LookInputAction);
@@ -121,25 +143,31 @@ void AUpPlayerController::SetupInputComponent()
 	
 	EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
+	
+	EnhancedInputComponent->BindAction(AimGunInputAction, ETriggerEvent::Started, this, &ThisClass::StartAimingGun);
+	EnhancedInputComponent->BindAction(AimGunInputAction, ETriggerEvent::Completed, this, &ThisClass::StopAimingGun);
+	
+	EnhancedInputComponent->BindAction(FireGunInputAction, ETriggerEvent::Started, this, &ThisClass::StartFiringGun);
+	EnhancedInputComponent->BindAction(FireGunInputAction, ETriggerEvent::Completed, this, &ThisClass::StopFiringGun);
 }
 
 void AUpPlayerController::ToggleCameraView(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
 	
-	switch (CurrentCameraViewType)
+	switch (CameraView)
 	{
-	case EUpPlayerCameraViewType::FirstPerson:
-		PossessedCharacter->ActivateCameraView(EUpPlayerCameraViewType::ThirdPerson);
+	case EUpCameraView::FirstPerson:
+		PossessedCharacter->ActivateCameraView(EUpCameraView::ThirdPerson);
 		break;
-	case EUpPlayerCameraViewType::ThirdPerson:
-		PossessedCharacter->ActivateCameraView(EUpPlayerCameraViewType::ThirdPerson_OverTheShoulder);
+	case EUpCameraView::ThirdPerson:
+		PossessedCharacter->ActivateCameraView(EUpCameraView::ThirdPerson_OverTheShoulder);
 		break;
-	case EUpPlayerCameraViewType::ThirdPerson_OverTheShoulder:
-		PossessedCharacter->ActivateCameraView(EUpPlayerCameraViewType::FirstPerson);
+	case EUpCameraView::ThirdPerson_OverTheShoulder:
+		PossessedCharacter->ActivateCameraView(EUpCameraView::FirstPerson);
 		break;
 	default:
-		UE_LOG(LogTemp, Warning, TEXT("Invalid player camera view type %d"), CurrentCameraViewType)
+		UE_LOG(LogTemp, Warning, TEXT("Invalid player camera view type %d"), CameraView)
 	}
 }
 
@@ -147,12 +175,12 @@ void AUpPlayerController::ToggleDebugCamera(const FInputActionValue& InputAction
 {
 	if (!PossessedCharacter) return;
 
-	if (CurrentCameraViewType == EUpPlayerCameraViewType::FirstPerson_Debug)
+	if (CameraView == EUpCameraView::FirstPerson_Debug)
 	{
-		PossessedCharacter->ActivateCameraView(EUpPlayerCameraViewType::FirstPerson);
+		PossessedCharacter->ActivateCameraView(EUpCameraView::FirstPerson);
 	} else
 	{
-		PossessedCharacter->ActivateCameraView(EUpPlayerCameraViewType::FirstPerson_Debug);
+		PossessedCharacter->ActivateCameraView(EUpCameraView::FirstPerson_Debug);
 	}
 	
 	// if (IsValid(DebugPawn))
@@ -289,30 +317,49 @@ void AUpPlayerController::Look(const FInputActionValue& InputActionValue)
 
 void AUpPlayerController::Move(const FInputActionValue& InputActionValue)
 {
+	if (!PossessedCharacter) return;
+	
 	const auto InputActionVector = InputActionValue.Get<FVector2D>();
 	const FRotationMatrix RotationMatrix(FRotator(0.f, GetControlRotation().Yaw, 0.f));
 
-	if (PossessedCharacter)
+	PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::X), InputActionVector.Y);
+	PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::Y), InputActionVector.X);
+}
+
+void AUpPlayerController::StartAimingGun(const FInputActionValue& InputActionValue)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[temp] start aim gun"))
+}
+
+void AUpPlayerController::StopAimingGun(const FInputActionValue& InputActionValue)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[temp] stop aim gun"))
+}
+
+void AUpPlayerController::StartFiringGun(const FInputActionValue& InputActionValue)
+{
+	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
 	{
-		PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::X), InputActionVector.Y);
-		PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::Y), InputActionVector.X);
+		if (const auto AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent())
+		{
+			FGameplayTagContainer AbilityTags;
+			AbilityTags.AddTag(TAG_Combat_Gun_Fire);
+			
+			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+		}
 	}
 }
 
-void AUpPlayerController::ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting, const int32 Priority) const
+void AUpPlayerController::StopFiringGun(const FInputActionValue& InputActionValue)
 {
-	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
 	{
-		if (bClearExisting) Subsystem->ClearAllMappings();
-		
-		Subsystem->AddMappingContext(InputMappingContext, Priority);
-	}
-}
-
-void AUpPlayerController::DeactivateInputMappingContext(const UInputMappingContext* InputMappingContext) const
-{
-	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
-	{
-		Subsystem->RemoveMappingContext(InputMappingContext);
+		if (const auto AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent())
+		{
+			FGameplayTagContainer AbilityTags;
+			AbilityTags.AddTag(TAG_Combat_Gun_Fire);
+			
+			AbilitySystemComponent->CancelAbilities(&AbilityTags);
+		}
 	}
 }

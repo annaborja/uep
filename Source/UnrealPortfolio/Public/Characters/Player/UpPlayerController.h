@@ -15,18 +15,6 @@ struct FInputActionValue;
 class UInputAction;
 class UInputMappingContext;
 
-UENUM(BlueprintType)
-namespace EUpPlayerCameraViewType
-{
-	enum Type : uint8
-	{
-		FirstPerson,
-		FirstPerson_Debug,
-		ThirdPerson,
-		ThirdPerson_OverTheShoulder
-	};
-}
-
 UCLASS()
 class UNREALPORTFOLIO_API AUpPlayerController : public APlayerController
 {
@@ -43,10 +31,14 @@ public:
 	void CloseCharacterSwitcher();
 	void SwitchCharacter(AUpNpcCharacter* Npc);
 	
-	void SetCurrentCameraViewType(const EUpPlayerCameraViewType::Type InCameraViewType) { CurrentCameraViewType = InCameraViewType; }
+	void ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting = true, const int32 Priority = 0) const;
+	void DeactivateInputMappingContext(const UInputMappingContext* InputMappingContext) const;
+	void SetCameraView(const EUpCameraView::Type InCameraView) { CameraView = InCameraView; }
 	
+	FORCEINLINE UInputMappingContext* GetGunInputMappingContext() const { return GunInputMappingContext; }
 	FORCEINLINE UInputAction* GetCloseCharacterSwitcherInputAction() const { return CloseCharacterSwitcherInputAction; }
-	FORCEINLINE TEnumAsByte<EUpPlayerCameraViewType::Type> GetCurrentCameraViewType() const { return CurrentCameraViewType; }
+	
+	FORCEINLINE TEnumAsByte<EUpCameraView::Type> GetCameraView() const { return CameraView; }
 	FORCEINLINE AUpHud* GetCustomHud() const { return CustomHud; }
 	FORCEINLINE AUpPlayableCharacter* GetPossessedCharacter() const { return PossessedCharacter; }
 	FORCEINLINE bool IsInitialized() const { return bInitialized; }
@@ -61,6 +53,8 @@ private:
 	TObjectPtr<UInputMappingContext> BaseInputMappingContext;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
 	TObjectPtr<UInputMappingContext> CharacterSwitcherInputMappingContext;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
+	TObjectPtr<UInputMappingContext> GunInputMappingContext;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> CloseCharacterSwitcherInputAction;
@@ -90,7 +84,14 @@ private:
 	TObjectPtr<UInputAction> Weapon1InputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> Weapon2InputAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions|Weapon")
+	TObjectPtr<UInputAction> AimGunInputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions|Weapon")
+	TObjectPtr<UInputAction> FireGunInputAction;
 
+	UPROPERTY(Transient)
+	TEnumAsByte<EUpCameraView::Type> CameraView = EUpCameraView::ThirdPerson;
 	UPROPERTY(Transient)
 	TObjectPtr<AUpHud> CustomHud;
 	UPROPERTY(Transient)
@@ -100,8 +101,7 @@ private:
 	TObjectPtr<AUpPlayableCharacter> DebugCharacter;
 	UPROPERTY(Transient)
 	TObjectPtr<ADefaultPawn> DebugPawn;
-	
-	TEnumAsByte<EUpPlayerCameraViewType::Type> CurrentCameraViewType = EUpPlayerCameraViewType::ThirdPerson;
+
 	bool bInitialized = false;
 	
 	void ToggleCameraView(const FInputActionValue& InputActionValue);
@@ -126,7 +126,9 @@ private:
 	
 	void Look(const FInputActionValue& InputActionValue);
 	void Move(const FInputActionValue& InputActionValue);
-
-	void ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting = true, const int32 Priority = 0) const;
-	void DeactivateInputMappingContext(const UInputMappingContext* InputMappingContext) const;
+	
+	void StartAimingGun(const FInputActionValue& InputActionValue);
+	void StopAimingGun(const FInputActionValue& InputActionValue);
+	void StartFiringGun(const FInputActionValue& InputActionValue);
+	void StopFiringGun(const FInputActionValue& InputActionValue);
 };

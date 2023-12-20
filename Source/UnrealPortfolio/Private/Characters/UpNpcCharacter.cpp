@@ -12,9 +12,9 @@
 #include "Components/UpCombatComponent.h"
 #include "Components/UpDialogueComponent.h"
 #include "Engine/StaticMeshActor.h"
+#include "GAS/Abilities/UpGameplayAbility.h"
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 #include "GAS/Attributes/UpVitalAttributeSet.h"
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -150,6 +150,27 @@ void AUpNpcCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSl
 					}
 				}
 			}
+
+			if (AbilitySystemComponent)
+			{
+				for (const auto& AbilityGrantSpec : ItemData.AbilityGrantSpecs)
+				{
+					if (!AbilityGrantSpec.IsValid()) continue;
+					
+					AbilitySystemComponent->GrantAbility(AbilityGrantSpec.AbilityClass);
+				}
+			}
+
+			if (ItemData.ItemCategory == EUpItemCategory::Weapon)
+			{
+				if (CustomPlayerController)
+				{
+					if (const auto GunInputMappingContext = CustomPlayerController->GetGunInputMappingContext())
+					{
+						CustomPlayerController->ActivateInputMappingContext(GunInputMappingContext, false, 1);
+					}
+				}
+			}
 		}
 	}
 }
@@ -170,10 +191,34 @@ void AUpNpcCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type Equipment
 					Posture = EUpCharacterPosture::Casual;
 				}
 
-				if (ItemData.ItemCategory == EUpItemCategory::Weapon && IsValid(WeaponActor))
+				if (AbilitySystemComponent)
 				{
-					WeaponActor->Destroy();
-					WeaponActor = nullptr;
+					for (const auto& AbilityGrantSpec : ItemData.AbilityGrantSpecs)
+					{
+						if (!AbilityGrantSpec.IsValid()) continue;
+
+						if (AbilityGrantSpec.GrantDuration == EUpAbilityGrantDuration::WhileEquipped)
+						{
+							AbilitySystemComponent->RevokeAbility(AbilityGrantSpec.AbilityClass);
+						}
+					}
+				}
+
+				if (ItemData.ItemCategory == EUpItemCategory::Weapon)
+				{
+					if (IsValid(WeaponActor))
+					{
+						WeaponActor->Destroy();
+						WeaponActor = nullptr;
+					}
+
+					if (CustomPlayerController)
+					{
+						if (const auto GunInputMappingContext = CustomPlayerController->GetGunInputMappingContext())
+						{
+							CustomPlayerController->DeactivateInputMappingContext(GunInputMappingContext);
+						}
+					}
 				}
 			}
 		}
