@@ -32,6 +32,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	ESlateVisibility GetTargetInteractableDisplayVisibility() const;
+	UFUNCTION(BlueprintCallable)
+	ESlateVisibility GetCrossHairVisibility() const;
 	
 	virtual void NativePreConstruct() override;
 

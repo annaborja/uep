@@ -20,10 +20,10 @@ protected:
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+		
+	UFUNCTION()
+	virtual void HandleRepeatAction(int32 ActionNumber) {}
 
 private:
 	TScriptDelegate<FWeakObjectPtr> OnRepeatDelegate;
-
-	UFUNCTION()
-	void HandleRepeatAction(int32 ActionNumber);
 };

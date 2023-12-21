@@ -67,26 +67,39 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type InCamera
 
 		break;
 	case EUpCameraView::ThirdPerson:
-		{
-			SetUpThirdPersonMesh();
-			SetUpThirdPersonCamera();
+		SetUpThirdPersonMesh();
 		
-			break;
+		if (CustomMovementComponent)
+		{
+			CustomMovementComponent->bOrientRotationToMovement = true;
 		}
+		
+		SetUpThirdPersonCamera();
+		
+		break;
 	case EUpCameraView::ThirdPerson_OverTheShoulder:
 		SetUpThirdPersonMesh();
+
+		if (CustomMovementComponent)
+		{
+			CustomMovementComponent->bOrientRotationToMovement = false;
+		}
+	
+		bUseControllerRotationPitch = false;
+		bUseControllerRotationRoll = false;
+		bUseControllerRotationYaw = true;
 
 		if (CameraSpringArm)
 		{
 			CameraSpringArm->TargetArmLength = 100.f;
-			CameraSpringArm->SocketOffset = FVector(0.f, 0.f, 108.f);
+			CameraSpringArm->SocketOffset = FVector(0.f, 55.f, 70.f);
 			CameraSpringArm->bUsePawnControlRotation = true;
 		}
 
 		if (Camera)
 		{
 			Camera->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
-			Camera->SetRelativeRotation(FRotator(-8.f, 0.f, 0.f));
+			Camera->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
 			Camera->bUsePawnControlRotation = false;
 		}
 
@@ -267,14 +280,9 @@ void AUpPlayableCharacter::SetUpThirdPersonMesh()
 		Mesh->SetAnimClass(AnimClass_ThirdPerson);
 		Mesh->SetCastShadow(true);
 	}
-
+	
 	if (WeaponActor) WeaponActor->GetStaticMeshComponent()->SetCastShadow(true);
 
-	if (CustomMovementComponent)
-	{
-		CustomMovementComponent->bOrientRotationToMovement = true;
-	}
-	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;

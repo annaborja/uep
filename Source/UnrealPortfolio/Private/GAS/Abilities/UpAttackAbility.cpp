@@ -22,8 +22,3 @@ void UUpAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 		RepeatTask->Activate();
 	}
 }
-
-void UUpAttackAbility::HandleRepeatAction(int32 ActionNumber)
-{
-	UE_LOG(LogTemp, Warning, TEXT("pew"))
-}

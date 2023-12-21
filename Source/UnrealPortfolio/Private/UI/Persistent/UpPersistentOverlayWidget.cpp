@@ -2,6 +2,7 @@
 
 #include "UI/Persistent/UpPersistentOverlayWidget.h"
 
+#include "Characters/Player/UpPlayerController.h"
 #include "Input/CommonUIActionRouterBase.h"
 #include "UI/UpHud.h"
 #include "UI/UpCommonActivatableWidget.h"
@@ -87,6 +88,25 @@ UUpDialogueOverlayWidget* UUpPersistentOverlayWidget::OpenDialogueFlow() const
 ESlateVisibility UUpPersistentOverlayWidget::GetTargetInteractableDisplayVisibility() const
 {
 	if (IsDescendentWidgetActivated()) return ESlateVisibility::Hidden;
+
+	return ESlateVisibility::SelfHitTestInvisible;
+}
+
+ESlateVisibility UUpPersistentOverlayWidget::GetCrossHairVisibility() const
+{
+	if (IsDescendentWidgetActivated()) return ESlateVisibility::Hidden;
+	
+	if (CustomHud)
+	{
+		if (const auto CustomController = CustomHud->GetCustomController())
+		{
+			if (const auto CameraView = CustomController->GetCameraView();
+				CameraView != EUpCameraView::FirstPerson && CameraView != EUpCameraView::ThirdPerson_OverTheShoulder)
+			{
+				return ESlateVisibility::Hidden;
+			}
+		}
+	}
 
 	return ESlateVisibility::SelfHitTestInvisible;
 }
