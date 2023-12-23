@@ -8,8 +8,8 @@
 #include "Utils/Structs.h"
 #include "UpDialogueComponent.generated.h"
 
+class AUpPlayableNpc;
 class AUpPlayerController;
-class AUpNpcCharacter;
 class AUpPlayerCharacter;
 class UDialogueWave;
 
@@ -125,7 +125,7 @@ private:
 	UPROPERTY(Transient)
 	TArray<FUpDialogueData> AllDialogueData;
 	UPROPERTY(Transient)
-	TObjectPtr<AUpNpcCharacter> CustomOwner;
+	TObjectPtr<AUpPlayableNpc> CustomOwner;
 	UPROPERTY(Transient)
 	TObjectPtr<ACameraActor> DialogueCamera;
 };

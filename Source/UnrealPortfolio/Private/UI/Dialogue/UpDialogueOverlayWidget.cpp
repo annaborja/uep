@@ -3,10 +3,11 @@
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
 
 #include "CommonActivatableWidgetSwitcher.h"
+#include "Characters/UpPlayableNpc.h"
 #include "UI/Dialogue/UpDialogueOptionsDisplayWidget.h"
 #include "UI/Dialogue/UpDialogueStepDisplayWidget.h"
 
-void UUpDialogueOverlayWidget::DisplayDialogueStep(AUpNpcCharacter* Npc, const FUpDialogueStepData& DialogueStep) const
+void UUpDialogueOverlayWidget::DisplayDialogueStep(AUpPlayableNpc* Npc, const FUpDialogueStepData& DialogueStep) const
 {
 	if (const auto DialogueStepDisplay = GetDialogueStepDisplay())
 	{
@@ -16,7 +17,7 @@ void UUpDialogueOverlayWidget::DisplayDialogueStep(AUpNpcCharacter* Npc, const F
 	ActivateDialogueStepDisplay();
 }
 
-void UUpDialogueOverlayWidget::DisplayDialogueOptions(AUpNpcCharacter* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const
+void UUpDialogueOverlayWidget::DisplayDialogueOptions(AUpPlayableNpc* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const
 {
 	if (const auto DialogueOptionsDisplay = GetDialogueOptionsDisplay())
 	{

@@ -20,9 +20,6 @@ void AUpPlayableCharacter::BeginPlay()
 	check(SkeletalMesh_FirstPerson);
 	check(SkeletalMesh_ThirdPerson);
 	
-	check(InitVitalAttributesEffectClass);
-	check(InitPrimaryAttributesEffectClass);
-	
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
 	
 	if (bIsPlayer) CustomMovementComponent->InitForPlayer();
@@ -163,7 +160,7 @@ void AUpPlayableCharacter::InitForPlayer()
 		if (const auto CustomPlayerState = GetPlayerState<AUpPlayerState>())
 		{
 			TArray<TSubclassOf<UGameplayEffect>> InitAttributesEffectClasses;
-			if (InitVitalAttributesEffectClass) InitAttributesEffectClasses.Add(InitVitalAttributesEffectClass);
+			if (InitHealthAttributesEffectClass) InitAttributesEffectClasses.Add(InitHealthAttributesEffectClass);
 			if (InitPrimaryAttributesEffectClass) InitAttributesEffectClasses.Add(InitPrimaryAttributesEffectClass);
 			
 			CastChecked<UUpAbilitySystemComponent>(CustomPlayerState->GetAbilitySystemComponent())->Init(

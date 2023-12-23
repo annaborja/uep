@@ -6,7 +6,7 @@
 #include "UI/UpCommonButtonBase.h"
 #include "UpCharacterSwitcherButtonWidget.generated.h"
 
-class AUpNpcCharacter;
+class AUpPlayableNpc;
 struct FGameplayTag;
 
 UENUM(BlueprintType)
@@ -27,7 +27,7 @@ class UNREALPORTFOLIO_API UUpCharacterSwitcherButtonWidget : public UUpCommonBut
 	GENERATED_BODY()
 
 public:
-	void SetNpc(AUpNpcCharacter* InNpc);
+	void SetNpc(AUpPlayableNpc* InNpc);
 	void SetNpcTag(const FGameplayTag& NpcTag);
 
 protected:
@@ -42,5 +42,5 @@ protected:
 
 private:
 	UPROPERTY(Transient)
-	TObjectPtr<AUpNpcCharacter> Npc;
+	TObjectPtr<AUpPlayableNpc> Npc;
 };

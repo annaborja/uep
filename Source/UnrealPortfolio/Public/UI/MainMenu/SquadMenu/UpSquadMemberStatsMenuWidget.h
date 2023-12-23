@@ -3,12 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/UpNpcCharacter.h"
 #include "Tags/AttributeTags.h"
 #include "UI/UpCommonActivatableWidget.h"
 #include "UpSquadMemberStatsMenuWidget.generated.h"
 
-class AUpNpcCharacter;
+class AUpPlayableNpc;
 class UUpAttributeBarWidget;
 class UUpProgressBarWidget;
 
@@ -18,7 +17,7 @@ class UNREALPORTFOLIO_API UUpSquadMemberStatsMenuWidget : public UUpCommonActiva
 	GENERATED_BODY()
 
 public:
-	void SetNpc(const AUpNpcCharacter* Npc);
+	void SetNpc(const AUpPlayableNpc* Npc);
 	void SetNpcTagId(const FGameplayTag& NpcTagId);
 
 protected:
@@ -55,6 +54,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float SentimentAttributeRowGap = 12.f;
 
-	void PopulatePrimaryAttributes(const AUpNpcCharacter* Npc);
+	void PopulatePrimaryAttributes(const AUpPlayableNpc* Npc);
 	void PopulatePlayerSentiment(const FGameplayTag& NpcTagId);
 };

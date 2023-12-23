@@ -27,7 +27,7 @@ void UUpCharacterMovementComponent::BeginPlay()
 	check(MantleTransitionsMontage);
 
 	Character = CastChecked<AUpCharacter>(GetOwner());
-	PlayableCharacter = CastChecked<AUpPlayableCharacter>(GetOwner());
+	PlayableCharacter = Cast<AUpPlayableCharacter>(GetOwner());
 
 	BaseGravityScale = GravityScale;
 	BaseMaxWalkSpeed = MaxWalkSpeed;

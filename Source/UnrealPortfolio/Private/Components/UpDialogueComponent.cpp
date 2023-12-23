@@ -5,7 +5,7 @@
 #include "AIController.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "UI/UpHud.h"
@@ -191,5 +191,5 @@ void UUpDialogueComponent::BeginPlay()
 		}
 	}
 	
-	CustomOwner = CastChecked<AUpNpcCharacter>(GetOwner());
+	CustomOwner = CastChecked<AUpPlayableNpc>(GetOwner());
 }

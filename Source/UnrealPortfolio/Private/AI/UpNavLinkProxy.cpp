@@ -2,7 +2,7 @@
 
 #include "AI/UpNavLinkProxy.h"
 
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "Kismet/KismetMathLibrary.h"
 
 AUpNavLinkProxy::AUpNavLinkProxy()
@@ -20,7 +20,7 @@ void AUpNavLinkProxy::BeginPlay()
 
 void AUpNavLinkProxy::HandleSmartLinkReached(AActor* MovingActor, const FVector& DestinationPoint)
 {
-	if (const auto Npc = Cast<AUpNpcCharacter>(MovingActor))
+	if (const auto Npc = Cast<AUpPlayableNpc>(MovingActor))
 	{
 		switch (NavigationType)
 		{

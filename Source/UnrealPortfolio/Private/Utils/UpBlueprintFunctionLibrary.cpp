@@ -5,7 +5,7 @@
 #include "GameplayTagAssetInterface.h"
 #include "GameplayTagContainer.h"
 #include "UpGameInstance.h"
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Kismet/GameplayStatics.h"

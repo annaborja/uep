@@ -3,13 +3,14 @@
 #include "UI/Dialogue/UpDialogueStepDisplayWidget.h"
 
 #include "UpGameInstance.h"
+#include "Characters/UpPlayableNpc.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/DialogueWave.h"
 #include "UI/UpHud.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-void UUpDialogueStepDisplayWidget::DisplayDialogueStep(AUpNpcCharacter* InNpc, const FUpDialogueStepData& InDialogueStep)
+void UUpDialogueStepDisplayWidget::DisplayDialogueStep(AUpPlayableNpc* InNpc, const FUpDialogueStepData& InDialogueStep)
 {
 	CurrentDialogueLineIndex = 0;
 	DialogueStep = InDialogueStep;

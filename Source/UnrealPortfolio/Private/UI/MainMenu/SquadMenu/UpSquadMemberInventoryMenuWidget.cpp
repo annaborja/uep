@@ -3,11 +3,11 @@
 #include "UI/MainMenu/SquadMenu/UpSquadMemberInventoryMenuWidget.h"
 
 #include "UpGameInstance.h"
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMemberEquipmentItemDisplayWidget.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-void UUpSquadMemberInventoryMenuWidget::SetNpc(AUpNpcCharacter* InNpc)
+void UUpSquadMemberInventoryMenuWidget::SetNpc(AUpPlayableNpc* InNpc)
 {
 	Npc = InNpc;
 	

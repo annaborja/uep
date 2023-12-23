@@ -159,12 +159,12 @@ struct FUpCharacterEquipment
 {
 	GENERATED_BODY()
 
-	void ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
+	void ActivateEquipmentSlot(const EUpEquipmentSlot::Type EquipmentSlot)
 	{
 		EquipmentSlotMap.FindOrAdd(EquipmentSlot).bActivated = true;
 	}
 	
-	void DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
+	void DeactivateEquipmentSlot(const EUpEquipmentSlot::Type EquipmentSlot)
 	{
 		EquipmentSlotMap.FindOrAdd(EquipmentSlot).bActivated = false;
 	}

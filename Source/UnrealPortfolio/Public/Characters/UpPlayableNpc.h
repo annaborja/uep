@@ -14,7 +14,7 @@
 #include "Interfaces/UpNameable.h"
 #include "Interfaces/UpTagIdable.h"
 #include "Interfaces/UpTagSpecGrantable.h"
-#include "UpNpcCharacter.generated.h"
+#include "UpPlayableNpc.generated.h"
 
 class AUpAiController;
 class UBehaviorTree;
@@ -22,8 +22,8 @@ class UDialogueVoice;
 class USphereComponent;
 class UUpDialogueComponent;
 class UUpGameInstance;
+class UUpHealthAttributeSet;
 class UUpPrimaryAttributeSet;
-class UUpVitalAttributeSet;
 
 USTRUCT(BlueprintType)
 struct FUpNpcData : public FTableRowBase
@@ -45,13 +45,13 @@ struct FUpNpcData : public FTableRowBase
 };
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpNpcCharacter : public AUpPlayableCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface,
+class UNREALPORTFOLIO_API AUpPlayableNpc : public AUpPlayableCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface,
 	public IUpCharacterEquippable, public IUpCombatable, public IUpInteractable, public IUpNameable, public IUpTagIdable, public IUpTagSpecGrantable
 {
 	GENERATED_BODY()
 
 public:
-	explicit AUpNpcCharacter(const FObjectInitializer& ObjectInitializer);
+	explicit AUpPlayableNpc(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
@@ -80,8 +80,8 @@ public:
 	void ToggleSprint(const bool bSprint) const;
 
 	FORCEINLINE FUpNpcData GetNpcData() const { return NpcData; }
+	FORCEINLINE UUpHealthAttributeSet* GetHealthAttributeSet() const { return HealthAttributeSet; }
 	FORCEINLINE UUpPrimaryAttributeSet* GetPrimaryAttributeSet() const { return PrimaryAttributeSet; }
-	FORCEINLINE UUpVitalAttributeSet* GetVitalAttributeSet() const { return VitalAttributeSet; }
 	
 	FORCEINLINE UTexture2D* GetImage_FullBody() const { return NpcData.Image_FullBody; }
 	FORCEINLINE UTexture2D* GetImage_Head() const { return NpcData.Image_Head; }
@@ -109,10 +109,10 @@ private:
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float InteractionSphereRadius = 100.f;
 
-	UPROPERTY(VisibleAnywhere, Category="UP Runtime")
+	UPROPERTY()
+	TObjectPtr<UUpHealthAttributeSet> HealthAttributeSet;
+	UPROPERTY()
 	TObjectPtr<UUpPrimaryAttributeSet> PrimaryAttributeSet;
-	UPROPERTY(VisibleAnywhere, Category="UP Runtime")
-	TObjectPtr<UUpVitalAttributeSet> VitalAttributeSet;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpAiController> AiController;

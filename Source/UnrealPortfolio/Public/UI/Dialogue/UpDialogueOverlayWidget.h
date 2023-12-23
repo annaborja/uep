@@ -6,7 +6,7 @@
 #include "UI/UpCommonActivatableWidget.h"
 #include "UpDialogueOverlayWidget.generated.h"
 
-class AUpNpcCharacter;
+class AUpPlayableNpc;
 struct FUpDialogueOptionData;
 struct FUpDialogueStepData;
 class UCommonActivatableWidgetSwitcher;
@@ -26,8 +26,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	UCommonActivatableWidgetSwitcher* GetWidgetSwitcher() const;
 	
-	void DisplayDialogueStep(AUpNpcCharacter* Npc, const FUpDialogueStepData& DialogueStep) const;
-	void DisplayDialogueOptions(AUpNpcCharacter* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const;
+	void DisplayDialogueStep(AUpPlayableNpc* Npc, const FUpDialogueStepData& DialogueStep) const;
+	void DisplayDialogueOptions(AUpPlayableNpc* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const;
 
 protected:
 	virtual void NativeOnDeactivated() override;

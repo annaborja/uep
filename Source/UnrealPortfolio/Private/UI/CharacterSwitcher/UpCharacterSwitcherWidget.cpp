@@ -5,8 +5,8 @@
 #include "CommonButtonBase.h"
 #include "EnhancedInputSubsystems.h"
 #include "UpGameInstance.h"
-#include "Characters/UpNpcCharacter.h"
 #include "Characters/UpPlayableCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "UI/UpHud.h"
@@ -67,7 +67,7 @@ void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const
 				TArray<AActor*> OverlapActors;
 				UKismetSystemLibrary::SphereOverlapActors(this, SpherePosition, OverlapSphereRadius,
 					TArray<TEnumAsByte<EObjectTypeQuery>> { UEngineTypes::ConvertToObjectType(ECC_Pawn) },
-					AUpNpcCharacter::StaticClass(), TArray<AActor*> {}, OverlapActors);
+					AUpPlayableNpc::StaticClass(), TArray<AActor*> {}, OverlapActors);
 
 				if (bDebugOverlapSphere)
 				{
@@ -81,11 +81,11 @@ void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const
 						if (PartyMemberTags.IsValidIndex(i))
 						{
 							const auto PartyMemberTag = PartyMemberTags[i];
-							AUpNpcCharacter* Npc = nullptr;
+							AUpPlayableNpc* Npc = nullptr;
 
 							for (const auto OverlapActor : OverlapActors)
 							{
-								if (const auto OverlapNpc = Cast<AUpNpcCharacter>(OverlapActor))
+								if (const auto OverlapNpc = Cast<AUpPlayableNpc>(OverlapActor))
 								{
 									if (const auto TagIdable = Cast<IUpTagIdable>(OverlapNpc))
 									{

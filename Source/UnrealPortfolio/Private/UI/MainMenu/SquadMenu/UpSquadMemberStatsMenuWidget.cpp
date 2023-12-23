@@ -3,7 +3,7 @@
 #include "UI/MainMenu/SquadMenu/UpSquadMemberStatsMenuWidget.h"
 
 #include "UpGameInstance.h"
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"
 #include "Components/PanelWidget.h"
 #include "Components/VerticalBoxSlot.h"
@@ -12,7 +12,7 @@
 #include "UI/Basic/UpProgressBarWidget.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-void UUpSquadMemberStatsMenuWidget::SetNpc(const AUpNpcCharacter* Npc)
+void UUpSquadMemberStatsMenuWidget::SetNpc(const AUpPlayableNpc* Npc)
 {
 	bHasFullData = true;
 	
@@ -27,7 +27,7 @@ void UUpSquadMemberStatsMenuWidget::SetNpcTagId(const FGameplayTag& NpcTagId)
 	PopulatePlayerSentiment(NpcTagId);
 }
 
-void UUpSquadMemberStatsMenuWidget::PopulatePrimaryAttributes(const AUpNpcCharacter* Npc)
+void UUpSquadMemberStatsMenuWidget::PopulatePrimaryAttributes(const AUpPlayableNpc* Npc)
 {
 	if (const auto PrimaryAttributesContainer = GetPrimaryAttributesContainer())
 	{

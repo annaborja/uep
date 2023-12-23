@@ -7,7 +7,7 @@
 #include "UI/UpCommonActivatableWidget.h"
 #include "UpSquadMemberInventoryMenuWidget.generated.h"
 
-class AUpNpcCharacter;
+class AUpPlayableNpc;
 struct FGameplayTag;
 struct FUpCharacterEquipment;
 class UUpSquadMemberEquipmentItemDisplayWidget;
@@ -18,7 +18,7 @@ class UNREALPORTFOLIO_API UUpSquadMemberInventoryMenuWidget : public UUpCommonAc
 	GENERATED_BODY()
 
 public:
-	void SetNpc(AUpNpcCharacter* InNpc);
+	void SetNpc(AUpPlayableNpc* InNpc);
 	void SetNpcTagId(const FGameplayTag& NpcTagId) const;
 
 protected:
@@ -39,7 +39,7 @@ protected:
 	
 private:
 	UPROPERTY(Transient)
-	TObjectPtr<AUpNpcCharacter> Npc;
+	TObjectPtr<AUpPlayableNpc> Npc;
 
 	void PopulateEquipment(const FGameplayTag& NpcTagId) const;
 	static void PopulateEquipmentItemDisplay(UUpSquadMemberEquipmentItemDisplayWidget* Widget, const FUpCharacterEquipment& Equipment, const EUpEquipmentSlot::Type EquipmentSlot);

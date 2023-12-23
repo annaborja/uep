@@ -4,7 +4,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerCameraManager.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
@@ -56,7 +56,7 @@ void AUpPlayerController::CloseCharacterSwitcher()
 	if (BaseInputMappingContext) ActivateInputMappingContext(BaseInputMappingContext);
 }
 
-void AUpPlayerController::SwitchCharacter(AUpNpcCharacter* Npc)
+void AUpPlayerController::SwitchCharacter(AUpPlayableNpc* Npc)
 {
 	CloseCharacterSwitcher();
 	Possess(Npc);

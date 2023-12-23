@@ -4,7 +4,7 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Components/UpDialogueComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -15,7 +15,7 @@ EBTNodeResult::Type UUpBtTask_ExecuteDialogue::ExecuteTask(UBehaviorTreeComponen
 	
 	if (const auto AiController = OwnerComp.GetAIOwner())
 	{
-		if (const auto Npc = Cast<AUpNpcCharacter>(AiController->GetPawn()))
+		if (const auto Npc = Cast<AUpPlayableNpc>(AiController->GetPawn()))
 		{
 			if (const auto DialogueComponent = Npc->GetDialogueComponent(); DialogueComponent && DialogueComponent->HasAvailableDialogue())
 			{

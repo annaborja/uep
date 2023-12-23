@@ -3,14 +3,14 @@
 #include "AI/Tasks/UpBtTask_SetMovementParams.h"
 
 #include "AIController.h"
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "Components/UpCharacterMovementComponent.h"
 
 EBTNodeResult::Type UUpBtTask_SetMovementParams::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	if (const auto AiController = OwnerComp.GetAIOwner())
 	{
-		if (const auto Npc = Cast<AUpNpcCharacter>(AiController->GetPawn()))
+		if (const auto Npc = Cast<AUpPlayableNpc>(AiController->GetPawn()))
 		{
 			if (const auto MovementComponent = Npc->GetCustomMovementComponent())
 			{

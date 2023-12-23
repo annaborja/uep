@@ -9,7 +9,7 @@
 #include "UI/MainMenu/SquadMenu/UpSquadMemberSkillsMenuWidget.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMemberStatsMenuWidget.h"
 
-void UUpSquadMemberDisplayWidget::SetNpc(AUpNpcCharacter* InNpc)
+void UUpSquadMemberDisplayWidget::SetNpc(AUpPlayableNpc* InNpc)
 {
 	Npc = InNpc;
 	NpcData = Npc->GetNpcData();

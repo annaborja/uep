@@ -2,11 +2,12 @@
 
 #include "UI/Dialogue/UpDialogueOptionsDisplayWidget.h"
 
+#include "Characters/UpPlayableNpc.h"
 #include "Components/PanelWidget.h"
 #include "Components/VerticalBoxSlot.h"
 #include "UI/Dialogue/UpDialogueOptionButtonWidget.h"
 
-void UUpDialogueOptionsDisplayWidget::PopulateDialogueOptions(AUpNpcCharacter* Npc, TArray<FUpDialogueOptionData> DialogueOptions)
+void UUpDialogueOptionsDisplayWidget::PopulateDialogueOptions(AUpPlayableNpc* Npc, TArray<FUpDialogueOptionData> DialogueOptions)
 {
 	if (const auto DialogueOptionsContainer = GetDialogueOptionsContainer(); DialogueOptionsContainer && DialogueOptionButtonClass)
 	{

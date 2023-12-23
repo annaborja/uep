@@ -3,7 +3,7 @@
 #include "UpGameInstance.h"
 
 #include "GameplayEffect.h"
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Tags/NpcTags.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -258,12 +258,12 @@ void UUpGameInstance::ActivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, con
 {
 	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("ActivateNpcEquipmentSlot"))) return;
 	
-	NpcEquipmentMap.FindOrAdd(NpcTagId).ActivateEquipment(EquipmentSlot);
+	NpcEquipmentMap.FindOrAdd(NpcTagId).ActivateEquipmentSlot(EquipmentSlot);
 }
 
 void UUpGameInstance::DeactivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("DeactivateNpcEquipmentSlot"))) return;
 	
-	NpcEquipmentMap.FindOrAdd(NpcTagId).DeactivateEquipment(EquipmentSlot);
+	NpcEquipmentMap.FindOrAdd(NpcTagId).DeactivateEquipmentSlot(EquipmentSlot);
 }

@@ -3,11 +3,11 @@
 #include "UI/CharacterSwitcher/UpCharacterSwitcherButtonWidget.h"
 
 #include "UpGameInstance.h"
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "UI/UpHud.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-void UUpCharacterSwitcherButtonWidget::SetNpc(AUpNpcCharacter* InNpc)
+void UUpCharacterSwitcherButtonWidget::SetNpc(AUpPlayableNpc* InNpc)
 {
 	Npc = InNpc;
 

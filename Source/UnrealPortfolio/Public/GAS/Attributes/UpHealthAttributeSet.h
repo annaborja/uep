@@ -5,24 +5,24 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
 #include "GAS/Attributes/UpAttributeSet.h"
-#include "UpVitalAttributeSet.generated.h"
+#include "UpHealthAttributeSet.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpVitalAttributeSet : public UUpAttributeSet
+class UNREALPORTFOLIO_API UUpHealthAttributeSet : public UUpAttributeSet
 {
 	GENERATED_BODY()
 
 public:
-	UUpVitalAttributeSet();
+	UUpHealthAttributeSet();
 
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
 private:
 	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData Health;
-	ATTRIBUTE_ACCESSORS(UUpVitalAttributeSet, Health)
+	ATTRIBUTE_ACCESSORS(UUpHealthAttributeSet, Health)
 	
 	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData MaxHealth;
-	ATTRIBUTE_ACCESSORS(UUpVitalAttributeSet, MaxHealth)
+	ATTRIBUTE_ACCESSORS(UUpHealthAttributeSet, MaxHealth)
 };

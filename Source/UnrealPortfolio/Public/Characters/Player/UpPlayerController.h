@@ -7,9 +7,9 @@
 #include "GameFramework/PlayerController.h"
 #include "UpPlayerController.generated.h"
 
+class AUpPlayableNpc;
 class ADefaultPawn;
 class AUpHud;
-class AUpNpcCharacter;
 class AUpPlayableCharacter;
 struct FInputActionValue;
 class UInputAction;
@@ -29,7 +29,7 @@ public:
 	bool IsDebugCameraActive() const;
 	
 	void CloseCharacterSwitcher();
-	void SwitchCharacter(AUpNpcCharacter* Npc);
+	void SwitchCharacter(AUpPlayableNpc* Npc);
 	
 	void ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting = true, const int32 Priority = 0) const;
 	void DeactivateInputMappingContext(const UInputMappingContext* InputMappingContext) const;

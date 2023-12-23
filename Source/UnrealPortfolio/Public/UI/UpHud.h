@@ -8,7 +8,7 @@
 #include "GameFramework/HUD.h"
 #include "UpHud.generated.h"
 
-class AUpNpcCharacter;
+class AUpPlayableNpc;
 class AUpPlayerController;
 struct FGameplayAttribute;
 struct FUpDialogueOptionData;
@@ -50,14 +50,14 @@ public:
 	
 	void OpenCharacterSwitcher();
 	void CloseCharacterSwitcher() const;
-	void SwitchCharacter(AUpNpcCharacter* Npc) const;
+	void SwitchCharacter(AUpPlayableNpc* Npc) const;
 	
 	void OpenDialogueFlow();
 	void CloseDialogueFlow() const;
-	void DisplayDialogueStep(AUpNpcCharacter* Npc, const FUpDialogueStepData& DialogueStep) const;
-	void AdvanceDialogueStep(const AUpNpcCharacter* Npc, const FUpDialogueStepData& DialogueStep) const;
-	void DisplayDialogueOptions(AUpNpcCharacter* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const;
-	void SelectDialogueOption(const AUpNpcCharacter* Npc, const FUpDialogueOptionData& DialogueOption) const;
+	void DisplayDialogueStep(AUpPlayableNpc* Npc, const FUpDialogueStepData& DialogueStep) const;
+	void AdvanceDialogueStep(const AUpPlayableNpc* Npc, const FUpDialogueStepData& DialogueStep) const;
+	void DisplayDialogueOptions(AUpPlayableNpc* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const;
+	void SelectDialogueOption(const AUpPlayableNpc* Npc, const FUpDialogueOptionData& DialogueOption) const;
 
 	void BroadcastTargetInteractable(const AActor* TargetInteractable) const;
 

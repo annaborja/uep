@@ -6,7 +6,7 @@
 #include "UI/UpCommonActivatableWidget.h"
 #include "UpDialogueOptionsDisplayWidget.generated.h"
 
-class AUpNpcCharacter;
+class AUpPlayableNpc;
 struct FUpDialogueOptionData;
 class UUpDialogueOptionButtonWidget;
 
@@ -16,7 +16,7 @@ class UNREALPORTFOLIO_API UUpDialogueOptionsDisplayWidget : public UUpCommonActi
 	GENERATED_BODY()
 
 public:
-	void PopulateDialogueOptions(AUpNpcCharacter* Npc, TArray<FUpDialogueOptionData> DialogueOptions);
+	void PopulateDialogueOptions(AUpPlayableNpc* Npc, TArray<FUpDialogueOptionData> DialogueOptions);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")

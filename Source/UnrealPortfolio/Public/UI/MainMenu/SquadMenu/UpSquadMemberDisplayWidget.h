@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "UI/UpCommonUserWidget.h"
 #include "UpSquadMemberDisplayWidget.generated.h"
 
@@ -18,7 +18,7 @@ class UNREALPORTFOLIO_API UUpSquadMemberDisplayWidget : public UUpCommonUserWidg
 	GENERATED_BODY()
 
 public:
-	void SetNpc(AUpNpcCharacter* InNpc);
+	void SetNpc(AUpPlayableNpc* InNpc);
 	void SetNpcData(const FUpNpcData InNpcData);
 	
 	void SetActiveSubMenu(const FGameplayTag& SubMenuTag) const;
@@ -28,7 +28,7 @@ protected:
 	FUpNpcData NpcData;
 	
 	UPROPERTY(Transient)
-	TObjectPtr<AUpNpcCharacter> Npc;
+	TObjectPtr<AUpPlayableNpc> Npc;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	UCommonActivatableWidgetSwitcher* GetSubMenuSwitcher() const;

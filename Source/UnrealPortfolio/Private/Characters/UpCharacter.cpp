@@ -35,8 +35,8 @@ void AUpCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	check(InitHealthAttributesEffectClass);
 	check(InitPrimaryAttributesEffectClass);
-	check(InitVitalAttributesEffectClass);
 
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
 }

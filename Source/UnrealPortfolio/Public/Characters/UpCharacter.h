@@ -48,9 +48,9 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;
+	TSubclassOf<UGameplayEffect> InitHealthAttributesEffectClass;
 	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
+	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;

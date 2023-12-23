@@ -3,7 +3,7 @@
 #include "UI/UpHud.h"
 
 #include "UpGameInstance.h"
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Characters/Player/UpPlayerState.h"
 #include "Components/UpDialogueComponent.h"
@@ -80,7 +80,7 @@ void AUpHud::CloseCharacterSwitcher() const
 	CharacterSwitcherWidget->DeactivateWidget();
 }
 
-void AUpHud::SwitchCharacter(AUpNpcCharacter* Npc) const
+void AUpHud::SwitchCharacter(AUpPlayableNpc* Npc) const
 {
 	if (!CustomController) return;
 
@@ -107,14 +107,14 @@ void AUpHud::CloseDialogueFlow() const
 	DialogueOverlayWidget->DeactivateWidget();
 }
 
-void AUpHud::DisplayDialogueStep(AUpNpcCharacter* Npc, const FUpDialogueStepData& DialogueStep) const
+void AUpHud::DisplayDialogueStep(AUpPlayableNpc* Npc, const FUpDialogueStepData& DialogueStep) const
 {
 	if (!DialogueOverlayWidget) return;
 	
 	DialogueOverlayWidget->DisplayDialogueStep(Npc, DialogueStep);
 }
 
-void AUpHud::AdvanceDialogueStep(const AUpNpcCharacter* Npc, const FUpDialogueStepData& DialogueStep) const
+void AUpHud::AdvanceDialogueStep(const AUpPlayableNpc* Npc, const FUpDialogueStepData& DialogueStep) const
 {
 	if (!CustomController) return;
 
@@ -124,14 +124,14 @@ void AUpHud::AdvanceDialogueStep(const AUpNpcCharacter* Npc, const FUpDialogueSt
 	}
 }
 
-void AUpHud::DisplayDialogueOptions(AUpNpcCharacter* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const
+void AUpHud::DisplayDialogueOptions(AUpPlayableNpc* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const
 {
 	if (!DialogueOverlayWidget) return;
 	
 	DialogueOverlayWidget->DisplayDialogueOptions(Npc, DialogueOptions);
 }
 
-void AUpHud::SelectDialogueOption(const AUpNpcCharacter* Npc, const FUpDialogueOptionData& DialogueOption) const
+void AUpHud::SelectDialogueOption(const AUpPlayableNpc* Npc, const FUpDialogueOptionData& DialogueOption) const
 {
 	if (!CustomController) return;
 

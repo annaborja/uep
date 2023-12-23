@@ -7,7 +7,7 @@
 #include "UI/UpCommonButtonBase.h"
 #include "UpDialogueOptionButtonWidget.generated.h"
 
-class AUpNpcCharacter;
+class AUpPlayableNpc;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpDialogueOptionButtonWidget : public UUpCommonButtonBase
@@ -17,7 +17,7 @@ class UNREALPORTFOLIO_API UUpDialogueOptionButtonWidget : public UUpCommonButton
 public:
 	void SetDialogueOption(const FUpDialogueOptionData& InDialogueOption);
 	
-	void SetNpc(AUpNpcCharacter* InNpc) { Npc = InNpc; }
+	void SetNpc(AUpPlayableNpc* InNpc) { Npc = InNpc; }
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -27,7 +27,7 @@ protected:
 
 private:
 	UPROPERTY(Transient)
-	TObjectPtr<AUpNpcCharacter> Npc;
+	TObjectPtr<AUpPlayableNpc> Npc;
 	
 	FUpDialogueOptionData DialogueOption;
 };

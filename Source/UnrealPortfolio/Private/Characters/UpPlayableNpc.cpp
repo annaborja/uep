@@ -1,6 +1,6 @@
 // Copyright AB. All Rights Reserved.
 
-#include "Characters/UpNpcCharacter.h"
+#include "Characters/UpPlayableNpc.h"
 
 #include "UpGameInstance.h"
 #include "AI/UpAiController.h"
@@ -13,13 +13,13 @@
 #include "Components/UpDialogueComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "GAS/Abilities/UpGameplayAbility.h"
+#include "GAS/Attributes/UpHealthAttributeSet.h"
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
-#include "GAS/Attributes/UpVitalAttributeSet.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-AUpNpcCharacter::AUpNpcCharacter(const FObjectInitializer& ObjectInitializer) :
+AUpPlayableNpc::AUpPlayableNpc(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UUpCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	AIControllerClass = AUpAiController::StaticClass();
@@ -33,7 +33,7 @@ AUpNpcCharacter::AUpNpcCharacter(const FObjectInitializer& ObjectInitializer) :
 	CombatComponent = CreateDefaultSubobject<UUpCombatComponent>(TEXT("CombatComponent"));
 	DialogueComponent = CreateDefaultSubobject<UUpDialogueComponent>(TEXT("DialogueComponent"));
 
-	VitalAttributeSet = CreateDefaultSubobject<UUpVitalAttributeSet>(TEXT("VitalAttributeSet"));
+	HealthAttributeSet = CreateDefaultSubobject<UUpHealthAttributeSet>(TEXT("HealthAttributeSet"));
 	PrimaryAttributeSet = CreateDefaultSubobject<UUpPrimaryAttributeSet>(TEXT("PrimaryAttributeSet"));
 
 	InteractionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));
@@ -43,7 +43,7 @@ AUpNpcCharacter::AUpNpcCharacter(const FObjectInitializer& ObjectInitializer) :
 	InteractionSphere->SetCollisionResponseToChannel(TRACE_CHANNEL_INTERACTION, ECR_Block);
 }
 
-void AUpNpcCharacter::BeginPlay()
+void AUpPlayableNpc::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -56,14 +56,14 @@ void AUpNpcCharacter::BeginPlay()
 	{
 		TArray<TSubclassOf<UGameplayEffect>> InitAttributesEffectClasses;
 		
-		if (InitVitalAttributesEffectClass) InitAttributesEffectClasses.Add(InitVitalAttributesEffectClass);
+		if (InitHealthAttributesEffectClass) InitAttributesEffectClasses.Add(InitHealthAttributesEffectClass);
 		if (InitPrimaryAttributesEffectClass) InitAttributesEffectClasses.Add(InitPrimaryAttributesEffectClass);
 		
 		AbilitySystemComponent->Init(this, this, InitAttributesEffectClasses, TArray<TSubclassOf<UGameplayAbility>> {});
 	}
 }
 
-void AUpNpcCharacter::PossessedBy(AController* NewController)
+void AUpPlayableNpc::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
@@ -84,7 +84,7 @@ void AUpNpcCharacter::PossessedBy(AController* NewController)
 	}
 }
 
-void AUpNpcCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
+void AUpPlayableNpc::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
@@ -99,7 +99,7 @@ void AUpNpcCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) 
 	}
 }
 
-FUpCharacterEquipment AUpNpcCharacter::GetCharacterEquipment() const
+FUpCharacterEquipment AUpPlayableNpc::GetCharacterEquipment() const
 {
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
@@ -109,7 +109,7 @@ FUpCharacterEquipment AUpNpcCharacter::GetCharacterEquipment() const
 	return FUpCharacterEquipment();
 }
 
-void AUpNpcCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot, const FUpEquipmentSlotData& EquipmentSlotData)
+void AUpPlayableNpc::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot, const FUpEquipmentSlotData& EquipmentSlotData)
 {
 	DeactivateEquipment(EquipmentSlot);
 	
@@ -175,7 +175,7 @@ void AUpNpcCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSl
 	}
 }
 
-void AUpNpcCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
+void AUpPlayableNpc::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
@@ -225,12 +225,12 @@ void AUpNpcCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type Equipment
 	}
 }
 
-bool AUpNpcCharacter::CanInteract() const
+bool AUpPlayableNpc::CanInteract() const
 {
 	return DialogueComponent->HasAvailableDialogue();
 }
 
-void AUpNpcCharacter::Interact(AUpPlayerController* PlayerController)
+void AUpPlayableNpc::Interact(AUpPlayerController* PlayerController)
 {
 	if (DialogueComponent->HasAvailableDialogue())
 	{
@@ -238,12 +238,12 @@ void AUpNpcCharacter::Interact(AUpPlayerController* PlayerController)
 	}
 }
 
-void AUpNpcCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
+void AUpPlayableNpc::GrantTagSpec(const FUpTagSpec& TagSpec)
 {
 	UUpBlueprintFunctionLibrary::GrantNpcTagSpec(this, TagId, TagSpec);
 }
 
-void AUpNpcCharacter::JumpToLocation(const FVector& TargetLocation, const float Duration)
+void AUpPlayableNpc::JumpToLocation(const FVector& TargetLocation, const float Duration)
 {
 	const auto ActorLocation = GetActorLocation();
 
@@ -256,14 +256,14 @@ void AUpNpcCharacter::JumpToLocation(const FVector& TargetLocation, const float 
 	}
 }
 
-bool AUpNpcCharacter::Mantle() const
+bool AUpPlayableNpc::Mantle() const
 {
 	if (!CustomMovementComponent) return false;
 	
 	return CustomMovementComponent->TryMantle();
 }
 
-void AUpNpcCharacter::ToggleSprint(const bool bSprint) const
+void AUpPlayableNpc::ToggleSprint(const bool bSprint) const
 {
 	if (!CustomMovementComponent) return;
 

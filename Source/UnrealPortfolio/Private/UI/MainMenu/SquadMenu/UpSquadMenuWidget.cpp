@@ -4,7 +4,6 @@
 
 #include "UpGameInstance.h"
 #include "CommonWidgetCarousel.h"
-#include "Characters/UpNpcCharacter.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/PanelWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -106,18 +105,18 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 		if (Nav) Nav->ClearChildren();
 		
 		TArray<AActor*> NpcActors;
-		UGameplayStatics::GetAllActorsOfClass(this, AUpNpcCharacter::StaticClass(), NpcActors);
+		UGameplayStatics::GetAllActorsOfClass(this, AUpPlayableNpc::StaticClass(), NpcActors);
 		
 		for (const auto& SquadMemberTag : SquadMemberTags)
 		{
-			AUpNpcCharacter* Npc = nullptr;
+			AUpPlayableNpc* Npc = nullptr;
 			FUpNpcData NpcData;
 
 			for (const auto Actor : NpcActors)
 			{
 				if (UUpBlueprintFunctionLibrary::HasTagId(Actor, SquadMemberTag))
 				{
-					Npc = Cast<AUpNpcCharacter>(Actor);
+					Npc = Cast<AUpPlayableNpc>(Actor);
 					break;
 				}
 			}
