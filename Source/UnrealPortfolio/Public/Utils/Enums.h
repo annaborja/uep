@@ -16,3 +16,28 @@ namespace EUpCameraView
 		ThirdPerson_OverTheShoulder
 	};
 }
+
+UENUM(BlueprintType)
+namespace EUpCharacterPosture
+{
+	enum Type : uint8 {
+		Casual,
+		ArmedPistol,
+		ArmedRevolver,
+		ArmedRifle
+	};
+}
+
+UENUM()
+namespace EUpEquipmentSlot
+{
+	enum Type : uint8
+	{
+		Weapon1,
+		Weapon2,
+		Item1,
+		Item2,
+		Helmet,
+		Armor
+	};
+}

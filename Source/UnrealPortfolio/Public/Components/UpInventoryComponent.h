@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Abilities/GameplayAbility.h"
-#include "Characters/UpCharacter.h"
 #include "Components/ActorComponent.h"
 #include "Engine/DataTable.h"
 #include "Tags/ItemTags.h"
+#include "Utils/Enums.h"
 #include "Utils/Structs.h"
 #include "UpInventoryComponent.generated.h"
 
@@ -26,20 +26,6 @@ namespace EUpItemCategory
 		Permanent,
 		Weapon,
 		Wearable
-	};
-}
-
-UENUM()
-namespace EUpEquipmentSlot
-{
-	enum Type : uint8
-	{
-		Weapon1,
-		Weapon2,
-		Item1,
-		Item2,
-		Helmet,
-		Armor
 	};
 }
 

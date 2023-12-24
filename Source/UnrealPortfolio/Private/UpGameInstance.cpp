@@ -2,7 +2,6 @@
 
 #include "UpGameInstance.h"
 
-#include "GameplayEffect.h"
 #include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Tags/NpcTags.h"
@@ -233,37 +232,4 @@ FUpInventory UUpGameInstance::GetNpcInventory(const FGameplayTag& NpcTagId)
 	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcInventory"))) return FUpInventory();
 	
 	return NpcInventoryMap.FindOrAdd(NpcTagId);
-}
-
-void UUpGameInstance::PopulatePlayerEquipmentSlot(const EUpEquipmentSlot::Type EquipmentSlot, const FUpItemInstance& ItemInstance)
-{
-	PlayerEquipment.PopulateEquipmentSlot(EquipmentSlot, ItemInstance);
-}
-
-FUpCharacterEquipment UUpGameInstance::GetNpcEquipment(const FGameplayTag& NpcTagId)
-{
-	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcEquipment"))) return FUpCharacterEquipment();
-	
-	return NpcEquipmentMap.FindOrAdd(NpcTagId);
-}
-
-void UUpGameInstance::PopulateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpEquipmentSlot::Type EquipmentSlot, const FUpItemInstance& ItemInstance)
-{
-	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("PopulateNpcEquipmentSlot"))) return;
-	
-	NpcEquipmentMap.FindOrAdd(NpcTagId).PopulateEquipmentSlot(EquipmentSlot, ItemInstance);
-}
-
-void UUpGameInstance::ActivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpEquipmentSlot::Type EquipmentSlot)
-{
-	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("ActivateNpcEquipmentSlot"))) return;
-	
-	NpcEquipmentMap.FindOrAdd(NpcTagId).ActivateEquipmentSlot(EquipmentSlot);
-}
-
-void UUpGameInstance::DeactivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpEquipmentSlot::Type EquipmentSlot)
-{
-	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("DeactivateNpcEquipmentSlot"))) return;
-	
-	NpcEquipmentMap.FindOrAdd(NpcTagId).DeactivateEquipmentSlot(EquipmentSlot);
 }

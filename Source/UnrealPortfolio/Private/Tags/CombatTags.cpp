@@ -4,4 +4,6 @@
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combat, "Combat")
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Combat_Gun_Fire, "Combat.Gun.Fire")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combat_HitReaction, "Combat.HitReaction")
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combat_Attack_Gun_Fire, "Combat.Attack.Gun.Fire")

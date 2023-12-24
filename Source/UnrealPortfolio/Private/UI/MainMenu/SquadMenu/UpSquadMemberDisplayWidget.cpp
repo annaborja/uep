@@ -61,12 +61,6 @@ void UUpSquadMemberDisplayWidget::PopulateSubMenuData() const
 	
 	if (const auto SubMenu = GetSquadMemberInventoryMenu())
 	{
-		if (Npc)
-		{
-			SubMenu->SetNpc(Npc);
-		} else if (NpcData.IsValid())
-		{
-			SubMenu->SetNpcTagId(NpcData.TagId);
-		}
+		if (Npc) SubMenu->SetNpc(Npc);
 	}
 }

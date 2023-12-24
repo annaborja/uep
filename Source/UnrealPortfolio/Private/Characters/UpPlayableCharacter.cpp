@@ -6,7 +6,6 @@
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/UpPlayerController.h"
-#include "Characters/Player/UpPlayerState.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -155,20 +154,7 @@ void AUpPlayableCharacter::InitForPlayer()
 {
 	bIsPlayer = true;
 		
-	if (CustomPlayerController && !CustomPlayerController->IsInitialized())
-	{
-		if (const auto CustomPlayerState = GetPlayerState<AUpPlayerState>())
-		{
-			TArray<TSubclassOf<UGameplayEffect>> InitAttributesEffectClasses;
-			if (InitHealthAttributesEffectClass) InitAttributesEffectClasses.Add(InitHealthAttributesEffectClass);
-			if (InitPrimaryAttributesEffectClass) InitAttributesEffectClasses.Add(InitPrimaryAttributesEffectClass);
-			
-			CastChecked<UUpAbilitySystemComponent>(CustomPlayerState->GetAbilitySystemComponent())->Init(
-				CustomPlayerState, this, InitAttributesEffectClasses, TArray<TSubclassOf<UGameplayAbility>> {});
-		}
-		
-		CustomPlayerController->Init();
-	}
+	if (CustomPlayerController && !CustomPlayerController->IsInitialized()) CustomPlayerController->Init();
 
 	if (!IsValid(CameraSpringArm))
 	{

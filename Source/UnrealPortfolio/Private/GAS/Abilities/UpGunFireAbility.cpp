@@ -2,7 +2,10 @@
 
 #include "GAS/Abilities/UpGunFireAbility.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Tags/CombatTags.h"
 #include "Utils/Constants.h"
 
 void UUpGunFireAbility::HandleRepeatAction(int32 ActionNumber)
@@ -41,11 +44,26 @@ void UUpGunFireAbility::HandleRepeatAction(int32 ActionNumber)
 			
 			if (HitResult.bBlockingHit)
 			{
-				if (bDebug)
+				if (const auto HitActor = HitResult.GetActor())
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Hit actor: %s, hit component: %s"), *HitResult.GetActor()->GetName(), *HitResult.GetComponent()->GetName())
+					if (bDebug)
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Hit actor: %s, hit component: %s"), *HitActor->GetName(), *HitResult.GetComponent()->GetName())
+					}
+
+					if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor))
+					{
+						auto EffectContextHandle = TargetAbilitySystemComponent->MakeEffectContext();
+						EffectContextHandle.AddHitResult(HitResult);
+						EffectContextHandle.AddOrigin(LineTraceStart);
+			
+						FGameplayEventData EventPayload;
+						EventPayload.ContextHandle = EffectContextHandle;
+			
+						UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, TAG_Combat_HitReaction, EventPayload);
+					}
 				}
-				
+
 				if (ImpactParticleSystem) UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticleSystem, HitResult.Location);
 			}
 		}

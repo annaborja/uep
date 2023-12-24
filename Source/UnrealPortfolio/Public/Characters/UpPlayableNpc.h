@@ -3,13 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemInterface.h"
 #include "GameplayTagAssetInterface.h"
 #include "UpPlayableCharacter.h"
 #include "Engine/DataTable.h"
-#include "GAS/UpAbilitySystemComponent.h"
-#include "Interfaces/UpCharacterEquippable.h"
-#include "Interfaces/UpCombatable.h"
 #include "Interfaces/UpInteractable.h"
 #include "Interfaces/UpNameable.h"
 #include "Interfaces/UpTagIdable.h"
@@ -21,9 +17,6 @@ class UBehaviorTree;
 class UDialogueVoice;
 class USphereComponent;
 class UUpDialogueComponent;
-class UUpGameInstance;
-class UUpHealthAttributeSet;
-class UUpPrimaryAttributeSet;
 
 USTRUCT(BlueprintType)
 struct FUpNpcData : public FTableRowBase
@@ -45,8 +38,8 @@ struct FUpNpcData : public FTableRowBase
 };
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpPlayableNpc : public AUpPlayableCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface,
-	public IUpCharacterEquippable, public IUpCombatable, public IUpInteractable, public IUpNameable, public IUpTagIdable, public IUpTagSpecGrantable
+class UNREALPORTFOLIO_API AUpPlayableNpc : public AUpPlayableCharacter, public IGameplayTagAssetInterface,
+	public IUpInteractable, public IUpNameable, public IUpTagIdable, public IUpTagSpecGrantable
 {
 	GENERATED_BODY()
 
@@ -56,15 +49,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
 
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
+	virtual void OnEquipmentActivation(const FUpItemData& ItemData) override;
+	virtual void OnEquipmentDeactivation(const FUpItemData& ItemData) override;
 	
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
-
-	virtual FUpCharacterEquipment GetCharacterEquipment() const override;
-	virtual void ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot, const FUpEquipmentSlotData& EquipmentSlotData) override;
-	virtual void DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot) override;
-
-	virtual UUpCombatComponent* GetCombatComponent() const override { return CombatComponent; }
 
 	virtual bool CanInteract() const override;
 	virtual void Interact(AUpPlayerController* PlayerController) override;
@@ -80,8 +68,6 @@ public:
 	void ToggleSprint(const bool bSprint) const;
 
 	FORCEINLINE FUpNpcData GetNpcData() const { return NpcData; }
-	FORCEINLINE UUpHealthAttributeSet* GetHealthAttributeSet() const { return HealthAttributeSet; }
-	FORCEINLINE UUpPrimaryAttributeSet* GetPrimaryAttributeSet() const { return PrimaryAttributeSet; }
 	
 	FORCEINLINE UTexture2D* GetImage_FullBody() const { return NpcData.Image_FullBody; }
 	FORCEINLINE UTexture2D* GetImage_Head() const { return NpcData.Image_Head; }
@@ -90,10 +76,6 @@ public:
 	FORCEINLINE UDialogueVoice* GetDialogueVoice() const { return DialogueVoice; }
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UUpAbilitySystemComponent> AbilitySystemComponent;
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UUpCombatComponent> CombatComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpDialogueComponent> DialogueComponent;
 	UPROPERTY(VisibleAnywhere)
@@ -108,11 +90,6 @@ private:
 	FGameplayTag TagId;
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float InteractionSphereRadius = 100.f;
-
-	UPROPERTY()
-	TObjectPtr<UUpHealthAttributeSet> HealthAttributeSet;
-	UPROPERTY()
-	TObjectPtr<UUpPrimaryAttributeSet> PrimaryAttributeSet;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpAiController> AiController;

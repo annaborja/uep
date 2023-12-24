@@ -5,55 +5,39 @@
 #include "UpGameInstance.h"
 #include "Characters/UpPlayableNpc.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMemberEquipmentItemDisplayWidget.h"
-#include "Utils/UpBlueprintFunctionLibrary.h"
 
-void UUpSquadMemberInventoryMenuWidget::SetNpc(AUpPlayableNpc* InNpc)
+void UUpSquadMemberInventoryMenuWidget::SetNpc(const AUpPlayableNpc* Npc) const
 {
-	Npc = InNpc;
-	
-	PopulateEquipment(Npc->GetTagId());
-}
+	const auto Equipment = Npc->GetCharacterEquipment();
 
-void UUpSquadMemberInventoryMenuWidget::SetNpcTagId(const FGameplayTag& NpcTagId) const
-{
-	PopulateEquipment(NpcTagId);
-}
-
-void UUpSquadMemberInventoryMenuWidget::PopulateEquipment(const FGameplayTag& NpcTagId) const
-{
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	if (const auto Widget = GetWeapon1Display())
 	{
-		const auto Equipment = GameInstance->GetNpcEquipment(NpcTagId);
+		PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Weapon1);
+	}
 
-		if (const auto Widget = GetWeapon1Display())
-		{
-			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Weapon1);
-		}
+	if (const auto Widget = GetWeapon2Display())
+	{
+		PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Weapon2);
+	}
 
-		if (const auto Widget = GetWeapon2Display())
-		{
-			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Weapon2);
-		}
+	if (const auto Widget = GetItem1Display())
+	{
+		PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Item1);
+	}
 
-		if (const auto Widget = GetItem1Display())
-		{
-			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Item1);
-		}
+	if (const auto Widget = GetItem2Display())
+	{
+		PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Item2);
+	}
 
-		if (const auto Widget = GetItem2Display())
-		{
-			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Item2);
-		}
+	if (const auto Widget = GetHelmetDisplay())
+	{
+		PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Helmet);
+	}
 
-		if (const auto Widget = GetHelmetDisplay())
-		{
-			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Helmet);
-		}
-
-		if (const auto Widget = GetArmorDisplay())
-		{
-			PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Armor);
-		}
+	if (const auto Widget = GetArmorDisplay())
+	{
+		PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Armor);
 	}
 }
 

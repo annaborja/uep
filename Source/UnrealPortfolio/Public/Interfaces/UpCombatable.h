@@ -21,4 +21,5 @@ class UNREALPORTFOLIO_API IUpCombatable
 public:
 	virtual UUpCombatComponent* GetCombatComponent() const = 0;
 	virtual uint8 GetCombatLevel() const { return 1; }
+	virtual UAnimMontage* GetHitReactionsMontage() const = 0;
 };

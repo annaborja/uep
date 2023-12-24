@@ -5,7 +5,6 @@
 #include "UpGameInstance.h"
 #include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerController.h"
-#include "Characters/Player/UpPlayerState.h"
 #include "Components/UpDialogueComponent.h"
 #include "GAS/Attributes/UpAttributeSet.h"
 #include "UI/UpCommonActivatableWidget.h"
@@ -25,11 +24,11 @@ void AUpHud::Init(AUpPlayerController* InPlayerController)
 	// Bind to GAS delegates.
 	if (CustomController)
 	{
-		if (const auto PlayerState = CustomController->GetPlayerState<AUpPlayerState>())
+		if (const auto Character = CustomController->GetPossessedCharacter())
 		{
-			if (const auto AbilitySystemComponent = Cast<UUpAbilitySystemComponent>(PlayerState->GetAbilitySystemComponent()))
+			if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
 			{
-				for (const auto AttributeSet : PlayerState->GetAttributeSets())
+				for (const auto AttributeSet : Character->GetAttributeSets())
 				{
 					for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
 					{

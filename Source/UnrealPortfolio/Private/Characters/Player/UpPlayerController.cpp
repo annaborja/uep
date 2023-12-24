@@ -251,18 +251,16 @@ void AUpPlayerController::ToggleWeapon2(const FInputActionValue& InputActionValu
 
 void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlot) const
 {
-	if (const auto CharacterEquippable = Cast<IUpCharacterEquippable>(PossessedCharacter))
+	if (!PossessedCharacter) return;
+	
+	if (const auto& EquipmentSlotData = PossessedCharacter->GetCharacterEquipment().GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.IsValid())
 	{
-		if (const auto& EquipmentSlotData = CharacterEquippable->GetCharacterEquipment().GetEquipmentSlotData(EquipmentSlot);
-			EquipmentSlotData.IsValid())
+		if (EquipmentSlotData.bActivated)
 		{
-			if (EquipmentSlotData.bActivated)
-			{
-				CharacterEquippable->DeactivateEquipment(EquipmentSlot);
-			} else
-			{
-				CharacterEquippable->ActivateEquipment(EquipmentSlot, EquipmentSlotData);
-			}
+			PossessedCharacter->DeactivateEquipment(EquipmentSlot);
+		} else
+		{
+			PossessedCharacter->ActivateEquipment(EquipmentSlot, EquipmentSlotData);
 		}
 	}
 }
@@ -343,7 +341,7 @@ void AUpPlayerController::StartFiringGun(const FInputActionValue& InputActionVal
 		if (const auto AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent())
 		{
 			FGameplayTagContainer AbilityTags;
-			AbilityTags.AddTag(TAG_Combat_Gun_Fire);
+			AbilityTags.AddTag(TAG_Combat_Attack_Gun_Fire);
 			
 			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
 		}
@@ -357,7 +355,7 @@ void AUpPlayerController::StopFiringGun(const FInputActionValue& InputActionValu
 		if (const auto AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent())
 		{
 			FGameplayTagContainer AbilityTags;
-			AbilityTags.AddTag(TAG_Combat_Gun_Fire);
+			AbilityTags.AddTag(TAG_Combat_Attack_Gun_Fire);
 			
 			AbilitySystemComponent->CancelAbilities(&AbilityTags);
 		}

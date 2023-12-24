@@ -4,7 +4,6 @@
 
 #include "UpGameInstance.h"
 #include "Camera/CameraComponent.h"
-#include "Characters/Player/UpPlayerState.h"
 #include "Characters/Player/Components/UpPlayerCombatComponent.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
@@ -24,16 +23,6 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	PlayerInteractionComponent = CreateDefaultSubobject<UUpPlayerInteractionComponent>(TEXT("PlayerInteractionComponent"));
 }
 
-UAbilitySystemComponent* AUpPlayerCharacter::GetAbilitySystemComponent() const
-{
-	if (const auto CustomPlayerState = GetPlayerState<AUpPlayerState>())
-	{
-		return CustomPlayerState->GetAbilitySystemComponent();
-	}
-
-	return nullptr;
-}
-
 void AUpPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
@@ -41,7 +30,7 @@ void AUpPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContaine
 		GameInstance->GetPlayerCharacterTags(TagContainer);
 	}
 
-	if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
+	if (AbilitySystemComponent)
 	{
 		FGameplayTagContainer AbilitySystemTags;
 		AbilitySystemComponent->GetOwnedGameplayTags(AbilitySystemTags);

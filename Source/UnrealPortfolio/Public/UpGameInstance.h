@@ -47,14 +47,6 @@ public:
 	FUpItemData GetItemData(const FGameplayTag& ItemTagId);
 	FUpInventory GetNpcInventory(const FGameplayTag& NpcTagId);
 	
-	FUpCharacterEquipment GetPlayerEquipment() const { return PlayerEquipment; }
-	void PopulatePlayerEquipmentSlot(const EUpEquipmentSlot::Type EquipmentSlot, const FUpItemInstance& ItemInstance);
-	
-	FUpCharacterEquipment GetNpcEquipment(const FGameplayTag& NpcTagId);
-	void PopulateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpEquipmentSlot::Type EquipmentSlot, const FUpItemInstance& ItemInstance);
-	void ActivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpEquipmentSlot::Type EquipmentSlot);
-	void DeactivateNpcEquipmentSlot(const FGameplayTag& NpcTagId, const EUpEquipmentSlot::Type EquipmentSlot);
-	
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
 	FORCEINLINE UDataTable* GetNpcDataTable() const { return NpcDataTable; }
 	
@@ -103,13 +95,6 @@ private:
 	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Inventory")
 	TMap<FGameplayTag, FUpInventory> NpcInventoryMap;
 	
-	// TODO(P0): Load from saved data.
-	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Inventory")
-	FUpCharacterEquipment PlayerEquipment;
-	// TODO(P0): Load from saved data.
-	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Inventory", meta=(ForceInlineRow))
-	TMap<FGameplayTag, FUpCharacterEquipment> NpcEquipmentMap;
-
 	UPROPERTY(Transient)
 	TArray<FUpItemData> AllItemData;
 	UPROPERTY(Transient)

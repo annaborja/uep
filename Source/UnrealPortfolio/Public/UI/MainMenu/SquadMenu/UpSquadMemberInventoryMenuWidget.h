@@ -8,7 +8,6 @@
 #include "UpSquadMemberInventoryMenuWidget.generated.h"
 
 class AUpPlayableNpc;
-struct FGameplayTag;
 struct FUpCharacterEquipment;
 class UUpSquadMemberEquipmentItemDisplayWidget;
 
@@ -18,8 +17,7 @@ class UNREALPORTFOLIO_API UUpSquadMemberInventoryMenuWidget : public UUpCommonAc
 	GENERATED_BODY()
 
 public:
-	void SetNpc(AUpPlayableNpc* InNpc);
-	void SetNpcTagId(const FGameplayTag& NpcTagId) const;
+	void SetNpc(const AUpPlayableNpc* Npc) const;
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
@@ -38,9 +36,5 @@ protected:
 	UUpSquadMemberEquipmentItemDisplayWidget* GetArmorDisplay() const;
 	
 private:
-	UPROPERTY(Transient)
-	TObjectPtr<AUpPlayableNpc> Npc;
-
-	void PopulateEquipment(const FGameplayTag& NpcTagId) const;
 	static void PopulateEquipmentItemDisplay(UUpSquadMemberEquipmentItemDisplayWidget* Widget, const FUpCharacterEquipment& Equipment, const EUpEquipmentSlot::Type EquipmentSlot);
 };

@@ -3,29 +3,29 @@
 #include "AI/Tasks/UpBtTask_UpdateEquipment.h"
 
 #include "AIController.h"
-#include "Interfaces/UpCharacterEquippable.h"
+#include "Characters/UpCharacter.h"
 
 EBTNodeResult::Type UUpBtTask_UpdateEquipment::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	if (const auto AiController = OwnerComp.GetAIOwner())
 	{
-		if (const auto Equippable = Cast<IUpCharacterEquippable>(AiController->GetPawn()))
+		if (const auto Character = Cast<AUpCharacter>(AiController->GetPawn()))
 		{
-			auto Equipment = Equippable->GetCharacterEquipment();
+			auto Equipment = Character->GetCharacterEquipment();
 
 			switch (Command.CommandType)
 			{
 			case EUpUpdateEquipmentCommandType::Equip:
 				if (const auto EquipmentSlotData = Equipment.GetEquipmentSlotData(Command.EquipmentSlot); EquipmentSlotData.IsValid())
 				{
-					Equippable->ActivateEquipment(Command.EquipmentSlot, EquipmentSlotData);
+					Character->ActivateEquipment(Command.EquipmentSlot, EquipmentSlotData);
 					
 					return EBTNodeResult::Succeeded;
 				}
 				
 				return EBTNodeResult::Failed;
 			case EUpUpdateEquipmentCommandType::Unequip:
-				Equippable->DeactivateEquipment(Command.EquipmentSlot);
+				Character->DeactivateEquipment(Command.EquipmentSlot);
 				
 				return EBTNodeResult::Succeeded;
 			default:
