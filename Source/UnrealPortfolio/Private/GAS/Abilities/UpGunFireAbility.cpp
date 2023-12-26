@@ -62,6 +62,8 @@ void UUpGunFireAbility::HandleRepeatAction(int32 ActionNumber)
 			
 						UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, TAG_Combat_HitReaction, EventPayload);
 					}
+
+					TriggerDamage(HitActor);
 				}
 
 				if (ImpactParticleSystem) UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticleSystem, HitResult.Location);

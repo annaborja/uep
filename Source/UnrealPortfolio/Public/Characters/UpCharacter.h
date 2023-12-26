@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-// #include "Components/UpInventoryComponent.h"
 #include "Components/UpInventoryComponent.h"
 #include "GAS/UpAbilitySystemComponent.h"
 #include "GameFramework/Character.h"
@@ -17,8 +16,8 @@ struct FUpItemData;
 class UGameplayEffect;
 class UUpAttributeSet;
 class UUpCharacterMovementComponent;
-class UUpHealthAttributeSet;
 class UUpPrimaryAttributeSet;
+class UUpVitalAttributeSet;
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpCharacter : public ACharacter, public IAbilitySystemInterface, public IUpCombatable
@@ -32,7 +31,8 @@ public:
 	virtual void BeginPlay() override;
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
-	
+
+	virtual void Die() override;
 	virtual UUpCombatComponent* GetCombatComponent() const override { return CombatComponent; }
 	virtual UAnimMontage* GetHitReactionsMontage() const override { return HitReactionsMontage_ThirdPerson; }
 
@@ -43,10 +43,10 @@ public:
 	
 	virtual EUpCameraView::Type GetCameraView() const { return EUpCameraView::ThirdPerson; }
 	
-	TArray<UUpAttributeSet*> GetAttributeSets() const;
+	virtual TArray<UUpAttributeSet*> GetAttributeSets() const;
 	
 	FUpCharacterEquipment GetCharacterEquipment() const { return Equipment; }
-	void ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot, const FUpEquipmentSlotData& EquipmentSlotData);
+	void ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot, const FGameplayTag& ItemTagId);
 	void DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 	
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
@@ -55,8 +55,8 @@ public:
 	FORCEINLINE FVector GetRootMotionTargetLocation() const { return RootMotionTargetLocation; }
 	FORCEINLINE bool HasRootMotionTargetLocation() const { return bHasRootMotionTargetLocation; }
 	
-	FORCEINLINE UUpHealthAttributeSet* GetHealthAttributeSet() const { return HealthAttributeSet; }
 	FORCEINLINE UUpPrimaryAttributeSet* GetPrimaryAttributeSet() const { return PrimaryAttributeSet; }
+	FORCEINLINE UUpVitalAttributeSet* GetVitalAttributeSet() const { return VitalAttributeSet; }
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -83,9 +83,9 @@ protected:
 	TObjectPtr<AStaticMeshActor> WeaponActor;
 
 	UPROPERTY()
-	TObjectPtr<UUpHealthAttributeSet> HealthAttributeSet;
-	UPROPERTY()
 	TObjectPtr<UUpPrimaryAttributeSet> PrimaryAttributeSet;
+	UPROPERTY()
+	TObjectPtr<UUpVitalAttributeSet> VitalAttributeSet;
 	
 	FVector RootMotionTargetLocation;
 	bool bHasRootMotionTargetLocation = false;

@@ -15,6 +15,7 @@ class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpPlayableCharacter, publ
 
 public:
 	explicit AUpPlayerCharacter(const FObjectInitializer& ObjectInitializer);
+	virtual void BeginPlay() override;
 
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 

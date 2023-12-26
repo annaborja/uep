@@ -91,7 +91,7 @@ private:
 	TObjectPtr<UInputAction> FireGunInputAction;
 
 	UPROPERTY(Transient)
-	TEnumAsByte<EUpCameraView::Type> CameraView = EUpCameraView::ThirdPerson;
+	TEnumAsByte<EUpCameraView::Type> CameraView = EUpCameraView::FirstPerson;
 	UPROPERTY(Transient)
 	TObjectPtr<AUpHud> CustomHud;
 	UPROPERTY(Transient)

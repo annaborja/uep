@@ -1,6 +1,9 @@
 // Copyright AB. All Rights Reserved.
 
 #include "GAS/Abilities/UpAttackAbility.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_Repeat.h"
 
 void UUpAttackAbility::OnGameplayTaskInitialized(UGameplayTask& Task)
@@ -20,5 +23,19 @@ void UUpAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 		const auto RepeatTask = UAbilityTask_Repeat::RepeatAction(this, RepeatInterval, MAX_int32);
 		RepeatTask->OnPerformAction.Add(OnRepeatDelegate);
 		RepeatTask->Activate();
+	}
+}
+
+void UUpAttackAbility::TriggerDamage(AActor* TargetActor) const
+{
+	if (const auto SourceAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+		SourceAbilitySystemComponent && DamageEffectClass)
+	{
+		if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
+		{
+			SourceAbilitySystemComponent->ApplyGameplayEffectSpecToTarget(
+				*SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), SourceAbilitySystemComponent->MakeEffectContext()).Data.Get(),
+				TargetAbilitySystemComponent);
+		}
 	}
 }

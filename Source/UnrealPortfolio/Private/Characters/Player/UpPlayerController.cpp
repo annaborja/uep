@@ -260,7 +260,7 @@ void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlo
 			PossessedCharacter->DeactivateEquipment(EquipmentSlot);
 		} else
 		{
-			PossessedCharacter->ActivateEquipment(EquipmentSlot, EquipmentSlotData);
+			PossessedCharacter->ActivateEquipment(EquipmentSlot, EquipmentSlotData.ItemInstance.ItemTagId);
 		}
 	}
 }

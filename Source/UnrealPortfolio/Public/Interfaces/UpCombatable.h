@@ -19,6 +19,7 @@ class UNREALPORTFOLIO_API IUpCombatable
 	GENERATED_BODY()
 
 public:
+	virtual void Die() = 0;
 	virtual UUpCombatComponent* GetCombatComponent() const = 0;
 	virtual uint8 GetCombatLevel() const { return 1; }
 	virtual UAnimMontage* GetHitReactionsMontage() const = 0;

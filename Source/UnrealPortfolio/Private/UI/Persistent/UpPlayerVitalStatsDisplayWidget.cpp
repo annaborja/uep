@@ -4,7 +4,7 @@
 
 #include "Characters/UpPlayableCharacter.h"
 #include "Characters/Player/UpPlayerController.h"
-#include "GAS/Attributes/UpHealthAttributeSet.h"
+#include "GAS/Attributes/UpVitalAttributeSet.h"
 #include "Tags/AttributeTags.h"
 #include "UI/UpHud.h"
 
@@ -20,10 +20,10 @@ void UUpPlayerVitalStatsDisplayWidget::OnCustomHudSet_Implementation(AUpHud* New
 	{
 		if (const auto Character = Controller->GetPossessedCharacter())
 		{
-			if (const auto AttributeSet = Character->GetHealthAttributeSet())
+			if (const auto AttributeSet = Character->GetVitalAttributeSet())
 			{
-				const auto HealthAttribute = AttributeSet->GetAttribute(TAG_Attribute_Health_Health);
-				const auto MaxHealthAttribute = AttributeSet->GetAttribute(TAG_Attribute_Health_MaxHealth);
+				const auto HealthAttribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Health);
+				const auto MaxHealthAttribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxHealth);
 
 				if (!HealthAttribute.IsValid() || !MaxHealthAttribute.IsValid()) return;
 
@@ -43,10 +43,10 @@ float UUpPlayerVitalStatsDisplayWidget::GetHealthBarPercentage() const
 
 void UUpPlayerVitalStatsDisplayWidget::HandleAttributeValueChange(const FGameplayTag& Tag, const float Value)
 {
-	if (Tag.MatchesTagExact(TAG_Attribute_Health_Health))
+	if (Tag.MatchesTagExact(TAG_Attribute_Vital_Health))
 	{
 		Health = Value;
-	} else if (Tag.MatchesTagExact(TAG_Attribute_Health_MaxHealth))
+	} else if (Tag.MatchesTagExact(TAG_Attribute_Vital_MaxHealth))
 	{
 		MaxHealth = Value;
 	}

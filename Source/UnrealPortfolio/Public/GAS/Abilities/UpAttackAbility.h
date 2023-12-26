@@ -15,6 +15,9 @@ public:
 	virtual void OnGameplayTaskInitialized(UGameplayTask& Task) override;
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float RepeatInterval = -1.f;
 	
@@ -23,6 +26,8 @@ protected:
 		
 	UFUNCTION()
 	virtual void HandleRepeatAction(int32 ActionNumber) {}
+
+	void TriggerDamage(AActor* TargetActor) const;
 
 private:
 	TScriptDelegate<FWeakObjectPtr> OnRepeatDelegate;

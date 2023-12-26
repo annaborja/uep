@@ -16,9 +16,9 @@ EBTNodeResult::Type UUpBtTask_UpdateEquipment::ExecuteTask(UBehaviorTreeComponen
 			switch (Command.CommandType)
 			{
 			case EUpUpdateEquipmentCommandType::Equip:
-				if (const auto EquipmentSlotData = Equipment.GetEquipmentSlotData(Command.EquipmentSlot); EquipmentSlotData.IsValid())
+				if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(Command.EquipmentSlot); EquipmentSlotData.IsValid())
 				{
-					Character->ActivateEquipment(Command.EquipmentSlot, EquipmentSlotData);
+					Character->ActivateEquipment(Command.EquipmentSlot, EquipmentSlotData.ItemInstance.ItemTagId);
 					
 					return EBTNodeResult::Succeeded;
 				}

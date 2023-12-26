@@ -4,10 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GAS/Attributes/UpAttributeSet.h"
-#include "AmmoAttributeSet.generated.h"
+#include "UpCollectibleAttributeSet.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class UNREALPORTFOLIO_API UAmmoAttributeSet : public UUpAttributeSet
+class UNREALPORTFOLIO_API UUpCollectibleAttributeSet : public UUpAttributeSet
 {
 	GENERATED_BODY()
+	
 };

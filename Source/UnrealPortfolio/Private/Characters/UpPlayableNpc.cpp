@@ -10,7 +10,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Components/UpDialogueComponent.h"
-#include "GAS/Attributes/UpHealthAttributeSet.h"
+#include "GAS/Attributes/UpVitalAttributeSet.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
