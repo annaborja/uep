@@ -12,7 +12,7 @@
 #include "Utils/Structs.h"
 #include "UpInventoryComponent.generated.h"
 
-class AStaticMeshActor;
+class AUpWeapon;
 struct FUpTagSpec;
 class UGameplayAbility;
 class UUpGameplayAbility;
@@ -69,7 +69,7 @@ struct FUpItemData : public FTableRowBase
 	FText Description;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TEnumAsByte<EUpItemCategory::Type> ItemCategory;
+	TEnumAsByte<EUpItemCategory::Type> ItemCategory = EUpItemCategory::Weapon;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UTexture2D> Image_Small;
@@ -77,7 +77,7 @@ struct FUpItemData : public FTableRowBase
 	TObjectPtr<UTexture2D> Image_Large;
 	
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AStaticMeshActor> StaticMeshActorClass;
+	TSubclassOf<AUpWeapon> StaticMeshActorClass;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TEnumAsByte<EUpCharacterPosture::Type> ResultingPosture = EUpCharacterPosture::Casual;
@@ -108,21 +108,21 @@ struct FUpInventory
 	TMap<FGameplayTag, FUpInventoryItemData> InventoryDataMap;
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FUpItemInstance
 {
 	GENERATED_BODY()
 
 	bool IsValid() const { return ItemTagId.IsValid() && Condition >= 0; }
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	FGameplayTag ItemTagId;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	int32 Condition = -1;
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FUpEquipmentSlotData
 {
 	GENERATED_BODY()
@@ -133,14 +133,14 @@ struct FUpEquipmentSlotData
 
 	bool IsValid() const { return ItemInstance.IsValid(); }
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	FUpItemInstance ItemInstance;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	bool bActivated = false;
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FUpCharacterEquipment
 {
 	GENERATED_BODY()
@@ -170,7 +170,7 @@ struct FUpCharacterEquipment
 		EquipmentSlotMap.Add(EquipmentSlot, FUpEquipmentSlotData());
 	}
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	TMap<TEnumAsByte<EUpEquipmentSlot::Type>, FUpEquipmentSlotData> EquipmentSlotMap;
 };
 

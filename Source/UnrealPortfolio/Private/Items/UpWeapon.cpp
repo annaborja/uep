@@ -26,6 +26,20 @@ void AUpWeapon::Interact(AUpPlayerController* PlayerController)
 	UE_LOG(LogTemp, Warning, TEXT("interact with wepon"))
 }
 
+void AUpWeapon::ToggleCastShadows(const bool bEnable) const
+{
+	TArray<UActorComponent*> WeaponComponents;
+	GetComponents(UStaticMeshComponent::StaticClass(), WeaponComponents);
+
+	for (const auto Component : WeaponComponents)
+	{
+		if (const auto StaticMeshComponent = Cast<UStaticMeshComponent>(Component))
+		{
+			StaticMeshComponent->SetCastShadow(bEnable);
+		}
+	}
+}
+
 void AUpWeapon::BeginPlay()
 {
 	Super::BeginPlay();

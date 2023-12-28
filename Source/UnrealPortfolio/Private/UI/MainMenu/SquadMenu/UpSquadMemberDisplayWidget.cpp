@@ -12,15 +12,15 @@
 void UUpSquadMemberDisplayWidget::SetNpc(AUpPlayableNpc* InNpc)
 {
 	Npc = InNpc;
-	NpcData = Npc->GetNpcData();
+	CharacterData = Npc->GetCharacterData();
 	
 	PopulateSubMenuData();
 }
 
-void UUpSquadMemberDisplayWidget::SetNpcData(const FUpNpcData InNpcData)
+void UUpSquadMemberDisplayWidget::SetCharacterData(const FUpCharacterData InCharacterData)
 {
 	Npc = nullptr;
-	NpcData = InNpcData;
+	CharacterData = InCharacterData;
 	
 	PopulateSubMenuData();
 }
@@ -53,9 +53,9 @@ void UUpSquadMemberDisplayWidget::PopulateSubMenuData() const
 		if (Npc)
 		{
 			SubMenu->SetNpc(Npc);
-		} else if (NpcData.IsValid())
+		} else if (CharacterData.IsValid())
 		{
-			SubMenu->SetNpcTagId(NpcData.TagId);
+			SubMenu->SetNpcTagId(CharacterData.TagId);
 		}
 	}
 	

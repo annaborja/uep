@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Characters/UpPlayableCharacter.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/HUD.h"
 #include "UpHud.generated.h"
 
+class AUpPlayableCharacter;
 class AUpPlayableNpc;
 class AUpPlayerController;
 struct FGameplayAttribute;
@@ -34,6 +36,7 @@ struct FUpMenuTabData : public FTableRowBase
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FUpHudAttributeValueSignature, const FGameplayTag&, Tag, const float, Value);
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudPossessedCharacterSignature, const AUpPlayableCharacter*);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUpHudTargetInteractableSignature, const AActor*, TargetInteractable);
 
 UCLASS()
@@ -42,8 +45,9 @@ class UNREALPORTFOLIO_API AUpHud : public AHUD
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintAssignable)
 	FUpHudAttributeValueSignature AttributeValueDelegate;
+	FUpHudPossessedCharacterSignature PossessedCharacterDelegate;
+	FUpHudTargetInteractableSignature TargetInteractableDelegate;
 	
 	void Init(AUpPlayerController* InPlayerController);
 	void OpenMainMenu() const;
@@ -59,6 +63,8 @@ public:
 	void DisplayDialogueOptions(AUpPlayableNpc* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const;
 	void SelectDialogueOption(const AUpPlayableNpc* Npc, const FUpDialogueOptionData& DialogueOption) const;
 
+	void BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const;
+	void BroadcastPossessedCharacter(const AUpPlayableCharacter* PossessedCharacter) const;
 	void BroadcastTargetInteractable(const AActor* TargetInteractable) const;
 
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
@@ -69,8 +75,6 @@ public:
 	
 	FORCEINLINE UUpCharacterSwitcherWidget* GetCharacterSwitcher() const { return CharacterSwitcherWidget; }
 	FORCEINLINE UUpPersistentOverlayWidget* GetPersistentOverlay() const { return PersistentOverlayWidget; }
-	
-	FUpHudTargetInteractableSignature TargetInteractableDelegate;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
@@ -91,6 +95,4 @@ private:
 	TObjectPtr<UUpDialogueOverlayWidget> DialogueOverlayWidget;
 	UPROPERTY(Transient)
 	TObjectPtr<UUpPersistentOverlayWidget> PersistentOverlayWidget;
-
-	void BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const;
 };

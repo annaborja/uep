@@ -27,6 +27,8 @@ public:
 	virtual FText GetInGameName() const override { return ItemData.Name; }
 
 	virtual FGameplayTag GetTagId() const override { return TagId; }
+
+	void ToggleCastShadows(const bool bEnable) const;
 	
 protected:
 	virtual void BeginPlay() override;

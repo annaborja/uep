@@ -40,7 +40,7 @@ void AUpPlayableNpc::BeginPlay()
 
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		NpcData = GameInstance->GetNpcData(TagId);
+		CharacterData = GameInstance->GetCharacterData(TagId);
 	}
 }
 
@@ -60,38 +60,6 @@ void AUpPlayableNpc::PossessedBy(AController* NewController)
 			{
 				BlackboardComponent->InitializeBlackboard(*BlackboardAsset);
 				AiController->RunBehaviorTree(BehaviorTree);
-			}
-		}
-	}
-}
-
-void AUpPlayableNpc::OnEquipmentActivation(const FUpItemData& ItemData)
-{
-	Super::OnEquipmentActivation(ItemData);
-
-	if (ItemData.ItemCategory == EUpItemCategory::Weapon)
-	{
-		if (CustomPlayerController)
-		{
-			if (const auto GunInputMappingContext = CustomPlayerController->GetGunInputMappingContext())
-			{
-				CustomPlayerController->ActivateInputMappingContext(GunInputMappingContext, false, 1);
-			}
-		}
-	}
-}
-
-void AUpPlayableNpc::OnEquipmentDeactivation(const FUpItemData& ItemData)
-{
-	Super::OnEquipmentDeactivation(ItemData);
-
-	if (ItemData.ItemCategory == EUpItemCategory::Weapon)
-	{
-		if (CustomPlayerController)
-		{
-			if (const auto GunInputMappingContext = CustomPlayerController->GetGunInputMappingContext())
-			{
-				CustomPlayerController->DeactivateInputMappingContext(GunInputMappingContext);
 			}
 		}
 	}

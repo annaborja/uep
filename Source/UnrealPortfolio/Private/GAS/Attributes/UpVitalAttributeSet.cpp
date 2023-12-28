@@ -10,6 +10,8 @@ UUpVitalAttributeSet::UUpVitalAttributeSet()
 {
 	TagAttributeMap.Add(TAG_Attribute_Vital_Health, GetHealthAttribute);
 	TagAttributeMap.Add(TAG_Attribute_Vital_MaxHealth, GetMaxHealthAttribute);
+	TagAttributeMap.Add(TAG_Attribute_Vital_Shield, GetShieldAttribute);
+	TagAttributeMap.Add(TAG_Attribute_Vital_MaxShield, GetMaxShieldAttribute);
 	TagAttributeMap.Add(TAG_Attribute_Vital_IncomingDamage, GetIncomingDamageAttribute);
 }
 

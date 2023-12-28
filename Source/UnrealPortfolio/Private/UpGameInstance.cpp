@@ -2,7 +2,7 @@
 
 #include "UpGameInstance.h"
 
-#include "Characters/UpPlayableNpc.h"
+#include "Characters/UpCharacter.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Tags/NpcTags.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -11,18 +11,18 @@ void UUpGameInstance::Init()
 {
 	Super::Init();
 
+	check(CharacterDataTable);
 	check(GasDataAsset);
-	check(NpcDataTable);
 	check(PlayerDialogueVoice);
 
-	if (NpcDataTable)
+	if (CharacterDataTable)
 	{
-		TArray<FUpNpcData*> AllNpcDataRows;
-		NpcDataTable->GetAllRows(TEXT("NpcDataTable GetAllRows"), AllNpcDataRows);
+		TArray<FUpCharacterData*> AllCharacterDataRows;
+		CharacterDataTable->GetAllRows(TEXT("CharacterDataTable GetAllRows"), AllCharacterDataRows);
 
-		for (const auto Row : AllNpcDataRows)
+		for (const auto Row : AllCharacterDataRows)
 		{
-			AllNpcData.Add(*Row);
+			AllCharacterData.Add(*Row);
 		}
 	}
 
@@ -38,13 +38,13 @@ void UUpGameInstance::Init()
 	}
 }
 
-FUpNpcData UUpGameInstance::GetNpcData(const FGameplayTag& NpcTagId)
+FUpCharacterData UUpGameInstance::GetCharacterData(const FGameplayTag& NpcTagId)
 {
-	FUpNpcData Result;
+	FUpCharacterData Result;
 
-	if (UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcData")))  
+	if (UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetCharacterData")))  
 	{
-		for (const auto Data : AllNpcData)
+		for (const auto Data : AllCharacterData)
 		{
 			if (Data.TagId.MatchesTagExact(NpcTagId))
 			{

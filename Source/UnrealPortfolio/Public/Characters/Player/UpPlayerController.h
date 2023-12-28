@@ -23,7 +23,6 @@ class UNREALPORTFOLIO_API AUpPlayerController : public APlayerController
 public:
 	AUpPlayerController();
 	
-	void Init();
 	void EnableMouse();
 	void DisableMouse();
 	bool IsDebugCameraActive() const;
@@ -33,9 +32,9 @@ public:
 	
 	void ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting = true, const int32 Priority = 0) const;
 	void DeactivateInputMappingContext(const UInputMappingContext* InputMappingContext) const;
+	void ResetInputMappingContexts() const;
 	void SetCameraView(const EUpCameraView::Type InCameraView) { CameraView = InCameraView; }
 	
-	FORCEINLINE UInputMappingContext* GetGunInputMappingContext() const { return GunInputMappingContext; }
 	FORCEINLINE UInputAction* GetCloseCharacterSwitcherInputAction() const { return CloseCharacterSwitcherInputAction; }
 	
 	FORCEINLINE TEnumAsByte<EUpCameraView::Type> GetCameraView() const { return CameraView; }
@@ -89,6 +88,11 @@ private:
 	TObjectPtr<UInputAction> AimGunInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions|Weapon")
 	TObjectPtr<UInputAction> FireGunInputAction;
+	
+	UPROPERTY(EditAnywhere, Category="UP Debug")
+	bool bDebugInputMappingContexts = false;
+	UPROPERTY(EditAnywhere, Category="UP Debug")
+	bool bDebugPossession = false;
 
 	UPROPERTY(Transient)
 	TEnumAsByte<EUpCameraView::Type> CameraView = EUpCameraView::FirstPerson;

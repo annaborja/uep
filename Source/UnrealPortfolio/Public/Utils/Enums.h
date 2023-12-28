@@ -28,7 +28,7 @@ namespace EUpCharacterPosture
 	};
 }
 
-UENUM()
+UENUM(BlueprintType)
 namespace EUpEquipmentSlot
 {
 	enum Type : uint8

@@ -19,13 +19,13 @@ class UNREALPORTFOLIO_API UUpSquadMemberDisplayWidget : public UUpCommonUserWidg
 
 public:
 	void SetNpc(AUpPlayableNpc* InNpc);
-	void SetNpcData(const FUpNpcData InNpcData);
+	void SetCharacterData(const FUpCharacterData InCharacterData);
 	
 	void SetActiveSubMenu(const FGameplayTag& SubMenuTag) const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	FUpNpcData NpcData;
+	FUpCharacterData CharacterData;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayableNpc> Npc;

@@ -11,13 +11,33 @@
 #include "Utils/Enums.h"
 #include "UpCharacter.generated.h"
 
-class AStaticMeshActor;
+class AUpWeapon;
 struct FUpItemData;
 class UGameplayEffect;
+class UUpAmmoAttributeSet;
 class UUpAttributeSet;
 class UUpCharacterMovementComponent;
 class UUpPrimaryAttributeSet;
 class UUpVitalAttributeSet;
+
+USTRUCT(BlueprintType)
+struct FUpCharacterData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	bool IsValid() const { return TagId.IsValid() && !Name.IsEmpty(); }
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag TagId;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly);
+	FText Name;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UTexture2D> Image_FullBody;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UTexture2D> Image_Head;
+};
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpCharacter : public ACharacter, public IAbilitySystemInterface, public IUpCombatable
@@ -46,9 +66,10 @@ public:
 	virtual TArray<UUpAttributeSet*> GetAttributeSets() const;
 	
 	FUpCharacterEquipment GetCharacterEquipment() const { return Equipment; }
-	void ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot, const FGameplayTag& ItemTagId);
-	void DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
-	
+	bool ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
+	bool DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
+
+	FORCEINLINE FUpCharacterData GetCharacterData() const { return CharacterData; }
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
 	FORCEINLINE EUpCharacterPosture::Type GetPosture() const { return Posture; }
 	
@@ -68,9 +89,11 @@ protected:
 	TObjectPtr<UAnimMontage> HitReactionsMontage_ThirdPerson;
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> InitHealthAttributesEffectClass;
+	TSubclassOf<UGameplayEffect> InitAmmoAttributesEffectClass;
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;
+	UPROPERTY(EditAnywhere, Category="UP Assets")
+	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
 	
 	UPROPERTY(EditAnywhere, Category="UP Data")
 	FUpCharacterEquipment Equipment;
@@ -80,16 +103,20 @@ protected:
 	UPROPERTY(Transient)
 	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
 	UPROPERTY(Transient)
-	TObjectPtr<AStaticMeshActor> WeaponActor;
+	TObjectPtr<AUpWeapon> WeaponActor;
 
+	UPROPERTY()
+	TObjectPtr<UUpAmmoAttributeSet> AmmoAttributeSet;
 	UPROPERTY()
 	TObjectPtr<UUpPrimaryAttributeSet> PrimaryAttributeSet;
 	UPROPERTY()
 	TObjectPtr<UUpVitalAttributeSet> VitalAttributeSet;
 	
+	FUpCharacterData CharacterData;
+	
 	FVector RootMotionTargetLocation;
 	bool bHasRootMotionTargetLocation = false;
 
-	virtual void OnEquipmentActivation(const FUpItemData& ItemData) {}
-	virtual void OnEquipmentDeactivation(const FUpItemData& ItemData) {}
+	virtual void OnEquipmentActivation(const EUpEquipmentSlot::Type EquipmentSlot) {}
+	virtual void OnEquipmentDeactivation(const EUpEquipmentSlot::Type EquipmentSlot) {}
 };

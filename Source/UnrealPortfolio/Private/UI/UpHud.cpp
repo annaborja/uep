@@ -21,28 +21,6 @@ void AUpHud::Init(AUpPlayerController* InPlayerController)
 	
 	CustomController = InPlayerController;
 	
-	// Bind to GAS delegates.
-	if (CustomController)
-	{
-		if (const auto Character = CustomController->GetPossessedCharacter())
-		{
-			if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
-			{
-				for (const auto AttributeSet : Character->GetAttributeSets())
-				{
-					for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
-					{
-						AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value())
-							.AddLambda([this, AttributeSet, TagAttributeMapping](const FOnAttributeChangeData& Data)
-							{
-								BroadcastAttributeValue(TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
-							});
-					}
-				}	
-			}
-		}
-	}
-
 	// Initialize the persistent overlay.
 	if (const auto World = GetWorld(); World && PersistentOverlayClass)
 	{
@@ -140,12 +118,17 @@ void AUpHud::SelectDialogueOption(const AUpPlayableNpc* Npc, const FUpDialogueOp
 	}
 }
 
-void AUpHud::BroadcastTargetInteractable(const AActor* TargetInteractable) const
-{
-	TargetInteractableDelegate.Broadcast(TargetInteractable);
-}
-
 void AUpHud::BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const
 {
 	AttributeValueDelegate.Broadcast(Tag, Attribute.GetNumericValue(AttributeSet));
+}
+
+void AUpHud::BroadcastPossessedCharacter(const AUpPlayableCharacter* PossessedCharacter) const
+{
+	PossessedCharacterDelegate.Broadcast(PossessedCharacter);
+}
+
+void AUpHud::BroadcastTargetInteractable(const AActor* TargetInteractable) const
+{
+	TargetInteractableDelegate.Broadcast(TargetInteractable);
 }

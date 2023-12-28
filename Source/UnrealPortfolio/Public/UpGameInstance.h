@@ -10,7 +10,7 @@
 #include "Engine/GameInstance.h"
 #include "UpGameInstance.generated.h"
 
-struct FUpNpcData;
+struct FUpCharacterData;
 class UDataTable;
 class UDialogueVoice;
 class UUpGasDataAsset;
@@ -23,7 +23,7 @@ class UNREALPORTFOLIO_API UUpGameInstance : public UGameInstance
 public:
 	virtual void Init() override;
 	
-	FUpNpcData GetNpcData(const FGameplayTag& NpcTagId);
+	FUpCharacterData GetCharacterData(const FGameplayTag& NpcTagId);
 	
 	void GetPlayerCharacterTags(FGameplayTagContainer& OutTags) const;
 	bool AddPlayerCharacterTag(const FGameplayTag& Tag);
@@ -47,8 +47,8 @@ public:
 	FUpItemData GetItemData(const FGameplayTag& ItemTagId);
 	FUpInventory GetNpcInventory(const FGameplayTag& NpcTagId);
 	
+	FORCEINLINE UDataTable* GetCharacterDataTable() const { return CharacterDataTable; }
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
-	FORCEINLINE UDataTable* GetNpcDataTable() const { return NpcDataTable; }
 	
 	FORCEINLINE UDialogueVoice* GetPlayerDialogueVoice() const { return PlayerDialogueVoice; }
 	FORCEINLINE FUpReputationData GetPlayerWorldReputationData() const { return PlayerWorldReputationData; }
@@ -62,10 +62,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UDialogueVoice> PlayerDialogueVoice;
 	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpCharacterData"))
+	TObjectPtr<UDataTable> CharacterDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpItemData"))
 	TObjectPtr<UDataTable> ItemDataTable;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpNpcData"))
-	TObjectPtr<UDataTable> NpcDataTable;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugTagSpecGrant = false;
@@ -96,7 +96,7 @@ private:
 	TMap<FGameplayTag, FUpInventory> NpcInventoryMap;
 	
 	UPROPERTY(Transient)
-	TArray<FUpItemData> AllItemData;
+	TArray<FUpCharacterData> AllCharacterData;
 	UPROPERTY(Transient)
-	TArray<FUpNpcData> AllNpcData;
+	TArray<FUpItemData> AllItemData;
 };

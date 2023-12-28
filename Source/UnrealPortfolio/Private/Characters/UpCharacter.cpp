@@ -8,8 +8,10 @@
 #include "Components/UpCharacterMovementComponent.h"
 #include "Components/UpCombatComponent.h"
 #include "Engine/StaticMeshActor.h"
+#include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 #include "GAS/Attributes/UpVitalAttributeSet.h"
+#include "Items/UpWeapon.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -39,6 +41,7 @@ AUpCharacter::AUpCharacter()
 	AbilitySystemComponent = CreateDefaultSubobject<UUpAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	CombatComponent = CreateDefaultSubobject<UUpCombatComponent>(TEXT("CombatComponent"));
 	
+	AmmoAttributeSet = CreateDefaultSubobject<UUpAmmoAttributeSet>(TEXT("AmmoAttributeSet"));
 	PrimaryAttributeSet = CreateDefaultSubobject<UUpPrimaryAttributeSet>(TEXT("PrimaryAttributeSet"));
 	VitalAttributeSet = CreateDefaultSubobject<UUpVitalAttributeSet>(TEXT("VitalAttributeSet"));
 }
@@ -48,8 +51,10 @@ void AUpCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	check(HitReactionsMontage_ThirdPerson);
-	check(InitHealthAttributesEffectClass);
+	
+	check(InitAmmoAttributesEffectClass);
 	check(InitPrimaryAttributesEffectClass);
+	check(InitVitalAttributesEffectClass);
 
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
 
@@ -57,10 +62,15 @@ void AUpCharacter::BeginPlay()
 	{
 		TArray<TSubclassOf<UGameplayEffect>> InitAttributesEffectClasses;
 		
-		if (InitHealthAttributesEffectClass) InitAttributesEffectClasses.Add(InitHealthAttributesEffectClass);
+		if (InitVitalAttributesEffectClass) InitAttributesEffectClasses.Add(InitVitalAttributesEffectClass);
 		if (InitPrimaryAttributesEffectClass) InitAttributesEffectClasses.Add(InitPrimaryAttributesEffectClass);
 		
 		AbilitySystemComponent->Init(this, this, InitAttributesEffectClasses, TArray<TSubclassOf<UGameplayAbility>> {});
+	}
+
+	for (const auto EquipmentSlot : TArray { EUpEquipmentSlot::Weapon1, EUpEquipmentSlot::Weapon2 })
+	{
+		if (Equipment.GetEquipmentSlotData(EquipmentSlot).bActivated) ActivateEquipment(EquipmentSlot);
 	}
 }
 
@@ -116,68 +126,75 @@ TArray<UUpAttributeSet*> AUpCharacter::GetAttributeSets() const
 	return TArray<UUpAttributeSet*> { VitalAttributeSet, PrimaryAttributeSet };
 }
 
-void AUpCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot, const FGameplayTag& ItemTagId)
+bool AUpCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	DeactivateEquipment(EquipmentSlot);
 
-	if (Equipment.GetEquipmentSlotData(EquipmentSlot).bActivated) return;
-	
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.IsValid() && !EquipmentSlotData.bActivated)
 	{
-		if (const auto& ItemData = GameInstance->GetItemData(ItemTagId); ItemData.IsValid())
+		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 		{
-			if (ItemData.ResultingPosture != EUpCharacterPosture::Casual)
+			if (const auto& ItemData = GameInstance->GetItemData(EquipmentSlotData.ItemInstance.ItemTagId); ItemData.IsValid())
 			{
-				Posture = ItemData.ResultingPosture;
-			}
-
-			if (ItemData.StaticMeshActorClass)
-			{
-				if (const auto World = GetWorld())
+				if (ItemData.ResultingPosture != EUpCharacterPosture::Casual)
 				{
-					if (const auto Mesh = GetMesh())
-					{
-						const auto SpawnLocation = GetActorLocation();
-						const auto SpawnRotation= GetActorRotation();
-				
-						FActorSpawnParameters SpawnParams;
-						SpawnParams.Owner = this;
+					Posture = ItemData.ResultingPosture;
+				}
 
-						if (ItemData.ItemCategory == EUpItemCategory::Weapon)
+				if (ItemData.StaticMeshActorClass)
+				{
+					if (const auto World = GetWorld())
+					{
+						if (const auto Mesh = GetMesh())
 						{
-							WeaponActor = Cast<AStaticMeshActor>(World->SpawnActor(ItemData.StaticMeshActorClass, &SpawnLocation, &SpawnRotation, SpawnParams));
-					
-							if (IsValid(WeaponActor))
+							const auto SpawnLocation = GetActorLocation();
+							const auto SpawnRotation= GetActorRotation();
+				
+							FActorSpawnParameters SpawnParams;
+							SpawnParams.Owner = this;
+
+							if (ItemData.ItemCategory == EUpItemCategory::Weapon)
 							{
-								WeaponActor->SetActorEnableCollision(false);
-								WeaponActor->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false),
-									ItemData.SocketTag.IsValid() ? ItemData.SocketTag.GetTagName() : NAME_None);
+								WeaponActor = Cast<AUpWeapon>(World->SpawnActor(ItemData.StaticMeshActorClass, &SpawnLocation, &SpawnRotation, SpawnParams));
+					
+								if (IsValid(WeaponActor))
+								{
+									WeaponActor->SetActorEnableCollision(false);
+									WeaponActor->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false),
+										ItemData.SocketTag.IsValid() ? ItemData.SocketTag.GetTagName() : NAME_None);
+								}
 							}
 						}
 					}
 				}
-			}
 
-			if (AbilitySystemComponent)
-			{
-				for (const auto& AbilityGrantSpec : ItemData.AbilityGrantSpecs)
+				if (AbilitySystemComponent)
 				{
-					if (!AbilityGrantSpec.IsValid()) continue;
+					for (const auto& AbilityGrantSpec : ItemData.AbilityGrantSpecs)
+					{
+						if (!AbilityGrantSpec.IsValid()) continue;
 					
-					AbilitySystemComponent->GrantAbility(AbilityGrantSpec.AbilityClass);
+						AbilitySystemComponent->GrantAbility(AbilityGrantSpec.AbilityClass);
+					}
 				}
-			}
 			
-			Equipment.ActivateEquipmentSlot(EquipmentSlot);
-			OnEquipmentActivation(ItemData);
+				Equipment.ActivateEquipmentSlot(EquipmentSlot);
+				OnEquipmentActivation(EquipmentSlot);
+
+				return true;
+			}
 		}
 	}
+
+	return false;
 }
 
-void AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
+bool AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 {
-	if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.IsValid() && EquipmentSlotData.bActivated)
+	if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.IsValid())
 	{
+		if (!EquipmentSlotData.bActivated) return true;
+		
 		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 		{
 			if (const auto& ItemData = GameInstance->GetItemData(EquipmentSlotData.ItemInstance.ItemTagId); ItemData.IsValid())
@@ -210,8 +227,12 @@ void AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlo
 				}
 				
 				Equipment.DeactivateEquipmentSlot(EquipmentSlot);
-				OnEquipmentDeactivation(ItemData);
+				OnEquipmentDeactivation(EquipmentSlot);
+				
+				return true;
 			}
 		}
 	}
+
+	return false;
 }

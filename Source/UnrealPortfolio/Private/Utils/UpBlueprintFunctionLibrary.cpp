@@ -38,9 +38,9 @@ FText UUpBlueprintFunctionLibrary::GetInGameName(const UObject* WorldContextObje
 		{
 			if (TagId.MatchesTag(TAG_Npc))
 			{
-				if (const auto NpcData = GameInstance->GetNpcData(TagId); NpcData.IsValid())
+				if (const auto CharacterData = GameInstance->GetCharacterData(TagId); CharacterData.IsValid())
 				{
-					return NpcData.Name;
+					return CharacterData.Name;
 				}
 			}
 		}
@@ -57,10 +57,10 @@ FText UUpBlueprintFunctionLibrary::GetInGameNameifiedText(const UObject* WorldCo
 	
 	if (const auto GameInstance = GetGameInstance(WorldContextObject))
 	{
-		if (const auto NpcDataTable = GameInstance->GetNpcDataTable())
+		if (const auto CharacterDataTable = GameInstance->GetCharacterDataTable())
 		{
 			FRegexMatcher Matcher(FRegexPattern(TEXT("\\[.+?\\]")), InText.ToString());
-			TArray<FUpNpcData*> AllNpcDataRows;
+			TArray<FUpCharacterData*> AllCharacterDataRows;
 			uint8 i = 0;
 	
 			while (Matcher.FindNext())
@@ -71,29 +71,29 @@ FText UUpBlueprintFunctionLibrary::GetInGameNameifiedText(const UObject* WorldCo
 					break;
 				}
 
-				if (AllNpcDataRows.Num() <= 0)
+				if (AllCharacterDataRows.Num() <= 0)
 				{
-					NpcDataTable->GetAllRows(TEXT("NpcDataTable GetAllRows"), AllNpcDataRows);
+					CharacterDataTable->GetAllRows(TEXT("CharacterDataTable GetAllRows"), AllCharacterDataRows);
 				}
 		
 				auto CaptureGroup = Matcher.GetCaptureGroup(0);
 				UKismetStringLibrary::ReplaceInline(CaptureGroup, "[", "");
 				UKismetStringLibrary::ReplaceInline(CaptureGroup, "]", "");
 
-				FUpNpcData NpcData;
+				FUpCharacterData CharacterData;
 
-				for (const auto NpcDataRow : AllNpcDataRows)
+				for (const auto Row : AllCharacterDataRows)
 				{
-					if (NpcDataRow->TagId.ToString() == CaptureGroup)
+					if (Row->TagId.ToString() == CaptureGroup)
 					{
-						NpcData = *NpcDataRow;
+						CharacterData = *Row;
 						break;
 					}
 				}
 
-				if (NpcData.IsValid())
+				if (CharacterData.IsValid())
 				{
-					UKismetStringLibrary::ReplaceInline(Result, "[" + CaptureGroup + "]", NpcData.Name.ToString());
+					UKismetStringLibrary::ReplaceInline(Result, "[" + CaptureGroup + "]", CharacterData.Name.ToString());
 				} else
 				{
 					UE_LOG(LogTemp, Error, TEXT("GetInGameNameifiedText: No NPC data found for capture group %s"), *CaptureGroup)

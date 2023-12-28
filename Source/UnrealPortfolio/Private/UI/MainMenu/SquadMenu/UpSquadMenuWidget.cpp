@@ -110,7 +110,7 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 		for (const auto& SquadMemberTag : SquadMemberTags)
 		{
 			AUpPlayableNpc* Npc = nullptr;
-			FUpNpcData NpcData;
+			FUpCharacterData CharacterData;
 
 			for (const auto Actor : NpcActors)
 			{
@@ -123,10 +123,10 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 			
 			if (Npc)
 			{
-				NpcData = Npc->GetNpcData();
+				CharacterData = Npc->GetCharacterData();
 			} else if (GameInstance)
 			{
-				NpcData = GameInstance->GetNpcData(SquadMemberTag);
+				CharacterData = GameInstance->GetCharacterData(SquadMemberTag);
 			}
 			
 			if (SquadMemberDisplayWidgetClass)
@@ -138,10 +138,10 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 					Widget->SetNpc(Npc);
 				} else
 				{
-					Widget->SetNpcData(NpcData);
+					Widget->SetCharacterData(CharacterData);
 				}
 				
-				SubMenuNavigationDelegate.AddLambda([Widget](const FGameplayTag SubMenuTag)
+				SubMenuNavigationDelegate.AddLambda([Widget](const FGameplayTag& SubMenuTag)
 				{
 					Widget->SetActiveSubMenu(SubMenuTag);
 				});
@@ -153,7 +153,7 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 			{
 				const auto Widget = CreateWidget<UUpSquadMemberNavButtonWidget>(this, SquadMemberNavButtonClass);
 
-				if (NpcData.IsValid()) Widget->SetImage(NpcData.Image_Head);
+				if (CharacterData.IsValid()) Widget->SetImage(CharacterData.Image_Head);
 
 				Widget->OnClicked().AddLambda([Carousel, Nav, SquadMemberIndex]
 				{

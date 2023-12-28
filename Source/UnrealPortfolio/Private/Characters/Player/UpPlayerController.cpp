@@ -4,6 +4,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "InputMappingContext.h"
 #include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerCameraManager.h"
 #include "Characters/Player/UpPlayerCharacter.h"
@@ -18,13 +19,6 @@
 AUpPlayerController::AUpPlayerController(): APlayerController()
 {
 	PlayerCameraManagerClass = AUpPlayerCameraManager::StaticClass();
-}
-
-void AUpPlayerController::Init()
-{
-	if (BaseInputMappingContext) ActivateInputMappingContext(BaseInputMappingContext);
-	
-	bInitialized = true;
 }
 
 void AUpPlayerController::EnableMouse()
@@ -52,8 +46,9 @@ void AUpPlayerController::CloseCharacterSwitcher()
 
 	CustomHud->CloseCharacterSwitcher();
 	DisableMouse();
-
-	if (BaseInputMappingContext) ActivateInputMappingContext(BaseInputMappingContext);
+	
+	if (CharacterSwitcherInputMappingContext) DeactivateInputMappingContext(CharacterSwitcherInputMappingContext);
+	ResetInputMappingContexts();
 }
 
 void AUpPlayerController::SwitchCharacter(AUpPlayableNpc* Npc)
@@ -66,7 +61,20 @@ void AUpPlayerController::ActivateInputMappingContext(const UInputMappingContext
 {
 	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
-		if (bClearExisting) Subsystem->ClearAllMappings();
+		if (bClearExisting)
+		{
+			if (bDebugInputMappingContexts)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Clear all input mapping contexts"))
+			}
+			
+			Subsystem->ClearAllMappings();
+		}
+		
+		if (bDebugInputMappingContexts)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Add input mapping context %s with priority %d"), *InputMappingContext->GetName(), Priority)
+		}
 		
 		Subsystem->AddMappingContext(InputMappingContext, Priority);
 	}
@@ -76,7 +84,65 @@ void AUpPlayerController::DeactivateInputMappingContext(const UInputMappingConte
 {
 	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
+		if (bDebugInputMappingContexts)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Remove input mapping context %s"), *InputMappingContext->GetName())
+		}
+		
 		Subsystem->RemoveMappingContext(InputMappingContext);
+	}
+}
+
+void AUpPlayerController::ResetInputMappingContexts() const
+{
+	if (bDebugInputMappingContexts)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ResetInputMappingContexts %s"), PossessedCharacter ? *PossessedCharacter->GetName() : *GetName())
+	}
+	
+	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		if (BaseInputMappingContext && !Subsystem->HasMappingContext(BaseInputMappingContext))
+		{
+			constexpr auto Priority = 0;
+			
+			if (bDebugInputMappingContexts)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Add input mapping context %s with priority %d"), *BaseInputMappingContext->GetName(), Priority)
+			}
+			
+			Subsystem->AddMappingContext(BaseInputMappingContext, Priority);
+		}
+		
+		if (PossessedCharacter)
+		{
+			if (GunInputMappingContext)
+			{
+				if (auto Equipment = PossessedCharacter->GetCharacterEquipment();
+					Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1).bActivated || Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2).bActivated)
+				{
+					if (!Subsystem->HasMappingContext(GunInputMappingContext))
+					{
+						constexpr auto Priority = 1;
+						
+						if (bDebugInputMappingContexts)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Add input mapping context %s with priority %d"), *GunInputMappingContext->GetName(), Priority)
+						}
+						
+						Subsystem->AddMappingContext(GunInputMappingContext, Priority);
+					}
+				} else
+				{
+					if (bDebugInputMappingContexts)
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Remove input mapping context %s"), *GunInputMappingContext->GetName())
+					}
+					
+					Subsystem->RemoveMappingContext(GunInputMappingContext);
+				}
+			}
+		}
 	}
 }
 
@@ -112,8 +178,14 @@ void AUpPlayerController::BeginPlay()
 void AUpPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+
+	if (bDebugPossession)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Possess %s"), *InPawn->GetName())
+	}
 	
 	PossessedCharacter = Cast<AUpPlayableCharacter>(InPawn);
+	ResetInputMappingContexts();
 }
 
 void AUpPlayerController::SetupInputComponent()
@@ -260,7 +332,7 @@ void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlo
 			PossessedCharacter->DeactivateEquipment(EquipmentSlot);
 		} else
 		{
-			PossessedCharacter->ActivateEquipment(EquipmentSlot, EquipmentSlotData.ItemInstance.ItemTagId);
+			PossessedCharacter->ActivateEquipment(EquipmentSlot);
 		}
 	}
 }

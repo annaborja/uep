@@ -66,7 +66,12 @@ protected:
 	bool bAllowedToJump = true;
 	bool bIsPlayer = false;
 
+	virtual void OnEquipmentActivation(const EUpEquipmentSlot::Type EquipmentSlot) override;
+	virtual void OnEquipmentDeactivation(const EUpEquipmentSlot::Type EquipmentSlot) override;
+
 private:
+	TMap<FGameplayTag, FDelegateHandle> AttributeValueDelegateHandleMap;
+	
 	void InitForPlayer();
 	void TearDownForPlayer();
 	

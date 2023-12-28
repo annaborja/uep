@@ -7,8 +7,10 @@
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Components/UpCharacterMovementComponent.h"
-#include "Engine/StaticMeshActor.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GAS/Attributes/UpAttributeSet.h"
+#include "Items/UpWeapon.h"
+#include "UI/UpHud.h"
 
 void AUpPlayableCharacter::BeginPlay()
 {
@@ -50,7 +52,7 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type InCamera
 		if (CameraSpringArm)
 		{
 			CameraSpringArm->TargetArmLength = 5.f;
-			CameraSpringArm->SocketOffset = FVector(10.f, 0.f, 75.f);
+			CameraSpringArm->SocketOffset = FVector(10.f, 0.f, 80.f);
 			CameraSpringArm->bUsePawnControlRotation = true;
 		}
 
@@ -150,12 +152,30 @@ EUpCameraView::Type AUpPlayableCharacter::GetCameraView() const
 	return Super::GetCameraView();
 }
 
+void AUpPlayableCharacter::OnEquipmentActivation(const EUpEquipmentSlot::Type EquipmentSlot)
+{
+	Super::OnEquipmentActivation(EquipmentSlot);
+	
+	if (EquipmentSlot == EUpEquipmentSlot::Weapon1 || EquipmentSlot == EUpEquipmentSlot::Weapon2)
+	{
+		if (CustomPlayerController) CustomPlayerController->ResetInputMappingContexts();
+	}
+}
+
+void AUpPlayableCharacter::OnEquipmentDeactivation(const EUpEquipmentSlot::Type EquipmentSlot)
+{
+	Super::OnEquipmentDeactivation(EquipmentSlot);
+	
+	if (EquipmentSlot == EUpEquipmentSlot::Weapon1 || EquipmentSlot == EUpEquipmentSlot::Weapon2)
+	{
+		if (CustomPlayerController) CustomPlayerController->ResetInputMappingContexts();
+	}
+}
+
 void AUpPlayableCharacter::InitForPlayer()
 {
 	bIsPlayer = true;
-		
-	if (CustomPlayerController && !CustomPlayerController->IsInitialized()) CustomPlayerController->Init();
-
+	
 	if (!IsValid(CameraSpringArm))
 	{
 		CameraSpringArm = NewObject<USpringArmComponent>(this, USpringArmComponent::StaticClass(), NAME_None, RF_Transient);
@@ -178,12 +198,57 @@ void AUpPlayableCharacter::InitForPlayer()
 
 	if (CustomMovementComponent) CustomMovementComponent->InitForPlayer();
 	
-	if (CustomPlayerController) ActivateCameraView(CustomPlayerController->GetCameraView());
+	if (CustomPlayerController)
+	{
+		ActivateCameraView(CustomPlayerController->GetCameraView());
+
+		if (const auto CustomHud = CustomPlayerController->GetCustomHud())
+		{
+			CustomHud->BroadcastPossessedCharacter(this);
+
+			if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
+			{
+				for (const auto AttributeSet : GetAttributeSets())
+				{
+					for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
+					{
+						AttributeValueDelegateHandleMap.Add(TagAttributeMapping.Key, AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value())
+							.AddLambda([this, AttributeSet, CustomHud, TagAttributeMapping](const FOnAttributeChangeData& Data)
+							{
+								if (IsValid(CustomHud))
+								{
+									CustomHud->BroadcastAttributeValue(TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
+								}
+							}));
+						
+						CustomHud->BroadcastAttributeValue(TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
+					}
+				}	
+			}
+		}
+	}
 }
 
 void AUpPlayableCharacter::TearDownForPlayer()
 {
-	if (CustomPlayerController && !CustomPlayerController->IsDebugCameraActive()) SetUpThirdPersonMesh();
+	if (CustomPlayerController)
+	{
+		if (!CustomPlayerController->IsDebugCameraActive()) SetUpThirdPersonMesh();
+
+		if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
+		{
+			for (const auto AttributeSet : GetAttributeSets())
+			{
+				for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
+				{
+					if (const auto DelegateHandle = AttributeValueDelegateHandleMap.Find(TagAttributeMapping.Key))
+					{
+						AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value()).Remove(*DelegateHandle);
+					}
+				}
+			}	
+		}
+	}
 	
 	CustomPlayerController = nullptr;
 	bIsPlayer = false;
@@ -221,7 +286,7 @@ void AUpPlayableCharacter::SetUpFirstPersonMesh()
 		Mesh->SetCastShadow(false);
 	}
 
-	if (WeaponActor) WeaponActor->GetStaticMeshComponent()->SetCastShadow(false);
+	if (WeaponActor) WeaponActor->ToggleCastShadows(false);
 	
 	if (CustomMovementComponent)
 	{
@@ -264,7 +329,7 @@ void AUpPlayableCharacter::SetUpThirdPersonMesh()
 		Mesh->SetCastShadow(true);
 	}
 	
-	if (WeaponActor) WeaponActor->GetStaticMeshComponent()->SetCastShadow(true);
+	if (WeaponActor) WeaponActor->ToggleCastShadows(true);
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
