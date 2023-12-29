@@ -7,6 +7,7 @@
 #include "Characters/UpPlayableCharacter.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/HUD.h"
+#include "Items/UpWeapon.h"
 #include "UpHud.generated.h"
 
 class AUpPlayableCharacter;
@@ -35,9 +36,10 @@ struct FUpMenuTabData : public FTableRowBase
 	FText Label;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FUpHudAttributeValueSignature, const FGameplayTag&, Tag, const float, Value);
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudActiveWeaponSignature, const AUpWeapon*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FUpHudAttributeValueSignature, const FGameplayTag&, const float);
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudPossessedCharacterSignature, const AUpPlayableCharacter*);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUpHudTargetInteractableSignature, const AActor*, TargetInteractable);
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudTargetInteractableSignature, const AActor*);
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpHud : public AHUD
@@ -45,6 +47,7 @@ class UNREALPORTFOLIO_API AUpHud : public AHUD
 	GENERATED_BODY()
 
 public:
+	FUpHudActiveWeaponSignature ActiveWeaponDelegate;
 	FUpHudAttributeValueSignature AttributeValueDelegate;
 	FUpHudPossessedCharacterSignature PossessedCharacterDelegate;
 	FUpHudTargetInteractableSignature TargetInteractableDelegate;
@@ -63,6 +66,7 @@ public:
 	void DisplayDialogueOptions(AUpPlayableNpc* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const;
 	void SelectDialogueOption(const AUpPlayableNpc* Npc, const FUpDialogueOptionData& DialogueOption) const;
 
+	void BroadcastActiveWeapon(const AUpWeapon* Weapon) const;
 	void BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const;
 	void BroadcastPossessedCharacter(const AUpPlayableCharacter* PossessedCharacter) const;
 	void BroadcastTargetInteractable(const AActor* TargetInteractable) const;

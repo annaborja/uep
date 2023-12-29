@@ -11,11 +11,6 @@ AUpNonPlayableNpc::AUpNonPlayableNpc(const FObjectInitializer& ObjectInitializer
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UUpCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	AIControllerClass = AUpAiController::StaticClass();
-
-	if (const auto CharacterMovement = GetCharacterMovement())
-	{
-		CharacterMovement->bUseControllerDesiredRotation = true;
-	}
 }
 
 void AUpNonPlayableNpc::PossessedBy(AController* NewController)

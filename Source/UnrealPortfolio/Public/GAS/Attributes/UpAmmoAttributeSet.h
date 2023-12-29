@@ -19,34 +19,18 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere)
-	FGameplayAttributeData Weapon1MagazineFill;
-	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, Weapon1MagazineFill)
+	FGameplayAttributeData MagazineFill;
+	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, MagazineFill)
 
 	UPROPERTY(VisibleAnywhere)
-	FGameplayAttributeData Weapon1MagazineCapacity;
-	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, Weapon1MagazineCapacity)
+	FGameplayAttributeData MagazineCapacity;
+	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, MagazineCapacity)
 	
 	UPROPERTY(VisibleAnywhere)
-	FGameplayAttributeData Weapon1AmmoReserve;
-	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, Weapon1AmmoReserve)
+	FGameplayAttributeData AmmoReserve;
+	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, AmmoReserve)
 	
 	UPROPERTY(VisibleAnywhere)
-	FGameplayAttributeData Weapon1MaxAmmo;
-	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, Weapon1MaxAmmo)
-
-	UPROPERTY(VisibleAnywhere)
-	FGameplayAttributeData Weapon2MagazineFill;
-	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, Weapon2MagazineFill)
-
-	UPROPERTY(VisibleAnywhere)
-	FGameplayAttributeData Weapon2MagazineCapacity;
-	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, Weapon2MagazineCapacity)
-	
-	UPROPERTY(VisibleAnywhere)
-	FGameplayAttributeData Weapon2AmmoReserve;
-	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, Weapon2AmmoReserve)
-	
-	UPROPERTY(VisibleAnywhere)
-	FGameplayAttributeData Weapon2MaxAmmo;
-	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, Weapon2MaxAmmo)
+	FGameplayAttributeData MaxAmmo;
+	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, MaxAmmo)
 };

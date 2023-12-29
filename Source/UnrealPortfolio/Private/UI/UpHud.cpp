@@ -118,6 +118,11 @@ void AUpHud::SelectDialogueOption(const AUpPlayableNpc* Npc, const FUpDialogueOp
 	}
 }
 
+void AUpHud::BroadcastActiveWeapon(const AUpWeapon* Weapon) const
+{
+	ActiveWeaponDelegate.Broadcast(Weapon);
+}
+
 void AUpHud::BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const
 {
 	AttributeValueDelegate.Broadcast(Tag, Attribute.GetNumericValue(AttributeSet));

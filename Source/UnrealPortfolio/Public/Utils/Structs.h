@@ -3,8 +3,147 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enums.h"
 #include "GameplayTagContainer.h"
+#include "Abilities/GameplayAbility.h"
+#include "Tags/ItemTags.h"
 #include "Structs.generated.h"
+
+class AUpItem;
+
+USTRUCT(BlueprintType)
+struct FUpAbilityGrantSpec
+{
+	GENERATED_BODY()
+
+	bool IsValid() const { return AbilityClass != nullptr; }
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayAbility> AbilityClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	TEnumAsByte<EUpAbilityGrantDuration::Type> GrantDuration = EUpAbilityGrantDuration::Permanent;
+};
+
+USTRUCT()
+struct FUpInventoryItemData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly)
+	TMap<uint8, uint8> ConditionQuantityMap;
+};
+
+USTRUCT()
+struct FUpInventory
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	TMap<FGameplayTag, FUpInventoryItemData> InventoryDataMap;
+};
+
+USTRUCT(BlueprintType)
+struct FUpItemInstance
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AUpItem> ItemClass;
+
+	UPROPERTY(Transient, VisibleInstanceOnly)
+	TObjectPtr<AUpItem> ItemActor;
+};
+
+USTRUCT(BlueprintType)
+struct FUpEquipmentSlotData
+{
+	GENERATED_BODY()
+
+	FUpEquipmentSlotData() {}
+	explicit FUpEquipmentSlotData(const FUpItemInstance InItemInstance, const bool bInActivated = false) :
+		ItemInstance(InItemInstance), bActivated(bInActivated) {}
+
+	UPROPERTY(EditAnywhere)
+	FUpItemInstance ItemInstance;
+	
+	UPROPERTY(EditAnywhere)
+	bool bActivated = false;
+};
+
+USTRUCT(BlueprintType)
+struct FUpCharacterEquipment
+{
+	GENERATED_BODY()
+
+	static TArray<EUpEquipmentSlot::Type> GetWeaponSlots()
+	{
+		return TArray { EUpEquipmentSlot::Weapon1, EUpEquipmentSlot::Weapon2 };
+	}
+
+	static bool IsWeaponSlot(const EUpEquipmentSlot::Type EquipmentSlot)
+	{
+		for (const auto WeaponSlot : GetWeaponSlots())
+		{
+			if (EquipmentSlot == WeaponSlot) return true;
+		}
+
+		return false;
+	}
+
+	FUpCharacterEquipment()
+	{
+		EquipmentSlotMap.Add(EUpEquipmentSlot::Weapon1, FUpEquipmentSlotData());
+		EquipmentSlotMap.Add(EUpEquipmentSlot::Weapon2, FUpEquipmentSlotData());
+		EquipmentSlotMap.Add(EUpEquipmentSlot::Armor, FUpEquipmentSlotData());
+		EquipmentSlotMap.Add(EUpEquipmentSlot::Helmet, FUpEquipmentSlotData());
+		EquipmentSlotMap.Add(EUpEquipmentSlot::Item1, FUpEquipmentSlotData());
+		EquipmentSlotMap.Add(EUpEquipmentSlot::Item2, FUpEquipmentSlotData());
+	}
+	
+	FUpEquipmentSlotData GetEquipmentSlotData(const EUpEquipmentSlot::Type EquipmentSlot) const
+	{
+		return EquipmentSlotMap.FindChecked(EquipmentSlot);
+	}
+
+	void ActivateEquipmentSlot(const EUpEquipmentSlot::Type EquipmentSlot)
+	{
+		EquipmentSlotMap.FindChecked(EquipmentSlot).bActivated = true;
+	}
+	
+	void DeactivateEquipmentSlot(const EUpEquipmentSlot::Type EquipmentSlot)
+	{
+		EquipmentSlotMap.FindChecked(EquipmentSlot).bActivated = false;
+	}
+	
+	void SetEquipmentSlotActor(const EUpEquipmentSlot::Type EquipmentSlot, AUpItem* InItemActor)
+	{
+		EquipmentSlotMap.FindChecked(EquipmentSlot).ItemInstance.ItemActor = InItemActor;
+	}
+
+	UPROPERTY(EditAnywhere)
+	TMap<TEnumAsByte<EUpEquipmentSlot::Type>, FUpEquipmentSlotData> EquipmentSlotMap;
+};
+
+USTRUCT()
+struct FUpMontageData
+{
+	GENERATED_BODY()
+	
+	FUpMontageData() {}
+	explicit FUpMontageData(UAnimMontage* InMontage, const float InRate = 1.f, const FName& InStartSection = FName()) :
+		Montage(InMontage), Rate(InRate), StartSection(InStartSection) {}
+
+	bool IsValid() const { return Montage != nullptr; }
+	
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UAnimMontage> Montage;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float Rate = 1.f;
+	UPROPERTY(EditDefaultsOnly)
+	FName StartSection;
+};
 
 USTRUCT(BlueprintType)
 struct FUpTagSpec
@@ -55,22 +194,36 @@ struct FUpEntityTagSpec
 	TArray<FUpTagToTagSpecsMapping> WorldTagSpecMappings;
 };
 
-USTRUCT()
-struct FUpMontageData
+USTRUCT(BlueprintType)
+struct FUpItemData : public FTableRowBase
 {
-	GENERATED_BODY()
-	
-	FUpMontageData() {}
-	explicit FUpMontageData(UAnimMontage* InMontage, const float InRate = 1.f, const FName& InStartSection = FName()) :
-		Montage(InMontage), Rate(InRate), StartSection(InStartSection) {}
+	GENERATED_BODY();
 
-	bool IsValid() const { return Montage != nullptr; }
+	bool IsValid() const { return TagId.IsValid() && !Name.IsEmpty(); }
 	
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UAnimMontage> Montage;
+	FGameplayTag TagId;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText Name;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText Description;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TEnumAsByte<EUpItemCategory::Type> ItemCategory = EUpItemCategory::Weapon;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UTexture2D> Image_Small;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UTexture2D> Image_Large;
 	
 	UPROPERTY(EditDefaultsOnly)
-	float Rate = 1.f;
+	TEnumAsByte<EUpCharacterPosture::Type> ResultingPosture = EUpCharacterPosture::Casual;
 	UPROPERTY(EditDefaultsOnly)
-	FName StartSection;
+	FGameplayTag SocketTag = TAG_Socket_None;
+	
+	UPROPERTY(EditDefaultsOnly)
+	FUpTagSpec UsageEffect;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FUpAbilityGrantSpec> AbilityGrantSpecs;
 };

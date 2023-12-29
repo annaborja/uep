@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UI/UpCommonUserWidget.h"
-#include "UpTargetInteractableDisplayWidget.generated.h"
+#include "UpPersistentInteractionDisplayWidget.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpTargetInteractableDisplayWidget : public UUpCommonUserWidget
+class UNREALPORTFOLIO_API UUpPersistentInteractionDisplayWidget : public UUpCommonUserWidget
 {
 	GENERATED_BODY()
 

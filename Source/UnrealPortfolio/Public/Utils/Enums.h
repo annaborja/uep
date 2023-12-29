@@ -5,6 +5,16 @@
 #include "CoreMinimal.h"
 #include "Enums.generated.h"
 
+UENUM()
+namespace EUpAbilityGrantDuration
+{
+	enum Type : uint8
+	{
+		WhileEquipped,
+		Permanent
+	};
+}
+
 UENUM(BlueprintType)
 namespace EUpCameraView
 {
@@ -39,5 +49,17 @@ namespace EUpEquipmentSlot
 		Item2,
 		Helmet,
 		Armor
+	};
+}
+
+UENUM(BlueprintType)
+namespace EUpItemCategory
+{
+	enum Type : uint8
+	{
+		Consumable,
+		Permanent,
+		Weapon,
+		Wearable
 	};
 }

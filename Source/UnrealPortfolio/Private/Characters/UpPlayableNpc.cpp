@@ -20,11 +20,6 @@ AUpPlayableNpc::AUpPlayableNpc(const FObjectInitializer& ObjectInitializer) :
 {
 	AIControllerClass = AUpAiController::StaticClass();
 
-	if (const auto CharacterMovement = GetCharacterMovement())
-	{
-		CharacterMovement->bUseControllerDesiredRotation = true;
-	}
-	
 	DialogueComponent = CreateDefaultSubobject<UUpDialogueComponent>(TEXT("DialogueComponent"));
 
 	InteractionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));

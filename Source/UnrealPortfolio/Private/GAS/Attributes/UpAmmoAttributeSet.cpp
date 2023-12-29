@@ -6,15 +6,10 @@
 
 UUpAmmoAttributeSet::UUpAmmoAttributeSet()
 {
-	TagAttributeMap.Add(TAG_Attribute_Ammo_Weapon1MagazineFill, GetWeapon1MagazineFillAttribute);
-	TagAttributeMap.Add(TAG_Attribute_Ammo_Weapon1MagazineCapacity, GetWeapon1MagazineFillAttribute);
-	TagAttributeMap.Add(TAG_Attribute_Ammo_Weapon1AmmoReserve, GetWeapon1MagazineFillAttribute);
-	TagAttributeMap.Add(TAG_Attribute_Ammo_Weapon1MaxAmmo, GetWeapon1MagazineFillAttribute);
-	
-	TagAttributeMap.Add(TAG_Attribute_Ammo_Weapon2MagazineFill, GetWeapon2MagazineFillAttribute);
-	TagAttributeMap.Add(TAG_Attribute_Ammo_Weapon2MagazineCapacity, GetWeapon2MagazineFillAttribute);
-	TagAttributeMap.Add(TAG_Attribute_Ammo_Weapon2AmmoReserve, GetWeapon2MagazineFillAttribute);
-	TagAttributeMap.Add(TAG_Attribute_Ammo_Weapon2MaxAmmo, GetWeapon2MagazineFillAttribute);
+	TagAttributeMap.Add(TAG_Attribute_Ammo_MagazineFill, GetMagazineFillAttribute);
+	TagAttributeMap.Add(TAG_Attribute_Ammo_MagazineCapacity, GetMagazineFillAttribute);
+	TagAttributeMap.Add(TAG_Attribute_Ammo_AmmoReserve, GetMagazineFillAttribute);
+	TagAttributeMap.Add(TAG_Attribute_Ammo_MaxAmmo, GetMagazineFillAttribute);
 }
 
 void UUpAmmoAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)

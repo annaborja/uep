@@ -14,7 +14,7 @@ void UUpPersistentVitalStatsDisplayWidget::OnCustomHudSet_Implementation(AUpHud*
 
 	if (!CustomHud) return;
 
-	CustomHud->AttributeValueDelegate.AddDynamic(this, &ThisClass::HandleAttributeValueChange);
+	CustomHud->AttributeValueDelegate.AddUObject(this, &ThisClass::HandleAttributeValueChange);
 	CustomHud->PossessedCharacterDelegate.AddUObject(this, &ThisClass::HandlePossessedCharacterChange);
 
 	if (const auto Controller = CustomHud->GetCustomController())

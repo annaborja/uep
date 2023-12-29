@@ -9,13 +9,12 @@
 #include "Components/UpCharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GAS/Attributes/UpAttributeSet.h"
-#include "Items/UpWeapon.h"
 #include "UI/UpHud.h"
 
 void AUpPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	check(AnimClass_FirstPerson);
 	check(AnimClass_ThirdPerson);
 	check(SkeletalMesh_FirstPerson);
@@ -155,20 +154,45 @@ EUpCameraView::Type AUpPlayableCharacter::GetCameraView() const
 void AUpPlayableCharacter::OnEquipmentActivation(const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	Super::OnEquipmentActivation(EquipmentSlot);
-	
-	if (EquipmentSlot == EUpEquipmentSlot::Weapon1 || EquipmentSlot == EUpEquipmentSlot::Weapon2)
+
+	if (bIsPlayer)
 	{
-		if (CustomPlayerController) CustomPlayerController->ResetInputMappingContexts();
+		if (FUpCharacterEquipment::IsWeaponSlot(EquipmentSlot))
+		{
+			if (CustomPlayerController)
+			{
+				CustomPlayerController->ResetInputMappingContexts();
+
+				if (const auto CustomHud = CustomPlayerController->GetCustomHud())
+				{
+					if (const auto ItemActor = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor))
+					{
+						CustomHud->BroadcastActiveWeapon(ItemActor);
+					}
+				}
+			}
+		}
 	}
 }
 
 void AUpPlayableCharacter::OnEquipmentDeactivation(const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	Super::OnEquipmentDeactivation(EquipmentSlot);
-	
-	if (EquipmentSlot == EUpEquipmentSlot::Weapon1 || EquipmentSlot == EUpEquipmentSlot::Weapon2)
+
+	if (bIsPlayer)
 	{
-		if (CustomPlayerController) CustomPlayerController->ResetInputMappingContexts();
+		if (FUpCharacterEquipment::IsWeaponSlot(EquipmentSlot))
+		{
+			if (CustomPlayerController)
+			{
+				CustomPlayerController->ResetInputMappingContexts();
+
+				if (const auto CustomHud = CustomPlayerController->GetCustomHud())
+				{
+					CustomHud->BroadcastActiveWeapon(nullptr);
+				}
+			}
+		}
 	}
 }
 
@@ -206,6 +230,22 @@ void AUpPlayableCharacter::InitForPlayer()
 		{
 			CustomHud->BroadcastPossessedCharacter(this);
 
+			bool bHasActiveWeapon = false;
+			
+			for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
+			{
+				if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.bActivated)
+				{
+					if (const auto Weapon = Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor))
+					{
+						CustomHud->BroadcastActiveWeapon(Weapon);
+						bHasActiveWeapon = true;
+					}
+				}
+			}
+
+			if (!bHasActiveWeapon) CustomHud->BroadcastActiveWeapon(nullptr);
+
 			if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
 			{
 				for (const auto AttributeSet : GetAttributeSets())
@@ -234,6 +274,11 @@ void AUpPlayableCharacter::TearDownForPlayer()
 	if (CustomPlayerController)
 	{
 		if (!CustomPlayerController->IsDebugCameraActive()) SetUpThirdPersonMesh();
+
+		if (const auto CustomHud = CustomPlayerController->GetCustomHud())
+		{
+			CustomHud->BroadcastActiveWeapon(nullptr);
+		}
 
 		if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
 		{
@@ -286,7 +331,13 @@ void AUpPlayableCharacter::SetUpFirstPersonMesh()
 		Mesh->SetCastShadow(false);
 	}
 
-	if (WeaponActor) WeaponActor->ToggleCastShadows(false);
+	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
+	{
+		if (const auto ItemActor = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor)
+		{
+			ItemActor->ToggleCastShadows(false);
+		}
+	}
 	
 	if (CustomMovementComponent)
 	{
@@ -328,8 +379,14 @@ void AUpPlayableCharacter::SetUpThirdPersonMesh()
 		Mesh->SetAnimClass(AnimClass_ThirdPerson);
 		Mesh->SetCastShadow(true);
 	}
-	
-	if (WeaponActor) WeaponActor->ToggleCastShadows(true);
+
+	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
+	{
+		if (const auto ItemActor = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor)
+		{
+			ItemActor->ToggleCastShadows(true);
+		}
+	}
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;

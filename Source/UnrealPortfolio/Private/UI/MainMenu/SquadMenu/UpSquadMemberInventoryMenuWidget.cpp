@@ -2,8 +2,8 @@
 
 #include "UI/MainMenu/SquadMenu/UpSquadMemberInventoryMenuWidget.h"
 
-#include "UpGameInstance.h"
 #include "Characters/UpPlayableNpc.h"
+#include "Items/UpItem.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMemberEquipmentItemDisplayWidget.h"
 
 void UUpSquadMemberInventoryMenuWidget::SetNpc(const AUpPlayableNpc* Npc) const
@@ -44,11 +44,11 @@ void UUpSquadMemberInventoryMenuWidget::SetNpc(const AUpPlayableNpc* Npc) const
 void UUpSquadMemberInventoryMenuWidget::PopulateEquipmentItemDisplay(UUpSquadMemberEquipmentItemDisplayWidget* Widget,
 	const FUpCharacterEquipment& Equipment, const EUpEquipmentSlot::Type EquipmentSlot)
 {
-	if (const auto EquipmentSlotDataPtr = Equipment.EquipmentSlotMap.Find(EquipmentSlot))
+	if (const auto ItemClass = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemClass)
 	{
-		if (const auto EquipmentSlotData = *EquipmentSlotDataPtr; EquipmentSlotData.IsValid())
+		if (const auto DefaultObject = ItemClass.GetDefaultObject())
 		{
-			Widget->PopulateEquipmentItemData(EquipmentSlotData.ItemInstance.ItemTagId);
+			Widget->PopulateEquipmentItemData(DefaultObject->GetTagId());
 		}
 	}
 }

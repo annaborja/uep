@@ -85,13 +85,6 @@ UUpDialogueOverlayWidget* UUpPersistentOverlayWidget::OpenDialogueFlow() const
 	return Widget;
 }
 
-ESlateVisibility UUpPersistentOverlayWidget::GetTargetInteractableDisplayVisibility() const
-{
-	if (IsDescendentWidgetActivated()) return ESlateVisibility::Hidden;
-
-	return ESlateVisibility::SelfHitTestInvisible;
-}
-
 ESlateVisibility UUpPersistentOverlayWidget::GetCrossHairVisibility() const
 {
 	if (IsDescendentWidgetActivated()) return ESlateVisibility::Hidden;
@@ -107,6 +100,13 @@ ESlateVisibility UUpPersistentOverlayWidget::GetCrossHairVisibility() const
 			}
 		}
 	}
+
+	return ESlateVisibility::SelfHitTestInvisible;
+}
+
+ESlateVisibility UUpPersistentOverlayWidget::GetInteractionDisplayVisibility() const
+{
+	if (IsDescendentWidgetActivated()) return ESlateVisibility::Hidden;
 
 	return ESlateVisibility::SelfHitTestInvisible;
 }

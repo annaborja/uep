@@ -11,10 +11,7 @@
 #include "Utils/Enums.h"
 #include "UpCharacter.generated.h"
 
-class AUpWeapon;
-struct FUpItemData;
 class UGameplayEffect;
-class UUpAmmoAttributeSet;
 class UUpAttributeSet;
 class UUpCharacterMovementComponent;
 class UUpPrimaryAttributeSet;
@@ -89,8 +86,6 @@ protected:
 	TObjectPtr<UAnimMontage> HitReactionsMontage_ThirdPerson;
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> InitAmmoAttributesEffectClass;
-	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
@@ -102,11 +97,7 @@ protected:
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;
 	UPROPERTY(Transient)
 	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
-	UPROPERTY(Transient)
-	TObjectPtr<AUpWeapon> WeaponActor;
 
-	UPROPERTY()
-	TObjectPtr<UUpAmmoAttributeSet> AmmoAttributeSet;
 	UPROPERTY()
 	TObjectPtr<UUpPrimaryAttributeSet> PrimaryAttributeSet;
 	UPROPERTY()
@@ -116,6 +107,11 @@ protected:
 	
 	FVector RootMotionTargetLocation;
 	bool bHasRootMotionTargetLocation = false;
+
+	AUpItem* AttachItem(const TSubclassOf<AUpItem> ItemClass);
+	
+	void HideAttachedItem(AUpItem* ItemActor) const;
+	void ShowAttachedItem(AUpItem* ItemActor, const FName& SocketName) const;
 
 	virtual void OnEquipmentActivation(const EUpEquipmentSlot::Type EquipmentSlot) {}
 	virtual void OnEquipmentDeactivation(const EUpEquipmentSlot::Type EquipmentSlot) {}

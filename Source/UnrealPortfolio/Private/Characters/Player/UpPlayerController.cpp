@@ -118,7 +118,7 @@ void AUpPlayerController::ResetInputMappingContexts() const
 		{
 			if (GunInputMappingContext)
 			{
-				if (auto Equipment = PossessedCharacter->GetCharacterEquipment();
+				if (const auto& Equipment = PossessedCharacter->GetCharacterEquipment();
 					Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1).bActivated || Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2).bActivated)
 				{
 					if (!Subsystem->HasMappingContext(GunInputMappingContext))
@@ -324,16 +324,13 @@ void AUpPlayerController::ToggleWeapon2(const FInputActionValue& InputActionValu
 void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlot) const
 {
 	if (!PossessedCharacter) return;
-	
-	if (const auto& EquipmentSlotData = PossessedCharacter->GetCharacterEquipment().GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.IsValid())
+
+	if (PossessedCharacter->GetCharacterEquipment().GetEquipmentSlotData(EquipmentSlot).bActivated)
 	{
-		if (EquipmentSlotData.bActivated)
-		{
-			PossessedCharacter->DeactivateEquipment(EquipmentSlot);
-		} else
-		{
-			PossessedCharacter->ActivateEquipment(EquipmentSlot);
-		}
+		PossessedCharacter->DeactivateEquipment(EquipmentSlot);
+	} else
+	{
+		PossessedCharacter->ActivateEquipment(EquipmentSlot);
 	}
 }
 

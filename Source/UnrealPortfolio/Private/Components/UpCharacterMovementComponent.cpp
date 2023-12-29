@@ -17,6 +17,7 @@ UUpCharacterMovementComponent::UUpCharacterMovementComponent()
 	MaxWalkSpeed = 400.f;
 	MaxWalkSpeedCrouched = 135.f;
 	bUseAccelerationForPaths = true;
+	bUseControllerDesiredRotation = true;
 }
 
 void UUpCharacterMovementComponent::BeginPlay()
@@ -154,6 +155,7 @@ void UUpCharacterMovementComponent::InitForPlayer()
 {
 	bIsPlayer = true;
 	bOrientRotationToMovement = true;
+	bUseControllerDesiredRotation = false;
     
 	if (Character && !Character->OnReachedJumpApex.Contains(OnPlayerJumpApexReachedDelegate))
 	{
@@ -165,6 +167,7 @@ void UUpCharacterMovementComponent::TearDownForPlayer()
 {
 	bIsPlayer = false;
 	bOrientRotationToMovement = false;
+	bUseControllerDesiredRotation = true;
     	
 	if (Character && Character->OnReachedJumpApex.Contains(OnPlayerJumpApexReachedDelegate))
 	{

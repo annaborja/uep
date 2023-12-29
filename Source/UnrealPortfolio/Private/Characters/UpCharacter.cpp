@@ -7,8 +7,6 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Components/UpCombatComponent.h"
-#include "Engine/StaticMeshActor.h"
-#include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 #include "GAS/Attributes/UpVitalAttributeSet.h"
 #include "Items/UpWeapon.h"
@@ -41,7 +39,6 @@ AUpCharacter::AUpCharacter()
 	AbilitySystemComponent = CreateDefaultSubobject<UUpAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	CombatComponent = CreateDefaultSubobject<UUpCombatComponent>(TEXT("CombatComponent"));
 	
-	AmmoAttributeSet = CreateDefaultSubobject<UUpAmmoAttributeSet>(TEXT("AmmoAttributeSet"));
 	PrimaryAttributeSet = CreateDefaultSubobject<UUpPrimaryAttributeSet>(TEXT("PrimaryAttributeSet"));
 	VitalAttributeSet = CreateDefaultSubobject<UUpVitalAttributeSet>(TEXT("VitalAttributeSet"));
 }
@@ -52,7 +49,6 @@ void AUpCharacter::BeginPlay()
 
 	check(HitReactionsMontage_ThirdPerson);
 	
-	check(InitAmmoAttributesEffectClass);
 	check(InitPrimaryAttributesEffectClass);
 	check(InitVitalAttributesEffectClass);
 
@@ -68,25 +64,25 @@ void AUpCharacter::BeginPlay()
 		AbilitySystemComponent->Init(this, this, InitAttributesEffectClasses, TArray<TSubclassOf<UGameplayAbility>> {});
 	}
 
-	for (const auto EquipmentSlot : TArray { EUpEquipmentSlot::Weapon1, EUpEquipmentSlot::Weapon2 })
+	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
 	{
+		if (const auto ItemClass = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemClass)
+		{
+			Equipment.SetEquipmentSlotActor(EquipmentSlot, AttachItem(ItemClass));
+		}
+		
 		if (Equipment.GetEquipmentSlotData(EquipmentSlot).bActivated) ActivateEquipment(EquipmentSlot);
 	}
 }
 
 void AUpCharacter::Die()
 {
-	if (WeaponActor)
+	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
 	{
-		WeaponActor->DetachFromActor(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
-		WeaponActor->SetActorEnableCollision(true);
-		
-		if (const auto StaticMeshComponent = WeaponActor->GetStaticMeshComponent())
+		if (const auto ItemActor = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor)
 		{
-			StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-			StaticMeshComponent->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-			StaticMeshComponent->SetEnableGravity(true);
-			StaticMeshComponent->SetSimulatePhysics(true);
+			ItemActor->Detach();
+			Equipment.SetEquipmentSlotActor(EquipmentSlot, nullptr);
 		}
 	}
 
@@ -130,58 +126,41 @@ bool AUpCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	DeactivateEquipment(EquipmentSlot);
 
-	if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.IsValid() && !EquipmentSlotData.bActivated)
+	if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot);
+		EquipmentSlotData.ItemInstance.ItemClass && !EquipmentSlotData.bActivated)
 	{
-		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+		if (const auto DefaultObject = EquipmentSlotData.ItemInstance.ItemClass.GetDefaultObject())
 		{
-			if (const auto& ItemData = GameInstance->GetItemData(EquipmentSlotData.ItemInstance.ItemTagId); ItemData.IsValid())
+			if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 			{
-				if (ItemData.ResultingPosture != EUpCharacterPosture::Casual)
+				if (const auto& ItemData = GameInstance->GetItemData(DefaultObject->GetTagId()); ItemData.IsValid())
 				{
-					Posture = ItemData.ResultingPosture;
-				}
-
-				if (ItemData.StaticMeshActorClass)
-				{
-					if (const auto World = GetWorld())
+					if (ItemData.ResultingPosture != EUpCharacterPosture::Casual)
 					{
-						if (const auto Mesh = GetMesh())
-						{
-							const auto SpawnLocation = GetActorLocation();
-							const auto SpawnRotation= GetActorRotation();
-				
-							FActorSpawnParameters SpawnParams;
-							SpawnParams.Owner = this;
+						Posture = ItemData.ResultingPosture;
+					}
 
-							if (ItemData.ItemCategory == EUpItemCategory::Weapon)
-							{
-								WeaponActor = Cast<AUpWeapon>(World->SpawnActor(ItemData.StaticMeshActorClass, &SpawnLocation, &SpawnRotation, SpawnParams));
+					if (EquipmentSlotData.ItemInstance.ItemActor)
+					{
+						ShowAttachedItem(EquipmentSlotData.ItemInstance.ItemActor,
+							ItemData.SocketTag.IsValid() ? ItemData.SocketTag.GetTagName() : NAME_None);
+					}
+
+					if (AbilitySystemComponent)
+					{
+						for (const auto& AbilityGrantSpec : ItemData.AbilityGrantSpecs)
+						{
+							if (!AbilityGrantSpec.IsValid()) continue;
 					
-								if (IsValid(WeaponActor))
-								{
-									WeaponActor->SetActorEnableCollision(false);
-									WeaponActor->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false),
-										ItemData.SocketTag.IsValid() ? ItemData.SocketTag.GetTagName() : NAME_None);
-								}
-							}
+							AbilitySystemComponent->GrantAbility(AbilityGrantSpec.AbilityClass);
 						}
 					}
-				}
-
-				if (AbilitySystemComponent)
-				{
-					for (const auto& AbilityGrantSpec : ItemData.AbilityGrantSpecs)
-					{
-						if (!AbilityGrantSpec.IsValid()) continue;
-					
-						AbilitySystemComponent->GrantAbility(AbilityGrantSpec.AbilityClass);
-					}
-				}
 			
-				Equipment.ActivateEquipmentSlot(EquipmentSlot);
-				OnEquipmentActivation(EquipmentSlot);
+					Equipment.ActivateEquipmentSlot(EquipmentSlot);
+					OnEquipmentActivation(EquipmentSlot);
 
-				return true;
+					return true;
+				}
 			}
 		}
 	}
@@ -191,27 +170,23 @@ bool AUpCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 
 bool AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 {
-	if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.IsValid())
+	const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot);
+	
+	if (!EquipmentSlotData.bActivated) return true;
+	
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this);
+		GameInstance && EquipmentSlotData.ItemInstance.ItemClass)
 	{
-		if (!EquipmentSlotData.bActivated) return true;
-		
-		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+		if (const auto DefaultObject = EquipmentSlotData.ItemInstance.ItemClass.GetDefaultObject())
 		{
-			if (const auto& ItemData = GameInstance->GetItemData(EquipmentSlotData.ItemInstance.ItemTagId); ItemData.IsValid())
+			if (const auto& ItemData = GameInstance->GetItemData(DefaultObject->GetTagId()); ItemData.IsValid())
 			{
 				if (ItemData.ResultingPosture != EUpCharacterPosture::Casual)
 				{
 					Posture = EUpCharacterPosture::Casual;
 				}
 
-				if (ItemData.ItemCategory == EUpItemCategory::Weapon)
-				{
-					if (IsValid(WeaponActor))
-					{
-						WeaponActor->Destroy();
-						WeaponActor = nullptr;
-					}
-				}
+				if (EquipmentSlotData.ItemInstance.ItemActor) HideAttachedItem(EquipmentSlotData.ItemInstance.ItemActor);
 
 				if (AbilitySystemComponent)
 				{
@@ -225,14 +200,54 @@ bool AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlo
 						}
 					}
 				}
-				
+			
 				Equipment.DeactivateEquipmentSlot(EquipmentSlot);
 				OnEquipmentDeactivation(EquipmentSlot);
-				
+			
 				return true;
 			}
 		}
 	}
 
 	return false;
+}
+
+AUpItem* AUpCharacter::AttachItem(const TSubclassOf<AUpItem> ItemClass)
+{
+	if (const auto World = GetWorld())
+	{
+		const auto SpawnLocation = GetActorLocation();
+		const auto SpawnRotation= GetActorRotation();
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+
+		if (const auto ItemActor = Cast<AUpItem>(World->SpawnActor(ItemClass, &SpawnLocation, &SpawnRotation, SpawnParams)))
+		{
+			HideAttachedItem(ItemActor);
+			
+			return ItemActor;
+		}
+	}
+
+	return nullptr;
+}
+
+void AUpCharacter::HideAttachedItem(AUpItem* ItemActor) const
+{
+	if (const auto Mesh = GetMesh())
+	{
+		ItemActor->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false));
+		ItemActor->SetActorEnableCollision(false);
+		ItemActor->SetActorHiddenInGame(true);
+	}
+}
+
+void AUpCharacter::ShowAttachedItem(AUpItem* ItemActor, const FName& SocketName) const
+{
+	if (const auto Mesh = GetMesh())
+	{
+		ItemActor->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), SocketName);
+		ItemActor->SetActorHiddenInGame(false);
+	}
 }
