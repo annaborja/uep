@@ -20,6 +20,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float LineTraceLength = 10000.f;
-	
+
 	virtual void HandleRepeatAction(int32 ActionNumber) override;
 };

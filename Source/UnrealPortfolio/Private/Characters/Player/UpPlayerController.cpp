@@ -425,7 +425,7 @@ void AUpPlayerController::StopFiringGun(const FInputActionValue& InputActionValu
 		{
 			FGameplayTagContainer AbilityTags;
 			AbilityTags.AddTag(TAG_Combat_Attack_Gun_Fire);
-			
+
 			AbilitySystemComponent->CancelAbilities(&AbilityTags);
 		}
 	}

@@ -6,6 +6,11 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_Repeat.h"
 
+UUpAttackAbility::UUpAttackAbility()
+{
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}
+
 void UUpAttackAbility::OnGameplayTaskInitialized(UGameplayTask& Task)
 {
 	Super::OnGameplayTaskInitialized(Task);
@@ -20,10 +25,18 @@ void UUpAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 	if (RepeatInterval > 0.f)
 	{
-		const auto RepeatTask = UAbilityTask_Repeat::RepeatAction(this, RepeatInterval, MAX_int32);
+		RepeatTask = UAbilityTask_Repeat::RepeatAction(this, RepeatInterval, MAX_int32);
 		RepeatTask->OnPerformAction.Add(OnRepeatDelegate);
 		RepeatTask->Activate();
 	}
+}
+
+void UUpAttackAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo, const bool bReplicateEndAbility, const bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	RepeatTask->EndTask();
 }
 
 void UUpAttackAbility::TriggerDamage(AActor* TargetActor) const

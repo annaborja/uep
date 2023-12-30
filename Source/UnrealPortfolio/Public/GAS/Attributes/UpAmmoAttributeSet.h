@@ -13,11 +13,6 @@ class UNREALPORTFOLIO_API UUpAmmoAttributeSet : public UUpAttributeSet
 	GENERATED_BODY()
 
 public:
-	UUpAmmoAttributeSet();
-
-	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
-
-private:
 	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData MagazineFill;
 	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, MagazineFill)
@@ -33,4 +28,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData MaxAmmo;
 	ATTRIBUTE_ACCESSORS(UUpAmmoAttributeSet, MaxAmmo)
+	
+	UUpAmmoAttributeSet();
+
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 };
