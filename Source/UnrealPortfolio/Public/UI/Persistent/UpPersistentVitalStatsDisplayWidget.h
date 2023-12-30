@@ -40,4 +40,6 @@ private:
     void HandleAttributeValueChange(const FGameplayTag& Tag, const float Value);
     UFUNCTION()
     void HandlePossessedCharacterChange(const AUpPlayableCharacter* PossessedCharacter);
+
+    void InitAttributes(const AUpPlayableCharacter* PossessedCharacter);
 };

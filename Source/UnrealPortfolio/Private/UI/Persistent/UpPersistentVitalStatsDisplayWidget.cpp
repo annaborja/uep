@@ -17,27 +17,11 @@ void UUpPersistentVitalStatsDisplayWidget::OnCustomHudSet_Implementation(AUpHud*
 	CustomHud->AttributeValueDelegate.AddUObject(this, &ThisClass::HandleAttributeValueChange);
 	CustomHud->PossessedCharacterDelegate.AddUObject(this, &ThisClass::HandlePossessedCharacterChange);
 
-	if (const auto Controller = CustomHud->GetCustomController())
+	if (const auto CustomController = CustomHud->GetCustomController())
 	{
-		if (const auto Character = Controller->GetPossessedCharacter())
+		if (const auto PossessedCharacter = CustomController->GetPossessedCharacter())
 		{
-			if (const auto AttributeSet = Character->GetVitalAttributeSet())
-			{
-				const auto HealthAttribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Health);
-				const auto MaxHealthAttribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxHealth);
-				const auto ShieldAttribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Shield);
-				const auto MaxShieldAttribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxShield);
-
-				if (!HealthAttribute.IsValid() || !MaxHealthAttribute.IsValid()) return;
-
-				Health = HealthAttribute.GetNumericValue(AttributeSet);
-				MaxHealth = MaxHealthAttribute.GetNumericValue(AttributeSet);
-				
-				if (!ShieldAttribute.IsValid() || !MaxShieldAttribute.IsValid()) return;
-
-				Shield = ShieldAttribute.GetNumericValue(AttributeSet);
-				MaxShield = MaxShieldAttribute.GetNumericValue(AttributeSet);
-			}
+			InitAttributes(PossessedCharacter);
 		}
 	}
 }
@@ -76,4 +60,32 @@ void UUpPersistentVitalStatsDisplayWidget::HandleAttributeValueChange(const FGam
 void UUpPersistentVitalStatsDisplayWidget::HandlePossessedCharacterChange(const AUpPlayableCharacter* PossessedCharacter)
 {
 	Image = PossessedCharacter->GetCharacterData().Image_Head;
+
+	InitAttributes(PossessedCharacter);
+}
+
+void UUpPersistentVitalStatsDisplayWidget::InitAttributes(const AUpPlayableCharacter* PossessedCharacter)
+{
+	if (const auto AttributeSet = PossessedCharacter->GetVitalAttributeSet())
+	{
+		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Health); Attribute.IsValid())
+		{
+			Health = Attribute.GetNumericValue(AttributeSet);
+		}
+
+		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxHealth); Attribute.IsValid())
+		{
+			MaxHealth = Attribute.GetNumericValue(AttributeSet);
+		}
+		
+		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Shield); Attribute.IsValid())
+		{
+			Shield = Attribute.GetNumericValue(AttributeSet);
+		}
+
+		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxShield); Attribute.IsValid())
+		{
+			MaxShield = Attribute.GetNumericValue(AttributeSet);
+		}
+	}
 }

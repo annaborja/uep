@@ -8,6 +8,7 @@
 #include "Characters/Player/UpPlayerController.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "GAS/Attributes/UpAttributeSet.h"
 #include "UI/UpHud.h"
 
@@ -41,9 +42,9 @@ void AUpPlayableCharacter::UnPossessed()
 	if (CustomPlayerController) TearDownForPlayer();
 }
 
-void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type InCameraView)
+void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraViewType)
 {
-	switch (InCameraView)
+	switch (CameraViewType)
 	{
 	case EUpCameraView::FirstPerson:
 		SetUpFirstPersonMesh();
@@ -107,10 +108,10 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type InCamera
 		
 		break;
 	default:
-		UE_LOG(LogTemp, Warning, TEXT("Invalid camera view %d"), InCameraView)
+		UE_LOG(LogTemp, Warning, TEXT("Invalid camera view %d"), CameraViewType)
 	}
 
-	if (CustomPlayerController) CustomPlayerController->SetCameraView(InCameraView);
+	if (CustomPlayerController) CustomPlayerController->SetCameraView(CameraViewType);
 }
 
 void AUpPlayableCharacter::Jump()
@@ -159,18 +160,9 @@ void AUpPlayableCharacter::OnEquipmentActivation(const EUpEquipmentSlot::Type Eq
 	{
 		if (FUpCharacterEquipment::IsWeaponSlot(EquipmentSlot))
 		{
-			if (CustomPlayerController)
-			{
-				CustomPlayerController->ResetInputMappingContexts();
-
-				if (const auto CustomHud = CustomPlayerController->GetCustomHud())
-				{
-					if (const auto ItemActor = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor))
-					{
-						CustomHud->BroadcastActiveWeapon(ItemActor);
-					}
-				}
-			}
+			if (CustomPlayerController) CustomPlayerController->ResetInputMappingContexts();
+			
+			HandleWeaponDelegates(Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor));
 		}
 	}
 }
@@ -183,15 +175,9 @@ void AUpPlayableCharacter::OnEquipmentDeactivation(const EUpEquipmentSlot::Type 
 	{
 		if (FUpCharacterEquipment::IsWeaponSlot(EquipmentSlot))
 		{
-			if (CustomPlayerController)
-			{
-				CustomPlayerController->ResetInputMappingContexts();
+			if (CustomPlayerController) CustomPlayerController->ResetInputMappingContexts();
 
-				if (const auto CustomHud = CustomPlayerController->GetCustomHud())
-				{
-					CustomHud->BroadcastActiveWeapon(nullptr);
-				}
-			}
+			HandleWeaponDelegates(nullptr);
 		}
 	}
 }
@@ -230,22 +216,6 @@ void AUpPlayableCharacter::InitForPlayer()
 		{
 			CustomHud->BroadcastPossessedCharacter(this);
 
-			bool bHasActiveWeapon = false;
-			
-			for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
-			{
-				if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.bActivated)
-				{
-					if (const auto Weapon = Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor))
-					{
-						CustomHud->BroadcastActiveWeapon(Weapon);
-						bHasActiveWeapon = true;
-					}
-				}
-			}
-
-			if (!bHasActiveWeapon) CustomHud->BroadcastActiveWeapon(nullptr);
-
 			if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
 			{
 				for (const auto AttributeSet : GetAttributeSets())
@@ -260,10 +230,16 @@ void AUpPlayableCharacter::InitForPlayer()
 									CustomHud->BroadcastAttributeValue(TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
 								}
 							}));
-						
-						CustomHud->BroadcastAttributeValue(TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
 					}
 				}	
+			}
+
+			if (const auto& EquipmentSlotData = Equipment.GetPotentialActiveWeaponSlotData(); EquipmentSlotData.bActivated)
+			{
+				HandleWeaponDelegates(Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor));
+			} else
+			{
+				HandleWeaponDelegates(nullptr);
 			}
 		}
 	}
@@ -271,29 +247,21 @@ void AUpPlayableCharacter::InitForPlayer()
 
 void AUpPlayableCharacter::TearDownForPlayer()
 {
-	if (CustomPlayerController)
+	if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
 	{
-		if (!CustomPlayerController->IsDebugCameraActive()) SetUpThirdPersonMesh();
-
-		if (const auto CustomHud = CustomPlayerController->GetCustomHud())
+		for (const auto AttributeSet : GetAttributeSets())
 		{
-			CustomHud->BroadcastActiveWeapon(nullptr);
-		}
-
-		if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
-		{
-			for (const auto AttributeSet : GetAttributeSets())
+			for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
 			{
-				for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
+				if (const auto DelegateHandle = AttributeValueDelegateHandleMap.Find(TagAttributeMapping.Key))
 				{
-					if (const auto DelegateHandle = AttributeValueDelegateHandleMap.Find(TagAttributeMapping.Key))
-					{
-						AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value()).Remove(*DelegateHandle);
-					}
+					AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value()).Remove(*DelegateHandle);
 				}
-			}	
-		}
+			}
+		}	
 	}
+	
+	if (CustomPlayerController && !CustomPlayerController->IsDebugCameraActive()) SetUpThirdPersonMesh();
 	
 	CustomPlayerController = nullptr;
 	bIsPlayer = false;
@@ -391,4 +359,55 @@ void AUpPlayableCharacter::SetUpThirdPersonMesh()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
+}
+
+void AUpPlayableCharacter::HandleWeaponDelegates(AUpWeapon* Weapon)
+{
+	if (ActiveWeapon)
+	{
+		if (const auto WeaponAbilitySystemComponent = ActiveWeapon->GetAbilitySystemComponent())
+		{
+			if (const auto AttributeSet = ActiveWeapon->GetAmmoAttributeSet())
+			{
+				for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
+				{
+					if (const auto DelegateHandle = AttributeValueDelegateHandleMap.Find(TagAttributeMapping.Key))
+					{
+						UE_LOG(LogTemp, Warning, TEXT("remove delegate %s"), *TagAttributeMapping.Key.ToString())
+						WeaponAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value()).Remove(*DelegateHandle);
+					}
+				}
+			}	
+		}
+	}
+
+	ActiveWeapon = Weapon;
+	
+	if (!CustomPlayerController) return;
+
+	if (const auto CustomHud = CustomPlayerController->GetCustomHud())
+	{
+		CustomHud->BroadcastActiveWeapon(Weapon);
+
+		if (Weapon)
+		{
+			if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
+			{
+				if (const auto AttributeSet = Weapon->GetAmmoAttributeSet())
+				{
+					for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
+					{
+						AttributeValueDelegateHandleMap.Add(TagAttributeMapping.Key, WeaponAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value())
+							.AddLambda([this, AttributeSet, CustomHud, TagAttributeMapping](const FOnAttributeChangeData& Data)
+							{
+								if (IsValid(CustomHud))
+								{
+									CustomHud->BroadcastAttributeValue(TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
+								}
+							}));
+					}
+				}
+			}
+		}
+	}
 }

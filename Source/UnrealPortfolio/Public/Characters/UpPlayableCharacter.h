@@ -7,6 +7,7 @@
 #include "Player/UpPlayerController.h"
 #include "UpPlayableCharacter.generated.h"
 
+class AUpWeapon;
 class UCameraComponent;
 class USpringArmComponent;
 class UUpPlayerCombatComponent;
@@ -33,8 +34,9 @@ public:
 	bool IsAllowedToJump() const { return bAllowedToJump; };
 
 	virtual EUpCameraView::Type GetCameraView() const override;
-	
+
 	FORCEINLINE AUpPlayerController* GetCustomPlayerController() const { return CustomPlayerController; }
+	FORCEINLINE FUpCharacterEquipment GetEquipment() const { return Equipment; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetPlayerInteractionComponent() const { return PlayerInteractionComponent; }
 	FORCEINLINE UUpPlayerCombatComponent* GetPlayerCombatComponent() const { return PlayerCombatComponent; }
 	FORCEINLINE bool IsPlayer() const { return bIsPlayer; }
@@ -59,7 +61,9 @@ protected:
 	TObjectPtr<USkeletalMesh> SkeletalMesh_FirstPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<USkeletalMesh> SkeletalMesh_ThirdPerson;
-	
+
+	UPROPERTY(Transient)
+	TObjectPtr<AUpWeapon> ActiveWeapon;
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayerController> CustomPlayerController;
 	
@@ -78,4 +82,6 @@ private:
 	void SetUpFirstPersonMesh();
 	void SetUpThirdPersonCamera() const;
 	void SetUpThirdPersonMesh();
+
+	void HandleWeaponDelegates(AUpWeapon* Weapon);
 };

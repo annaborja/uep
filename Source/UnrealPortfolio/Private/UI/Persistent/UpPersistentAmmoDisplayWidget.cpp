@@ -2,6 +2,7 @@
 
 #include "UI/Persistent/UpPersistentAmmoDisplayWidget.h"
 
+#include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "Items/UpWeapon.h"
 #include "Tags/AttributeTags.h"
 #include "UI/UpHud.h"
@@ -22,26 +23,16 @@ void UUpPersistentAmmoDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewCu
 	CustomHud->ActiveWeaponDelegate.AddUObject(this, &ThisClass::HandleActiveWeaponChange);
 	CustomHud->AttributeValueDelegate.AddUObject(this, &ThisClass::HandleAttributeValueChange);
 
-	if (const auto Controller = CustomHud->GetCustomController())
+	if (const auto CustomController = CustomHud->GetCustomController())
 	{
-		if (const auto Character = Controller->GetPossessedCharacter())
+		if (const auto PossessedCharacter = CustomController->GetPossessedCharacter())
 		{
-			if (const auto AttributeSet = Character->GetVitalAttributeSet())
+			if (const auto EquipmentSlotData = PossessedCharacter->GetEquipment().GetPotentialActiveWeaponSlotData(); EquipmentSlotData.bActivated)
 			{
-				// const auto HealthAttribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Health);
-				// const auto MaxHealthAttribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxHealth);
-				// const auto ShieldAttribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Shield);
-				// const auto MaxShieldAttribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxShield);
-				//
-				// if (!HealthAttribute.IsValid() || !MaxHealthAttribute.IsValid()) return;
-				//
-				// Health = HealthAttribute.GetNumericValue(AttributeSet);
-				// MaxHealth = MaxHealthAttribute.GetNumericValue(AttributeSet);
-				//
-				// if (!ShieldAttribute.IsValid() || !MaxShieldAttribute.IsValid()) return;
-				//
-				// Shield = ShieldAttribute.GetNumericValue(AttributeSet);
-				// MaxShield = MaxShieldAttribute.GetNumericValue(AttributeSet);
+				if (const auto Weapon = Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor))
+				{
+					InitAttributes(Weapon);
+				}
 			}
 		}
 	}
@@ -49,13 +40,51 @@ void UUpPersistentAmmoDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewCu
 
 void UUpPersistentAmmoDisplayWidget::HandleActiveWeaponChange(const AUpWeapon* Weapon)
 {
-	ItemData = Weapon ? Weapon->GetItemData() : FUpItemData();
+	if (Weapon)
+	{
+		ItemData = Weapon->GetItemData();
+
+		InitAttributes(Weapon);
+	} else
+	{
+		ItemData = FUpItemData();
+		MagazineFill = 0.f;
+		MagazineCapacity = 0.f;
+		AmmoReserve = 0.f;
+	}
 }
 
 void UUpPersistentAmmoDisplayWidget::HandleAttributeValueChange(const FGameplayTag& Tag, const float Value)
 {
-	if (Tag.MatchesTagExact(TAG_Attribute_Ammo_AmmoReserve))
+	if (Tag.MatchesTagExact(TAG_Attribute_Ammo_MagazineFill))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("attribute value change: %s - %g"), *Tag.ToString(), Value)
+		MagazineFill = Value;
+	} else if (Tag.MatchesTagExact(TAG_Attribute_Ammo_MagazineCapacity))
+	{
+		MagazineCapacity = Value;
+	} else if (Tag.MatchesTagExact(TAG_Attribute_Ammo_AmmoReserve))
+	{
+		AmmoReserve = Value;
+	}
+}
+
+void UUpPersistentAmmoDisplayWidget::InitAttributes(const AUpWeapon* Weapon)
+{
+	if (const auto AttributeSet = Weapon->GetAmmoAttributeSet())
+	{
+		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Ammo_MagazineFill); Attribute.IsValid())
+		{
+			MagazineFill = Attribute.GetNumericValue(AttributeSet);
+		}
+		
+		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Ammo_MagazineCapacity); Attribute.IsValid())
+		{
+			MagazineCapacity = Attribute.GetNumericValue(AttributeSet);
+		}
+		
+		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Ammo_AmmoReserve); Attribute.IsValid())
+		{
+			AmmoReserve = Attribute.GetNumericValue(AttributeSet);
+		}
 	}
 }

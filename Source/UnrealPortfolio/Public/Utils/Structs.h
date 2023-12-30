@@ -115,6 +115,19 @@ struct FUpCharacterEquipment
 	{
 		EquipmentSlotMap.FindChecked(EquipmentSlot).bActivated = false;
 	}
+
+	FUpEquipmentSlotData GetPotentialActiveWeaponSlotData() const
+	{
+		for (const auto EquipmentSlot : GetWeaponSlots())
+		{
+			if (const auto& EquipmentSlotData = GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.bActivated)
+			{
+				return EquipmentSlotData;
+			}
+		}
+
+		return GetEquipmentSlotData(EUpEquipmentSlot::Weapon1);
+	}
 	
 	void SetEquipmentSlotActor(const EUpEquipmentSlot::Type EquipmentSlot, AUpItem* InItemActor)
 	{

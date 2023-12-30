@@ -6,6 +6,7 @@
 
 AUpWeapon::AUpWeapon()
 {
+	AbilitySystemComponent = CreateDefaultSubobject<UUpAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AmmoAttributeSet = CreateDefaultSubobject<UUpAmmoAttributeSet>(TEXT("AmmoAttributeSet"));
 }
 
@@ -13,5 +14,13 @@ void AUpWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	check(InitAmmoAttributesEffectClass);
+	check(InitAmmoCapacityAttributesEffectClass);
+	check(InitAmmoAmountAttributesEffectClass);
+
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->Init(this, this,
+			TArray { InitAmmoCapacityAttributesEffectClass, InitAmmoAmountAttributesEffectClass },
+			TArray<TSubclassOf<UGameplayAbility>> {});
+	}
 }

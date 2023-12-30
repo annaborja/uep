@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Items/UpWeapon.h"
 #include "UI/UpCommonUserWidget.h"
 #include "Utils/Structs.h"
 #include "UpPersistentAmmoDisplayWidget.generated.h"
@@ -36,4 +37,6 @@ private:
 	void HandleActiveWeaponChange(const AUpWeapon* Weapon);
 	UFUNCTION()
 	void HandleAttributeValueChange(const FGameplayTag& Tag, const float Value);
+
+	void InitAttributes(const AUpWeapon* Weapon);
 };

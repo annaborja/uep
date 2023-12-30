@@ -3,22 +3,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
 #include "UpItem.h"
+#include "GAS/UpAbilitySystemComponent.h"
 #include "UpWeapon.generated.h"
 
 class UUpAmmoAttributeSet;
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpWeapon : public AUpItem
+class UNREALPORTFOLIO_API AUpWeapon : public AUpItem, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
 	AUpWeapon();
 
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
+
+	FORCEINLINE UUpAmmoAttributeSet* GetAmmoAttributeSet() const { return AmmoAttributeSet; }
+	
 protected:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UUpAbilitySystemComponent> AbilitySystemComponent;
+	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> InitAmmoAttributesEffectClass;
+	TSubclassOf<UGameplayEffect> InitAmmoCapacityAttributesEffectClass;
+	UPROPERTY(EditAnywhere, Category="UP Assets")
+	TSubclassOf<UGameplayEffect> InitAmmoAmountAttributesEffectClass;
 	
 	UPROPERTY()
 	TObjectPtr<UUpAmmoAttributeSet> AmmoAttributeSet;

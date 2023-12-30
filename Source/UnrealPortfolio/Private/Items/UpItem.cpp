@@ -9,6 +9,8 @@
 
 AUpItem::AUpItem()
 {
+	PrimaryActorTick.bCanEverTick = false;
+	
 	InteractionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));
 	InteractionSphere->SetupAttachment(GetRootComponent());
 	InteractionSphere->SetSphereRadius(InteractionSphereRadius);
