@@ -12,13 +12,13 @@ class UNREALPORTFOLIO_API UUpHitReactionAbility : public UUpGameplayAbility
 	GENERATED_BODY()
 
 public:
+	UUpHitReactionAbility();
+
+protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category="UP Debug")
-	bool bDebug = false;
-	
 	UFUNCTION()
 	void OnMontageEnd();
 

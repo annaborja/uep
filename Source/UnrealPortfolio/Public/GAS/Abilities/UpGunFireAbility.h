@@ -11,12 +11,14 @@ class UNREALPORTFOLIO_API UUpGunFireAbility : public UUpAttackAbility
 {
 	GENERATED_BODY()
 
+public:
+	UUpGunFireAbility();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TSubclassOf<UGameplayEffect> AmmoCostEffectClass;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UParticleSystem> ImpactParticleSystem;
-	
-	UPROPERTY(EditDefaultsOnly, Category="UP Debug")
-	bool bDebug = false;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float LineTraceLength = 10000.f;

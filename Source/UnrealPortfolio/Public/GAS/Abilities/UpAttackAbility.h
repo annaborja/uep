@@ -14,8 +14,6 @@ class UNREALPORTFOLIO_API UUpAttackAbility : public UUpGameplayAbility
 	GENERATED_BODY()
 
 public:
-	UUpAttackAbility();
-	
 	virtual void OnGameplayTaskInitialized(UGameplayTask& Task) override;
 
 protected:

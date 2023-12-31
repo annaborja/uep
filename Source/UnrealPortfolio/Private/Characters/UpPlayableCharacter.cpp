@@ -20,6 +20,7 @@ void AUpPlayableCharacter::BeginPlay()
 	check(AnimClass_ThirdPerson);
 	check(SkeletalMesh_FirstPerson);
 	check(SkeletalMesh_ThirdPerson);
+	check(ReloadsMontage_ThirdPerson);
 	
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
 	
@@ -40,6 +41,51 @@ void AUpPlayableCharacter::UnPossessed()
 	Super::UnPossessed();
 
 	if (CustomPlayerController) TearDownForPlayer();
+}
+
+void AUpPlayableCharacter::Jump()
+{
+	if (bIsPlayer)
+	{
+		if (!bAllowedToJump) return;
+
+		bAllowedToJump = false;
+	
+		if (CustomMovementComponent)
+		{
+			CustomMovementComponent->bNotifyApex = true;
+			CustomMovementComponent->ToggleCustomPressedJump(true);
+		}
+	
+		Super::Jump();
+
+		// Override the default jump logic with our custom logic.
+		bPressedJump = false;
+	} else
+	{
+		Super::Jump();
+	}
+}
+
+void AUpPlayableCharacter::StopJumping()
+{
+	if (bIsPlayer && CustomMovementComponent) CustomMovementComponent->ToggleCustomPressedJump(false);
+	
+	Super::StopJumping();
+}
+
+EUpCameraView::Type AUpPlayableCharacter::GetCameraView() const
+{
+	if (CustomPlayerController) return CustomPlayerController->GetCameraView();
+	
+	return Super::GetCameraView();
+}
+
+UAnimMontage* AUpPlayableCharacter::GetReloadsMontage() const
+{
+	if (GetCameraView() == EUpCameraView::FirstPerson) return ReloadsMontage_FirstPerson;
+	
+	return Super::GetReloadsMontage();
 }
 
 void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraViewType)
@@ -112,44 +158,6 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 	}
 
 	if (CustomPlayerController) CustomPlayerController->SetCameraView(CameraViewType);
-}
-
-void AUpPlayableCharacter::Jump()
-{
-	if (bIsPlayer)
-	{
-		if (!bAllowedToJump) return;
-
-		bAllowedToJump = false;
-	
-		if (CustomMovementComponent)
-		{
-			CustomMovementComponent->bNotifyApex = true;
-			CustomMovementComponent->ToggleCustomPressedJump(true);
-		}
-	
-		Super::Jump();
-
-		// Override the default jump logic with our custom logic.
-		bPressedJump = false;
-	} else
-	{
-		Super::Jump();
-	}
-}
-
-void AUpPlayableCharacter::StopJumping()
-{
-	if (bIsPlayer && CustomMovementComponent) CustomMovementComponent->ToggleCustomPressedJump(false);
-	
-	Super::StopJumping();
-}
-
-EUpCameraView::Type AUpPlayableCharacter::GetCameraView() const
-{
-	if (CustomPlayerController) return CustomPlayerController->GetCameraView();
-	
-	return Super::GetCameraView();
 }
 
 void AUpPlayableCharacter::OnEquipmentActivation(const EUpEquipmentSlot::Type EquipmentSlot)

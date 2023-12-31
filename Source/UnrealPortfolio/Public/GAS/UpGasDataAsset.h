@@ -14,9 +14,12 @@ class UNREALPORTFOLIO_API UUpGasDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetCommonGrantedAbilityClasses() const { return CommonGrantedAbilityClasses; }
+	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetGrantedAbilityClasses_Character() const { return GrantedAbilityClasses_Character; }
+	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetGrantedAbilityClasses_Common() const { return GrantedAbilityClasses_Common; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TArray<TSubclassOf<UGameplayAbility>> CommonGrantedAbilityClasses;
+	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilityClasses_Character;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilityClasses_Common;
 };

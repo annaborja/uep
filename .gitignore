@@ -10,3 +10,6 @@ Saved/*
 
 .DS_Store
 
+# Assets
+/Content/Pistol_Basic/*
+

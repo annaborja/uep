@@ -6,11 +6,6 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_Repeat.h"
 
-UUpAttackAbility::UUpAttackAbility()
-{
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-}
-
 void UUpAttackAbility::OnGameplayTaskInitialized(UGameplayTask& Task)
 {
 	Super::OnGameplayTaskInitialized(Task);

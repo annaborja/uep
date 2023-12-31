@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Components/UpCombatComponent.h"
+#include "GAS/UpGasDataAsset.h"
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 #include "GAS/Attributes/UpVitalAttributeSet.h"
 #include "Items/UpWeapon.h"
@@ -48,6 +49,7 @@ void AUpCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	check(HitReactionsMontage_ThirdPerson);
+	check(ReloadsMontage_ThirdPerson);
 	
 	check(InitPrimaryAttributesEffectClass);
 	check(InitVitalAttributesEffectClass);
@@ -56,12 +58,18 @@ void AUpCharacter::BeginPlay()
 
 	if (AbilitySystemComponent)
 	{
-		TArray<TSubclassOf<UGameplayEffect>> InitAttributesEffectClasses;
+		TArray<TSubclassOf<UGameplayAbility>> AbilityClasses;
+
+		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+		{
+			if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+			{
+				AbilityClasses.Append(GasDataAsset->GetGrantedAbilityClasses_Character());
+			}
+		}
 		
-		if (InitVitalAttributesEffectClass) InitAttributesEffectClasses.Add(InitVitalAttributesEffectClass);
-		if (InitPrimaryAttributesEffectClass) InitAttributesEffectClasses.Add(InitPrimaryAttributesEffectClass);
-		
-		AbilitySystemComponent->Init(this, this, InitAttributesEffectClasses, TArray<TSubclassOf<UGameplayAbility>> {});
+		AbilitySystemComponent->Init(this, this,
+			TArray { InitVitalAttributesEffectClass, InitPrimaryAttributesEffectClass }, AbilityClasses);
 	}
 
 	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())

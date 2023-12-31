@@ -52,6 +52,7 @@ public:
 	virtual void Die() override;
 	virtual UUpCombatComponent* GetCombatComponent() const override { return CombatComponent; }
 	virtual UAnimMontage* GetHitReactionsMontage() const override { return HitReactionsMontage_ThirdPerson; }
+	virtual UAnimMontage* GetReloadsMontage() const override { return ReloadsMontage_ThirdPerson; }
 
 	void SetYaw(const float InYaw);
 	
@@ -84,6 +85,8 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TObjectPtr<UAnimMontage> HitReactionsMontage_ThirdPerson;
+	UPROPERTY(EditAnywhere, Category="UP Assets")
+	TObjectPtr<UAnimMontage> ReloadsMontage_ThirdPerson;
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;

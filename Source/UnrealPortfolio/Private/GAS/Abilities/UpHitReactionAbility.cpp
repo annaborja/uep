@@ -6,6 +6,12 @@
 #include "Characters/UpCharacter.h"
 #include "Interfaces/UpCombatable.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Tags/CombatTags.h"
+
+UUpHitReactionAbility::UUpHitReactionAbility()
+{
+	AbilityTags.AddTag(TAG_Combat_HitReaction);
+}
 
 void UUpHitReactionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                             const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

@@ -33,7 +33,7 @@ void UUpAbilitySystemComponent::Init(AActor* InOwnerActor, AActor* InAvatarActor
 	{
 		if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
 		{
-			for (const auto AbilityClass : GasDataAsset->GetCommonGrantedAbilityClasses())
+			for (const auto AbilityClass : GasDataAsset->GetGrantedAbilityClasses_Common())
 			{
 				GrantAbility(AbilityClass);
 			}
