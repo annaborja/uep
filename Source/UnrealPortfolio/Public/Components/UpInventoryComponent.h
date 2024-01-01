@@ -16,9 +16,16 @@ class UNREALPORTFOLIO_API UUpInventoryComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	static bool IsInventoryTag(const FGameplayTag& Tag);
-	static bool ShouldHandleTagSpecGrant(const FUpTagSpec& TagSpec);
-	static bool HandleTagSpecGrant(const UObject* WorldContextObject, const FUpTagSpec& TagSpec);
+	static bool IsInventoryTag(const FGameplayTag& Tag) { return Tag.MatchesTag(TAG_Item); }
+	static bool IsWeaponTag(const FGameplayTag& Tag) { return Tag.MatchesTag(TAG_Item_Weapon); }
+	static bool ShouldHandleTagSpecGrant(const FUpTagSpec& TagSpec) { return IsInventoryTag(TagSpec.Tag); }
 	
 	UUpInventoryComponent();
+
+	bool HandleTagSpecGrant(const FUpTagSpec& TagSpec) const;
+
+private:
+	bool HandleAmmoTagSpecGrant(const FUpTagSpec& TagSpec) const;
+	bool TryGrantAmmoForWeaponSlot(const TSubclassOf<UGameplayEffect> EffectClass, const FGameplayTag& TargetTagId,
+		const uint8 Quantity, const FUpEquipmentSlotData& EquipmentSlotData) const;
 };

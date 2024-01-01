@@ -82,6 +82,8 @@ protected:
 	TObjectPtr<UUpAbilitySystemComponent> AbilitySystemComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpCombatComponent> CombatComponent;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UUpInventoryComponent> InventoryComponent;
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TObjectPtr<UAnimMontage> HitReactionsMontage_ThirdPerson;

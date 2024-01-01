@@ -38,8 +38,8 @@ struct FUpMenuTabData : public FTableRowBase
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudActiveWeaponSignature, const AUpWeapon*);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FUpHudAttributeValueSignature, const FGameplayTag&, const float);
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudInteractionDataSignature, const FUpInteractionData);
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudPossessedCharacterSignature, const AUpPlayableCharacter*);
-DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudTargetInteractableSignature, const AActor*);
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpHud : public AHUD
@@ -49,8 +49,8 @@ class UNREALPORTFOLIO_API AUpHud : public AHUD
 public:
 	FUpHudActiveWeaponSignature ActiveWeaponDelegate;
 	FUpHudAttributeValueSignature AttributeValueDelegate;
+	FUpHudInteractionDataSignature InteractionDataDelegate;
 	FUpHudPossessedCharacterSignature PossessedCharacterDelegate;
-	FUpHudTargetInteractableSignature TargetInteractableDelegate;
 	
 	void Init(AUpPlayerController* InPlayerController);
 	void OpenMainMenu() const;
@@ -68,8 +68,8 @@ public:
 
 	void BroadcastActiveWeapon(const AUpWeapon* Weapon) const;
 	void BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const;
+	void BroadcastInteractionData(const FUpInteractionData InteractionData) const;
 	void BroadcastPossessedCharacter(const AUpPlayableCharacter* PossessedCharacter) const;
-	void BroadcastTargetInteractable(const AActor* TargetInteractable) const;
 
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
 	

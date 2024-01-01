@@ -22,5 +22,5 @@ class UNREALPORTFOLIO_API IUpTagSpecGrantable
 	
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual void GrantTagSpec(const FUpTagSpec& TagSpec) = 0;
+	virtual bool GrantTagSpec(const FUpTagSpec& TagSpec) = 0;
 };

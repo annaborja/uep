@@ -16,4 +16,12 @@ UUpAmmoAttributeSet::UUpAmmoAttributeSet()
 void UUpAmmoAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
+
+	if (Data.EvaluatedData.Attribute == GetAmmoReserveAttribute())
+	{
+		SetAmmoReserve(FMath::Clamp(GetAmmoReserve(), 0.f, GetMaxAmmo() - GetMagazineFill()));
+	} else if (Data.EvaluatedData.Attribute == GetMagazineFillAttribute())
+	{
+		SetMagazineFill(FMath::Clamp(GetMagazineFill(), 0.f, GetMagazineCapacity()));
+	}
 }

@@ -179,6 +179,19 @@ bool UUpBlueprintFunctionLibrary::ValidateNpcTag(const FGameplayTag& Tag, const 
 	return true;
 }
 
+bool UUpBlueprintFunctionLibrary::ValidateWeaponTag(const FGameplayTag& Tag, const FString FuncName)
+{
+	if (!ValidateTag(Tag, FuncName)) return false;
+
+	if (!Tag.MatchesTag(TAG_Item_Weapon))
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: Non-weapon tag %s"), *FuncName, *Tag.ToString())
+		return false;
+	}
+		
+	return true;	
+}
+
 bool UUpBlueprintFunctionLibrary::IsEntityTagSpecSatisfied(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec, const bool bProhibition)
 {
 	if (const auto GameInstance = GetGameInstance(WorldContextObject))

@@ -67,8 +67,3 @@ void AUpPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContaine
 		TagContainer.AppendTags(AbilitySystemTags);
 	}
 }
-
-void AUpPlayerCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
-{
-	UUpBlueprintFunctionLibrary::GrantPlayerTagSpec(this, TagSpec);
-}

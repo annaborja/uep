@@ -25,6 +25,33 @@ struct FUpAbilityGrantSpec
 	TEnumAsByte<EUpAbilityGrantDuration::Type> GrantDuration = EUpAbilityGrantDuration::Permanent;
 };
 
+USTRUCT(BlueprintType)
+struct FUpInteractionData
+{
+	GENERATED_BODY()
+
+	FUpInteractionData() {}
+	explicit FUpInteractionData(AActor* InInteractable, const FText InInteractionPrompt, UTexture2D* InImage = nullptr) :
+		Interactable(InInteractable), InteractionPrompt(InInteractionPrompt), Image(InImage) {}
+
+	bool operator==(const FUpInteractionData& Other) const {
+		return Interactable == Other.Interactable && InteractionPrompt.EqualTo(Other.InteractionPrompt) && Image == Other.Image;
+	}
+	
+	bool operator!=(const FUpInteractionData& Other) const {
+		return !(*this == Other);
+	}
+
+	UPROPERTY()
+	TObjectPtr<AActor> Interactable;
+
+	UPROPERTY(BlueprintReadOnly)
+	FText InteractionPrompt;
+	
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UTexture2D> Image;
+};
+
 USTRUCT()
 struct FUpInventoryItemData
 {
@@ -167,6 +194,13 @@ struct FUpTagSpec
 	explicit FUpTagSpec(const FGameplayTag& InTag, const int32& InCount = 1) : Tag(InTag), Count(InCount) {}
 	
 	bool IsValid() const { return Tag.IsValid(); }
+
+	FString ToString() const
+	{
+		if (RelatedTag.IsValid()) return FString::Printf(TEXT("TagSpec %s / %s (%d)"), *Tag.ToString(), *RelatedTag.ToString(), Count);
+		
+		return FString::Printf(TEXT("TagSpec %s (%d)"), *Tag.ToString(), Count);
+	}
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag Tag;
@@ -239,4 +273,20 @@ struct FUpItemData : public FTableRowBase
 	FUpTagSpec UsageEffect;
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FUpAbilityGrantSpec> AbilityGrantSpecs;
+};
+
+USTRUCT()
+struct FUpWeaponData : public FTableRowBase
+{
+	GENERATED_BODY();
+
+	bool IsValid() const { return TagId.IsValid() && TagId.MatchesTag(TAG_Item_Weapon); }
+	
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag TagId;
+	
+	UPROPERTY(EditDefaultsOnly)
+	uint8 BaseMagazineCapacity = 0;
+	UPROPERTY(EditDefaultsOnly)
+	uint8 BaseMaxAmmo = 0;
 };

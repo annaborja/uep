@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UI/UpCommonUserWidget.h"
+#include "Utils/Structs.h"
 #include "UpPersistentInteractionDisplayWidget.generated.h"
+
+class URichTextBlock;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpPersistentInteractionDisplayWidget : public UUpCommonUserWidget
@@ -13,14 +16,21 @@ class UNREALPORTFOLIO_API UUpPersistentInteractionDisplayWidget : public UUpComm
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	FText TargetInteractableName;
+	FUpInteractionData InteractionData;
+
+	bool bCanInteract = false;
 
 	UFUNCTION(BlueprintCallable)
 	ESlateVisibility GetRootVisibility() const;
+	UFUNCTION(BlueprintCallable)
+	ESlateVisibility GetImageVisibility() const;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	URichTextBlock* GetPromptTextWidget() const;
 	
 	virtual void OnCustomHudSet_Implementation(AUpHud* NewCustomHud) override;
 
 private:
 	UFUNCTION()
-	void HandleTargetInteractableDelegate(const AActor* TargetInteractable);
+	void HandleInteractionDataDelegate(const FUpInteractionData InInteractionData);
 };

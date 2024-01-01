@@ -2,12 +2,19 @@
 
 #include "UI/Persistent/UpPersistentInteractionDisplayWidget.h"
 
-#include "Interfaces/UpNameable.h"
+#include "Components/RichTextBlock.h"
 #include "UI/UpHud.h"
 
 ESlateVisibility UUpPersistentInteractionDisplayWidget::GetRootVisibility() const
 {
-	if (TargetInteractableName.IsEmpty()) return ESlateVisibility::Hidden;
+	if (!bCanInteract) return ESlateVisibility::Hidden;
+
+	return ESlateVisibility::SelfHitTestInvisible;
+}
+
+ESlateVisibility UUpPersistentInteractionDisplayWidget::GetImageVisibility() const
+{
+	if (!InteractionData.Image) return ESlateVisibility::Hidden;
 
 	return ESlateVisibility::SelfHitTestInvisible;
 }
@@ -18,16 +25,16 @@ void UUpPersistentInteractionDisplayWidget::OnCustomHudSet_Implementation(AUpHud
 	
 	if (!CustomHud) return;
 	
-	CustomHud->TargetInteractableDelegate.AddUObject(this, &ThisClass::HandleTargetInteractableDelegate);
+	CustomHud->InteractionDataDelegate.AddUObject(this, &ThisClass::HandleInteractionDataDelegate);
 }
 
-void UUpPersistentInteractionDisplayWidget::HandleTargetInteractableDelegate(const AActor* TargetInteractable)
+void UUpPersistentInteractionDisplayWidget::HandleInteractionDataDelegate(const FUpInteractionData InInteractionData)
 {
-	if (const auto Nameable = Cast<IUpNameable>(TargetInteractable))
+	InteractionData = InInteractionData;
+	bCanInteract = InInteractionData.Interactable != nullptr;
+
+	if (const auto PromptTextWidget = GetPromptTextWidget())
 	{
-		TargetInteractableName = Nameable->GetInGameName();
-	} else
-	{
-		TargetInteractableName = FText();
+		PromptTextWidget->SetText(InInteractionData.InteractionPrompt);
 	}
 }

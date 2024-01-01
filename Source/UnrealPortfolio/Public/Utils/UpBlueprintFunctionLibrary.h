@@ -33,6 +33,7 @@ public:
 	static bool ValidateTag(const FGameplayTag& Tag, const FString FuncName);
 	static bool ValidateItemTag(const FGameplayTag& Tag, const FString FuncName);
 	static bool ValidateNpcTag(const FGameplayTag& Tag, const FString FuncName);
+	static bool ValidateWeaponTag(const FGameplayTag& Tag, const FString FuncName);
 	
 	static bool IsEntityTagSpecSatisfied(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec, const bool bProhibition = false);
 	static void ProcessEntityTagSpecGrants(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec);

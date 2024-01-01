@@ -13,28 +13,32 @@ void UUpGameInstance::Init()
 
 	check(CharacterDataTable);
 	check(GasDataAsset);
+	check(ItemDataTable);
 	check(PlayerDialogueVoice);
+	check(WeaponDataTable);
 
-	if (CharacterDataTable)
+	TArray<FUpCharacterData*> AllCharacterDataRows;
+	CharacterDataTable->GetAllRows(TEXT("CharacterDataTable GetAllRows"), AllCharacterDataRows);
+
+	for (const auto Row : AllCharacterDataRows)
 	{
-		TArray<FUpCharacterData*> AllCharacterDataRows;
-		CharacterDataTable->GetAllRows(TEXT("CharacterDataTable GetAllRows"), AllCharacterDataRows);
-
-		for (const auto Row : AllCharacterDataRows)
-		{
-			AllCharacterData.Add(*Row);
-		}
+		AllCharacterData.Add(*Row);
 	}
 
-	if (ItemDataTable)
-	{
-		TArray<FUpItemData*> AllItemDataRows;
-		ItemDataTable->GetAllRows(TEXT("ItemDataTable GetAllRows"), AllItemDataRows);
+	TArray<FUpItemData*> AllItemDataRows;
+	ItemDataTable->GetAllRows(TEXT("ItemDataTable GetAllRows"), AllItemDataRows);
 
-		for (const auto Row : AllItemDataRows)
-		{
-			AllItemData.Add(*Row);
-		}
+	for (const auto Row : AllItemDataRows)
+	{
+		AllItemData.Add(*Row);
+	}
+	
+	TArray<FUpWeaponData*> AllWeaponDataRows;
+	WeaponDataTable->GetAllRows(TEXT("WeaponDataTable GetAllRows"), AllWeaponDataRows);
+
+	for (const auto Row : AllWeaponDataRows)
+	{
+		AllWeaponData.Add(*Row);
 	}
 }
 
@@ -232,4 +236,22 @@ FUpInventory UUpGameInstance::GetNpcInventory(const FGameplayTag& NpcTagId)
 	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcInventory"))) return FUpInventory();
 	
 	return NpcInventoryMap.FindOrAdd(NpcTagId);
+}
+
+FUpWeaponData UUpGameInstance::GetWeaponData(const FGameplayTag& WeaponTagId)
+{
+	FUpWeaponData Result;
+
+	if (UUpBlueprintFunctionLibrary::ValidateWeaponTag(WeaponTagId, TEXT("GetWeaponData")))  
+	{
+		for (const auto Data : AllWeaponData)
+		{
+			if (Data.TagId.MatchesTagExact(WeaponTagId))
+			{
+				Result = Data;
+			}
+		}
+	}
+
+	return Result;
 }

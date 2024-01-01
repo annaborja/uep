@@ -3,6 +3,8 @@
 #include "Items/UpItem.h"
 
 #include "UpGameInstance.h"
+#include "Characters/UpPlayableCharacter.h"
+#include "Characters/Player/UpPlayerController.h"
 #include "Components/SphereComponent.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -18,9 +20,29 @@ AUpItem::AUpItem()
 	InteractionSphere->SetCollisionResponseToChannel(TRACE_CHANNEL_INTERACTION, ECR_Block);
 }
 
-bool AUpItem::CanInteract() const
+FUpInteractionData AUpItem::GetInteractionData()
 {
-	return true;
+	return FUpInteractionData(this, GetInteractionPrompt());
+}
+
+void AUpItem::Interact(AUpPlayerController* PlayerController)
+{
+	if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
+	{
+		const auto& DynamicRelatedTag = GetInteractionRelatedTag(PlayerController);
+		
+		FUpTagSpec TagSpec(TagId, GetInteractionQuantity(PlayerController, DynamicRelatedTag));
+		
+		if (DynamicRelatedTag.IsValid())
+		{
+			TagSpec.RelatedTag = DynamicRelatedTag;
+		}
+		
+		if (PossessedCharacter->GrantTagSpec(TagSpec))
+		{
+			if (bDestroyOnInteract) Destroy();
+		}
+	}
 }
 
 void AUpItem::AttachToComponentWithScaling(USceneComponent* Parent, const FAttachmentTransformRules& AttachmentRules, const FName& SocketName)
@@ -65,11 +87,6 @@ void AUpItem::ToggleCastShadows(const bool bEnable) const
 			StaticMeshComponent->SetCastShadow(bEnable);
 		}
 	}
-}
-
-void AUpItem::Interact(AUpPlayerController* PlayerController)
-{
-	UE_LOG(LogTemp, Warning, TEXT("interact with item"))
 }
 
 void AUpItem::BeginPlay()

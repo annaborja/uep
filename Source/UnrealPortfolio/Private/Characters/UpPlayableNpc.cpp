@@ -74,10 +74,15 @@ void AUpPlayableNpc::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) c
 		TagContainer.AppendTags(AbilitySystemTags);
 	}
 }
-			
-bool AUpPlayableNpc::CanInteract() const
+
+FUpInteractionData AUpPlayableNpc::GetInteractionData()
 {
-	return DialogueComponent->HasAvailableDialogue();
+	if (DialogueComponent->HasAvailableDialogue())
+	{
+		return FUpInteractionData(this, FText::FromString(FString::Printf(TEXT("Talk to %s"), *GetInGameName().ToString())));
+	}
+
+	return FUpInteractionData();
 }
 
 void AUpPlayableNpc::Interact(AUpPlayerController* PlayerController)
@@ -86,11 +91,6 @@ void AUpPlayableNpc::Interact(AUpPlayerController* PlayerController)
 	{
 		DialogueComponent->StartDialogue(PlayerController);
 	}
-}
-
-void AUpPlayableNpc::GrantTagSpec(const FUpTagSpec& TagSpec)
-{
-	UUpBlueprintFunctionLibrary::GrantNpcTagSpec(this, TagId, TagSpec);
 }
 
 void AUpPlayableNpc::JumpToLocation(const FVector& TargetLocation, const float Duration)

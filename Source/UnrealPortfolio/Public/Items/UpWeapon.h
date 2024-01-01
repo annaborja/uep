@@ -21,6 +21,7 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 
 	FORCEINLINE UUpAmmoAttributeSet* GetAmmoAttributeSet() const { return AmmoAttributeSet; }
+	FORCEINLINE FUpWeaponData GetWeaponData() const { return WeaponData; }
 	
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -33,6 +34,8 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UUpAmmoAttributeSet> AmmoAttributeSet;
+
+	FUpWeaponData WeaponData;
 	
 	virtual void BeginPlay() override;
 };

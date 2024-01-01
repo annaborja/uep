@@ -5,11 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameplayTagAssetInterface.h"
 #include "Characters/UpPlayableCharacter.h"
-#include "Interfaces/UpTagSpecGrantable.h"
 #include "UpPlayerCharacter.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpPlayableCharacter, public IGameplayTagAssetInterface, public IUpTagSpecGrantable
+class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpPlayableCharacter, public IGameplayTagAssetInterface
 {
 	GENERATED_BODY()
 
@@ -18,6 +17,4 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
-
-	virtual void GrantTagSpec(const FUpTagSpec& TagSpec) override;
 };

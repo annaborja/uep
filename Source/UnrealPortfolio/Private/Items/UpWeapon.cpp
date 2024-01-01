@@ -2,7 +2,9 @@
 
 #include "Items/UpWeapon.h"
 
+#include "UpGameInstance.h"
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 AUpWeapon::AUpWeapon()
 {
@@ -14,6 +16,13 @@ void AUpWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	{
+		WeaponData = GameInstance->GetWeaponData(TagId);
+	}
+
+	check(WeaponData.IsValid())
+	
 	check(InitAmmoCapacityAttributesEffectClass);
 	check(InitAmmoAmountAttributesEffectClass);
 

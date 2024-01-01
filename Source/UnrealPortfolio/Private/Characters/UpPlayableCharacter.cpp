@@ -88,6 +88,34 @@ UAnimMontage* AUpPlayableCharacter::GetReloadsMontage() const
 	return Super::GetReloadsMontage();
 }
 
+bool AUpPlayableCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
+{
+	if (bDebugTagSpecGrant)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GrantTagSpec %s"), *TagSpec.ToString())
+	}
+	
+	bool bSuccess = false;
+		
+	if (UUpInventoryComponent::ShouldHandleTagSpecGrant(TagSpec))
+	{
+		bSuccess = InventoryComponent->HandleTagSpecGrant(TagSpec);
+	} else if (TagSpec.Count > 0)
+	{
+		// bSuccess = GameInstance->AddPlayerCharacterTag(TagSpec.Tag);
+	} else if (TagSpec.Count < 0)
+	{
+		// bSuccess = GameInstance->RemovePlayerCharacterTag(TagSpec.Tag);
+	}
+
+	if (bSuccess)
+	{
+		// UUpPlayerPartyComponent::OnPlayerTagSpecGranted(WorldContextObject, TagSpec);
+	}
+
+	return bSuccess;
+}
+
 void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraViewType)
 {
 	switch (CameraViewType)
@@ -269,7 +297,16 @@ void AUpPlayableCharacter::TearDownForPlayer()
 		}	
 	}
 	
-	if (CustomPlayerController && !CustomPlayerController->IsDebugCameraActive()) SetUpThirdPersonMesh();
+	if (CustomPlayerController)
+	{
+		if (!CustomPlayerController->IsDebugCameraActive()) SetUpThirdPersonMesh();
+
+		if (const auto CustomHud = CustomPlayerController->GetCustomHud())
+		{
+			// Reset the interaction data in the UI.
+			CustomHud->BroadcastInteractionData(FUpInteractionData());
+		}
+	}
 	
 	CustomPlayerController = nullptr;
 	bIsPlayer = false;

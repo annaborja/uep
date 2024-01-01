@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Utils/Structs.h"
 #include "UpPlayerInteractionComponent.generated.h"
 
 class AUpPlayableCharacter;
@@ -18,7 +19,7 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	FORCEINLINE AActor* GetTargetInteractable() const { return TargetInteractable; }
+	FORCEINLINE AActor* GetTargetInteractable() const { return InteractionData.Interactable; }
 	
 protected:
 	virtual void BeginPlay() override;
@@ -32,6 +33,6 @@ private:
 	
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayableCharacter> PlayableCharacter;
-	UPROPERTY(Transient)
-	TObjectPtr<AActor> TargetInteractable;
+	
+	FUpInteractionData InteractionData;
 };

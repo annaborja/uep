@@ -39,6 +39,7 @@ AUpCharacter::AUpCharacter()
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UUpAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	CombatComponent = CreateDefaultSubobject<UUpCombatComponent>(TEXT("CombatComponent"));
+	InventoryComponent = CreateDefaultSubobject<UUpInventoryComponent>(TEXT("InventoryComponent"));
 	
 	PrimaryAttributeSet = CreateDefaultSubobject<UUpPrimaryAttributeSet>(TEXT("PrimaryAttributeSet"));
 	VitalAttributeSet = CreateDefaultSubobject<UUpVitalAttributeSet>(TEXT("VitalAttributeSet"));

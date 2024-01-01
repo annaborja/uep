@@ -128,12 +128,12 @@ void AUpHud::BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAtt
 	AttributeValueDelegate.Broadcast(Tag, Attribute.GetNumericValue(AttributeSet));
 }
 
+void AUpHud::BroadcastInteractionData(const FUpInteractionData InteractionData) const
+{
+	InteractionDataDelegate.Broadcast(InteractionData);
+}
+
 void AUpHud::BroadcastPossessedCharacter(const AUpPlayableCharacter* PossessedCharacter) const
 {
 	PossessedCharacterDelegate.Broadcast(PossessedCharacter);
-}
-
-void AUpHud::BroadcastTargetInteractable(const AActor* TargetInteractable) const
-{
-	TargetInteractableDelegate.Broadcast(TargetInteractable);
 }

@@ -8,7 +8,6 @@
 #include "Interfaces/UpInteractable.h"
 #include "Interfaces/UpNameable.h"
 #include "Interfaces/UpTagIdable.h"
-#include "Interfaces/UpTagSpecGrantable.h"
 #include "UpPlayableNpc.generated.h"
 
 class AUpAiController;
@@ -19,7 +18,7 @@ class UUpDialogueComponent;
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpPlayableNpc : public AUpPlayableCharacter, public IGameplayTagAssetInterface,
-	public IUpInteractable, public IUpNameable, public IUpTagIdable, public IUpTagSpecGrantable
+	public IUpInteractable, public IUpNameable, public IUpTagIdable
 {
 	GENERATED_BODY()
 
@@ -31,14 +30,12 @@ public:
 
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 
-	virtual bool CanInteract() const override;
+	virtual FUpInteractionData GetInteractionData() override;
 	virtual void Interact(AUpPlayerController* PlayerController) override;
 
 	virtual FText GetInGameName() const override { return CharacterData.Name; }
 
 	virtual FGameplayTag GetTagId() const override { return TagId; }
-
-	virtual void GrantTagSpec(const FUpTagSpec& TagSpec) override;
 
 	void JumpToLocation(const FVector& TargetLocation, const float Duration);
 	bool Mantle() const;

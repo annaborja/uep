@@ -19,7 +19,7 @@ UUpPlayerInteractionComponent::UUpPlayerInteractionComponent()
 void UUpPlayerInteractionComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	
 	if (!PlayableCharacter || !PlayableCharacter->IsPlayer()) return;
 	
 	TArray<FHitResult> OutHits;
@@ -35,24 +35,25 @@ void UUpPlayerInteractionComponent::TickComponent(const float DeltaTime, const E
 			TArray<AActor*> { PlayableCharacter }, bDebugInteractionTrace ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, OutHits, true);
 	}
 
-	FHitResult InteractableHit;
+	FUpInteractionData NewInteractionData;
 
 	for (const auto& Hit : OutHits) {
-		if (const auto Interactable = Cast<IUpInteractable>(Hit.GetActor()); Interactable && Interactable->CanInteract())
+		if (const auto Interactable = Cast<IUpInteractable>(Hit.GetActor()))
 		{
-			InteractableHit = Hit;
-			break;
+			if (const auto Data = Interactable->GetInteractionData(); Data.Interactable)
+			{
+				NewInteractionData = Data;
+				break;
+			}
 		}
 	}
 
-	const auto NewTargetInteractable = InteractableHit.GetActor();
-
-	if (const auto Hud = UUpBlueprintFunctionLibrary::GetCustomHud(this); NewTargetInteractable != TargetInteractable)
+	if (const auto Hud = UUpBlueprintFunctionLibrary::GetCustomHud(this); Hud && NewInteractionData != InteractionData)
 	{
-		Hud->BroadcastTargetInteractable(NewTargetInteractable);
+		Hud->BroadcastInteractionData(NewInteractionData);
 	}
 
-	TargetInteractable = NewTargetInteractable;
+	InteractionData = NewInteractionData;
 }
 
 void UUpPlayerInteractionComponent::BeginPlay()

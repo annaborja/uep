@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Characters/UpCharacter.h"
+#include "Interfaces/UpTagSpecGrantable.h"
 #include "Player/UpPlayerController.h"
 #include "UpPlayableCharacter.generated.h"
 
@@ -14,7 +15,7 @@ class UUpPlayerCombatComponent;
 class UUpPlayerInteractionComponent;
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpPlayableCharacter : public AUpCharacter
+class UNREALPORTFOLIO_API AUpPlayableCharacter : public AUpCharacter, public IUpTagSpecGrantable
 {
 	GENERATED_BODY()
 
@@ -32,6 +33,8 @@ public:
 
 	virtual EUpCameraView::Type GetCameraView() const override;
 	virtual UAnimMontage* GetReloadsMontage() const override;
+
+	virtual bool GrantTagSpec(const FUpTagSpec& TagSpec) override;
 	
 	UFUNCTION(BlueprintCallable)
 	void ActivateCameraView(const EUpCameraView::Type CameraViewType);
@@ -64,6 +67,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TObjectPtr<UAnimMontage> ReloadsMontage_FirstPerson;
+	
+	UPROPERTY(EditAnywhere, Category="UP Debug")
+	bool bDebugTagSpecGrant = false;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpWeapon> ActiveWeapon;

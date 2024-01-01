@@ -46,6 +46,7 @@ public:
 
 	FUpItemData GetItemData(const FGameplayTag& ItemTagId);
 	FUpInventory GetNpcInventory(const FGameplayTag& NpcTagId);
+	FUpWeaponData GetWeaponData(const FGameplayTag& WeaponTagId);
 	
 	FORCEINLINE UDataTable* GetCharacterDataTable() const { return CharacterDataTable; }
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
@@ -66,6 +67,8 @@ private:
 	TObjectPtr<UDataTable> CharacterDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpItemData"))
 	TObjectPtr<UDataTable> ItemDataTable;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpWeaponData"))
+	TObjectPtr<UDataTable> WeaponDataTable;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugTagSpecGrant = false;
@@ -99,4 +102,6 @@ private:
 	TArray<FUpCharacterData> AllCharacterData;
 	UPROPERTY(Transient)
 	TArray<FUpItemData> AllItemData;
+	UPROPERTY(Transient)
+	TArray<FUpWeaponData> AllWeaponData;
 };
