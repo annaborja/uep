@@ -6,8 +6,8 @@
 #include "GameplayTagContainer.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"
-#include "Components/UpInventoryComponent.h"
 #include "Engine/GameInstance.h"
+#include "Utils/Structs.h"
 #include "UpGameInstance.generated.h"
 
 struct FUpCharacterData;

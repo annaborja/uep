@@ -7,14 +7,7 @@
 
 ESlateVisibility UUpPersistentInteractionDisplayWidget::GetRootVisibility() const
 {
-	if (!bCanInteract) return ESlateVisibility::Hidden;
-
-	return ESlateVisibility::SelfHitTestInvisible;
-}
-
-ESlateVisibility UUpPersistentInteractionDisplayWidget::GetImageVisibility() const
-{
-	if (!InteractionData.Image) return ESlateVisibility::Hidden;
+	if (!InteractionData.Interactable) return ESlateVisibility::Hidden;
 
 	return ESlateVisibility::SelfHitTestInvisible;
 }
@@ -31,10 +24,14 @@ void UUpPersistentInteractionDisplayWidget::OnCustomHudSet_Implementation(AUpHud
 void UUpPersistentInteractionDisplayWidget::HandleInteractionDataDelegate(const FUpInteractionData InInteractionData)
 {
 	InteractionData = InInteractionData;
-	bCanInteract = InInteractionData.Interactable != nullptr;
 
-	if (const auto PromptTextWidget = GetPromptTextWidget())
+	if (const auto Widget = GetPromptTextWidget())
 	{
-		PromptTextWidget->SetText(InInteractionData.InteractionPrompt);
+		Widget->SetText(InInteractionData.InteractionPromptText);
+	}
+	
+	if (const auto Widget = GetPromptSubTextWidget())
+	{
+		Widget->SetText(InInteractionData.InteractionPromptSubText);
 	}
 }

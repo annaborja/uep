@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/UpInventoryComponent.h"
 #include "UI/UpCommonButtonBase.h"
+#include "Utils/Structs.h"
 #include "UpSquadMemberEquipmentItemDisplayWidget.generated.h"
 
 UCLASS()

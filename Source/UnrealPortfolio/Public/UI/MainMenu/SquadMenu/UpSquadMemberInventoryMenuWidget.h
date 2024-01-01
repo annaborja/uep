@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/UpInventoryComponent.h"
 #include "UI/UpCommonActivatableWidget.h"
+#include "Utils/Enums.h"
 #include "UpSquadMemberInventoryMenuWidget.generated.h"
 
 class AUpPlayableNpc;

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "Components/UpInventoryComponent.h"
+#include "Utils/Enums.h"
 #include "UpBtTask_UpdateEquipment.generated.h"
 
 UENUM()

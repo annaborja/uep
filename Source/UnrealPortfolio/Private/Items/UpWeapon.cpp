@@ -12,6 +12,11 @@ AUpWeapon::AUpWeapon()
 	AmmoAttributeSet = CreateDefaultSubobject<UUpAmmoAttributeSet>(TEXT("AmmoAttributeSet"));
 }
 
+FText AUpWeapon::GetInteractionPromptText() const
+{
+	return FText::FromString(FString::Printf(TEXT("Equip <RichText.Bold>%s</>"), *GetInGameName().ToString()));
+}
+
 void AUpWeapon::BeginPlay()
 {
 	Super::BeginPlay();

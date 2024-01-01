@@ -2,37 +2,84 @@
 
 #include "Items/UpAmmo.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "UpGameInstance.h"
 #include "Characters/UpPlayableCharacter.h"
-#include "Kismet/GameplayStatics.h"
+#include "GAS/UpGasDataAsset.h"
+#include "GAS/Effects/CustomAppReqs/UpEffectCar_GunHasAmmoReserveSpace.h"
+#include "Items/UpWeapon.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-FText AUpAmmo::GetInteractionPrompt() const
+bool AUpAmmo::HandleAmmoTagSpecGrant(const AUpCharacter* Character, const FUpTagSpec& TagSpec)
 {
-	if (const auto PlayerController = Cast<AUpPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
+	if (!TagSpec.RelatedTag.IsValid() || !TagSpec.RelatedTag.MatchesTag(TAG_Item_Weapon)) return false;
+
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(Character))
 	{
-		if (const auto& WeaponTag = GetInteractionRelatedTag(PlayerController); WeaponTag.IsValid() && UUpInventoryComponent::IsWeaponTag(WeaponTag))
+		if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
 		{
-			if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+			if (const auto EffectClass = GasDataAsset->GetAmmoGrantEffectClass())
 			{
-				if (const auto& WeaponData = GameInstance->GetItemData(WeaponTag); WeaponData.IsValid())
+				if (const auto& Equipment = Character->GetCharacterEquipment();
+					TryGrantAmmoForWeaponSlot(EffectClass, TagSpec.RelatedTag, TagSpec.Count, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1))
+					|| TryGrantAmmoForWeaponSlot(EffectClass, TagSpec.RelatedTag, TagSpec.Count, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2)))
 				{
-					return FText::FromString(FString::Printf(TEXT("%s for <RichText.Emphasis>%s</>"), *GetInGameName().ToString(), *WeaponData.Name.ToString()));
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+FUpInteractionData AUpAmmo::GetInteractionData(const AUpPlayerController* PlayerController)
+{
+	FUpInteractionData InteractionData;
+	InteractionData.Interactable = this;
+	
+	if (const auto& WeaponTag = GetInteractionRelatedTag(PlayerController); WeaponTag.IsValid() && WeaponTag.MatchesTag(TAG_Item_Weapon))
+	{
+		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+		{
+			if (const auto& WeaponData = GameInstance->GetItemData(WeaponTag); WeaponData.IsValid())
+			{
+				InteractionData.InteractionPromptText = FText::FromString(
+					FString::Printf(TEXT("%s for <RichText.Bold>%s</>"), *ItemData.Name.ToString(), *WeaponData.Name.ToString()));
+				
+				if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
+				{
+					if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+					{
+						if (const auto EffectClass = GasDataAsset->GetAmmoGrantEffectClass())
+						{
+							if (const auto& Equipment = PossessedCharacter->GetCharacterEquipment();
+								!TryGrantAmmoForWeaponSlot(EffectClass, WeaponTag, 0, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1))
+								&& !TryGrantAmmoForWeaponSlot(EffectClass, WeaponTag, 0, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2)))
+							{
+								InteractionData.InteractionPromptSubText = FText::FromString(TEXT("(Ammo Full)"));
+							}
+						}
+					}
 				}
 			}
 		}
 	}
 	
-	return Super::GetInteractionPrompt();
+	return InteractionData;
 }
 
 int32 AUpAmmo::GetInteractionQuantity(const AUpPlayerController* PlayerController, const FGameplayTag& DynamicRelatedTag) const
 {
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	// Setting a negative quantity indicates a full magazine.
+	if (Quantity < 0.f)
 	{
-		if (const auto WeaponData = GameInstance->GetWeaponData(DynamicRelatedTag); WeaponData.IsValid())
+		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 		{
-			return WeaponData.BaseMagazineCapacity;
+			if (const auto WeaponData = GameInstance->GetWeaponData(DynamicRelatedTag); WeaponData.IsValid())
+			{
+				return WeaponData.BaseMagazineCapacity;
+			}
 		}
 	}
 	
@@ -61,4 +108,35 @@ FGameplayTag AUpAmmo::GetInteractionRelatedTag(const AUpPlayerController* Player
 	}
 	
 	return Super::GetInteractionRelatedTag(PlayerController);
+}
+
+bool AUpAmmo::TryGrantAmmoForWeaponSlot(const TSubclassOf<UGameplayEffect> EffectClass, const FGameplayTag& TargetTagId,
+	const uint8 Quantity, const FUpEquipmentSlotData& EquipmentSlotData)
+{
+	if (const auto Weapon = Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor))
+	{
+		if (!Weapon->GetTagId().MatchesTagExact(TargetTagId)) return false;
+	
+		if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
+		{
+			const auto EffectSpecHandle = WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass, 1.f, WeaponAbilitySystemComponent->MakeEffectContext());
+
+			// Quantity <= 0 indicates a test only.
+			if (Quantity <= 0.f)
+			{
+				if (const auto DefaultObject = UUpEffectCar_GunHasAmmoReserveSpace::StaticClass()->GetDefaultObject<UUpEffectCar_GunHasAmmoReserveSpace>())
+				{
+					const auto EffectSpec = EffectSpecHandle.Data.Get();
+					
+					return DefaultObject->CanApplyGameplayEffect_Implementation(EffectSpec->Def, *EffectSpec, WeaponAbilitySystemComponent);
+				}
+			}
+			
+			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(EffectSpecHandle, TAG_Item_Ammo, Quantity);
+
+			return WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get()).WasSuccessfullyApplied();
+		}
+	}
+
+	return false;
 }

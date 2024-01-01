@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-#include "Components/UpInventoryComponent.h"
 #include "GAS/UpAbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/UpCombatable.h"
-#include "Utils/Enums.h"
+#include "Utils/Structs.h"
 #include "UpCharacter.generated.h"
 
 class UGameplayEffect;
@@ -82,8 +81,6 @@ protected:
 	TObjectPtr<UUpAbilitySystemComponent> AbilitySystemComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpCombatComponent> CombatComponent;
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UUpInventoryComponent> InventoryComponent;
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TObjectPtr<UAnimMontage> HitReactionsMontage_ThirdPerson;

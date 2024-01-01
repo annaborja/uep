@@ -31,11 +31,12 @@ struct FUpInteractionData
 	GENERATED_BODY()
 
 	FUpInteractionData() {}
-	explicit FUpInteractionData(AActor* InInteractable, const FText InInteractionPrompt, UTexture2D* InImage = nullptr) :
-		Interactable(InInteractable), InteractionPrompt(InInteractionPrompt), Image(InImage) {}
+	explicit FUpInteractionData(AActor* InInteractable, const FText InInteractionPromptText, const FText InInteractionPromptSubText = FText::GetEmpty()) :
+		Interactable(InInteractable), InteractionPromptText(InInteractionPromptText), InteractionPromptSubText(InInteractionPromptSubText) {}
 
 	bool operator==(const FUpInteractionData& Other) const {
-		return Interactable == Other.Interactable && InteractionPrompt.EqualTo(Other.InteractionPrompt) && Image == Other.Image;
+		return Interactable == Other.Interactable && InteractionPromptText.EqualTo(Other.InteractionPromptText) &&
+			InteractionPromptSubText.EqualTo(Other.InteractionPromptSubText);
 	}
 	
 	bool operator!=(const FUpInteractionData& Other) const {
@@ -46,10 +47,9 @@ struct FUpInteractionData
 	TObjectPtr<AActor> Interactable;
 
 	UPROPERTY(BlueprintReadOnly)
-	FText InteractionPrompt;
-	
+	FText InteractionPromptText;
 	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<UTexture2D> Image;
+	FText InteractionPromptSubText;
 };
 
 USTRUCT()

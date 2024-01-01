@@ -5,11 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Characters/Player/UpPlayerController.h"
-#include "Components/UpInventoryComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "Interfaces/UpInteractable.h"
 #include "Interfaces/UpNameable.h"
 #include "Interfaces/UpTagIdable.h"
+#include "Utils/Structs.h"
 #include "UpItem.generated.h"
 
 class USphereComponent;
@@ -22,7 +22,7 @@ class UNREALPORTFOLIO_API AUpItem : public AStaticMeshActor, public IUpInteracta
 public:
 	AUpItem();
 	
-	virtual FUpInteractionData GetInteractionData() override;
+	virtual FUpInteractionData GetInteractionData(const AUpPlayerController* PlayerController) override;
 	virtual void Interact(AUpPlayerController* PlayerController) override;
 
 	virtual FText GetInGameName() const override { return ItemData.Name; }
@@ -50,14 +50,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	int32 Quantity = 1;
 	UPROPERTY(EditAnywhere, Category="UP Params")
+	bool bCanInteract = false;
+	UPROPERTY(EditAnywhere, Category="UP Params")
 	bool bDestroyOnInteract = false;
 
 	FUpItemData ItemData;
 	
 	virtual void BeginPlay() override;
 
-	virtual UTexture2D* GetInteractionImage() const { return ItemData.Image_Small; }
-	virtual FText GetInteractionPrompt() const { return GetInGameName(); }
+	virtual bool CanInteract() const { return bCanInteract; }
+	virtual FText GetInteractionPromptText() const { return GetInGameName(); }
+	virtual FText GetInteractionPromptSubText() const { return FText::GetEmpty(); }
 	virtual int32 GetInteractionQuantity(const AUpPlayerController* PlayerController, const FGameplayTag& DynamicRelatedTag) const { return Quantity; }
 	virtual FGameplayTag GetInteractionRelatedTag(const AUpPlayerController* PlayerController) const { return RelatedTag; }
 };

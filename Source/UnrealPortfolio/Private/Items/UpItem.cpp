@@ -20,9 +20,11 @@ AUpItem::AUpItem()
 	InteractionSphere->SetCollisionResponseToChannel(TRACE_CHANNEL_INTERACTION, ECR_Block);
 }
 
-FUpInteractionData AUpItem::GetInteractionData()
+FUpInteractionData AUpItem::GetInteractionData(const AUpPlayerController* PlayerController)
 {
-	return FUpInteractionData(this, GetInteractionPrompt());
+	if (!CanInteract()) return FUpInteractionData();
+	
+	return FUpInteractionData(this, GetInteractionPromptText(), GetInteractionPromptSubText());
 }
 
 void AUpItem::Interact(AUpPlayerController* PlayerController)

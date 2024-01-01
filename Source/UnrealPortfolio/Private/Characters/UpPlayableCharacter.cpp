@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "GAS/Attributes/UpAttributeSet.h"
+#include "Items/UpAmmo.h"
 #include "UI/UpHud.h"
 
 void AUpPlayableCharacter::BeginPlay()
@@ -97,9 +98,9 @@ bool AUpPlayableCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 	
 	bool bSuccess = false;
 		
-	if (UUpInventoryComponent::ShouldHandleTagSpecGrant(TagSpec))
+	if (TagSpec.Tag.MatchesTag(TAG_Item_Ammo))
 	{
-		bSuccess = InventoryComponent->HandleTagSpecGrant(TagSpec);
+		bSuccess = AUpAmmo::HandleAmmoTagSpecGrant(this, TagSpec);
 	} else if (TagSpec.Count > 0)
 	{
 		// bSuccess = GameInstance->AddPlayerCharacterTag(TagSpec.Tag);

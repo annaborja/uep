@@ -157,7 +157,7 @@ void AUpPlayerController::BeginPlay()
 	check(AimGunInputAction);
 	check(CloseCharacterSwitcherInputAction);
 	check(CrouchInputAction);
-	check(FireGunInputAction);
+	check(FireWeaponInputAction);
 	check(InteractInputAction);
 	check(JumpInputAction);
 	check(LookInputAction);
@@ -165,6 +165,7 @@ void AUpPlayerController::BeginPlay()
 	check(NavigateCharacterSwitcherInputAction);
 	check(OpenCharacterSwitcherInputAction);
 	check(PauseGameInputAction);
+	check(ReloadInputAction);
 	check(SprintInputAction);
 	check(ToggleCameraViewInputAction);
 	check(ToggleDebugCameraInputAction);
@@ -199,6 +200,7 @@ void AUpPlayerController::SetupInputComponent()
 	
 	EnhancedInputComponent->BindAction(PauseGameInputAction, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
 	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ThisClass::Interact);
+	EnhancedInputComponent->BindAction(ReloadInputAction, ETriggerEvent::Triggered, this, &ThisClass::Reload);
 	
 	EnhancedInputComponent->BindAction(OpenCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
 	EnhancedInputComponent->BindAction(CloseCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::TriggerCloseCharacterSwitcher);
@@ -219,8 +221,8 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(AimGunInputAction, ETriggerEvent::Started, this, &ThisClass::StartAimingGun);
 	EnhancedInputComponent->BindAction(AimGunInputAction, ETriggerEvent::Completed, this, &ThisClass::StopAimingGun);
 	
-	EnhancedInputComponent->BindAction(FireGunInputAction, ETriggerEvent::Started, this, &ThisClass::StartFiringGun);
-	EnhancedInputComponent->BindAction(FireGunInputAction, ETriggerEvent::Completed, this, &ThisClass::StopFiringGun);
+	EnhancedInputComponent->BindAction(FireWeaponInputAction, ETriggerEvent::Started, this, &ThisClass::StartFiringWeapon);
+	EnhancedInputComponent->BindAction(FireWeaponInputAction, ETriggerEvent::Completed, this, &ThisClass::StopFiringWeapon);
 }
 
 void AUpPlayerController::ToggleCameraView(const FInputActionValue& InputActionValue)
@@ -287,6 +289,20 @@ void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
 		if (const auto TargetInteractable = Cast<IUpInteractable>(InteractionComponent->GetTargetInteractable()))
 		{
 			TargetInteractable->Interact(this);
+		}
+	}
+}
+
+void AUpPlayerController::Reload(const FInputActionValue& InputActionValue)
+{
+	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
+	{
+		if (const auto AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent())
+		{
+			FGameplayTagContainer AbilityTags;
+			AbilityTags.AddTag(TAG_Combat_Reload);
+			
+			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
 		}
 	}
 }
@@ -403,7 +419,7 @@ void AUpPlayerController::StopAimingGun(const FInputActionValue& InputActionValu
 	UE_LOG(LogTemp, Warning, TEXT("[temp] stop aim gun"))
 }
 
-void AUpPlayerController::StartFiringGun(const FInputActionValue& InputActionValue)
+void AUpPlayerController::StartFiringWeapon(const FInputActionValue& InputActionValue)
 {
 	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
 	{
@@ -417,7 +433,7 @@ void AUpPlayerController::StartFiringGun(const FInputActionValue& InputActionVal
 	}
 }
 
-void AUpPlayerController::StopFiringGun(const FInputActionValue& InputActionValue)
+void AUpPlayerController::StopFiringWeapon(const FInputActionValue& InputActionValue)
 {
 	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
 	{

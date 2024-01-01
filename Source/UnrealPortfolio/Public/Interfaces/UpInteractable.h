@@ -20,6 +20,6 @@ class UNREALPORTFOLIO_API IUpInteractable
 	GENERATED_BODY()
 
 public:
-	virtual FUpInteractionData GetInteractionData() = 0;
+	virtual FUpInteractionData GetInteractionData(const AUpPlayerController* PlayerController) = 0;
 	virtual void Interact(AUpPlayerController* PlayerController) = 0;
 };

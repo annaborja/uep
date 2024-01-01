@@ -35,6 +35,8 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UUpAmmoAttributeSet> AmmoAttributeSet;
 
+	virtual FText GetInteractionPromptText() const override;
+
 	FUpWeaponData WeaponData;
 	
 	virtual void BeginPlay() override;

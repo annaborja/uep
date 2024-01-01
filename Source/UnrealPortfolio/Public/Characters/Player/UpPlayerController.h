@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/UpInventoryComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "Utils/Enums.h"
 #include "UpPlayerController.generated.h"
 
 class AUpPlayableNpc;
@@ -87,7 +87,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions|Weapon")
 	TObjectPtr<UInputAction> AimGunInputAction;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions|Weapon")
-	TObjectPtr<UInputAction> FireGunInputAction;
+	TObjectPtr<UInputAction> FireWeaponInputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions|Weapon")
+	TObjectPtr<UInputAction> ReloadInputAction;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugInputMappingContexts = false;
@@ -113,6 +115,7 @@ private:
 	
 	void PauseGame(const FInputActionValue& InputActionValue);
 	void Interact(const FInputActionValue& InputActionValue);
+	void Reload(const FInputActionValue& InputActionValue);
 	
 	void OpenCharacterSwitcher(const FInputActionValue& InputActionValue);
 	void TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue);
@@ -133,6 +136,6 @@ private:
 	
 	void StartAimingGun(const FInputActionValue& InputActionValue);
 	void StopAimingGun(const FInputActionValue& InputActionValue);
-	void StartFiringGun(const FInputActionValue& InputActionValue);
-	void StopFiringGun(const FInputActionValue& InputActionValue);
+	void StartFiringWeapon(const FInputActionValue& InputActionValue);
+	void StopFiringWeapon(const FInputActionValue& InputActionValue);
 };

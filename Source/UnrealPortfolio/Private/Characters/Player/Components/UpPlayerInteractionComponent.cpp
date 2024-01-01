@@ -37,13 +37,16 @@ void UUpPlayerInteractionComponent::TickComponent(const float DeltaTime, const E
 
 	FUpInteractionData NewInteractionData;
 
-	for (const auto& Hit : OutHits) {
-		if (const auto Interactable = Cast<IUpInteractable>(Hit.GetActor()))
-		{
-			if (const auto Data = Interactable->GetInteractionData(); Data.Interactable)
+	if (const auto CustomController = PlayableCharacter->GetCustomPlayerController())
+	{
+		for (const auto& Hit : OutHits) {
+			if (const auto Interactable = Cast<IUpInteractable>(Hit.GetActor()))
 			{
-				NewInteractionData = Data;
-				break;
+				if (const auto Data = Interactable->GetInteractionData(CustomController); Data.Interactable)
+				{
+					NewInteractionData = Data;
+					break;
+				}
 			}
 		}
 	}

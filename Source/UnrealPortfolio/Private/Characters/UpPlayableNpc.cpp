@@ -75,7 +75,7 @@ void AUpPlayableNpc::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) c
 	}
 }
 
-FUpInteractionData AUpPlayableNpc::GetInteractionData()
+FUpInteractionData AUpPlayableNpc::GetInteractionData(const AUpPlayerController* PlayerController)
 {
 	if (DialogueComponent->HasAvailableDialogue())
 	{
