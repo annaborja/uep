@@ -63,6 +63,8 @@ public:
 	virtual TArray<UUpAttributeSet*> GetAttributeSets() const;
 	
 	FUpCharacterEquipment GetCharacterEquipment() const { return Equipment; }
+	void EquipItem(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot);
+	void UnequipItem(const EUpEquipmentSlot::Type EquipmentSlot);
 	bool ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 	bool DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 
@@ -110,11 +112,13 @@ protected:
 	FVector RootMotionTargetLocation;
 	bool bHasRootMotionTargetLocation = false;
 
-	AUpItem* AttachItem(const TSubclassOf<AUpItem> ItemClass);
+	AUpItem* SpawnAndAttachItem(const TSubclassOf<AUpItem> ItemClass);
 	
-	void HideAttachedItem(AUpItem* ItemActor) const;
-	void ShowAttachedItem(AUpItem* ItemActor, const FName& SocketName) const;
-
+	void AttachAndHideItem(AUpItem* ItemActor) const;
+	void AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName) const;
+	
+	virtual void OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot) {}
+	virtual void OnItemUnequip(const EUpEquipmentSlot::Type EquipmentSlot) {}
 	virtual void OnEquipmentActivation(const EUpEquipmentSlot::Type EquipmentSlot) {}
 	virtual void OnEquipmentDeactivation(const EUpEquipmentSlot::Type EquipmentSlot) {}
 };

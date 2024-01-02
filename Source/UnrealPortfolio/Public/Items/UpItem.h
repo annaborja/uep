@@ -42,13 +42,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float InteractionSphereRadius = 50.f;
 	
-	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	UPROPERTY(EditAnywhere, Category="UP Params")
 	FGameplayTag TagId;
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	FGameplayTag RelatedTag;
 	
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	int32 Quantity = 1;
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float RelatedQuantity = 0.f;
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	bool bCanInteract = false;
 	UPROPERTY(EditAnywhere, Category="UP Params")
@@ -59,8 +61,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual bool CanInteract() const { return bCanInteract; }
-	virtual FText GetInteractionPromptText() const { return GetInGameName(); }
-	virtual FText GetInteractionPromptSubText() const { return FText::GetEmpty(); }
+	virtual FText GetInteractionPromptText(const AUpPlayerController* PlayerController) const { return GetInGameName(); }
+	virtual FText GetInteractionPromptSubText(const AUpPlayerController* PlayerController) const { return FText::GetEmpty(); }
 	virtual int32 GetInteractionQuantity(const AUpPlayerController* PlayerController, const FGameplayTag& DynamicRelatedTag) const { return Quantity; }
+	virtual float GetInteractionRelatedQuantity(const AUpPlayerController* PlayerController, const FGameplayTag& DynamicRelatedTag) const { return RelatedQuantity; }
 	virtual FGameplayTag GetInteractionRelatedTag(const AUpPlayerController* PlayerController) const { return RelatedTag; }
 };

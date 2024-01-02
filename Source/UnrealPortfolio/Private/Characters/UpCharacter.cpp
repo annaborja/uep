@@ -76,7 +76,7 @@ void AUpCharacter::BeginPlay()
 	{
 		if (const auto ItemClass = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemClass)
 		{
-			Equipment.SetEquipmentSlotActor(EquipmentSlot, AttachItem(ItemClass));
+			Equipment.SetEquipmentSlotActor(EquipmentSlot, SpawnAndAttachItem(ItemClass));
 		}
 		
 		if (Equipment.GetEquipmentSlotData(EquipmentSlot).bActivated) ActivateEquipment(EquipmentSlot);
@@ -87,11 +87,7 @@ void AUpCharacter::Die()
 {
 	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
 	{
-		if (const auto ItemActor = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor)
-		{
-			ItemActor->Detach();
-			Equipment.SetEquipmentSlotActor(EquipmentSlot, nullptr);
-		}
+		UnequipItem(EquipmentSlot);
 	}
 
 	if (const auto Mesh = GetMesh())
@@ -130,13 +126,44 @@ TArray<UUpAttributeSet*> AUpCharacter::GetAttributeSets() const
 	return TArray<UUpAttributeSet*> { VitalAttributeSet, PrimaryAttributeSet };
 }
 
+void AUpCharacter::EquipItem(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot)
+{
+	UnequipItem(EquipmentSlot);
+	
+	Equipment.SetEquipmentSlotClass(EquipmentSlot, ItemActor->GetClass());
+	Equipment.SetEquipmentSlotActor(EquipmentSlot, ItemActor);
+	AttachAndHideItem(ItemActor);
+
+	OnItemEquip(ItemActor, EquipmentSlot);
+}
+
+void AUpCharacter::UnequipItem(const EUpEquipmentSlot::Type EquipmentSlot)
+{
+	if (const auto ItemActor = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor)
+	{
+		ItemActor->Detach();
+		Equipment.SetEquipmentSlotActor(EquipmentSlot, nullptr);
+		Equipment.DeactivateEquipmentSlot(EquipmentSlot);
+		OnItemUnequip(EquipmentSlot);
+	}
+}
+
 bool AUpCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	DeactivateEquipment(EquipmentSlot);
-
+	
 	if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot);
 		EquipmentSlotData.ItemInstance.ItemClass && !EquipmentSlotData.bActivated)
 	{
+		// If we're activating a weapon slot, make sure all other weapon slots are deactivated.
+		if (FUpCharacterEquipment::IsWeaponSlot(EquipmentSlot))
+		{
+			for (const auto WeaponSlot : FUpCharacterEquipment::GetWeaponSlots())
+			{
+				if (WeaponSlot != EquipmentSlot) DeactivateEquipment(WeaponSlot);
+			}
+		}
+		
 		if (const auto DefaultObject = EquipmentSlotData.ItemInstance.ItemClass.GetDefaultObject())
 		{
 			if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
@@ -150,7 +177,7 @@ bool AUpCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 
 					if (EquipmentSlotData.ItemInstance.ItemActor)
 					{
-						ShowAttachedItem(EquipmentSlotData.ItemInstance.ItemActor,
+						AttachAndShowItem(EquipmentSlotData.ItemInstance.ItemActor,
 							ItemData.SocketTag.IsValid() ? ItemData.SocketTag.GetTagName() : NAME_None);
 					}
 
@@ -194,7 +221,7 @@ bool AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlo
 					Posture = EUpCharacterPosture::Casual;
 				}
 
-				if (EquipmentSlotData.ItemInstance.ItemActor) HideAttachedItem(EquipmentSlotData.ItemInstance.ItemActor);
+				if (EquipmentSlotData.ItemInstance.ItemActor) AttachAndHideItem(EquipmentSlotData.ItemInstance.ItemActor);
 
 				if (AbilitySystemComponent)
 				{
@@ -220,7 +247,7 @@ bool AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlo
 	return false;
 }
 
-AUpItem* AUpCharacter::AttachItem(const TSubclassOf<AUpItem> ItemClass)
+AUpItem* AUpCharacter::SpawnAndAttachItem(const TSubclassOf<AUpItem> ItemClass)
 {
 	if (const auto World = GetWorld())
 	{
@@ -232,7 +259,7 @@ AUpItem* AUpCharacter::AttachItem(const TSubclassOf<AUpItem> ItemClass)
 
 		if (const auto ItemActor = Cast<AUpItem>(World->SpawnActor(ItemClass, &SpawnLocation, &SpawnRotation, SpawnParams)))
 		{
-			HideAttachedItem(ItemActor);
+			AttachAndHideItem(ItemActor);
 			
 			return ItemActor;
 		}
@@ -241,7 +268,7 @@ AUpItem* AUpCharacter::AttachItem(const TSubclassOf<AUpItem> ItemClass)
 	return nullptr;
 }
 
-void AUpCharacter::HideAttachedItem(AUpItem* ItemActor) const
+void AUpCharacter::AttachAndHideItem(AUpItem* ItemActor) const
 {
 	if (const auto Mesh = GetMesh())
 	{
@@ -251,7 +278,7 @@ void AUpCharacter::HideAttachedItem(AUpItem* ItemActor) const
 	}
 }
 
-void AUpCharacter::ShowAttachedItem(AUpItem* ItemActor, const FName& SocketName) const
+void AUpCharacter::AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName) const
 {
 	if (const auto Mesh = GetMesh())
 	{

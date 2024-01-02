@@ -33,6 +33,37 @@ bool AUpAmmo::HandleAmmoTagSpecGrant(const AUpCharacter* Character, const FUpTag
 	return false;
 }
 
+bool AUpAmmo::TryGrantAmmoForWeaponSlot(const TSubclassOf<UGameplayEffect> EffectClass, const FGameplayTag& TargetTagId,
+	const uint8 Quantity, const FUpEquipmentSlotData& EquipmentSlotData)
+{
+	if (const auto Weapon = Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor))
+	{
+		if (!Weapon->GetTagId().MatchesTagExact(TargetTagId)) return false;
+	
+		if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
+		{
+			const auto EffectSpecHandle = WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass, 1.f, WeaponAbilitySystemComponent->MakeEffectContext());
+
+			// Quantity <= 0 indicates a test only.
+			if (Quantity <= 0.f)
+			{
+				if (const auto DefaultObject = UUpEffectCar_GunHasAmmoReserveSpace::StaticClass()->GetDefaultObject<UUpEffectCar_GunHasAmmoReserveSpace>())
+				{
+					const auto EffectSpec = EffectSpecHandle.Data.Get();
+					
+					return DefaultObject->CanApplyGameplayEffect_Implementation(EffectSpec->Def, *EffectSpec, WeaponAbilitySystemComponent);
+				}
+			}
+			
+			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(EffectSpecHandle, TAG_Item_Ammo, Quantity);
+
+			return WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get()).WasSuccessfullyApplied();
+		}
+	}
+
+	return false;
+}
+
 FUpInteractionData AUpAmmo::GetInteractionData(const AUpPlayerController* PlayerController)
 {
 	FUpInteractionData InteractionData;
@@ -42,10 +73,10 @@ FUpInteractionData AUpAmmo::GetInteractionData(const AUpPlayerController* Player
 	{
 		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 		{
-			if (const auto& WeaponData = GameInstance->GetItemData(WeaponTag); WeaponData.IsValid())
+			if (const auto& WeaponItemData = GameInstance->GetItemData(WeaponTag); WeaponItemData.IsValid())
 			{
 				InteractionData.InteractionPromptText = FText::FromString(
-					FString::Printf(TEXT("%s for <RichText.Bold>%s</>"), *ItemData.Name.ToString(), *WeaponData.Name.ToString()));
+					FString::Printf(TEXT("%s for <RichText.Bold>%s</>"), *ItemData.Name.ToString(), *WeaponItemData.Name.ToString()));
 				
 				if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
 				{
@@ -108,35 +139,4 @@ FGameplayTag AUpAmmo::GetInteractionRelatedTag(const AUpPlayerController* Player
 	}
 	
 	return Super::GetInteractionRelatedTag(PlayerController);
-}
-
-bool AUpAmmo::TryGrantAmmoForWeaponSlot(const TSubclassOf<UGameplayEffect> EffectClass, const FGameplayTag& TargetTagId,
-	const uint8 Quantity, const FUpEquipmentSlotData& EquipmentSlotData)
-{
-	if (const auto Weapon = Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor))
-	{
-		if (!Weapon->GetTagId().MatchesTagExact(TargetTagId)) return false;
-	
-		if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
-		{
-			const auto EffectSpecHandle = WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass, 1.f, WeaponAbilitySystemComponent->MakeEffectContext());
-
-			// Quantity <= 0 indicates a test only.
-			if (Quantity <= 0.f)
-			{
-				if (const auto DefaultObject = UUpEffectCar_GunHasAmmoReserveSpace::StaticClass()->GetDefaultObject<UUpEffectCar_GunHasAmmoReserveSpace>())
-				{
-					const auto EffectSpec = EffectSpecHandle.Data.Get();
-					
-					return DefaultObject->CanApplyGameplayEffect_Implementation(EffectSpec->Def, *EffectSpec, WeaponAbilitySystemComponent);
-				}
-			}
-			
-			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(EffectSpecHandle, TAG_Item_Ammo, Quantity);
-
-			return WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get()).WasSuccessfullyApplied();
-		}
-	}
-
-	return false;
 }

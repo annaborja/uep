@@ -24,7 +24,8 @@ FUpInteractionData AUpItem::GetInteractionData(const AUpPlayerController* Player
 {
 	if (!CanInteract()) return FUpInteractionData();
 	
-	return FUpInteractionData(this, GetInteractionPromptText(), GetInteractionPromptSubText());
+	return FUpInteractionData(this,
+		GetInteractionPromptText(PlayerController), GetInteractionPromptSubText(PlayerController));
 }
 
 void AUpItem::Interact(AUpPlayerController* PlayerController)
@@ -34,6 +35,7 @@ void AUpItem::Interact(AUpPlayerController* PlayerController)
 		const auto& DynamicRelatedTag = GetInteractionRelatedTag(PlayerController);
 		
 		FUpTagSpec TagSpec(TagId, GetInteractionQuantity(PlayerController, DynamicRelatedTag));
+		TagSpec.RelatedCount = GetInteractionRelatedQuantity(PlayerController, DynamicRelatedTag);
 		
 		if (DynamicRelatedTag.IsValid())
 		{
@@ -66,12 +68,25 @@ void AUpItem::Detach()
 	SetActorEnableCollision(true);
 	SetActorHiddenInGame(false);
 
-	if (const auto StaticMeshComponent = GetStaticMeshComponent())
+	const auto RootStaticMeshComponent = GetStaticMeshComponent();
+
+	TArray<UActorComponent*> Components;
+	GetComponents(UStaticMeshComponent::StaticClass(), Components);
+
+	for (const auto Component : Components)
 	{
-		StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-		StaticMeshComponent->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-		StaticMeshComponent->SetEnableGravity(true);
-		StaticMeshComponent->SetSimulatePhysics(true);
+		if (const auto StaticMeshComponent = Cast<UStaticMeshComponent>(Component))
+		{
+			StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+			StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+			StaticMeshComponent->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+			
+			if (Component == RootStaticMeshComponent)
+			{
+				RootStaticMeshComponent->SetEnableGravity(true);
+				RootStaticMeshComponent->SetSimulatePhysics(true);
+			}
+		}
 	}
 
 	if (InteractionSphere) InteractionSphere->SetUsingAbsoluteScale(true);

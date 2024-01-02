@@ -15,14 +15,12 @@ class UNREALPORTFOLIO_API AUpAmmo : public AUpItem
 
 public:
 	static bool HandleAmmoTagSpecGrant(const AUpCharacter* Character, const FUpTagSpec& TagSpec);
+	static bool TryGrantAmmoForWeaponSlot(const TSubclassOf<UGameplayEffect> EffectClass, const FGameplayTag& TargetTagId,
+		const uint8 Quantity, const FUpEquipmentSlotData& EquipmentSlotData);
 	
 	virtual FUpInteractionData GetInteractionData(const AUpPlayerController* PlayerController) override;
 
 protected:
 	virtual int32 GetInteractionQuantity(const AUpPlayerController* PlayerController, const FGameplayTag& DynamicRelatedTag) const override;
 	virtual FGameplayTag GetInteractionRelatedTag(const AUpPlayerController* PlayerController) const override;
-
-private:
-	static bool TryGrantAmmoForWeaponSlot(const TSubclassOf<UGameplayEffect> EffectClass, const FGameplayTag& TargetTagId,
-		const uint8 Quantity, const FUpEquipmentSlotData& EquipmentSlotData);
 };

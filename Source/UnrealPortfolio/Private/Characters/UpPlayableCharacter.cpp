@@ -189,12 +189,46 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 	if (CustomPlayerController) CustomPlayerController->SetCameraView(CameraViewType);
 }
 
+void AUpPlayableCharacter::OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot)
+{
+	Super::OnItemEquip(ItemActor, EquipmentSlot);
+
+	if (const auto CustomController = GetCustomPlayerController())
+	{
+		if (const auto CustomHud = CustomController->GetCustomHud())
+		{
+			CustomHud->BroadcastEquipmentUpdate(EquipmentSlot, ItemActor->GetItemData());
+		}
+	}
+}
+
+void AUpPlayableCharacter::OnItemUnequip(const EUpEquipmentSlot::Type EquipmentSlot)
+{
+	Super::OnItemUnequip(EquipmentSlot);
+
+	if (const auto CustomController = GetCustomPlayerController())
+	{
+		if (const auto CustomHud = CustomController->GetCustomHud())
+		{
+			CustomHud->BroadcastEquipmentUpdate(EquipmentSlot, FUpItemData());
+		}
+	}
+}
+
 void AUpPlayableCharacter::OnEquipmentActivation(const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	Super::OnEquipmentActivation(EquipmentSlot);
 
 	if (bIsPlayer)
 	{
+		if (const auto CustomController = GetCustomPlayerController())
+		{
+			if (const auto CustomHud = CustomController->GetCustomHud())
+			{
+				CustomHud->BroadcastEquipmentActivationUpdate(EquipmentSlot, true);
+			}
+		}
+		
 		if (FUpCharacterEquipment::IsWeaponSlot(EquipmentSlot))
 		{
 			if (CustomPlayerController) CustomPlayerController->ResetInputMappingContexts();
@@ -210,6 +244,14 @@ void AUpPlayableCharacter::OnEquipmentDeactivation(const EUpEquipmentSlot::Type 
 
 	if (bIsPlayer)
 	{
+		if (const auto CustomController = GetCustomPlayerController())
+		{
+			if (const auto CustomHud = CustomController->GetCustomHud())
+			{
+				CustomHud->BroadcastEquipmentActivationUpdate(EquipmentSlot, false);
+			}
+		}
+		
 		if (FUpCharacterEquipment::IsWeaponSlot(EquipmentSlot))
 		{
 			if (CustomPlayerController) CustomPlayerController->ResetInputMappingContexts();
@@ -277,6 +319,14 @@ void AUpPlayableCharacter::InitForPlayer()
 			} else
 			{
 				HandleWeaponDelegates(nullptr);
+			}
+
+			for (const auto EquipmentSlot : TArray { EUpEquipmentSlot::Weapon1, EUpEquipmentSlot::Weapon2, EUpEquipmentSlot::Item1, EUpEquipmentSlot::Item2 })
+			{
+				const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot);
+				
+				CustomHud->BroadcastEquipmentUpdate(EquipmentSlot, EquipmentSlotData.ItemInstance.ItemActor ? EquipmentSlotData.ItemInstance.ItemActor->GetItemData() : FUpItemData());
+				CustomHud->BroadcastEquipmentActivationUpdate(EquipmentSlot, EquipmentSlotData.bActivated);
 			}
 		}
 	}
@@ -419,7 +469,6 @@ void AUpPlayableCharacter::HandleWeaponDelegates(AUpWeapon* Weapon)
 				{
 					if (const auto DelegateHandle = AttributeValueDelegateHandleMap.Find(TagAttributeMapping.Key))
 					{
-						UE_LOG(LogTemp, Warning, TEXT("remove delegate %s"), *TagAttributeMapping.Key.ToString())
 						WeaponAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value()).Remove(*DelegateHandle);
 					}
 				}

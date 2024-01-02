@@ -128,6 +128,16 @@ void AUpHud::BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAtt
 	AttributeValueDelegate.Broadcast(Tag, Attribute.GetNumericValue(AttributeSet));
 }
 
+void AUpHud::BroadcastEquipmentActivationUpdate(const EUpEquipmentSlot::Type EquipmentSlot, const bool bActivated) const
+{
+	EquipmentActivationUpdateDelegate.Broadcast(EquipmentSlot, bActivated);
+}
+
+void AUpHud::BroadcastEquipmentUpdate(const EUpEquipmentSlot::Type EquipmentSlot, const FUpItemData& ItemData) const
+{
+	EquipmentUpdateDelegate.Broadcast(EquipmentSlot, ItemData);
+}
+
 void AUpHud::BroadcastInteractionData(const FUpInteractionData InteractionData) const
 {
 	InteractionDataDelegate.Broadcast(InteractionData);

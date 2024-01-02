@@ -160,6 +160,11 @@ struct FUpCharacterEquipment
 	{
 		EquipmentSlotMap.FindChecked(EquipmentSlot).ItemInstance.ItemActor = InItemActor;
 	}
+	
+	void SetEquipmentSlotClass(const EUpEquipmentSlot::Type EquipmentSlot, const TSubclassOf<AUpItem> InItemClass)
+	{
+		EquipmentSlotMap.FindChecked(EquipmentSlot).ItemInstance.ItemClass = InItemClass;
+	}
 
 	UPROPERTY(EditAnywhere)
 	TMap<TEnumAsByte<EUpEquipmentSlot::Type>, FUpEquipmentSlotData> EquipmentSlotMap;
@@ -204,12 +209,13 @@ struct FUpTagSpec
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag Tag;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Count = 1;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag RelatedTag;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Count = 1;
+	float RelatedCount = 0.f;
 };
 
 USTRUCT()

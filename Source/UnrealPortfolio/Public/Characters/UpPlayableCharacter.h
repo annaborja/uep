@@ -79,6 +79,9 @@ protected:
 	bool bAllowedToJump = true;
 	bool bIsPlayer = false;
 
+	virtual void OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot) override;
+	virtual void OnItemUnequip(const EUpEquipmentSlot::Type EquipmentSlot) override;
+
 	virtual void OnEquipmentActivation(const EUpEquipmentSlot::Type EquipmentSlot) override;
 	virtual void OnEquipmentDeactivation(const EUpEquipmentSlot::Type EquipmentSlot) override;
 

@@ -18,6 +18,9 @@ class UNREALPORTFOLIO_API AUpWeapon : public AUpItem, public IAbilitySystemInter
 public:
 	AUpWeapon();
 
+	virtual FUpInteractionData GetInteractionData(const AUpPlayerController* PlayerController) override;
+	virtual void Interact(AUpPlayerController* PlayerController) override;
+
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 
 	FORCEINLINE UUpAmmoAttributeSet* GetAmmoAttributeSet() const { return AmmoAttributeSet; }
@@ -34,8 +37,6 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UUpAmmoAttributeSet> AmmoAttributeSet;
-
-	virtual FText GetInteractionPromptText() const override;
 
 	FUpWeaponData WeaponData;
 	
