@@ -128,6 +128,8 @@ TArray<UUpAttributeSet*> AUpCharacter::GetAttributeSets() const
 
 void AUpCharacter::EquipItem(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot)
 {
+	const auto bSlotActivated = Equipment.GetEquipmentSlotData(EquipmentSlot).bActivated;
+	
 	UnequipItem(EquipmentSlot);
 	
 	Equipment.SetEquipmentSlotClass(EquipmentSlot, ItemActor->GetClass());
@@ -135,6 +137,8 @@ void AUpCharacter::EquipItem(AUpItem* ItemActor, const EUpEquipmentSlot::Type Eq
 	AttachAndHideItem(ItemActor);
 
 	OnItemEquip(ItemActor, EquipmentSlot);
+
+	if (bSlotActivated) ActivateEquipment(EquipmentSlot);
 }
 
 void AUpCharacter::UnequipItem(const EUpEquipmentSlot::Type EquipmentSlot)
@@ -143,7 +147,9 @@ void AUpCharacter::UnequipItem(const EUpEquipmentSlot::Type EquipmentSlot)
 	{
 		ItemActor->Detach();
 		Equipment.SetEquipmentSlotActor(EquipmentSlot, nullptr);
+		Equipment.SetEquipmentSlotClass(EquipmentSlot, nullptr);
 		Equipment.DeactivateEquipmentSlot(EquipmentSlot);
+		
 		OnItemUnequip(EquipmentSlot);
 	}
 }
@@ -268,12 +274,13 @@ AUpItem* AUpCharacter::SpawnAndAttachItem(const TSubclassOf<AUpItem> ItemClass)
 	return nullptr;
 }
 
-void AUpCharacter::AttachAndHideItem(AUpItem* ItemActor) const
+void AUpCharacter::AttachAndHideItem(AUpItem* ItemActor)
 {
 	if (const auto Mesh = GetMesh())
 	{
+		if (!ItemActor->IsAttachedTo(this)) ItemActor->Attach(this);
+		
 		ItemActor->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false));
-		ItemActor->SetActorEnableCollision(false);
 		ItemActor->SetActorHiddenInGame(true);
 	}
 }
@@ -284,5 +291,10 @@ void AUpCharacter::AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName
 	{
 		ItemActor->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), SocketName);
 		ItemActor->SetActorHiddenInGame(false);
+
+		if (GetCameraView() == EUpCameraView::FirstPerson)
+		{
+			ItemActor->ToggleCastShadows(false);
+		}
 	}
 }

@@ -62,9 +62,34 @@ void AUpItem::AttachToComponentWithScaling(USceneComponent* Parent, const FAttac
 	}
 }
 
+void AUpItem::Attach(AActor* Actor)
+{
+	AttachToActor(Actor, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	SetActorEnableCollision(false);
+
+	const auto RootStaticMeshComponent = GetStaticMeshComponent();
+
+	TArray<UActorComponent*> Components;
+	GetComponents(UStaticMeshComponent::StaticClass(), Components);
+
+	for (const auto Component : Components)
+	{
+		if (const auto StaticMeshComponent = Cast<UStaticMeshComponent>(Component))
+		{
+			StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			
+			if (Component == RootStaticMeshComponent)
+			{
+				RootStaticMeshComponent->SetEnableGravity(false);
+				RootStaticMeshComponent->SetSimulatePhysics(false);
+			}
+		}
+	}
+}
+
 void AUpItem::Detach()
 {
-	DetachFromActor(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	SetActorEnableCollision(true);
 	SetActorHiddenInGame(false);
 

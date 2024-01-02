@@ -114,7 +114,7 @@ protected:
 
 	AUpItem* SpawnAndAttachItem(const TSubclassOf<AUpItem> ItemClass);
 	
-	void AttachAndHideItem(AUpItem* ItemActor) const;
+	void AttachAndHideItem(AUpItem* ItemActor);
 	void AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName) const;
 	
 	virtual void OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot) {}
