@@ -85,7 +85,7 @@ UUpDialogueOverlayWidget* UUpPersistentOverlayWidget::OpenDialogueFlow() const
 	return Widget;
 }
 
-ESlateVisibility UUpPersistentOverlayWidget::GetCrossHairVisibility() const
+ESlateVisibility UUpPersistentOverlayWidget::GetCrosshairVisibility() const
 {
 	if (IsDescendentWidgetActivated()) return ESlateVisibility::Hidden;
 	

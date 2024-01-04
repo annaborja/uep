@@ -25,10 +25,10 @@ void UUpPlayerPartyComponent::OnPlayerTagSpecGranted(const UObject* WorldContext
 		{
 			if (IsPartyMembershipSpecSatisfied(PartyMembershipSpecMapping.Value, GameInstance->GetPlayerReputationData(PartyMembershipSpecMapping.Key)))
 			{
-				GameInstance->AddPartyMember(PartyMembershipSpecMapping.Key);
+				// GameInstance->AddPartyMember(PartyMembershipSpecMapping.Key);
 			} else
 			{
-				GameInstance->RemovePartyMember(PartyMembershipSpecMapping.Key);
+				// GameInstance->RemovePartyMember(PartyMembershipSpecMapping.Key);
 			}
 		}
 	}

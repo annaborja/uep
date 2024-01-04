@@ -4,6 +4,7 @@
 
 #include "UpGameInstance.h"
 #include "CommonWidgetCarousel.h"
+#include "Characters/Player/UpPlayerState.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/PanelWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -79,19 +80,22 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 	SquadMemberTags.Reset();
 	
 	const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this);
-	
-	if (GameInstance)
-	{
-		FGameplayTagContainer PartyMemberTags;
-		GameInstance->GetPartyMemberTags(PartyMemberTags);
-		PartyMemberTags.GetGameplayTagArray(SquadMemberTags);
 
-		// TODO(P0): Sorting doesn't seem to be working for some reason.
-		SquadMemberTags.Sort([this] (const FGameplayTag& TagA, const FGameplayTag& TagB)
+	if (const auto CustomPlayerController = UGameplayStatics::GetPlayerController(this, 0))
+	{
+		if (const auto CustomPlayerState = CustomPlayerController->GetPlayerState<AUpPlayerState>())
 		{
-			return UUpBlueprintFunctionLibrary::GetInGameName(this, TagA).ToString().Compare(
-				UUpBlueprintFunctionLibrary::GetInGameName(this, TagB).ToString());
-		});
+			FGameplayTagContainer OutTags;
+			CustomPlayerState->GetSquadMemberTags(OutTags);
+			OutTags.GetGameplayTagArray(SquadMemberTags);
+
+			// TODO(P0): Sorting doesn't seem to be working for some reason.
+			SquadMemberTags.Sort([this] (const FGameplayTag& TagA, const FGameplayTag& TagB)
+			{
+				return UUpBlueprintFunctionLibrary::GetInGameName(this, TagA).ToString().Compare(
+					UUpBlueprintFunctionLibrary::GetInGameName(this, TagB).ToString());
+			});
+		}
 	}
 
 	if (const auto Carousel = GetSquadMembersCarousel())

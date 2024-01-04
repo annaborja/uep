@@ -8,6 +8,7 @@
 #include "Characters/UpPlayableCharacter.h"
 #include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerController.h"
+#include "Characters/Player/UpPlayerState.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "UI/UpHud.h"
 #include "UI/CharacterSwitcher/UpCharacterSwitcherButtonWidget.h"
@@ -49,18 +50,18 @@ void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const
 {
 	if (!CustomHud) return;
 
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	if (const auto CustomController = CustomHud->GetCustomController())
 	{
-		if (const auto CustomController = CustomHud->GetCustomController())
+		if (const auto CustomPlayerState = CustomController->GetPlayerState<AUpPlayerState>())
 		{
 			if (const auto PossessedCharacter = CustomController->GetPossessedCharacter())
 			{
 				FGameplayTagContainer OutTags;
-				GameInstance->GetPartyMemberTags(OutTags);
+				CustomPlayerState->GetSquadMemberTags(OutTags);
 
-				TArray<FGameplayTag> PartyMemberTags;
-				OutTags.GetGameplayTagArray(PartyMemberTags);
-		
+				TArray<FGameplayTag> SquadMemberTags;
+				OutTags.GetGameplayTagArray(SquadMemberTags);
+	
 				const auto CharacterSwitcherButtons = GetCharacterSwitcherButtons();
 				const auto SpherePosition = PossessedCharacter->GetActorLocation();
 
@@ -71,16 +72,17 @@ void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const
 
 				if (bDebugOverlapSphere)
 				{
-					UKismetSystemLibrary::DrawDebugSphere(this, SpherePosition, OverlapSphereRadius, 12, FColor::Orange, 5.f);
+					UKismetSystemLibrary::DrawDebugSphere(this, SpherePosition,
+						OverlapSphereRadius, 12, FColor::Orange, 5.f);
 				}
 
 				for (uint8 i = 0; CharacterSwitcherButtons.IsValidIndex(i); i++)
 				{
 					if (const auto Button = CharacterSwitcherButtons[i])
 					{
-						if (PartyMemberTags.IsValidIndex(i))
+						if (SquadMemberTags.IsValidIndex(i))
 						{
-							const auto PartyMemberTag = PartyMemberTags[i];
+							const auto SquadMemberTag = SquadMemberTags[i];
 							AUpPlayableNpc* Npc = nullptr;
 
 							for (const auto OverlapActor : OverlapActors)
@@ -89,7 +91,7 @@ void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const
 								{
 									if (const auto TagIdable = Cast<IUpTagIdable>(OverlapNpc))
 									{
-										if (TagIdable->GetTagId().MatchesTagExact(PartyMemberTag))
+										if (TagIdable->GetTagId().MatchesTagExact(SquadMemberTag))
 										{
 											Npc = OverlapNpc;
 											break;
@@ -103,7 +105,7 @@ void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const
 								Button->SetNpc(Npc);
 							} else
 							{
-								Button->SetNpcTag(PartyMemberTag);
+								Button->SetNpcTag(SquadMemberTag);
 							}
 						} else
 						{

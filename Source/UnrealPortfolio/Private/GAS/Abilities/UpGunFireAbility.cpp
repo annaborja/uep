@@ -53,19 +53,14 @@ void UUpGunFireAbility::HandleRepeatAction(int32 ActionNumber)
 							FVector2D(ViewportSize.X / 2.f, ViewportSize.Y / 2.f), CrosshairWorldPosition, CrosshairWorldDirection))
 						{
 							const auto LineTraceStart = CrosshairWorldPosition;
-							const auto LineTraceEnd = CrosshairWorldPosition + CrosshairWorldDirection * LineTraceLength;
 
 							FCollisionQueryParams LineTraceParams;
 							LineTraceParams.AddIgnoredActor(AvatarActor);
 							LineTraceParams.AddIgnoredActors(AvatarActor->Children);
 
 							FHitResult HitResult;
-							World->LineTraceSingleByChannel(HitResult, LineTraceStart, LineTraceEnd, TRACE_CHANNEL_WEAPON, LineTraceParams);
-
-							if (bDebug)
-							{
-								UKismetSystemLibrary::DrawDebugLine(this, LineTraceStart, LineTraceEnd, FColor::Cyan, 1.f);
-							}
+							World->LineTraceSingleByChannel(HitResult, LineTraceStart,
+								LineTraceStart + CrosshairWorldDirection * LineTraceLength, TRACE_CHANNEL_WEAPON, LineTraceParams);
 
 							if (HitResult.bBlockingHit)
 							{

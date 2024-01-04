@@ -11,6 +11,9 @@ Saved/*
 .DS_Store
 
 # Assets
+/Content/MSPresets/*
+/Content/Megascans/*
 /Content/Pistol_Basic/*
+/Content/Polygon-City_Megapolis/*
 /Content/Polygon_WeaponsKit/*
 

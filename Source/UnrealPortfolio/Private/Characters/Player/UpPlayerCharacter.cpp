@@ -5,6 +5,7 @@
 #include "UpGameInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Characters/UpPlayableNpc.h"
+#include "Characters/Player/UpPlayerState.h"
 #include "Characters/Player/Components/UpPlayerCombatComponent.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
@@ -28,28 +29,58 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 void AUpPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
 
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	if (const auto CustomPlayerState = GetPlayerState<AUpPlayerState>())
 	{
-		FGameplayTagContainer PartyMemberTags;
-		GameInstance->GetPartyMemberTags(PartyMemberTags);
-
-		const auto PartyMemberTag = PartyMemberTags.First();
+		FGameplayTagContainer SquadMemberTags;
+		CustomPlayerState->GetSquadMemberTags(SquadMemberTags);
 		
-		TArray<AActor*> PlayableNpcs;
-		UGameplayStatics::GetAllActorsOfClass(this, AUpPlayableNpc::StaticClass(), PlayableNpcs);
-		AUpPlayableNpc* PartyMember = nullptr;
+		const auto PlayerLocation = GetActorLocation();
+		const auto PlayerForwardVector= GetActorForwardVector();
+		const auto PlayerRightVector= GetActorRightVector();
+		const auto PlayerRotation = GetActorRotation();
+		
+		AUpPlayableNpc* SquadMember1 = nullptr;
 
-		for (const auto Actor : PlayableNpcs)
+		if (const auto World = GetWorld())
 		{
-			if (const auto TagIdable = Cast<IUpTagIdable>(Actor); TagIdable && TagIdable->GetTagId().MatchesTagExact(PartyMemberTag))
+			uint8 SquadMemberNumber = 0;
+			
+			for (const auto& Tag : SquadMemberTags)
 			{
-				PartyMember = Cast<AUpPlayableNpc>(Actor);
-				break;
+				for (const auto NpcClass : PlayableNpcClasses)
+				{
+					if (const auto DefaultObject = NpcClass->GetDefaultObject<AUpPlayableNpc>();
+						DefaultObject && DefaultObject->GetTagId().MatchesTagExact(Tag))
+					{
+						SquadMemberNumber++;
+						auto NpcLocation = PlayerLocation;
+
+						if (SquadMemberNumber == 2)
+						{
+							NpcLocation += PlayerForwardVector * SquadMemberSpawnLocationOffset_Forward +
+								PlayerRightVector * SquadMemberSpawnLocationOffset_Right * -1.0;
+						} else if (SquadMemberNumber > 2)
+						{
+							NpcLocation += PlayerForwardVector * SquadMemberSpawnLocationOffset_Forward +
+								PlayerRightVector * SquadMemberSpawnLocationOffset_Right;
+						}
+						
+						const auto Npc = World->SpawnActor(NpcClass, &NpcLocation, &PlayerRotation);
+
+						if (SquadMemberNumber == 1)
+						{
+							SquadMember1 = Cast<AUpPlayableNpc>(Npc);
+						}
+					}
+				}			
 			}
 		}
 
-		if (CustomPlayerController && PartyMember) CustomPlayerController->SwitchCharacter(PartyMember);
+		if (CustomPlayerController && SquadMember1) CustomPlayerController->SwitchCharacter(SquadMember1);
 	}
 }
 

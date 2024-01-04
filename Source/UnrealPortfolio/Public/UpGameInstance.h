@@ -36,10 +36,6 @@ public:
 	FUpPartyMembershipSpec GetPartyMembershipSpec(const FGameplayTag& TagId) const;
 	TMap<FGameplayTag, FUpPartyMembershipSpec> GetPartyMembershipSpecMap() const { return PartyMembershipSpecMap; }
 	
-	void GetPartyMemberTags(FGameplayTagContainer& OutTags) const;
-	void AddPartyMember(const FGameplayTag& NpcTagId);
-	void RemovePartyMember(const FGameplayTag& NpcTagId);
-
 	FUpReputationData GetPlayerReputationData(const FGameplayTag& TagId);
 	bool UpdatePlayerReputation_Affection(const FGameplayTag& TagId, const int8 Delta);
 	bool UpdatePlayerReputation_Esteem(const FGameplayTag& TagId, const int8 Delta);
@@ -82,10 +78,6 @@ private:
 	// TODO(P0): Load from saved data.
 	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Tags")
 	TMap<FGameplayTag, FGameplayTagContainer> NpcCharacterTagsMap;
-	
-	// TODO(P0): Load from saved data.
-	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Party")
-	FGameplayTagContainer PartyMemberTags;
 	
 	// TODO(P0): Load from saved data.
 	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Reputation")
