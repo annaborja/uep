@@ -3,16 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
+#include "Characters/UpPlayableCharacter.h"
 #include "UI/UpCommonUserWidget.h"
 #include "UpPersistentVitalStatsDisplayWidget.generated.h"
 
 class AUpPlayableCharacter;
-struct FGameplayTag;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpPersistentVitalStatsDisplayWidget : public UUpCommonUserWidget
 {
 	GENERATED_BODY()
+
+public:
+    void SetCharacter(AUpPlayableCharacter* InCharacter);
+
+    FORCEINLINE AUpPlayableCharacter* GetCharacter() const { return Character; }
 
 protected:
     UPROPERTY(BlueprintReadOnly)
@@ -36,10 +42,9 @@ protected:
     float GetShieldBarPercentage() const;
 
 private:
+    UPROPERTY(Transient)
+    TObjectPtr<AUpPlayableCharacter> Character;
+    
     UFUNCTION()
-    void HandleAttributeValueChange(const FGameplayTag& Tag, const float Value);
-    UFUNCTION()
-    void HandlePossessedCharacterChange(const AUpPlayableCharacter* PossessedCharacter);
-
-    void InitAttributes(const AUpPlayableCharacter* PossessedCharacter);
+    void HandleAttributeValueChange(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const float Value);
 };

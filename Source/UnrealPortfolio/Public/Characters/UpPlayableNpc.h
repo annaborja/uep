@@ -3,11 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagAssetInterface.h"
 #include "UpPlayableCharacter.h"
 #include "Interfaces/UpInteractable.h"
 #include "Interfaces/UpNameable.h"
-#include "Interfaces/UpTagIdable.h"
 #include "UpPlayableNpc.generated.h"
 
 class AUpAiController;
@@ -17,8 +15,7 @@ class USphereComponent;
 class UUpDialogueComponent;
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpPlayableNpc : public AUpPlayableCharacter, public IGameplayTagAssetInterface,
-	public IUpInteractable, public IUpNameable, public IUpTagIdable
+class UNREALPORTFOLIO_API AUpPlayableNpc : public AUpPlayableCharacter, public IGameplayTagAssetInterface, public IUpInteractable, public IUpNameable
 {
 	GENERATED_BODY()
 
@@ -34,8 +31,6 @@ public:
 	virtual void Interact(AUpPlayerController* PlayerController) override;
 
 	virtual FText GetInGameName() const override { return CharacterData.Name; }
-
-	virtual FGameplayTag GetTagId() const override { return TagId; }
 
 	void JumpToLocation(const FVector& TargetLocation, const float Duration);
 	bool Mantle() const;
@@ -55,8 +50,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
 	
-	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	FGameplayTag TagId;
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float InteractionSphereRadius = 100.f;
 

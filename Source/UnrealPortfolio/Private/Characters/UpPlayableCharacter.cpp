@@ -295,24 +295,6 @@ void AUpPlayableCharacter::InitForPlayer()
 		{
 			CustomHud->BroadcastPossessedCharacter(this);
 
-			if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
-			{
-				for (const auto AttributeSet : GetAttributeSets())
-				{
-					for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
-					{
-						AttributeValueDelegateHandleMap.Add(TagAttributeMapping.Key, AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value())
-							.AddLambda([this, AttributeSet, CustomHud, TagAttributeMapping](const FOnAttributeChangeData& Data)
-							{
-								if (IsValid(CustomHud))
-								{
-									CustomHud->BroadcastAttributeValue(TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
-								}
-							}));
-					}
-				}	
-			}
-
 			if (const auto& EquipmentSlotData = Equipment.GetPotentialActiveWeaponSlotData(); EquipmentSlotData.bActivated)
 			{
 				HandleWeaponDelegates(Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor));
@@ -334,20 +316,6 @@ void AUpPlayableCharacter::InitForPlayer()
 
 void AUpPlayableCharacter::TearDownForPlayer()
 {
-	if (const auto AbilitySystemComponent = GetAbilitySystemComponent())
-	{
-		for (const auto AttributeSet : GetAttributeSets())
-		{
-			for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
-			{
-				if (const auto DelegateHandle = AttributeValueDelegateHandleMap.Find(TagAttributeMapping.Key))
-				{
-					AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value()).Remove(*DelegateHandle);
-				}
-			}
-		}	
-	}
-	
 	if (CustomPlayerController)
 	{
 		if (!CustomPlayerController->IsDebugCameraActive()) SetUpThirdPersonMesh();
@@ -493,11 +461,11 @@ void AUpPlayableCharacter::HandleWeaponDelegates(AUpWeapon* Weapon)
 					for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
 					{
 						AttributeValueDelegateHandleMap.Add(TagAttributeMapping.Key, WeaponAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value())
-							.AddLambda([this, AttributeSet, CustomHud, TagAttributeMapping](const FOnAttributeChangeData& Data)
+							.AddLambda([this, AttributeSet, CustomHud, TagAttributeMapping, Weapon](const FOnAttributeChangeData& Data)
 							{
 								if (IsValid(CustomHud))
 								{
-									CustomHud->BroadcastAttributeValue(TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
+									CustomHud->BroadcastAttributeValue(Weapon->GetTagId(), TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
 								}
 							}));
 					}

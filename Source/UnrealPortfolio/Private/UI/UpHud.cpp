@@ -123,9 +123,10 @@ void AUpHud::BroadcastActiveWeapon(const AUpWeapon* Weapon) const
 	ActiveWeaponDelegate.Broadcast(Weapon);
 }
 
-void AUpHud::BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const
+void AUpHud::BroadcastAttributeValue(const FGameplayTag& TagId, const FGameplayTag& AttributeTag,
+	const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const
 {
-	AttributeValueDelegate.Broadcast(Tag, Attribute.GetNumericValue(AttributeSet));
+	AttributeValueDelegate.Broadcast(TagId, AttributeTag, Attribute.GetNumericValue(AttributeSet));
 }
 
 void AUpHud::BroadcastEquipmentActivationUpdate(const EUpEquipmentSlot::Type EquipmentSlot, const bool bActivated) const
@@ -143,7 +144,12 @@ void AUpHud::BroadcastInteractionData(const FUpInteractionData InteractionData) 
 	InteractionDataDelegate.Broadcast(InteractionData);
 }
 
-void AUpHud::BroadcastPossessedCharacter(const AUpPlayableCharacter* PossessedCharacter) const
+void AUpHud::BroadcastPossessedCharacter(AUpPlayableCharacter* PossessedCharacter) const
 {
 	PossessedCharacterDelegate.Broadcast(PossessedCharacter);
+}
+
+void AUpHud::BroadcastSecondarySquadMember(AUpPlayableCharacter* Character) const
+{
+	SecondarySquadMemberDelegate.Broadcast(Character);
 }

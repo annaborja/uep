@@ -36,7 +36,7 @@ private:
 	UFUNCTION()
 	void HandleActiveWeaponChange(const AUpWeapon* Weapon);
 	UFUNCTION()
-	void HandleAttributeValueChange(const FGameplayTag& Tag, const float Value);
+	void HandleAttributeValueChange(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const float Value);
 
 	void InitAttributes(const AUpWeapon* Weapon);
 };

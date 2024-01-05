@@ -37,11 +37,12 @@ struct FUpMenuTabData : public FTableRowBase
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudActiveWeaponSignature, const AUpWeapon*);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FUpHudAttributeValueSignature, const FGameplayTag&, const float);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FUpHudAttributeValueSignature, const FGameplayTag&, const FGameplayTag&, const float);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FUpHudEquipmentActivationUpdateSignature, const EUpEquipmentSlot::Type, const bool bActivated);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FUpHudEquipmentUpdateSignature, const EUpEquipmentSlot::Type, const FUpItemData& ItemData);
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudInteractionDataSignature, const FUpInteractionData);
-DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudPossessedCharacterSignature, const AUpPlayableCharacter*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudPossessedCharacterSignature, AUpPlayableCharacter*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudSecondarySquadMemberSignature, AUpPlayableCharacter*);
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpHud : public AHUD
@@ -55,6 +56,7 @@ public:
 	FUpHudEquipmentUpdateSignature EquipmentUpdateDelegate;
 	FUpHudInteractionDataSignature InteractionDataDelegate;
 	FUpHudPossessedCharacterSignature PossessedCharacterDelegate;
+	FUpHudSecondarySquadMemberSignature SecondarySquadMemberDelegate;
 	
 	void Init(AUpPlayerController* InPlayerController);
 	void OpenMainMenu() const;
@@ -71,11 +73,12 @@ public:
 	void SelectDialogueOption(const AUpPlayableNpc* Npc, const FUpDialogueOptionData& DialogueOption) const;
 
 	void BroadcastActiveWeapon(const AUpWeapon* Weapon) const;
-	void BroadcastAttributeValue(const FGameplayTag& Tag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const;
+	void BroadcastAttributeValue(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const;
 	void BroadcastEquipmentActivationUpdate(const EUpEquipmentSlot::Type EquipmentSlot, const bool bActivated) const;
 	void BroadcastEquipmentUpdate(const EUpEquipmentSlot::Type EquipmentSlot, const FUpItemData& ItemData) const;
 	void BroadcastInteractionData(const FUpInteractionData InteractionData) const;
-	void BroadcastPossessedCharacter(const AUpPlayableCharacter* PossessedCharacter) const;
+	void BroadcastPossessedCharacter(AUpPlayableCharacter* PossessedCharacter) const;
+	void BroadcastSecondarySquadMember(AUpPlayableCharacter* Character) const;
 
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
 	

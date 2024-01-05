@@ -54,15 +54,15 @@ void UUpPersistentAmmoDisplayWidget::HandleActiveWeaponChange(const AUpWeapon* W
 	}
 }
 
-void UUpPersistentAmmoDisplayWidget::HandleAttributeValueChange(const FGameplayTag& Tag, const float Value)
+void UUpPersistentAmmoDisplayWidget::HandleAttributeValueChange(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const float Value)
 {
-	if (Tag.MatchesTagExact(TAG_Attribute_Ammo_MagazineFill))
+	if (AttributeTag.MatchesTagExact(TAG_Attribute_Ammo_MagazineFill))
 	{
 		MagazineFill = Value;
-	} else if (Tag.MatchesTagExact(TAG_Attribute_Ammo_MagazineCapacity))
+	} else if (AttributeTag.MatchesTagExact(TAG_Attribute_Ammo_MagazineCapacity))
 	{
 		MagazineCapacity = Value;
-	} else if (Tag.MatchesTagExact(TAG_Attribute_Ammo_AmmoReserve))
+	} else if (AttributeTag.MatchesTagExact(TAG_Attribute_Ammo_AmmoReserve))
 	{
 		AmmoReserve = Value;
 	}

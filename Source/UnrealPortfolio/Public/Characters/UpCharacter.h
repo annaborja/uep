@@ -7,6 +7,7 @@
 #include "GAS/UpAbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/UpCombatable.h"
+#include "Interfaces/UpTagIdable.h"
 #include "Utils/Structs.h"
 #include "UpCharacter.generated.h"
 
@@ -36,7 +37,7 @@ struct FUpCharacterData : public FTableRowBase
 };
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpCharacter : public ACharacter, public IAbilitySystemInterface, public IUpCombatable
+class UNREALPORTFOLIO_API AUpCharacter : public ACharacter, public IAbilitySystemInterface, public IUpCombatable, public IUpTagIdable
 {
 	GENERATED_BODY()
 
@@ -52,6 +53,8 @@ public:
 	virtual UUpCombatComponent* GetCombatComponent() const override { return CombatComponent; }
 	virtual UAnimMontage* GetHitReactionsMontage() const override { return HitReactionsMontage_ThirdPerson; }
 	virtual UAnimMontage* GetReloadsMontage() const override { return ReloadsMontage_ThirdPerson; }
+	
+	virtual FGameplayTag GetTagId() const override { return TagId; }
 
 	void SetYaw(const float InYaw);
 	
@@ -96,6 +99,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="UP Data")
 	FUpCharacterEquipment Equipment;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	FGameplayTag TagId;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;
