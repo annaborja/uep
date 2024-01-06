@@ -8,6 +8,7 @@
 #include "Utils/Structs.h"
 #include "UpDialogueComponent.generated.h"
 
+class AUpCharacter;
 class AUpPlayableNpc;
 class AUpPlayerController;
 class AUpPlayerCharacter;
@@ -34,11 +35,40 @@ struct FUpDialogueLine
 {
 	GENERATED_BODY()
 
+	FUpDialogueLine() {}
+	explicit FUpDialogueLine(UDialogueWave* InDialogueWave) : DialogueWave(InDialogueWave) {}
+
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UDialogueWave> DialogueWave;
 	
 	UPROPERTY(EditDefaultsOnly, meta=(TitleProperty="Montage"))
 	TArray<FUpMontageData> MontageData;
+};
+
+USTRUCT()
+struct FUpBarkData
+{
+	GENERATED_BODY()
+
+	FUpBarkData() {}
+	explicit FUpBarkData(const FGameplayTag& InSpeakerTagId, const TArray<FUpDialogueLine> InDialogueLines, const bool bInNotifyLevelOnEnd = false) :
+		SpeakerTagId(InSpeakerTagId), DialogueLines(InDialogueLines), bNotifyLevelOnEnd(bInNotifyLevelOnEnd) {}
+
+	bool IsValid() const { return SpeakerTagId.IsValid() && DialogueLines.Num() > 0; }
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag SpeakerTagId;
+	
+	UPROPERTY(EditDefaultsOnly, meta=(TitleProperty="DialogueWave"))
+	TArray<FUpDialogueLine> DialogueLines;
+	
+	UPROPERTY(EditDefaultsOnly)
+	uint8 Priority = 1;
+	
+	UPROPERTY(EditDefaultsOnly)
+	bool bNotifyLevelOnEnd = false;
+
+	FGameplayTag NotifyTag;
 };
 
 USTRUCT()

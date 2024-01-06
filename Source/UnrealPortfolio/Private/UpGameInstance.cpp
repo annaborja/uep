@@ -15,6 +15,7 @@ void UUpGameInstance::Init()
 	check(GasDataAsset);
 	check(ItemDataTable);
 	check(PlayerDialogueVoice);
+	check(TutorialDataTable);
 	check(WeaponDataTable);
 
 	TArray<FUpCharacterData*> AllCharacterDataRows;
@@ -31,6 +32,14 @@ void UUpGameInstance::Init()
 	for (const auto Row : AllItemDataRows)
 	{
 		AllItemData.Add(*Row);
+	}
+
+	TArray<FUpTutorialData*> AllTutorialDataRows;
+	TutorialDataTable->GetAllRows(TEXT("TutorialDataTable GetAllRows"), AllTutorialDataRows);
+
+	for (const auto Row : AllTutorialDataRows)
+	{
+		AllTutorialData.Add(*Row);
 	}
 	
 	TArray<FUpWeaponData*> AllWeaponDataRows;
@@ -215,6 +224,21 @@ FUpInventory UUpGameInstance::GetNpcInventory(const FGameplayTag& NpcTagId)
 	if (!UUpBlueprintFunctionLibrary::ValidateNpcTag(NpcTagId, TEXT("GetNpcInventory"))) return FUpInventory();
 	
 	return NpcInventoryMap.FindOrAdd(NpcTagId);
+}
+
+FUpTutorialData UUpGameInstance::GetTutorialData(const FGameplayTag& TagId)
+{
+	FUpTutorialData Result;
+
+	for (const auto Data : AllTutorialData)
+	{
+		if (Data.TagId.MatchesTagExact(TagId))
+		{
+			Result = Data;
+		}
+	}
+
+	return Result;
 }
 
 FUpWeaponData UUpGameInstance::GetWeaponData(const FGameplayTag& WeaponTagId)

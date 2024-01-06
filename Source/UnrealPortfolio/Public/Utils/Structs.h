@@ -281,6 +281,26 @@ struct FUpItemData : public FTableRowBase
 	TArray<FUpAbilityGrantSpec> AbilityGrantSpecs;
 };
 
+USTRUCT(BlueprintType)
+struct FUpTutorialData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	bool IsValid() const { return TagId.IsValid() && !Text.IsEmpty(); }
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag TagId;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText Text;
+
+	UPROPERTY(EditDefaultsOnly, meta=(TitleProperty="RowName"))
+	TArray<FDataTableRowHandle> InputActionRows;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float TimeToLive = 5.f;
+};
+
 USTRUCT()
 struct FUpWeaponData : public FTableRowBase
 {

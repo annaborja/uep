@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Characters/UpPlayableCharacter.h"
+#include "Components/UpDialogueComponent.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/HUD.h"
 #include "Items/UpWeapon.h"
@@ -14,6 +15,8 @@ class AUpPlayableCharacter;
 class AUpPlayableNpc;
 class AUpPlayerController;
 struct FGameplayAttribute;
+struct FUpBarkData;
+struct FUpDialogueLine;
 struct FUpDialogueOptionData;
 struct FUpDialogueStepData;
 class UUpAttributeSet;
@@ -38,11 +41,13 @@ struct FUpMenuTabData : public FTableRowBase
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudActiveWeaponSignature, const AUpWeapon*);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FUpHudAttributeValueSignature, const FGameplayTag&, const FGameplayTag&, const float);
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudBarkSignature, const FUpBarkData& BarkData);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FUpHudEquipmentActivationUpdateSignature, const EUpEquipmentSlot::Type, const bool bActivated);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FUpHudEquipmentUpdateSignature, const EUpEquipmentSlot::Type, const FUpItemData& ItemData);
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudInteractionDataSignature, const FUpInteractionData);
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudPossessedCharacterSignature, AUpPlayableCharacter*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudSecondarySquadMemberSignature, AUpPlayableCharacter*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudTutorialSignature, const FUpTutorialData&);
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpHud : public AHUD
@@ -52,11 +57,13 @@ class UNREALPORTFOLIO_API AUpHud : public AHUD
 public:
 	FUpHudActiveWeaponSignature ActiveWeaponDelegate;
 	FUpHudAttributeValueSignature AttributeValueDelegate;
+	FUpHudBarkSignature BarkDelegate;
 	FUpHudEquipmentActivationUpdateSignature EquipmentActivationUpdateDelegate;
 	FUpHudEquipmentUpdateSignature EquipmentUpdateDelegate;
 	FUpHudInteractionDataSignature InteractionDataDelegate;
 	FUpHudPossessedCharacterSignature PossessedCharacterDelegate;
 	FUpHudSecondarySquadMemberSignature SecondarySquadMemberDelegate;
+	FUpHudTutorialSignature TutorialDelegate;
 	
 	void Init(AUpPlayerController* InPlayerController);
 	void OpenMainMenu() const;
@@ -74,11 +81,13 @@ public:
 
 	void BroadcastActiveWeapon(const AUpWeapon* Weapon) const;
 	void BroadcastAttributeValue(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const;
+	void BroadcastBark(const FUpBarkData& BarkData) const;
 	void BroadcastEquipmentActivationUpdate(const EUpEquipmentSlot::Type EquipmentSlot, const bool bActivated) const;
 	void BroadcastEquipmentUpdate(const EUpEquipmentSlot::Type EquipmentSlot, const FUpItemData& ItemData) const;
 	void BroadcastInteractionData(const FUpInteractionData InteractionData) const;
 	void BroadcastPossessedCharacter(AUpPlayableCharacter* PossessedCharacter) const;
 	void BroadcastSecondarySquadMember(AUpPlayableCharacter* Character) const;
+	void BroadcastTutorial(const FUpTutorialData& TutorialData) const;
 
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
 	

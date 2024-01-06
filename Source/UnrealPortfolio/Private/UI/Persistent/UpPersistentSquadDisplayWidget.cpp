@@ -12,7 +12,7 @@ void UUpPersistentSquadDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewC
 	if (!CustomHud) return;
 
 	CustomHud->PossessedCharacterDelegate.AddUObject(this, &ThisClass::HandlePossessedCharacterChange);
-	CustomHud->SecondarySquadMemberDelegate.AddUObject(this, &ThisClass::HandleSecondarySquadMemberSpawn);
+	CustomHud->SecondarySquadMemberDelegate.AddUObject(this, &ThisClass::HandleSecondarySquadMemberBroadcast);
 
 	if (const auto CustomController = CustomHud->GetCustomController())
 	{
@@ -50,7 +50,7 @@ void UUpPersistentSquadDisplayWidget::HandlePossessedCharacterChange(AUpPlayable
 	}
 }
 
-void UUpPersistentSquadDisplayWidget::HandleSecondarySquadMemberSpawn(AUpPlayableCharacter* Character)
+void UUpPersistentSquadDisplayWidget::HandleSecondarySquadMemberBroadcast(AUpPlayableCharacter* Character)
 {
 	for (const auto Widget : TArray { GetVitalStatsDisplay_Secondary1(), GetVitalStatsDisplay_Secondary2() })
 	{

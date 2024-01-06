@@ -37,7 +37,6 @@ public:
 	void ToggleSprint(const bool bSprint) const;
 
 	FORCEINLINE UUpDialogueComponent* GetDialogueComponent() const { return DialogueComponent; }
-	FORCEINLINE UDialogueVoice* GetDialogueVoice() const { return DialogueVoice; }
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -45,8 +44,6 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> InteractionSphere;
 	
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TObjectPtr<UDialogueVoice> DialogueVoice;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
 	

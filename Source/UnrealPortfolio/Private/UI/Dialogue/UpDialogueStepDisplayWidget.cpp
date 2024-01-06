@@ -77,7 +77,7 @@ void UUpDialogueStepDisplayWidget::HandleMontageEnded(UAnimMontage* Montage, boo
 void UUpDialogueStepDisplayWidget::DisplayDialogueLine()
 {
 	FDialogueContext DialogueContext;
-	DialogueContext.Speaker = Npc->GetDialogueVoice();
+	DialogueContext.Speaker = Npc->GetCharacterData().DialogueVoice;
 		
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{

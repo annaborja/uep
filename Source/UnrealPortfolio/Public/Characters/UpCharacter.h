@@ -11,6 +11,7 @@
 #include "Utils/Structs.h"
 #include "UpCharacter.generated.h"
 
+class UDialogueVoice;
 class UGameplayEffect;
 class UUpAttributeSet;
 class UUpCharacterMovementComponent;
@@ -34,6 +35,9 @@ struct FUpCharacterData : public FTableRowBase
 	TObjectPtr<UTexture2D> Image_FullBody;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UTexture2D> Image_Head;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UDialogueVoice> DialogueVoice;
 };
 
 UCLASS()

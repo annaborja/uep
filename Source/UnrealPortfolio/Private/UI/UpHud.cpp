@@ -129,6 +129,11 @@ void AUpHud::BroadcastAttributeValue(const FGameplayTag& TagId, const FGameplayT
 	AttributeValueDelegate.Broadcast(TagId, AttributeTag, Attribute.GetNumericValue(AttributeSet));
 }
 
+void AUpHud::BroadcastBark(const FUpBarkData& BarkData) const
+{
+	BarkDelegate.Broadcast(BarkData);
+}
+
 void AUpHud::BroadcastEquipmentActivationUpdate(const EUpEquipmentSlot::Type EquipmentSlot, const bool bActivated) const
 {
 	EquipmentActivationUpdateDelegate.Broadcast(EquipmentSlot, bActivated);
@@ -152,4 +157,9 @@ void AUpHud::BroadcastPossessedCharacter(AUpPlayableCharacter* PossessedCharacte
 void AUpHud::BroadcastSecondarySquadMember(AUpPlayableCharacter* Character) const
 {
 	SecondarySquadMemberDelegate.Broadcast(Character);
+}
+
+void AUpHud::BroadcastTutorial(const FUpTutorialData& TutorialData) const
+{
+	TutorialDelegate.Broadcast(TutorialData);
 }

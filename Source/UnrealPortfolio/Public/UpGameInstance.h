@@ -10,6 +10,7 @@
 #include "Utils/Structs.h"
 #include "UpGameInstance.generated.h"
 
+class AUpLevelScriptActor;
 struct FUpCharacterData;
 class UDataTable;
 class UDialogueVoice;
@@ -42,7 +43,11 @@ public:
 
 	FUpItemData GetItemData(const FGameplayTag& ItemTagId);
 	FUpInventory GetNpcInventory(const FGameplayTag& NpcTagId);
+	FUpTutorialData GetTutorialData(const FGameplayTag& TagId);
 	FUpWeaponData GetWeaponData(const FGameplayTag& WeaponTagId);
+
+	void SetLevelScriptActor(AUpLevelScriptActor* InLevelScriptActor) { LevelScriptActor = InLevelScriptActor; }
+	FORCEINLINE AUpLevelScriptActor* GetLevelScriptActor() const { return LevelScriptActor; }
 	
 	FORCEINLINE UDataTable* GetCharacterDataTable() const { return CharacterDataTable; }
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
@@ -63,6 +68,8 @@ private:
 	TObjectPtr<UDataTable> CharacterDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpItemData"))
 	TObjectPtr<UDataTable> ItemDataTable;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpTutorialData"))
+	TObjectPtr<UDataTable> TutorialDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpWeaponData"))
 	TObjectPtr<UDataTable> WeaponDataTable;
 	
@@ -90,10 +97,15 @@ private:
 	UPROPERTY(SaveGame, EditAnywhere, Category="UP Runtime|Inventory")
 	TMap<FGameplayTag, FUpInventory> NpcInventoryMap;
 	
+	UPROPERTY(Transient, VisibleInstanceOnly, Category="UP Runtime")
+	TObjectPtr<AUpLevelScriptActor> LevelScriptActor;
+	
 	UPROPERTY(Transient)
 	TArray<FUpCharacterData> AllCharacterData;
 	UPROPERTY(Transient)
 	TArray<FUpItemData> AllItemData;
+	UPROPERTY(Transient)
+	TArray<FUpTutorialData> AllTutorialData;
 	UPROPERTY(Transient)
 	TArray<FUpWeaponData> AllWeaponData;
 };

@@ -28,5 +28,5 @@ private:
     UFUNCTION()
     void HandlePossessedCharacterChange(AUpPlayableCharacter* PossessedCharacter);
     UFUNCTION()
-    void HandleSecondarySquadMemberSpawn(AUpPlayableCharacter* Character);
+    void HandleSecondarySquadMemberBroadcast(AUpPlayableCharacter* Character);
 };
