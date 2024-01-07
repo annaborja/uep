@@ -4,6 +4,7 @@
 
 #include "UpGameInstance.h"
 #include "Characters/Player/UpPlayerController.h"
+#include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/UpHud.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -22,6 +23,24 @@ void AUpLevelScriptActor::NotifyTag(const FGameplayTag& Tag)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Commands not found for tag %s"), *Tag.ToString())
 	}
+}
+
+FUpInteractionData AUpLevelScriptActor::GetInteractionData(const AUpPlayerController* PlayerController)
+{
+	// This is a hacky interaction flow, so always return invalid interaction data.
+	return FUpInteractionData();
+}
+
+void AUpLevelScriptActor::Interact(AUpPlayerController* PlayerController)
+{
+	if (PotentialLookTarget) PlayerController->CreateTemporaryCamera(PotentialLookTarget, LookTargetCameraBlendTime, LookTargetAspectRatio, LookTargetFieldOfView);
+}
+
+void AUpLevelScriptActor::OnInteractionEnd(AUpPlayerController* PlayerController)
+{
+	IUpInteractable::OnInteractionEnd(PlayerController);
+
+	PlayerController->DestroyTemporaryCamera(LookTargetCameraBlendTime);
 }
 
 void AUpLevelScriptActor::BeginPlay()
@@ -67,11 +86,11 @@ void AUpLevelScriptActor::Tick(const float DeltaSeconds)
 	CommandsToExecute.Append(NewCommandsToExecute);
 }
 
-void AUpLevelScriptActor::ExecuteCommand(const FUpScriptCommand& Command) const
+void AUpLevelScriptActor::ExecuteCommand(const FUpScriptCommand& Command)
 {
 	if (bDebug)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Executing command: %d (%s)"), Command.CommandType, *Command.DataKeyTag.ToString())
+		UE_LOG(LogTemp, Warning, TEXT("Executing command: %d (%s)"), Command.CommandType, *Command.DataTag.ToString())
 	}
 
 	const auto CustomPlayerController = Cast<AUpPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
@@ -83,7 +102,7 @@ void AUpLevelScriptActor::ExecuteCommand(const FUpScriptCommand& Command) const
 	case EUpScriptCommandType::DisplayTutorial:
 		if (GameInstance)
 		{
-			if (const auto& TutorialData = GameInstance->GetTutorialData(Command.DataKeyTag); TutorialData.IsValid())
+			if (const auto& TutorialData = GameInstance->GetTutorialData(Command.DataTag); TutorialData.IsValid())
 			{
 				if (CustomHud) CustomHud->BroadcastTutorial(TutorialData);
 			}
@@ -91,22 +110,71 @@ void AUpLevelScriptActor::ExecuteCommand(const FUpScriptCommand& Command) const
 		
 		break;
 	case EUpScriptCommandType::ExecuteBark:
-		if (const auto BarkDataPtr = BarkDataMap.Find(Command.DataKeyTag))
+		if (const auto BarkDataPtr = BarkDataMap.Find(Command.DataTag))
 		{
 			auto BarkData = *BarkDataPtr;
 			
 			if (BarkData.bNotifyLevelOnEnd)
 			{
-				BarkData.NotifyTag = Command.DataKeyTag;
+				BarkData.NotifyTag = Command.DataTag;
 			}
 			
 			if (CustomHud) CustomHud->BroadcastBark(BarkData);
 		} else
 		{
-			UE_LOG(LogTemp, Error, TEXT("Bark data not found for key %s"), *Command.DataKeyTag.ToString())
+			UE_LOG(LogTemp, Error, TEXT("Bark data not found for key %s"), *Command.DataTag.ToString())
 		}
 		
 		break;
+	case EUpScriptCommandType::SetPotentialLookTarget:
+		{
+			if (!Command.DataTag.IsValid())
+			{
+				if (CustomPlayerController)
+				{
+					if (const auto PossessedCharacter = CustomPlayerController->GetPossessedCharacter())
+					{
+						if (const auto InteractionComponent = PossessedCharacter->GetPlayerInteractionComponent())
+						{
+							InteractionComponent->SetInteractionData(FUpInteractionData());
+						}
+					}
+
+					if (CustomPlayerController->GetActiveInteractable() == this)
+					{
+						OnInteractionEnd(CustomPlayerController);
+					}
+				}
+
+				return;
+			}
+			
+			TArray<AActor*> OutActors;
+			UGameplayStatics::GetAllActorsOfClass(this, Command.RelevantClass, OutActors);
+
+			for (const auto Actor : OutActors)
+			{
+				if (const auto TagIdable = Cast<IUpTagIdable>(Actor); TagIdable && TagIdable->GetTagId().MatchesTagExact(Command.DataTag))
+				{
+					PotentialLookTarget = Actor;
+
+					if (CustomPlayerController)
+					{
+						if (const auto PossessedCharacter = CustomPlayerController->GetPossessedCharacter())
+						{
+							if (const auto InteractionComponent = PossessedCharacter->GetPlayerInteractionComponent())
+							{
+								InteractionComponent->SetInteractionData(FUpInteractionData(this, FText::FromString(TEXT("Look"))));
+							}
+						}
+					}
+
+					return;
+				}
+			}
+		
+			break;
+		}
 	default:
 		UE_LOG(LogTemp, Warning, TEXT("Invalid script command type %d"), Command.CommandType)
 	}

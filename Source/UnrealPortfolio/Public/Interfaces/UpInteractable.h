@@ -22,4 +22,5 @@ class UNREALPORTFOLIO_API IUpInteractable
 public:
 	virtual FUpInteractionData GetInteractionData(const AUpPlayerController* PlayerController) = 0;
 	virtual void Interact(AUpPlayerController* PlayerController) = 0;
+	virtual void OnInteractionEnd(AUpPlayerController* PlayerController) {};
 };

@@ -5,6 +5,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
+#include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
 #include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerCameraManager.h"
 #include "Characters/Player/UpPlayerCharacter.h"
@@ -13,6 +15,7 @@
 #include "GameFramework/DefaultPawn.h"
 #include "Interfaces/UpInteractable.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Tags/CombatTags.h"
 #include "UI/UpHud.h"
 
@@ -146,6 +149,55 @@ void AUpPlayerController::ResetInputMappingContexts() const
 	}
 }
 
+void AUpPlayerController::CreateTemporaryCamera(const AActor* LookTarget, const float CameraBlendTime, const float AspectRatio, const float FieldOfView)
+{
+	if (!PossessedCharacter) return;
+
+	if (TemporaryCamera) DestroyTemporaryCamera(CameraBlendTime);
+	
+	ActivateInputMappingContext(InteractionOnlyInputMappingContext);
+
+	if (const auto PlayerCameraComponent = PossessedCharacter->GetCameraComponent())
+	{
+		if (const auto World = GetWorld())
+		{
+			const auto CameraLocation = PlayerCameraComponent->GetComponentLocation();
+			const auto CameraRotation = UKismetMathLibrary::FindLookAtRotation(CameraLocation, LookTarget->GetActorLocation());
+
+			TemporaryCamera = Cast<ACameraActor>(World->SpawnActor(ACameraActor::StaticClass(), &CameraLocation, &CameraRotation));
+
+			if (TemporaryCamera)
+			{
+				if (const auto DialogueCameraComponent = TemporaryCamera->GetCameraComponent())
+				{
+					DialogueCameraComponent->SetAspectRatio(AspectRatio);
+					DialogueCameraComponent->SetFieldOfView(FieldOfView);
+				}
+			
+				SetViewTargetWithBlend(TemporaryCamera, CameraBlendTime);
+			}
+		}
+	}
+}
+
+void AUpPlayerController::DestroyTemporaryCamera(const float CameraBlendTime)
+{
+	if (!IsValid(TemporaryCamera)) return;
+
+	if (PossessedCharacter)
+	{
+		SetViewTargetWithBlend(PossessedCharacter, CameraBlendTime, VTBlend_Linear, 0.f, true);
+	}
+
+	if (const auto World = GetWorld())
+	{
+		World->DestroyActor(TemporaryCamera);
+		TemporaryCamera = nullptr;
+	}
+
+	ResetInputMappingContexts();
+}
+
 void AUpPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -153,6 +205,7 @@ void AUpPlayerController::BeginPlay()
 	check(BaseInputMappingContext);
 	check(CharacterSwitcherInputMappingContext);
 	check(GunInputMappingContext);
+	check(InteractionOnlyInputMappingContext);
 
 	check(AimGunInputAction);
 	check(CloseCharacterSwitcherInputAction);
@@ -199,8 +252,10 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ToggleDebugCameraInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleDebugCamera);
 	
 	EnhancedInputComponent->BindAction(PauseGameInputAction, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
-	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ThisClass::Interact);
 	EnhancedInputComponent->BindAction(ReloadInputAction, ETriggerEvent::Triggered, this, &ThisClass::Reload);
+	
+	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ThisClass::StartInteraction);
+	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Completed, this, &ThisClass::EndInteraction);
 	
 	EnhancedInputComponent->BindAction(OpenCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
 	EnhancedInputComponent->BindAction(CloseCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::TriggerCloseCharacterSwitcher);
@@ -280,19 +335,6 @@ void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
 	UGameplayStatics::SetGamePaused(this, true);
 }
 
-void AUpPlayerController::Interact(const FInputActionValue& InputActionValue)
-{
-	if (!PossessedCharacter) return;
-	
-	if (const auto InteractionComponent = PossessedCharacter->GetPlayerInteractionComponent())
-	{
-		if (const auto TargetInteractable = Cast<IUpInteractable>(InteractionComponent->GetTargetInteractable()))
-		{
-			TargetInteractable->Interact(this);
-		}
-	}
-}
-
 void AUpPlayerController::Reload(const FInputActionValue& InputActionValue)
 {
 	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
@@ -304,6 +346,31 @@ void AUpPlayerController::Reload(const FInputActionValue& InputActionValue)
 			
 			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
 		}
+	}
+}
+
+void AUpPlayerController::StartInteraction(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	if (const auto InteractionComponent = PossessedCharacter->GetPlayerInteractionComponent())
+	{
+		if (const auto TargetInteractable = InteractionComponent->GetTargetInteractable())
+		{
+			if (const auto Interactable = Cast<IUpInteractable>(TargetInteractable))
+			{
+				ActiveInteractable = TargetInteractable;
+				Interactable->Interact(this);
+			}
+		}
+	}
+}
+
+void AUpPlayerController::EndInteraction(const FInputActionValue& InputActionValue)
+{
+	if (const auto Interactable = Cast<IUpInteractable>(ActiveInteractable))
+	{
+		Interactable->OnInteractionEnd(this);
 	}
 }
 

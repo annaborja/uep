@@ -18,6 +18,8 @@ public:
 	UUpPlayerInteractionComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void SetInteractionData(const FUpInteractionData& InInteractionData);
 	
 	FORCEINLINE AActor* GetTargetInteractable() const { return InteractionData.Interactable; }
 	

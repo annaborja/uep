@@ -33,10 +33,14 @@ public:
 	void ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting = true, const int32 Priority = 0) const;
 	void DeactivateInputMappingContext(const UInputMappingContext* InputMappingContext) const;
 	void ResetInputMappingContexts() const;
+
+	void CreateTemporaryCamera(const AActor* LookTarget, const float CameraBlendTime, const float AspectRatio, const float FieldOfView);
+	void DestroyTemporaryCamera(const float CameraBlendTime);
 	void SetCameraView(const EUpCameraView::Type InCameraView) { CameraView = InCameraView; }
 	
 	FORCEINLINE UInputAction* GetCloseCharacterSwitcherInputAction() const { return CloseCharacterSwitcherInputAction; }
 	
+	FORCEINLINE AActor* GetActiveInteractable() const { return ActiveInteractable; }
 	FORCEINLINE TEnumAsByte<EUpCameraView::Type> GetCameraView() const { return CameraView; }
 	FORCEINLINE AUpHud* GetCustomHud() const { return CustomHud; }
 	FORCEINLINE AUpPlayableCharacter* GetPossessedCharacter() const { return PossessedCharacter; }
@@ -54,6 +58,8 @@ private:
 	TObjectPtr<UInputMappingContext> CharacterSwitcherInputMappingContext;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
 	TObjectPtr<UInputMappingContext> GunInputMappingContext;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
+	TObjectPtr<UInputMappingContext> InteractionOnlyInputMappingContext;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> CloseCharacterSwitcherInputAction;
@@ -95,13 +101,17 @@ private:
 	bool bDebugInputMappingContexts = false;
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugPossession = false;
-
+	
+	UPROPERTY(Transient)
+	TObjectPtr<AActor> ActiveInteractable;
 	UPROPERTY(Transient)
 	TEnumAsByte<EUpCameraView::Type> CameraView = EUpCameraView::FirstPerson;
 	UPROPERTY(Transient)
 	TObjectPtr<AUpHud> CustomHud;
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayableCharacter> PossessedCharacter;
+	UPROPERTY(Transient)
+	TObjectPtr<ACameraActor> TemporaryCamera;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayableCharacter> DebugCharacter;
@@ -114,8 +124,10 @@ private:
 	void ToggleDebugCamera(const FInputActionValue& InputActionValue);
 	
 	void PauseGame(const FInputActionValue& InputActionValue);
-	void Interact(const FInputActionValue& InputActionValue);
 	void Reload(const FInputActionValue& InputActionValue);
+	
+	void StartInteraction(const FInputActionValue& InputActionValue);
+	void EndInteraction(const FInputActionValue& InputActionValue);
 	
 	void OpenCharacterSwitcher(const FInputActionValue& InputActionValue);
 	void TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue);

@@ -138,7 +138,7 @@ void UUpPersistentBarkDisplayWidget::DisplayDialogueLine()
 			DialogueWave && DialogueContext.Speaker && DialogueContext.Targets.Num() > 0)
 		{
 			// Set volume to 0 since we're using placeholder audio in this prototype.
-			CurrentDialogueLineAudio = UGameplayStatics::SpawnDialogue2D(this, DialogueWave, DialogueContext, 0.f);
+			CurrentDialogueLineAudio = UGameplayStatics::SpawnDialogue2D(this, DialogueWave, DialogueContext, 1.f);
 
 			if (CurrentDialogueLineAudio) CurrentDialogueLineAudio->OnAudioFinished.AddDynamic(this, &ThisClass::AdvanceDialogueLine);
 		}

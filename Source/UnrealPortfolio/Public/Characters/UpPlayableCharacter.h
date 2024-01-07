@@ -39,6 +39,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ActivateCameraView(const EUpCameraView::Type CameraViewType);
 
+	FORCEINLINE UCameraComponent* GetCameraComponent() const { return Camera; }
 	FORCEINLINE AUpPlayerController* GetCustomPlayerController() const { return CustomPlayerController; }
 	FORCEINLINE FUpCharacterEquipment GetEquipment() const { return Equipment; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetPlayerInteractionComponent() const { return PlayerInteractionComponent; }

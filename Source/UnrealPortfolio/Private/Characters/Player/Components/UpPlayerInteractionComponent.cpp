@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Interfaces/UpInteractable.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Levels/UpLevelScriptActor.h"
 #include "UI/UpHud.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -19,6 +20,9 @@ UUpPlayerInteractionComponent::UUpPlayerInteractionComponent()
 void UUpPlayerInteractionComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// Level script "interactions" take precedence over all other interactions.
+	if (Cast<AUpLevelScriptActor>(InteractionData.Interactable)) return;
 	
 	if (!PlayableCharacter || !PlayableCharacter->IsPlayer()) return;
 	
@@ -49,14 +53,24 @@ void UUpPlayerInteractionComponent::TickComponent(const float DeltaTime, const E
 				}
 			}
 		}
-	}
-
-	if (const auto Hud = UUpBlueprintFunctionLibrary::GetCustomHud(this); Hud && NewInteractionData != InteractionData)
-	{
-		Hud->BroadcastInteractionData(NewInteractionData);
+		
+		if (const auto CustomHud = CustomController->GetCustomHud(); CustomHud && NewInteractionData != InteractionData)
+		{
+			CustomHud->BroadcastInteractionData(NewInteractionData);
+		}
 	}
 
 	InteractionData = NewInteractionData;
+}
+
+void UUpPlayerInteractionComponent::SetInteractionData(const FUpInteractionData& InInteractionData)
+{
+	InteractionData = InInteractionData;
+
+	if (const auto CustomHud = UUpBlueprintFunctionLibrary::GetCustomHud(this))
+	{
+		CustomHud->BroadcastInteractionData(InteractionData);
+	}
 }
 
 void UUpPlayerInteractionComponent::BeginPlay()
