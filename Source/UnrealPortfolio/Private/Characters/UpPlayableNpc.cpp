@@ -3,9 +3,6 @@
 #include "Characters/UpPlayableNpc.h"
 
 #include "UpGameInstance.h"
-#include "AI/UpAiController.h"
-#include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Components/SphereComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
@@ -18,8 +15,6 @@
 AUpPlayableNpc::AUpPlayableNpc(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UUpCharacterMovementComponent>(CharacterMovementComponentName))
 {
-	AIControllerClass = AUpAiController::StaticClass();
-
 	DialogueComponent = CreateDefaultSubobject<UUpDialogueComponent>(TEXT("DialogueComponent"));
 
 	InteractionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));
@@ -36,27 +31,6 @@ void AUpPlayableNpc::BeginPlay()
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
 		CharacterData = GameInstance->GetCharacterData(TagId);
-	}
-}
-
-void AUpPlayableNpc::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-
-	if (!HasAuthority()) return;
-
-	AiController = Cast<AUpAiController>(NewController);
-
-	if (AiController && BehaviorTree)
-	{
-		if (const auto BlackboardComponent = AiController->GetBlackboardComponent())
-		{
-			if (const auto BlackboardAsset = BehaviorTree->BlackboardAsset)
-			{
-				BlackboardComponent->InitializeBlackboard(*BlackboardAsset);
-				AiController->RunBehaviorTree(BehaviorTree);
-			}
-		}
 	}
 }
 

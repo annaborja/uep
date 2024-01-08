@@ -2,6 +2,8 @@
 
 #include "Characters/UpPlayableCharacter.h"
 
+#include "UpGameInstance.h"
+#include "AI/UpAiController.h"
 #include "Camera/CameraComponent.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Characters/Player/UpPlayerCharacter.h"
@@ -11,7 +13,9 @@
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "GAS/Attributes/UpAttributeSet.h"
 #include "Items/UpAmmo.h"
+#include "Levels/UpLevelScriptActor.h"
 #include "UI/UpHud.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 void AUpPlayableCharacter::BeginPlay()
 {
@@ -265,6 +269,8 @@ void AUpPlayableCharacter::InitForPlayer()
 {
 	bIsPlayer = true;
 	
+	SetRelaxed(false);
+	
 	if (!IsValid(CameraSpringArm))
 	{
 		CameraSpringArm = NewObject<USpringArmComponent>(this, USpringArmComponent::StaticClass(), NAME_None, RF_Transient);
@@ -311,6 +317,18 @@ void AUpPlayableCharacter::InitForPlayer()
 				CustomHud->BroadcastEquipmentActivationUpdate(EquipmentSlot, EquipmentSlotData.bActivated);
 			}
 		}
+
+		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+		{
+			// Set level script interaction data (if any).
+			if (const auto LevelScriptActor = GameInstance->GetLevelScriptActor())
+			{
+				if (const auto LevelScriptInteractionData = LevelScriptActor->GetInteractionData(CustomPlayerController); LevelScriptInteractionData.Interactable)
+				{
+					PlayerInteractionComponent->SetInteractionData(LevelScriptInteractionData);
+				}
+			}
+		}
 	}
 }
 
@@ -319,13 +337,10 @@ void AUpPlayableCharacter::TearDownForPlayer()
 	if (CustomPlayerController)
 	{
 		if (!CustomPlayerController->IsDebugCameraActive()) SetUpThirdPersonMesh();
-
-		if (const auto CustomHud = CustomPlayerController->GetCustomHud())
-		{
-			// Reset the interaction data in the UI.
-			CustomHud->BroadcastInteractionData(FUpInteractionData());
-		}
 	}
+
+	// Make sure the UI doesn't display a stale interaction prompt.
+	if (PlayerInteractionComponent) PlayerInteractionComponent->SetInteractionData(FUpInteractionData());
 	
 	CustomPlayerController = nullptr;
 	bIsPlayer = false;
@@ -352,6 +367,18 @@ void AUpPlayableCharacter::TearDownForPlayer()
 	}
 	
 	if (CustomMovementComponent) CustomMovementComponent->TearDownForPlayer();
+
+	if (AutoPossessAI == EAutoPossessAI::PlacedInWorldOrSpawned || AutoPossessAI == EAutoPossessAI::Spawned)
+	{
+		if (const auto World = GetWorld())
+		{
+			if (const auto AiController = World->SpawnActor<AUpAiController>(
+				AUpAiController::StaticClass(), GetActorLocation(), GetActorRotation(), FActorSpawnParameters()))
+			{
+				AiController->Possess(this);
+			}
+		}
+	}
 }
 
 void AUpPlayableCharacter::SetUpFirstPersonMesh()

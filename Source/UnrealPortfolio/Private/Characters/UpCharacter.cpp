@@ -4,6 +4,7 @@
 
 #include "GameplayEffect.h"
 #include "UpGameInstance.h"
+#include "AI/UpAiController.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Components/UpCombatComponent.h"
@@ -16,6 +17,7 @@
 
 AUpCharacter::AUpCharacter()
 {
+	AIControllerClass = AUpAiController::StaticClass();
 	PrimaryActorTick.bCanEverTick = false;
 	
 	bUseControllerRotationPitch = false;
@@ -121,6 +123,24 @@ void AUpCharacter::UnsetRootMotionTargetLocation()
 	bHasRootMotionTargetLocation = false;
 }
 
+void AUpCharacter::SetRelaxed(const bool bInRelaxed)
+{
+	bRelaxed = bInRelaxed;
+
+	if (const auto& WeaponSlotData = Equipment.GetPotentialActiveWeaponSlotData(); WeaponSlotData.bActivated)
+	{
+		if (const auto WeaponActor = WeaponSlotData.ItemInstance.ItemActor;
+			WeaponActor && UUpBlueprintFunctionLibrary::IsTwoHandedGunTag(WeaponActor->GetTagId()))
+		{
+			if (const auto Mesh = GetMesh())
+			{
+				WeaponActor->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false),
+					bRelaxed ? TAG_Socket_TwoHandedGun_Relaxed.GetTag().GetTagName() : TAG_Socket_TwoHandedGun.GetTag().GetTagName());
+			}
+		}
+	}
+}
+
 TArray<UUpAttributeSet*> AUpCharacter::GetAttributeSets() const
 {
 	return TArray<UUpAttributeSet*> { VitalAttributeSet, PrimaryAttributeSet };
@@ -183,8 +203,15 @@ bool AUpCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 
 					if (EquipmentSlotData.ItemInstance.ItemActor)
 					{
+						auto SocketTag = ItemData.SocketTag.IsValid() ? ItemData.SocketTag : TAG_Socket_None;
+
+						if (SocketTag.MatchesTagExact(TAG_Socket_TwoHandedGun) && bRelaxed)
+						{
+							SocketTag = TAG_Socket_TwoHandedGun_Relaxed;
+						}
+						
 						AttachAndShowItem(EquipmentSlotData.ItemInstance.ItemActor,
-							ItemData.SocketTag.IsValid() ? ItemData.SocketTag.GetTagName() : NAME_None);
+							SocketTag.MatchesTagExact(TAG_Socket_None) ? NAME_None : SocketTag.GetTagName());
 					}
 
 					if (AbilitySystemComponent)

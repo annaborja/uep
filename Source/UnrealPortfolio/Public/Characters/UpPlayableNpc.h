@@ -8,9 +8,6 @@
 #include "Interfaces/UpNameable.h"
 #include "UpPlayableNpc.generated.h"
 
-class AUpAiController;
-class UBehaviorTree;
-class UDialogueVoice;
 class USphereComponent;
 class UUpDialogueComponent;
 
@@ -23,7 +20,6 @@ public:
 	explicit AUpPlayableNpc(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
-	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 
@@ -44,12 +40,6 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> InteractionSphere;
 	
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TObjectPtr<UBehaviorTree> BehaviorTree;
-	
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float InteractionSphereRadius = 100.f;
-
-	UPROPERTY(Transient)
-	TObjectPtr<AUpAiController> AiController;
 };

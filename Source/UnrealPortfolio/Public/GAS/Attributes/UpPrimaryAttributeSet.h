@@ -13,9 +13,6 @@ class UNREALPORTFOLIO_API UUpPrimaryAttributeSet : public UUpAttributeSet
 	GENERATED_BODY()
 
 public:
-	UUpPrimaryAttributeSet();
-
-private:
 	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData Dexterity;
 	ATTRIBUTE_ACCESSORS(UUpPrimaryAttributeSet, Dexterity)
@@ -39,4 +36,6 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData Strength;
 	ATTRIBUTE_ACCESSORS(UUpPrimaryAttributeSet, Strength)
+	
+	UUpPrimaryAttributeSet();
 };

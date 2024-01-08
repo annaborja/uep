@@ -21,23 +21,25 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float RunStopThresholdMultiplier = 0.5f;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	float GroundSpeed = 0.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	float VerticalSpeed;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bStoppedWalking = false;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bStoppedRunning = false;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bIsCrouching = false;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bIsFalling = false;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bIsMovingHorizontally = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bRelaxed = false;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UP Runtime")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
 };

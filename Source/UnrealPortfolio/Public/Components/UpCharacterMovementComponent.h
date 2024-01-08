@@ -82,7 +82,7 @@ private:
 	float MantleMaxAlignmentAngle = 45.f;
 
 	UPROPERTY(EditAnywhere, Category="UP Params|Sprint")
-	float MaxSprintSpeed = 700.f;
+	float MaxSprintSpeed = 600.f;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpCharacter> Character;
@@ -90,6 +90,7 @@ private:
 	TObjectPtr<AUpPlayableCharacter> PlayableCharacter;
 
 	float BaseGravityScale = 1.f;
+	float BaseMaxSprintSpeed = 0.f;
 	float BaseMaxWalkSpeed = 0.f;
 	FRotator BaseRotationRate;
 

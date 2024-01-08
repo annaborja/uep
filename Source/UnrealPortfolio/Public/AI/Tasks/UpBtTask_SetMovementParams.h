@@ -12,13 +12,14 @@ namespace EUpBttSetMovementParamsCommandType
 	enum Type : uint8
 	{
 		SetMaxWalkSpeed,
-		ResetMaxWalkSpeed,
 		
 		SetRotationRate,
 		ResetRotationRate,
 		
 		StartSprint,
-		StopSprint
+		StopSprint,
+		
+		SetRelaxed
 	};
 }
 
@@ -28,7 +29,7 @@ struct FUpBttSetMovementParamsCommand
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	TEnumAsByte<EUpBttSetMovementParamsCommandType::Type> CommandType = EUpBttSetMovementParamsCommandType::ResetMaxWalkSpeed;
+	TEnumAsByte<EUpBttSetMovementParamsCommandType::Type> CommandType = EUpBttSetMovementParamsCommandType::SetRelaxed;
 	
 	UPROPERTY(EditAnywhere)
 	float FloatValue = 0.f;

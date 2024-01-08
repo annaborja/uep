@@ -17,3 +17,4 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Weapon_SubmachineGun, "Item.Weapon.SubmachineGun
 UE_DEFINE_GAMEPLAY_TAG(TAG_Socket_None, "Socket.None")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Socket_OneHandedGun, "Socket.OneHandedGun")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Socket_TwoHandedGun, "Socket.TwoHandedGun")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Socket_TwoHandedGun_Relaxed, "Socket.TwoHandedGun.Relaxed")

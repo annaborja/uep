@@ -8,6 +8,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UpBlueprintFunctionLibrary.generated.h"
 
+class AUnrealPortfolioGameModeBase;
 class AUpHud;
 struct FGameplayTag;
 struct FUpEntityTagSpec;
@@ -22,6 +23,7 @@ class UNREALPORTFOLIO_API UUpBlueprintFunctionLibrary : public UBlueprintFunctio
 public:
 	static AUpHud* GetCustomHud(const UObject* WorldContextObject);
 	static UUpGameInstance* GetGameInstance(const UObject* WorldContextObject);
+	static AUnrealPortfolioGameModeBase* GetGameMode(const UObject* WorldContextObject);
 
 	static FText GetInGameName(const UObject* WorldContextObject, const FGameplayTag& TagId);
 	static FText GetInGameNameifiedText(const UObject* WorldContextObject, const FText InText);
@@ -34,6 +36,8 @@ public:
 	static bool ValidateItemTag(const FGameplayTag& Tag, const FString FuncName);
 	static bool ValidateNpcTag(const FGameplayTag& Tag, const FString FuncName);
 	static bool ValidateWeaponTag(const FGameplayTag& Tag, const FString FuncName);
+
+	static bool IsTwoHandedGunTag(const FGameplayTag& Tag);
 	
 	static bool IsEntityTagSpecSatisfied(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec, const bool bProhibition = false);
 	static void ProcessEntityTagSpecGrants(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec);

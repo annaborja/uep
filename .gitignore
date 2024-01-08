@@ -11,6 +11,7 @@ Saved/*
 .DS_Store
 
 # Assets
+/Content/Animations/*
 /Content/MSPresets/*
 /Content/Mega_Survival_Tools/*
 /Content/Megascans/*
@@ -20,5 +21,8 @@ Saved/*
 /Content/Polygon-NewYork/*
 /Content/Polygon-TownCity/*
 /Content/Polygon_WeaponsKit/*
+/Content/ProSoundCollection_v1_3/
+/Content/ProSoundCollection_v1_3_MONO/
+/Content/Rifle_01/*
 /Content/Sci_Fi_Guns_Sounds/*
 

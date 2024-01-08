@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "Characters/UpCharacter.h"
 #include "Interfaces/UpTagSpecGrantable.h"
-#include "Player/UpPlayerController.h"
 #include "UpPlayableCharacter.generated.h"
 
+class AUpPlayerController;
 class AUpWeapon;
 class UCameraComponent;
 class USpringArmComponent;
@@ -73,9 +73,9 @@ protected:
 	bool bDebugTagSpecGrant = false;
 
 	UPROPERTY(Transient)
-	TObjectPtr<AUpWeapon> ActiveWeapon;
-	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayerController> CustomPlayerController;
+	UPROPERTY(Transient)
+	TObjectPtr<AUpWeapon> ActiveWeapon;
 	
 	bool bAllowedToJump = true;
 	bool bIsPlayer = false;

@@ -5,13 +5,15 @@
 #include "GameplayTagAssetInterface.h"
 #include "GameplayTagContainer.h"
 #include "UpGameInstance.h"
-#include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerCharacter.h"
+#include "Characters/Player/UpPlayerController.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
+#include "Items/UpItem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Tags/ItemTags.h"
 #include "Tags/NpcTags.h"
+#include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/Constants.h"
 #include "Utils/Structs.h"
 
@@ -28,6 +30,11 @@ AUpHud* UUpBlueprintFunctionLibrary::GetCustomHud(const UObject* WorldContextObj
 UUpGameInstance* UUpBlueprintFunctionLibrary::GetGameInstance(const UObject* WorldContextObject)
 {
 	return Cast<UUpGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));
+}
+
+AUnrealPortfolioGameModeBase* UUpBlueprintFunctionLibrary::GetGameMode(const UObject* WorldContextObject)
+{
+	return Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
 }
 
 FText UUpBlueprintFunctionLibrary::GetInGameName(const UObject* WorldContextObject, const FGameplayTag& TagId)
@@ -190,6 +197,17 @@ bool UUpBlueprintFunctionLibrary::ValidateWeaponTag(const FGameplayTag& Tag, con
 	}
 		
 	return true;	
+}
+
+bool UUpBlueprintFunctionLibrary::IsTwoHandedGunTag(const FGameplayTag& Tag)
+{
+	FGameplayTagContainer TwoHandedGunTags;
+	TwoHandedGunTags.AddTag(TAG_Item_Weapon_AssaultRifle);
+	TwoHandedGunTags.AddTag(TAG_Item_Weapon_Shotgun);
+	TwoHandedGunTags.AddTag(TAG_Item_Weapon_SniperRifle);
+	TwoHandedGunTags.AddTag(TAG_Item_Weapon_SubmachineGun);
+
+	return TwoHandedGunTags.HasTag(Tag);
 }
 
 bool UUpBlueprintFunctionLibrary::IsEntityTagSpecSatisfied(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec, const bool bProhibition)

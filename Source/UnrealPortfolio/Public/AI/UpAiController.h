@@ -16,6 +16,10 @@ class UNREALPORTFOLIO_API AUpAiController : public AAIController
 public:
 	explicit AUpAiController(const FObjectInitializer& ObjectInitializer);
 
+protected:
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;

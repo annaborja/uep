@@ -19,10 +19,14 @@ EBTNodeResult::Type UUpBtTask_SetMovementParams::ExecuteTask(UBehaviorTreeCompon
 					switch (Command.CommandType)
 					{
 					case EUpBttSetMovementParamsCommandType::SetMaxWalkSpeed:
-						MovementComponent->MaxWalkSpeed = Command.FloatValue;
-						break;
-					case EUpBttSetMovementParamsCommandType::ResetMaxWalkSpeed:
-						MovementComponent->ResetMaxWalkSpeed();
+						if (Command.FloatValue >= 0.f)
+						{
+							MovementComponent->MaxWalkSpeed = Command.FloatValue;
+						} else
+						{
+							MovementComponent->ResetMaxWalkSpeed();
+						}
+						
 						break;
 					case EUpBttSetMovementParamsCommandType::SetRotationRate:
 						MovementComponent->RotationRate = FRotator(
@@ -36,6 +40,9 @@ EBTNodeResult::Type UUpBtTask_SetMovementParams::ExecuteTask(UBehaviorTreeCompon
 						break;
 					case EUpBttSetMovementParamsCommandType::StopSprint:
 						Npc->ToggleSprint(false);
+						break;
+					case EUpBttSetMovementParamsCommandType::SetRelaxed:
+						Npc->SetRelaxed(Command.FloatValue > 0.f);
 						break;
 					default:
 						UE_LOG(LogTemp, Error, TEXT("Invalid SetMovementParams command type %d"), Command.CommandType)

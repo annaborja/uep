@@ -13,4 +13,10 @@ class UNREALPORTFOLIO_API AUnrealPortfolioGameModeBase : public AGameModeBase
 
 public:
 	AUnrealPortfolioGameModeBase();
+
+	FORCEINLINE float GetWalkSpeedModifierMultiplier() const { return WalkSpeedModifierMultiplier; }
+
+private:
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float WalkSpeedModifierMultiplier = 1.f;
 };

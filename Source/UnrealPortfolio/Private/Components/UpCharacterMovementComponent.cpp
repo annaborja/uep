@@ -4,9 +4,13 @@
 
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "GAS/Attributes/UpPrimaryAttributeSet.h"
+#include "Items/UpItem.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/Constants.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 UUpCharacterMovementComponent::UUpCharacterMovementComponent()
 {
@@ -32,6 +36,7 @@ void UUpCharacterMovementComponent::BeginPlay()
 
 	BaseGravityScale = GravityScale;
 	BaseMaxWalkSpeed = MaxWalkSpeed;
+	BaseMaxSprintSpeed = MaxSprintSpeed;
 	BaseRotationRate = RotationRate;
 	
 	OnPlayerJumpApexReachedDelegate.BindUFunction(this, FName("OnPlayerJumpApexReached"));
@@ -76,6 +81,24 @@ void UUpCharacterMovementComponent::OnMovementModeChanged(const EMovementMode Pr
 
 void UUpCharacterMovementComponent::UpdateCharacterStateBeforeMovement(const float DeltaSeconds)
 {
+	if (Character)
+	{
+		if (const auto GameMode = UUpBlueprintFunctionLibrary::GetGameMode(this))
+		{
+			if (const auto AttributeSet = Character->GetPrimaryAttributeSet())
+			{
+				if (const auto SpeedAttribute = AttributeSet->GetSpeedAttribute(); SpeedAttribute.IsValid())
+				{
+					const auto SpeedModifier = SpeedAttribute.GetNumericValue(AttributeSet) - 50.f;
+					const auto SpeedModifierMultiplier = GameMode->GetWalkSpeedModifierMultiplier();
+			
+					MaxWalkSpeed = BaseMaxWalkSpeed + SpeedModifier * SpeedModifierMultiplier;
+					MaxSprintSpeed = BaseMaxSprintSpeed + SpeedModifier * SpeedModifierMultiplier;
+				}
+			}
+		}
+	}
+	
 	if (bTransitionRootMotionSourceFinished)
 	{
 		if (PostTransitionMontageData.IsValid())
@@ -123,6 +146,41 @@ void UUpCharacterMovementComponent::UpdateCharacterStateBeforeMovement(const flo
 void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const float DeltaSeconds)
 {
 	Super::UpdateCharacterStateAfterMovement(DeltaSeconds);
+
+	if (Character && !Character->IsRelaxed())
+	{
+		if (const auto& WeaponSlotData = Character->GetCharacterEquipment().GetPotentialActiveWeaponSlotData(); WeaponSlotData.bActivated)
+		{
+			if (const auto WeaponActor = WeaponSlotData.ItemInstance.ItemActor;
+				WeaponActor && UUpBlueprintFunctionLibrary::IsTwoHandedGunTag(WeaponActor->GetTagId()))
+			{
+				if (const auto Mesh = Character->GetMesh())
+				{
+					const auto ParentSocketName = WeaponActor->GetAttachParentSocketName();
+
+					if (UKismetMathLibrary::VSizeXY(Velocity) > MaxWalkSpeed + 5.f)
+					{
+						UE_LOG(LogTemp, Warning, TEXT("velocity = %g, max walk speed = %g"), UKismetMathLibrary::VSizeXY(Velocity), MaxWalkSpeed + 5.f)
+						
+						if (const auto DesiredSocketName = TAG_Socket_TwoHandedGun_Relaxed.GetTag().GetTagName();
+							!ParentSocketName.IsEqual(DesiredSocketName))
+						{
+							WeaponActor->AttachToComponentWithScaling(Mesh,
+								FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), DesiredSocketName);
+						}
+					} else
+					{
+						if (const auto DesiredSocketName = TAG_Socket_TwoHandedGun.GetTag().GetTagName();
+							!ParentSocketName.IsEqual(DesiredSocketName))
+						{
+							WeaponActor->AttachToComponentWithScaling(Mesh,
+								FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), DesiredSocketName);
+						}
+					}
+				}
+			}
+		}
+	}
 
 	// Reset the movement mode if a root motion animation (e.g., mantling) has just finished.
 	if (!HasAnimRootMotion() && bHadAnimRootMotion && MovementMode == MOVE_Flying)

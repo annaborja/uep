@@ -27,13 +27,17 @@ void AUpLevelScriptActor::NotifyTag(const FGameplayTag& Tag)
 
 FUpInteractionData AUpLevelScriptActor::GetInteractionData(const AUpPlayerController* PlayerController)
 {
-	// This is a hacky interaction flow, so always return invalid interaction data.
+	if (PotentialLookTarget) return FUpInteractionData(this, FText::FromString(TEXT("Look")));
+	
 	return FUpInteractionData();
 }
 
 void AUpLevelScriptActor::Interact(AUpPlayerController* PlayerController)
 {
-	if (PotentialLookTarget) PlayerController->CreateTemporaryCamera(PotentialLookTarget, LookTargetCameraBlendTime, LookTargetAspectRatio, LookTargetFieldOfView);
+	if (PotentialLookTarget)
+	{
+		PlayerController->CreateTemporaryCamera(PotentialLookTarget, LookTargetCameraBlendTime, LookTargetAspectRatio, LookTargetFieldOfView);
+	}
 }
 
 void AUpLevelScriptActor::OnInteractionEnd(AUpPlayerController* PlayerController)
@@ -109,7 +113,7 @@ void AUpLevelScriptActor::ExecuteCommand(const FUpScriptCommand& Command)
 		}
 		
 		break;
-	case EUpScriptCommandType::ExecuteBark:
+	case EUpScriptCommandType::PlayBark:
 		if (const auto BarkDataPtr = BarkDataMap.Find(Command.DataTag))
 		{
 			auto BarkData = *BarkDataPtr;
@@ -130,13 +134,15 @@ void AUpLevelScriptActor::ExecuteCommand(const FUpScriptCommand& Command)
 		{
 			if (!Command.DataTag.IsValid())
 			{
+				PotentialLookTarget = nullptr;
+				
 				if (CustomPlayerController)
 				{
 					if (const auto PossessedCharacter = CustomPlayerController->GetPossessedCharacter())
 					{
 						if (const auto InteractionComponent = PossessedCharacter->GetPlayerInteractionComponent())
 						{
-							InteractionComponent->SetInteractionData(FUpInteractionData());
+							InteractionComponent->SetInteractionData(GetInteractionData(CustomPlayerController));
 						}
 					}
 
@@ -164,7 +170,7 @@ void AUpLevelScriptActor::ExecuteCommand(const FUpScriptCommand& Command)
 						{
 							if (const auto InteractionComponent = PossessedCharacter->GetPlayerInteractionComponent())
 							{
-								InteractionComponent->SetInteractionData(FUpInteractionData(this, FText::FromString(TEXT("Look"))));
+								InteractionComponent->SetInteractionData(GetInteractionData(CustomPlayerController));
 							}
 						}
 					}

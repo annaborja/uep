@@ -14,8 +14,8 @@ namespace EUpScriptCommandType
 	enum Type : uint8
 	{
 		DisplayTutorial,
-		ExecuteBark,
 		GrantQuest,
+		PlayBark,
 		SetPotentialLookTarget
 	};
 }
@@ -30,7 +30,7 @@ struct FUpScriptCommand
 		CommandType(InCommandType), DataTag(InDataTag) {}
 
 	UPROPERTY(EditDefaultsOnly)
-	TEnumAsByte<EUpScriptCommandType::Type> CommandType = EUpScriptCommandType::ExecuteBark;
+	TEnumAsByte<EUpScriptCommandType::Type> CommandType = EUpScriptCommandType::PlayBark;
 	
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag DataTag;
@@ -87,7 +87,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float LookTargetAspectRatio = 21.f / 9.f;
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	float LookTargetFieldOfView = 50.f;
+	float LookTargetFieldOfView = 60.f;
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;

@@ -11,6 +11,7 @@
 #include "Utils/Structs.h"
 #include "UpCharacter.generated.h"
 
+class UBehaviorTree;
 class UDialogueVoice;
 class UGameplayEffect;
 class UUpAttributeSet;
@@ -66,6 +67,7 @@ public:
 	void UnsetRootMotionTargetLocation();
 	
 	virtual EUpCameraView::Type GetCameraView() const { return EUpCameraView::ThirdPerson; }
+	void SetRelaxed(const bool bInRelaxed);
 	
 	virtual TArray<UUpAttributeSet*> GetAttributeSets() const;
 	
@@ -75,9 +77,11 @@ public:
 	bool ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 	bool DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 
+	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 	FORCEINLINE FUpCharacterData GetCharacterData() const { return CharacterData; }
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
 	FORCEINLINE EUpCharacterPosture::Type GetPosture() const { return Posture; }
+	FORCEINLINE bool IsRelaxed() const { return bRelaxed; }
 	
 	FORCEINLINE FVector GetRootMotionTargetLocation() const { return RootMotionTargetLocation; }
 	FORCEINLINE bool HasRootMotionTargetLocation() const { return bHasRootMotionTargetLocation; }
@@ -101,16 +105,22 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
 	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<UBehaviorTree> BehaviorTree;
+	
 	UPROPERTY(EditAnywhere, Category="UP Data")
 	FUpCharacterEquipment Equipment;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	FGameplayTag TagId;
 
+	UPROPERTY(Transient, VisibleAnywhere, Category="UP Runtime")
+	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
+	UPROPERTY(VisibleAnywhere, Category="UP Runtime")
+	bool bRelaxed = true;
+	
 	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;
-	UPROPERTY(Transient)
-	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
 
 	UPROPERTY()
 	TObjectPtr<UUpPrimaryAttributeSet> PrimaryAttributeSet;

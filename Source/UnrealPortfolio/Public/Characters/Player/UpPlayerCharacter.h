@@ -6,6 +6,8 @@
 #include "Characters/UpPlayableCharacter.h"
 #include "UpPlayerCharacter.generated.h"
 
+class AUpPlayableNpc;
+
 UCLASS()
 class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpPlayableCharacter, public IGameplayTagAssetInterface
 {
