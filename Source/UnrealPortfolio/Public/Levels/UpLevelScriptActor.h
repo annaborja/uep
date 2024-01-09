@@ -16,7 +16,10 @@ namespace EUpScriptCommandType
 		DisplayTutorial,
 		GrantQuest,
 		PlayBark,
-		SetPotentialLookTarget
+		SetPawnLookTarget,
+		SetPawnMoveTarget,
+		SetPotentialLookTarget,
+		PlayAnimation,
 	};
 }
 
@@ -34,9 +37,16 @@ struct FUpScriptCommand
 	
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag DataTag;
-	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AActor> RelevantClass;
+	
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag DataTag_Secondary;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AActor> RelevantClass_Secondary;
+	
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag DataTag_Tertiary;
 	
 	UPROPERTY(EditDefaultsOnly)
 	float Delay = 0.f;
@@ -99,4 +109,6 @@ private:
 	TArray<FUpScriptCommand> CommandsToExecute;
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> PotentialLookTarget;
+
+	AActor* FindActorWithTag(const TSubclassOf<AActor> ActorClass, const FGameplayTag& TagId) const;
 };

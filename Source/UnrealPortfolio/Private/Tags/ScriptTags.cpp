@@ -20,4 +20,5 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyDIntro1, "Script.Tutorial.Ba
 UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyDIntro2, "Script.Tutorial.Bark.AllyDIntro2")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyDIntro3, "Script.Tutorial.Bark.AllyDIntro3")
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_LookTarget_WaterTower, "Script.Tutorial.LookTarget.WaterTower")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Target_WaterTower, "Script.Tutorial.Target.WaterTower")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Target_WaterTowerAlleyGate, "Script.Tutorial.Target.WaterTowerAlleyGate")

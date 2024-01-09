@@ -14,6 +14,7 @@
 class UBehaviorTree;
 class UDialogueVoice;
 class UGameplayEffect;
+class USoundCue;
 class UUpAttributeSet;
 class UUpCharacterMovementComponent;
 class UUpPrimaryAttributeSet;
@@ -77,6 +78,10 @@ public:
 	bool ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 	bool DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 
+	virtual UAnimMontage* GetGesturesMontage() const { return GesturesMontage_ThirdPerson; }
+	
+	void HandleFootstep() const;
+
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 	FORCEINLINE FUpCharacterData GetCharacterData() const { return CharacterData; }
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
@@ -95,24 +100,32 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpCombatComponent> CombatComponent;
 	
-	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TObjectPtr<UAnimMontage> HitReactionsMontage_ThirdPerson;
-	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TObjectPtr<UAnimMontage> ReloadsMontage_ThirdPerson;
-	
-	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;
-	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
-	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
+	
+	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> GesturesMontage_ThirdPerson;
+	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> HitReactionsMontage_ThirdPerson;
+	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> ReloadsMontage_ThirdPerson;
+	
+	UPROPERTY(EditAnywhere, Category="UP Assets|FX")
+	TObjectPtr<USoundCue> Sfx_Footsteps_Concrete;
+	
+	UPROPERTY(EditAnywhere, Category="UP Assets|GAS")
+	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;
+	UPROPERTY(EditAnywhere, Category="UP Assets|GAS")
+	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
 	
 	UPROPERTY(EditAnywhere, Category="UP Data")
 	FUpCharacterEquipment Equipment;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	FGameplayTag TagId;
+	
+	UPROPERTY(EditAnywhere, Category="UP Params|SFX")
+	float VolumeMultiplier_Footsteps_Player = 0.4f;
 
 	UPROPERTY(Transient, VisibleAnywhere, Category="UP Runtime")
 	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;

@@ -25,7 +25,9 @@ void AUpPlayableCharacter::BeginPlay()
 	check(AnimClass_ThirdPerson);
 	check(SkeletalMesh_FirstPerson);
 	check(SkeletalMesh_ThirdPerson);
-	check(ReloadsMontage_ThirdPerson);
+	
+	check(GesturesMontage_FirstPerson);
+	check(ReloadsMontage_FirstPerson);
 	
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
 	
@@ -191,6 +193,13 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 	}
 
 	if (CustomPlayerController) CustomPlayerController->SetCameraView(CameraViewType);
+}
+
+UAnimMontage* AUpPlayableCharacter::GetGesturesMontage() const
+{
+	if (GetCameraView() == EUpCameraView::FirstPerson) return GesturesMontage_FirstPerson;
+	
+	return Super::GetGesturesMontage();
 }
 
 void AUpPlayableCharacter::OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot)

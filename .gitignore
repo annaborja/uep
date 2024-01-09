@@ -11,7 +11,7 @@ Saved/*
 .DS_Store
 
 # Assets
-/Content/Animations/*
+/Content/Assets/*
 /Content/MSPresets/*
 /Content/Mega_Survival_Tools/*
 /Content/Megascans/*

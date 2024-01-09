@@ -5,6 +5,7 @@
 #include "GameplayEffect.h"
 #include "UpGameInstance.h"
 #include "AI/UpAiController.h"
+#include "Characters/UpPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Components/UpCombatComponent.h"
@@ -12,6 +13,8 @@
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 #include "GAS/Attributes/UpVitalAttributeSet.h"
 #include "Items/UpWeapon.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -49,12 +52,15 @@ AUpCharacter::AUpCharacter()
 void AUpCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	check(HitReactionsMontage_ThirdPerson);
-	check(ReloadsMontage_ThirdPerson);
 	
 	check(InitPrimaryAttributesEffectClass);
 	check(InitVitalAttributesEffectClass);
+	
+	check(GesturesMontage_ThirdPerson);
+	check(HitReactionsMontage_ThirdPerson);
+	check(ReloadsMontage_ThirdPerson);
+	
+	check(Sfx_Footsteps_Concrete);
 
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
 
@@ -278,6 +284,53 @@ bool AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlo
 	}
 
 	return false;
+}
+
+void AUpCharacter::HandleFootstep() const
+{
+	if (const auto World = GetWorld())
+	{
+		if (const auto Capsule = GetCapsuleComponent())
+		{
+			const auto TraceStart = GetActorLocation();
+
+			FCollisionQueryParams QueryParams;
+			QueryParams.bReturnPhysicalMaterial =  true;
+			
+			FHitResult HitResult;
+			World->LineTraceSingleByChannel(HitResult, TraceStart,
+				TraceStart + GetActorUpVector() * -1.0 * (Capsule->GetScaledCapsuleHalfHeight() + 10.0),
+				ECC_Visibility, QueryParams);
+
+			if (HitResult.bBlockingHit)
+			{
+				USoundBase* Sound = nullptr;
+
+				switch (const auto PhysicalSurfaceType = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get()))
+				{
+				case SurfaceType1:
+					Sound = Sfx_Footsteps_Concrete;
+					break;
+				default:
+					if (const auto HitActor = HitResult.GetActor())
+					{
+						UE_LOG(LogTemp, Error, TEXT("Unknown physical surface type %d for hit actor %s"), PhysicalSurfaceType, *HitActor->GetName())
+					}
+					
+					break;
+				}
+
+				if (Sound)
+				{
+					const auto PlayableCharacter = Cast<AUpPlayableCharacter>(this);
+					
+					UGameplayStatics::PlaySoundAtLocation(this, Sound, HitResult.ImpactPoint, GetActorRotation(),
+						PlayableCharacter && PlayableCharacter->IsPlayer() ? VolumeMultiplier_Footsteps_Player :
+						VolumeMultiplier_Footsteps_Player * 0.5f);
+				}
+			}
+		}
+	}
 }
 
 AUpItem* AUpCharacter::SpawnAndAttachItem(const TSubclassOf<AUpItem> ItemClass)
