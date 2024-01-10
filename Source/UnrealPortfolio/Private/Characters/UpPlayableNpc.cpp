@@ -19,7 +19,7 @@ AUpPlayableNpc::AUpPlayableNpc(const FObjectInitializer& ObjectInitializer) :
 
 	InteractionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));
 	InteractionSphere->SetupAttachment(GetRootComponent());
-	InteractionSphere->SetSphereRadius(InteractionSphereRadius);
+	InteractionSphere->SetSphereRadius(100.f);
 	InteractionSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	InteractionSphere->SetCollisionResponseToChannel(TRACE_CHANNEL_INTERACTION, ECR_Block);
 }

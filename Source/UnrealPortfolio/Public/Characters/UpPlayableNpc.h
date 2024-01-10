@@ -39,7 +39,4 @@ private:
 	TObjectPtr<UUpDialogueComponent> DialogueComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> InteractionSphere;
-	
-	UPROPERTY(EditAnywhere, Category="UP Params")
-	float InteractionSphereRadius = 100.f;
 };

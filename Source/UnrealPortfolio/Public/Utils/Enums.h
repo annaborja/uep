@@ -58,6 +58,7 @@ namespace EUpItemCategory
 	enum Type : uint8
 	{
 		Consumable,
+		Environment,
 		Permanent,
 		Weapon,
 		Wearable

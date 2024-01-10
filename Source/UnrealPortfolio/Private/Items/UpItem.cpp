@@ -15,7 +15,7 @@ AUpItem::AUpItem()
 	
 	InteractionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));
 	InteractionSphere->SetupAttachment(GetRootComponent());
-	InteractionSphere->SetSphereRadius(InteractionSphereRadius);
+	InteractionSphere->SetSphereRadius(50.f);
 	InteractionSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	InteractionSphere->SetCollisionResponseToChannel(TRACE_CHANNEL_INTERACTION, ECR_Block);
 }
@@ -139,7 +139,7 @@ void AUpItem::BeginPlay()
 
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		ItemData = GameInstance->GetItemData(TagId);
+		ItemData = GameInstance->GetItemData(ItemDataTagId.IsValid() ? ItemDataTagId : TagId);
 	}
 
 	check(ItemData.IsValid())

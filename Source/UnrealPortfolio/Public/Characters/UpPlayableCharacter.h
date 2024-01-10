@@ -39,8 +39,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ActivateCameraView(const EUpCameraView::Type CameraViewType);
 
-	virtual UAnimMontage* GetGesturesMontage() const override;
-
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return Camera; }
 	FORCEINLINE AUpPlayerController* GetCustomPlayerController() const { return CustomPlayerController; }
 	FORCEINLINE FUpCharacterEquipment GetEquipment() const { return Equipment; }
@@ -68,8 +66,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<USkeletalMesh> SkeletalMesh_ThirdPerson;
 	
-	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TObjectPtr<UAnimMontage> GesturesMontage_FirstPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TObjectPtr<UAnimMontage> ReloadsMontage_FirstPerson;
 	

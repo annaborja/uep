@@ -40,11 +40,13 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> InteractionSphere;
 	
-	UPROPERTY(EditAnywhere, Category="UP Params")
-	float InteractionSphereRadius = 50.f;
+	UPROPERTY(EditAnywhere, Category="UP Debug")
+	bool bDebug = false;
 	
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	FGameplayTag TagId;
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	FGameplayTag ItemDataTagId;
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	FGameplayTag RelatedTag;
 	

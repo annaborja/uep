@@ -8,6 +8,7 @@
 #define GRAVITATIONAL_ACCELERATION -980.f
 
 #define SURFACE_CONCRETE SurfaceType1
+#define SURFACE_METAL SurfaceType2
 
 #define TRACE_CHANNEL_INTERACTION ECC_GameTraceChannel1
 #define TRACE_CHANNEL_CLIMBABLE ECC_GameTraceChannel2
