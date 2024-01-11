@@ -81,6 +81,8 @@ public:
 	virtual UAnimMontage* GetGesturesMontage() const { return GesturesMontage_ThirdPerson; }
 	
 	void HandleFootstep() const;
+	void HandleJumpLaunch() const;
+	void HandleJumpLand() const;
 
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 	FORCEINLINE FUpCharacterData GetCharacterData() const { return CharacterData; }
@@ -110,13 +112,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> ReloadsMontage_ThirdPerson;
 	
-	UPROPERTY(EditAnywhere, Category="UP Assets|FX")
-	TObjectPtr<USoundCue> Sfx_Footsteps_Concrete;
-	
 	UPROPERTY(EditAnywhere, Category="UP Assets|GAS")
 	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;
 	UPROPERTY(EditAnywhere, Category="UP Assets|GAS")
 	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
+	
+	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
+	TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap_Footsteps;
+	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
+	TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap_JumpLandings;
+	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
+	TObjectPtr<USoundCue> Sfx_JumpLaunches;
 	
 	UPROPERTY(EditAnywhere, Category="UP Data")
 	FUpCharacterEquipment Equipment;
@@ -124,9 +130,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	FGameplayTag TagId;
 	
-	UPROPERTY(EditAnywhere, Category="UP Params|SFX")
-	float VolumeMultiplier_Footsteps_Player = 0.4f;
-
 	UPROPERTY(Transient, VisibleAnywhere, Category="UP Runtime")
 	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
 	UPROPERTY(VisibleAnywhere, Category="UP Runtime")
@@ -149,6 +152,8 @@ protected:
 	
 	void AttachAndHideItem(AUpItem* ItemActor);
 	void AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName) const;
+
+	void HandleLanding(const TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap) const;
 	
 	virtual void OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot) {}
 	virtual void OnItemUnequip(const EUpEquipmentSlot::Type EquipmentSlot) {}

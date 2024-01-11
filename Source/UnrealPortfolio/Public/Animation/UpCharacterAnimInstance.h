@@ -27,6 +27,11 @@ protected:
 	float VerticalSpeed;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	float MaxWalkSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	float MaxSprintSpeed;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bStoppedWalking = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bStoppedRunning = false;

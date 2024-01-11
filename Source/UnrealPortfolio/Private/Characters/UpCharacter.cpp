@@ -60,7 +60,7 @@ void AUpCharacter::BeginPlay()
 	check(HitReactionsMontage_ThirdPerson);
 	check(ReloadsMontage_ThirdPerson);
 	
-	check(Sfx_Footsteps_Concrete);
+	check(Sfx_JumpLaunches);
 
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
 
@@ -288,49 +288,22 @@ bool AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlo
 
 void AUpCharacter::HandleFootstep() const
 {
-	if (const auto World = GetWorld())
-	{
-		if (const auto Capsule = GetCapsuleComponent())
-		{
-			const auto TraceStart = GetActorLocation();
+	HandleLanding(SfxMap_Footsteps);
+}
 
-			FCollisionQueryParams QueryParams;
-			QueryParams.bReturnPhysicalMaterial =  true;
-			
-			FHitResult HitResult;
-			World->LineTraceSingleByChannel(HitResult, TraceStart,
-				TraceStart + GetActorUpVector() * -1.0 * (Capsule->GetScaledCapsuleHalfHeight() + 10.0),
-				ECC_Visibility, QueryParams);
+void AUpCharacter::HandleJumpLaunch() const
+{
+	if (!Sfx_JumpLaunches) return;
 
-			if (HitResult.bBlockingHit)
-			{
-				USoundBase* Sound = nullptr;
+	const auto PlayableCharacter = Cast<AUpPlayableCharacter>(this);
+	
+	UGameplayStatics::PlaySoundAtLocation(this, Sfx_JumpLaunches, GetActorLocation(), GetActorRotation(),
+		PlayableCharacter && PlayableCharacter->IsPlayer() ? 1.f : 0.5f);
+}
 
-				switch (const auto PhysicalSurfaceType = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get()))
-				{
-				case SurfaceType1:
-					Sound = Sfx_Footsteps_Concrete;
-					break;
-				default:
-					if (const auto HitActor = HitResult.GetActor())
-					{
-						UE_LOG(LogTemp, Error, TEXT("Unknown physical surface type %d for hit actor %s"), PhysicalSurfaceType, *HitActor->GetName())
-					}
-					
-					break;
-				}
-
-				if (Sound)
-				{
-					const auto PlayableCharacter = Cast<AUpPlayableCharacter>(this);
-					
-					UGameplayStatics::PlaySoundAtLocation(this, Sound, HitResult.ImpactPoint, GetActorRotation(),
-						PlayableCharacter && PlayableCharacter->IsPlayer() ? VolumeMultiplier_Footsteps_Player :
-						VolumeMultiplier_Footsteps_Player * 0.5f);
-				}
-			}
-		}
-	}
+void AUpCharacter::HandleJumpLand() const
+{
+	HandleLanding(SfxMap_JumpLandings);
 }
 
 AUpItem* AUpCharacter::SpawnAndAttachItem(const TSubclassOf<AUpItem> ItemClass)
@@ -375,6 +348,45 @@ void AUpCharacter::AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName
 		if (GetCameraView() == EUpCameraView::FirstPerson)
 		{
 			ItemActor->ToggleCastShadows(false);
+		}
+	}
+}
+
+void AUpCharacter::HandleLanding(const TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap) const
+{
+	if (const auto World = GetWorld())
+	{
+		if (const auto Capsule = GetCapsuleComponent())
+		{
+			const auto TraceStart = GetActorLocation();
+
+			FCollisionQueryParams QueryParams;
+			QueryParams.bReturnPhysicalMaterial =  true;
+			
+			FHitResult HitResult;
+			World->LineTraceSingleByChannel(HitResult, TraceStart,
+				TraceStart + GetActorUpVector() * -1.0 * (Capsule->GetScaledCapsuleHalfHeight() + 10.0),
+				ECC_Visibility, QueryParams);
+
+			if (HitResult.bBlockingHit)
+			{
+				const auto SurfaceType = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
+				const auto SoundPtr = SfxMap.Find(SurfaceType);
+				
+				if (const auto Sound = SoundPtr == nullptr ? nullptr : *SoundPtr)
+				{
+					const auto PlayableCharacter = Cast<AUpPlayableCharacter>(this);
+					
+					UGameplayStatics::PlaySoundAtLocation(this, Sound, HitResult.ImpactPoint, GetActorRotation(),
+						PlayableCharacter && PlayableCharacter->IsPlayer() ? 1.f : 0.5f);
+				} else
+				{
+					if (const auto HitActor = HitResult.GetActor())
+					{
+						UE_LOG(LogTemp, Error, TEXT("No sound for surface type %d for hit actor %s"), SurfaceType, *HitActor->GetName())
+					}
+				}
+			}
 		}
 	}
 }
