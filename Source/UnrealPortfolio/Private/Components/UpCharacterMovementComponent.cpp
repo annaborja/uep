@@ -2,8 +2,11 @@
 
 #include "Components/UpCharacterMovementComponent.h"
 
+#include "UpGameInstance.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GAS/UpGasDataAsset.h"
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 #include "Items/UpItem.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -28,9 +31,6 @@ void UUpCharacterMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	check(MantlesMontage);
-	check(MantleTransitionsMontage);
-
 	Character = CastChecked<AUpCharacter>(GetOwner());
 	PlayableCharacter = Cast<AUpPlayableCharacter>(GetOwner());
 
@@ -39,6 +39,7 @@ void UUpCharacterMovementComponent::BeginPlay()
 	BaseMaxSprintSpeed = MaxSprintSpeed;
 	BaseRotationRate = RotationRate;
 	
+	OnAnimMontageEndedDelegate.BindUFunction(this, FName("HandleAnimMontageEnded"));
 	OnPlayerJumpApexReachedDelegate.BindUFunction(this, FName("OnPlayerJumpApexReached"));
 }
 
@@ -97,24 +98,57 @@ void UUpCharacterMovementComponent::UpdateCharacterStateBeforeMovement(const flo
 				}
 			}
 		}
-	}
-	
-	if (bTransitionRootMotionSourceFinished)
-	{
-		if (PostTransitionMontageData.IsValid())
+
+		if (bTransitionRootMotionSourceFinished)
 		{
-			// Need to be in flying mode for vertical root motion to work.
-			SetMovementMode(MOVE_Flying);
-			CharacterOwner->PlayAnimMontage(PostTransitionMontageData.Montage,
-				PostTransitionMontageData.Rate, PostTransitionMontageData.StartSection);
-			PostTransitionMontageData = FUpMontageData();
-		}
-		else
-		{
-			SetMovementMode(MOVE_Walking);
+			if (PostTransitionMontageData.IsValid())
+			{
+				// Need to be in flying mode for vertical root motion to work.
+				SetMovementMode(MOVE_Flying);
+
+				CharacterOwner->PlayAnimMontage(PostTransitionMontageData.Montage, PostTransitionMontageData.Rate, PostTransitionMontageData.StartSection);
+
+				// HACK: We reuse third-person Mixamo animations for our first-person skeleton,
+				// and the translation process doesn't properly bring over root motion.
+				if (Character->IsInFirstPersonCameraView())
+				{
+					MainRootMotionSource.Reset();
+					MainRootMotionSource = MakeShared<FRootMotionSource_MoveToForce>();
+			
+					MainRootMotionSource->AccumulateMode = ERootMotionAccumulateMode::Override;
+					MainRootMotionSource->Duration = PostTransitionMontageData.Montage->GetSectionLength(
+						PostTransitionMontageData.Montage->GetSectionIndex(PostTransitionMontageData.StartSection));
+					MainRootMotionSource->StartLocation = MainRootMotionStartLocation;
+					MainRootMotionSource->TargetLocation = MainRootMotionEndLocation;
+
+					// Root motion affects velocity (not position), so zero out the velocity before applying root motion.
+					Velocity = FVector::ZeroVector;
+					MainRootMotionSourceId = ApplyRootMotionSource(MainRootMotionSource);
+				}
+				
+				PostTransitionMontageData = FUpMontageData();
+			}
+			else
+			{
+				SetMovementMode(MOVE_Walking);
+			}
+
+			bTransitionRootMotionSourceFinished = false;
 		}
 
-		bTransitionRootMotionSourceFinished = false;
+		if (const auto RootMotionSource = GetRootMotionSourceByID(MainRootMotionSourceId);
+			RootMotionSource && RootMotionSource->Status.HasFlag(ERootMotionSourceStatusFlags::Prepared))
+		{
+			if (Character->GetActorEnableCollision()) Character->SetActorEnableCollision(false);
+
+			if (PlayableCharacter)
+			{
+				if  (const auto SpringArm = PlayableCharacter->GetSpringArmComponent(); SpringArm && SpringArm->bDoCollisionTest)
+				{
+					SpringArm->bDoCollisionTest = false;
+				}
+			}
+		}
 	}
 
 	if (bIsPlayer && PlayableCharacter)
@@ -147,6 +181,7 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 {
 	Super::UpdateCharacterStateAfterMovement(DeltaSeconds);
 
+	// Switch to the correct two-handed gun socket when necessary (alert vs relaxed).
 	if (Character && !Character->IsRelaxed())
 	{
 		if (const auto& WeaponSlotData = Character->GetCharacterEquipment().GetPotentialActiveWeaponSlotData(); WeaponSlotData.bActivated)
@@ -160,8 +195,6 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 
 					if (UKismetMathLibrary::VSizeXY(Velocity) > MaxWalkSpeed + 5.f)
 					{
-						UE_LOG(LogTemp, Warning, TEXT("velocity = %g, max walk speed = %g"), UKismetMathLibrary::VSizeXY(Velocity), MaxWalkSpeed + 5.f)
-						
 						if (const auto DesiredSocketName = TAG_Socket_TwoHandedGun_Relaxed.GetTag().GetTagName();
 							!ParentSocketName.IsEqual(DesiredSocketName))
 						{
@@ -182,9 +215,29 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 		}
 	}
 
-	// Reset the movement mode if a root motion animation (e.g., mantling) has just finished.
-	if (!HasAnimRootMotion() && bHadAnimRootMotion && MovementMode == MOVE_Flying)
+	// Check whether a main root motion source has just finished.
+	if (const auto RootMotionSource = GetRootMotionSourceByID(MainRootMotionSourceId);
+		RootMotionSource && RootMotionSource->Status.HasFlag(ERootMotionSourceStatusFlags::Finished) && Character)
 	{
+		Character->SetActorEnableCollision(true);
+
+		if (PlayableCharacter)
+		{
+			if  (const auto SpringArm = PlayableCharacter->GetSpringArmComponent())
+			{
+				SpringArm->bDoCollisionTest = true;
+			}
+		}
+		
+		RemoveRootMotionSourceByID(MainRootMotionSourceId);
+		bMainRootMotionSourceFinished = true;
+	}
+
+	// Reset the movement mode if a root motion animation (e.g., mantling) has just finished.
+	if (((!HasAnimRootMotion() && bHadAnimRootMotion) || bMainRootMotionSourceFinished) && MovementMode == MOVE_Flying)
+	{
+		bMainRootMotionSourceFinished = false;
+		
 		SetMovementMode(MOVE_Walking);
 
 		if (Character && Character->HasRootMotionTargetLocation())
@@ -198,7 +251,7 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 		}
 	}
 
-	// Check whether a root motion source has just finished.
+	// Check whether a transition root motion source has just finished.
 	if (const auto RootMotionSource = GetRootMotionSourceByID(TransitionRootMotionSourceId);
 		RootMotionSource && RootMotionSource->Status.HasFlag(ERootMotionSourceStatusFlags::Finished))
 	{
@@ -325,28 +378,28 @@ bool UUpCharacterMovementComponent::TryMantle()
 				UE_LOG(LogTemp, Warning, TEXT("TryMantle SlopeHeight = %g, ImpactNormalCos = %g"), SlopeHeight, ImpactNormalCos)
 			}
 	
-			const auto CapsuleClearanceLocation = TopSurfaceHit.Location + ForwardNormal2d * CapsuleRadius +
+			MainRootMotionEndLocation = TopSurfaceHit.Location + ForwardNormal2d * CapsuleRadius +
 				FVector::UpVector * (CapsuleHalfHeight + 1.0 + (ImpactNormalCos > 0 ? -1 : 1) * SlopeHeight);
 
 			const auto CollisionShape = FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight);
 			FCollisionQueryParams CollisionQueryParams;
 			CollisionQueryParams.AddIgnoredActor(Character);
 		
-			if (World->OverlapBlockingTestByProfile(CapsuleClearanceLocation, FQuat::Identity, TEXT("BlockAll"),
+			if (World->OverlapBlockingTestByProfile(MainRootMotionEndLocation, FQuat::Identity, TEXT("BlockAll"),
 				CollisionShape, CollisionQueryParams))
 			{
 				if (bDebugMantle)
 				{
-					UKismetSystemLibrary::DrawDebugCapsule(this, CapsuleClearanceLocation,
+					UKismetSystemLibrary::DrawDebugCapsule(this, MainRootMotionEndLocation,
 						CapsuleHalfHeight, CapsuleRadius, Character->GetActorRotation(), FColor::Red, 4.f);
 				}
 			
 				return false;
 			}
-		
+
 			if (bDebugMantle)
 			{
-				UKismetSystemLibrary::DrawDebugCapsule(this, CapsuleClearanceLocation,
+				UKismetSystemLibrary::DrawDebugCapsule(this, MainRootMotionEndLocation,
 					CapsuleHalfHeight, CapsuleRadius, Character->GetActorRotation(), FColor::Green, 4.f);
 			}
 
@@ -362,52 +415,68 @@ bool UUpCharacterMovementComponent::TryMantle()
 					!World->OverlapBlockingTestByProfile(TallMantleStartLocation, FQuat::Identity, TEXT("BlockAll"),
 						CollisionShape, CollisionQueryParams));
 
-			const auto MantleStartLocation = bTallMantle ? TallMantleStartLocation :
+			const auto RootMotionTransitionStartLocation = UpdatedComponent->GetComponentLocation();
+			
+			MainRootMotionStartLocation = bTallMantle ? TallMantleStartLocation :
 				GetMantleStartLocation(FrontSurfaceHit, TopSurfaceHit, CapsuleHalfHeight, CapsuleRadius, MinMantleHeight, false);
-			const auto MantleTransitionStartLocation = UpdatedComponent->GetComponentLocation();
 			
 			if (bDebugMantle)
 			{
-				UKismetSystemLibrary::DrawDebugCapsule(this, MantleStartLocation,
+				UKismetSystemLibrary::DrawDebugCapsule(this, MainRootMotionStartLocation,
 					CapsuleHalfHeight, CapsuleRadius, Character->GetActorRotation(), FColor::Yellow, 4.f);
 			}
 		
-			TransitionRootMotionSource.Reset();
-			TransitionRootMotionSource = MakeShared<FRootMotionSource_MoveToForce>();
+			if (const auto MantlesMontage = Character->GetMantlesMontage())
+			{
+				TransitionRootMotionSource.Reset();
+				TransitionRootMotionSource = MakeShared<FRootMotionSource_MoveToForce>();
 			
-			TransitionRootMotionSource->AccumulateMode = ERootMotionAccumulateMode::Override;
-			TransitionRootMotionSource->Duration = FMath::Clamp(
-				FVector::Dist(MantleTransitionStartLocation, MantleStartLocation) / 500.f, 0.1f, 0.25f);
-			TransitionRootMotionSource->StartLocation = MantleTransitionStartLocation;
-			TransitionRootMotionSource->TargetLocation = MantleStartLocation;
+				TransitionRootMotionSource->AccumulateMode = ERootMotionAccumulateMode::Override;
+				TransitionRootMotionSource->Duration = FMath::Clamp(
+					FVector::Dist(RootMotionTransitionStartLocation, MainRootMotionStartLocation) / 500.0, 0.1, 0.25);
+				TransitionRootMotionSource->StartLocation = RootMotionTransitionStartLocation;
+				TransitionRootMotionSource->TargetLocation = MainRootMotionStartLocation;
 
-			// Root motion affects velocity (not position), so zero out the velocity before applying root motion.
-			Velocity = FVector::ZeroVector;
-			// Need to be in flying mode for vertical root motion to work.
-			SetMovementMode(MOVE_Flying);
-			TransitionRootMotionSourceId = ApplyRootMotionSource(TransitionRootMotionSource);
-			
-			PostTransitionMontageData = FUpMontageData(MantlesMontage,
-				FMath::GetMappedRangeValueClamped(
+				// Root motion affects velocity (not position), so zero out the velocity before applying root motion.
+				Velocity = FVector::ZeroVector;
+				// Need to be in flying mode for vertical root motion to work.
+				SetMovementMode(MOVE_Flying);
+				TransitionRootMotionSourceId = ApplyRootMotionSource(TransitionRootMotionSource);
+
+				PostTransitionMontageData = FUpMontageData(MantlesMontage, FMath::GetMappedRangeValueClamped(
 					FVector2D(-500.0, 750.0), FVector2D(0.9, 1.2), VerticalSpeed));
-			
-			const auto TransitionMontageRate = 1 / TransitionRootMotionSource->Duration;
-			FName TransitionMontageStartSection;
-			
-			if (bTallMantle)
-			{
-				PostTransitionMontageData.StartSection = TEXT("MantleTall");
-				TransitionMontageStartSection = TEXT("MantleTallTransition");
-			}
-			else
-			{
-				PostTransitionMontageData.StartSection = TEXT("MantleShort");
-				TransitionMontageStartSection = TEXT("MantleShortTransition");
-			}
+				PostTransitionMontageData.StartSection = bTallMantle ? TEXT("MantleTall") : TEXT("MantleShort");
 
-			if (MantleTransitionsMontage)
-			{
-				Character->PlayAnimMontage(MantleTransitionsMontage, TransitionMontageRate, TransitionMontageStartSection);
+				MantlesMontageEndCount = 0;
+				
+				Character->PlayAnimMontage(MantlesMontage, 1 / TransitionRootMotionSource->Duration,
+					bTallMantle ? TEXT("MantleTallTransition") : TEXT("MantleShortTransition"));
+
+				if (const auto Mesh = Character->GetMesh())
+				{
+					if (const auto AnimInstance = Mesh->GetAnimInstance())
+					{
+						if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(World))
+						{
+							if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+							{
+								if (const auto BusyEffectClass = GasDataAsset->GetBusyEffectClass())
+								{
+									if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
+									{
+										BusyEffectHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
+											*AbilitySystemComponent->MakeOutgoingSpec(BusyEffectClass, 1.f, AbilitySystemComponent->MakeEffectContext()).Data.Get());
+
+										if (!AnimInstance->OnMontageEnded.Contains(OnAnimMontageEndedDelegate))
+										{
+											AnimInstance->OnMontageEnded.Add(OnAnimMontageEndedDelegate);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 			
 			return true;
@@ -422,6 +491,21 @@ void UUpCharacterMovementComponent::AllowJump()
 	if (!PlayableCharacter) return;
 
 	PlayableCharacter->AllowJump();
+}
+
+void UUpCharacterMovementComponent::HandleAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (!Character) return;
+
+	if (Character->GetMantlesMontage() == Montage) MantlesMontageEndCount++;
+
+	if (MantlesMontageEndCount >= 2)
+	{
+		if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
+		{
+			AbilitySystemComponent->RemoveActiveGameplayEffect(BusyEffectHandle);
+		}
+	}
 }
 
 bool UUpCharacterMovementComponent::IsCustomMovementModeActive( const EUpCustomMovementMode::Type InCustomMovementMode) const

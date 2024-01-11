@@ -47,11 +47,6 @@ public:
 	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TObjectPtr<UAnimMontage> MantlesMontage;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TObjectPtr<UAnimMontage> MantleTransitionsMontage;
-
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugMantle = false;
 	UPROPERTY(EditAnywhere, Category="UP Debug")
@@ -107,9 +102,21 @@ private:
 	uint16 TransitionRootMotionSourceId;
 	bool bTransitionRootMotionSourceFinished = false;
 	FUpMontageData PostTransitionMontageData;
+	
+	TSharedPtr<FRootMotionSource_MoveToForce> MainRootMotionSource;
+	uint16 MainRootMotionSourceId;
+	FVector MainRootMotionStartLocation;
+	FVector MainRootMotionEndLocation;
+	bool bMainRootMotionSourceFinished = false;
+
+	FActiveGameplayEffectHandle BusyEffectHandle;
+	TScriptDelegate<FWeakObjectPtr> OnAnimMontageEndedDelegate;
+	uint8 MantlesMontageEndCount = 0;
 
 	UFUNCTION()
 	void AllowJump();
+	UFUNCTION()
+	void HandleAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	UFUNCTION()
 	void OnPlayerJumpApexReached() { GravityScale = JumpFallGravityScale; }
 

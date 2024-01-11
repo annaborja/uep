@@ -32,6 +32,7 @@ public:
 	bool IsAllowedToJump() const { return bAllowedToJump; };
 
 	virtual EUpCameraView::Type GetCameraView() const override;
+	virtual UAnimMontage* GetMantlesMontage() const override;
 	virtual UAnimMontage* GetReloadsMontage() const override;
 
 	virtual bool GrantTagSpec(const FUpTagSpec& TagSpec) override;
@@ -40,6 +41,7 @@ public:
 	void ActivateCameraView(const EUpCameraView::Type CameraViewType);
 
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return Camera; }
+	FORCEINLINE USpringArmComponent* GetSpringArmComponent() const { return CameraSpringArm; }
 	FORCEINLINE AUpPlayerController* GetCustomPlayerController() const { return CustomPlayerController; }
 	FORCEINLINE FUpCharacterEquipment GetEquipment() const { return Equipment; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetPlayerInteractionComponent() const { return PlayerInteractionComponent; }
@@ -66,7 +68,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<USkeletalMesh> SkeletalMesh_ThirdPerson;
 	
-	UPROPERTY(EditAnywhere, Category="UP Assets")
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> MantlesMontage_FirstPerson;
+	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> ReloadsMontage_FirstPerson;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")

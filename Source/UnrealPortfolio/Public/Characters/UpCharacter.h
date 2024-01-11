@@ -62,12 +62,14 @@ public:
 	
 	virtual FGameplayTag GetTagId() const override { return TagId; }
 
+	FRotator GetSafeRotation() const;
 	void SetYaw(const float InYaw);
 	
 	void SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation);
 	void UnsetRootMotionTargetLocation();
 	
 	virtual EUpCameraView::Type GetCameraView() const { return EUpCameraView::ThirdPerson; }
+	bool IsInFirstPersonCameraView() const;
 	void SetRelaxed(const bool bInRelaxed);
 	
 	virtual TArray<UUpAttributeSet*> GetAttributeSets() const;
@@ -79,6 +81,7 @@ public:
 	bool DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 
 	virtual UAnimMontage* GetGesturesMontage() const { return GesturesMontage_ThirdPerson; }
+	virtual UAnimMontage* GetMantlesMontage() const { return MantlesMontage_ThirdPerson; }
 	
 	void HandleFootstep() const;
 	void HandleJumpLaunch() const;
@@ -109,6 +112,8 @@ protected:
 	TObjectPtr<UAnimMontage> GesturesMontage_ThirdPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> HitReactionsMontage_ThirdPerson;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> MantlesMontage_ThirdPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> ReloadsMontage_ThirdPerson;
 	

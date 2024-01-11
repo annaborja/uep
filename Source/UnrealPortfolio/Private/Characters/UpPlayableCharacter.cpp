@@ -25,7 +25,8 @@ void AUpPlayableCharacter::BeginPlay()
 	check(AnimClass_ThirdPerson);
 	check(SkeletalMesh_FirstPerson);
 	check(SkeletalMesh_ThirdPerson);
-	
+
+	check(MantlesMontage_FirstPerson);
 	check(ReloadsMontage_FirstPerson);
 	
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
@@ -87,9 +88,16 @@ EUpCameraView::Type AUpPlayableCharacter::GetCameraView() const
 	return Super::GetCameraView();
 }
 
+UAnimMontage* AUpPlayableCharacter::GetMantlesMontage() const
+{
+	if (IsInFirstPersonCameraView()) return MantlesMontage_FirstPerson;
+	
+	return Super::GetMantlesMontage();
+}
+
 UAnimMontage* AUpPlayableCharacter::GetReloadsMontage() const
 {
-	if (GetCameraView() == EUpCameraView::FirstPerson) return ReloadsMontage_FirstPerson;
+	if (IsInFirstPersonCameraView()) return ReloadsMontage_FirstPerson;
 	
 	return Super::GetReloadsMontage();
 }
@@ -429,9 +437,8 @@ void AUpPlayableCharacter::SetUpThirdPersonCamera() const
 void AUpPlayableCharacter::SetUpThirdPersonMesh()
 {
 	// In first-person mode, the character actor follows the controller rotation.
-	// Make sure we don't retain any pitch rotation when switching from first-person to third-person.
-	const auto CurrentActorRotation = GetActorRotation();
-	SetActorRotation(FRotator(0.f, CurrentActorRotation.Yaw, CurrentActorRotation.Roll));
+	// Make sure we don't retain any non-yaw rotation when switching from first-person to third-person.
+	SetActorRotation(GetSafeRotation());
 	
 	if (const auto Mesh = GetMesh())
 	{

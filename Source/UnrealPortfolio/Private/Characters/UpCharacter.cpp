@@ -58,6 +58,7 @@ void AUpCharacter::BeginPlay()
 	
 	check(GesturesMontage_ThirdPerson);
 	check(HitReactionsMontage_ThirdPerson);
+	check(MantlesMontage_ThirdPerson);
 	check(ReloadsMontage_ThirdPerson);
 	
 	check(Sfx_JumpLaunches);
@@ -112,6 +113,16 @@ void AUpCharacter::Die()
 	}
 }
 
+FRotator AUpCharacter::GetSafeRotation() const
+{
+	// In case we're in first-person view, remove any non-yaw rotation.
+	auto Result = GetActorRotation();
+	Result.Pitch = 0.0;
+	Result.Roll = 0.0;
+
+	return Result;
+}
+
 void AUpCharacter::SetYaw(const float InYaw)
 {
 	SetActorRotation(FRotator(0.f, InYaw, 0.f));
@@ -127,6 +138,13 @@ void AUpCharacter::UnsetRootMotionTargetLocation()
 {
 	RootMotionTargetLocation = FVector();
 	bHasRootMotionTargetLocation = false;
+}
+
+bool AUpCharacter::IsInFirstPersonCameraView() const
+{
+	const auto CameraView = GetCameraView();
+
+	return CameraView == EUpCameraView::FirstPerson || CameraView == EUpCameraView::FirstPerson_Debug;
 }
 
 void AUpCharacter::SetRelaxed(const bool bInRelaxed)
@@ -345,10 +363,7 @@ void AUpCharacter::AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName
 		ItemActor->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), SocketName);
 		ItemActor->SetActorHiddenInGame(false);
 
-		if (GetCameraView() == EUpCameraView::FirstPerson)
-		{
-			ItemActor->ToggleCastShadows(false);
-		}
+		if (IsInFirstPersonCameraView()) ItemActor->ToggleCastShadows(false);
 	}
 }
 

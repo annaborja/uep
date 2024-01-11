@@ -16,12 +16,16 @@ class UNREALPORTFOLIO_API UUpGasDataAsset : public UDataAsset
 
 public:
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetAmmoGrantEffectClass() const { return AmmoGrantEffectClass; }
+	FORCEINLINE TSubclassOf<UGameplayEffect> GetBusyEffectClass() const { return BusyEffectClass; }
+	
 	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetGrantedAbilityClasses_Character() const { return GrantedAbilityClasses_Character; }
 	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetGrantedAbilityClasses_Common() const { return GrantedAbilityClasses_Common; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> AmmoGrantEffectClass;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TSubclassOf<UGameplayEffect> BusyEffectClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilityClasses_Character;

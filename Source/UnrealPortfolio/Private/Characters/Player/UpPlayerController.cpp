@@ -323,7 +323,7 @@ void AUpPlayerController::ToggleDebugCamera(const FInputActionValue& InputAction
 	// } else if (const auto World = GetWorld(); World && PossessedCharacter)
 	// {
 	// 	DebugCharacter = PossessedCharacter;
-	// 	DebugPawn = World->SpawnActor<ADefaultPawn>(PossessedCharacter->GetActorLocation(), PossessedCharacter->GetActorRotation());
+	// 	DebugPawn = World->SpawnActor<ADefaultPawn>(PossessedCharacter->GetActorLocation(), PossessedCharacter->GetSafeRotation());
 	// 	Possess(DebugPawn);
 	// }
 }

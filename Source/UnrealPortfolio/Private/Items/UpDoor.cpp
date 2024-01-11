@@ -14,6 +14,12 @@ AUpDoor::AUpDoor()
 
 	InteractionSphere->SetRelativeLocation(InteractionSphere->GetRelativeLocation() + FVector(0.f, 50.f, 0.f));
 	InteractionSphere->SetSphereRadius(70.f);
+
+	if (const auto StaticMeshComponent = GetStaticMeshComponent())
+	{
+		StaticMeshComponent->SetCollisionProfileName(FName(TEXT("Custom")));
+		StaticMeshComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	}
 }
 
 void AUpDoor::Tick(const float DeltaSeconds)

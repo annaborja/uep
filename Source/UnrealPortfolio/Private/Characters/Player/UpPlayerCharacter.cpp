@@ -47,7 +47,7 @@ void AUpPlayerCharacter::BeginPlay()
 				const auto PlayerLocation = GetActorLocation();
 				const auto PlayerForwardVector= GetActorForwardVector();
 				const auto PlayerRightVector= GetActorRightVector();
-				const auto PlayerRotation = GetActorRotation();
+				const auto PlayerRotation = GetSafeRotation();
 		
 				AUpPlayableNpc* SquadMember1 = nullptr;
 
