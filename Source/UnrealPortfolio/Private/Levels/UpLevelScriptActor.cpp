@@ -178,7 +178,7 @@ void AUpLevelScriptActor::ExecuteCommand(const FUpScriptCommand& Command)
 					{
 						if (const auto BlackboardComponent = Controller->GetBlackboardComponent())
 						{
-							BlackboardComponent->SetValueAsObject(FName(BLACKBOARD_SELECTOR_LOOK_TARGET), Target);
+							BlackboardComponent->SetValueAsVector(FName(BLACKBOARD_SELECTOR_LOOK_TARGET_LOCATION), Target->GetActorLocation());
 						}
 					}
 				}
@@ -196,7 +196,7 @@ void AUpLevelScriptActor::ExecuteCommand(const FUpScriptCommand& Command)
 					{
 						if (const auto BlackboardComponent = Controller->GetBlackboardComponent())
 						{
-							BlackboardComponent->SetValueAsObject(FName(BLACKBOARD_SELECTOR_MOVE_TARGET), Target);
+							BlackboardComponent->SetValueAsVector(FName(BLACKBOARD_SELECTOR_MOVE_TARGET_LOCATION), Target->GetActorLocation());
 						}
 					}
 				}

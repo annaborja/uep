@@ -4,6 +4,8 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -11,9 +13,15 @@ EBTNodeResult::Type UUpBtTask_FindTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 {
 	AActor* NewTarget = nullptr;
 
-	// If no target class is set, set the blackboard value to null.
-	if (TargetClass)
+	if (bFindPlayerCharacter)
 	{
+		if (const auto PlayerController = UGameplayStatics::GetPlayerController(this, 0))
+		{
+			NewTarget = PlayerController->GetCharacter();
+		}
+	} else if (TargetClass)
+	{
+		// If no target class is set, set the blackboard value to null.
 		if (const auto AiController = OwnerComp.GetAIOwner())
 		{
 			if (const auto AiPawn = AiController->GetPawn())
@@ -79,7 +87,7 @@ EBTNodeResult::Type UUpBtTask_FindTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 	{
 		if (const auto BlackboardComponent = OwnerComp.GetBlackboardComponent())
 		{
-			BlackboardComponent->SetValueAsObject(TargetSelector.SelectedKeyName, NewTarget);
+			BlackboardComponent->SetValueAsVector(TargetSelector.SelectedKeyName, NewTarget->GetActorLocation());
 		
 			return EBTNodeResult::Succeeded;
 		}

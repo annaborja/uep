@@ -2,6 +2,7 @@
 
 #include "Items/UpDoor.h"
 
+#include "Characters/UpPlayableCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -14,6 +15,7 @@ AUpDoor::AUpDoor()
 
 	InteractionSphere->SetRelativeLocation(InteractionSphere->GetRelativeLocation() + FVector(0.f, 50.f, 0.f));
 	InteractionSphere->SetSphereRadius(70.f);
+	InteractionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
 	if (const auto StaticMeshComponent = GetStaticMeshComponent())
 	{
@@ -51,16 +53,8 @@ void AUpDoor::Tick(const float DeltaSeconds)
 
 void AUpDoor::Interact(AUpPlayerController* PlayerController)
 {
-	bOpen = !bOpen;
-
-	if (!bOpen)
-	{
-		bCloseSoundPlayed = false;
-	}
-
-	SetActorTickEnabled(true);
-	
-	UGameplayStatics::PlaySoundAtLocation(this, Sfx_Swing, GetActorLocation(), GetActorRotation());
+	bPlayerHasInteracted = true;
+	ToggleOpen();
 }
 
 void AUpDoor::BeginPlay()
@@ -71,9 +65,38 @@ void AUpDoor::BeginPlay()
 	check(Sfx_Swing);
 
 	SetActorTickEnabled(false);
+
+	InteractionSphereBeginOverlapDelegate.BindUFunction(this, FName(TEXT("OnInteractionSphereBeginOverlap")));
+
+	if (InteractionSphere) InteractionSphere->OnComponentBeginOverlap.Add(InteractionSphereBeginOverlapDelegate);
 }
 
 FText AUpDoor::GetInteractionPromptText(const AUpPlayerController* PlayerController) const
 {
 	return FText::FromString(FString::Printf(TEXT("%s %s"), bOpen ? TEXT("Close") : TEXT("Open"), *ItemData.Name.ToString()));
+}
+
+void AUpDoor::OnInteractionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (bOpen || !bPlayerHasInteracted) return;
+	
+	if (const auto Character = Cast<AUpPlayableCharacter>(OtherActor); Character && !Character->IsPlayer())
+	{
+		ToggleOpen();
+	}
+}
+
+void AUpDoor::ToggleOpen()
+{
+	bOpen = !bOpen;
+
+	if (!bOpen)
+	{
+		bCloseSoundPlayed = false;
+	}
+
+	SetActorTickEnabled(true);
+	
+	UGameplayStatics::PlaySoundAtLocation(this, Sfx_Swing, GetActorLocation(), GetActorRotation());
 }

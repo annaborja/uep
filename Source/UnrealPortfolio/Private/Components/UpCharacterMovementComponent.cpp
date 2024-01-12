@@ -139,7 +139,10 @@ void UUpCharacterMovementComponent::UpdateCharacterStateBeforeMovement(const flo
 		if (const auto RootMotionSource = GetRootMotionSourceByID(MainRootMotionSourceId);
 			RootMotionSource && RootMotionSource->Status.HasFlag(ERootMotionSourceStatusFlags::Prepared))
 		{
-			if (Character->GetActorEnableCollision()) Character->SetActorEnableCollision(false);
+			if (const auto Capsule = Character->GetCapsuleComponent())
+			{
+				Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			}
 
 			if (PlayableCharacter)
 			{
@@ -217,9 +220,15 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 
 	// Check whether a main root motion source has just finished.
 	if (const auto RootMotionSource = GetRootMotionSourceByID(MainRootMotionSourceId);
-		RootMotionSource && RootMotionSource->Status.HasFlag(ERootMotionSourceStatusFlags::Finished) && Character)
+		RootMotionSource && RootMotionSource->Status.HasFlag(ERootMotionSourceStatusFlags::Finished))
 	{
-		Character->SetActorEnableCollision(true);
+		if (Character)
+		{
+			if (const auto Capsule = Character->GetCapsuleComponent())
+			{
+				Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			}
+		}
 
 		if (PlayableCharacter)
 		{

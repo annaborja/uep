@@ -4,10 +4,12 @@
 
 #include "UpGameInstance.h"
 #include "AI/UpAiController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/UpPlayerController.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
@@ -28,6 +30,13 @@ void AUpPlayableCharacter::BeginPlay()
 
 	check(MantlesMontage_FirstPerson);
 	check(ReloadsMontage_FirstPerson);
+
+	CapsuleHitDelegate.BindUFunction(this, FName(TEXT("OnCapsuleHit")));
+
+	if (const auto Capsule = GetCapsuleComponent())
+	{
+		Capsule->OnComponentHit.Add(CapsuleHitDelegate);
+	}
 	
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
 	
@@ -274,6 +283,24 @@ void AUpPlayableCharacter::OnEquipmentDeactivation(const EUpEquipmentSlot::Type 
 	}
 }
 
+void AUpPlayableCharacter::OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (!IsPlayer()) return;
+
+	if (const auto AllyNpc = Cast<AUpPlayableCharacter>(OtherActor))
+	{
+		if (const auto AiController = Cast<AUpAiController>(AllyNpc->GetController()))
+		{
+			if (const auto Blackboard = AiController->GetBlackboardComponent())
+			{
+				Blackboard->SetValueAsBool(FName(TEXT("NeedsPlayerBuffer")), true);
+			}
+		}
+		AllyNpc->AddMovementInput(Hit.ImpactNormal, -1.f);
+	}
+}
+
 void AUpPlayableCharacter::InitForPlayer()
 {
 	bIsPlayer = true;
@@ -412,6 +439,7 @@ void AUpPlayableCharacter::SetUpFirstPersonMesh()
 		CustomMovementComponent->bOrientRotationToMovement = false;
 	}
 
+	// TODO(P0): Set non-yaw to false and use aim offset instead.
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationRoll = true;
 	bUseControllerRotationYaw = true;

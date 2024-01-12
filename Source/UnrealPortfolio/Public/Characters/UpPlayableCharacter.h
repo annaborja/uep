@@ -92,6 +92,10 @@ protected:
 
 private:
 	TMap<FGameplayTag, FDelegateHandle> AttributeValueDelegateHandleMap;
+	TScriptDelegate<FWeakObjectPtr> CapsuleHitDelegate;
+
+	UFUNCTION()
+	void OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 	void InitForPlayer();
 	void TearDownForPlayer();

@@ -64,3 +64,13 @@ namespace EUpItemCategory
 		Wearable
 	};
 }
+
+UENUM(BlueprintType)
+namespace EUpTraceDirection
+{
+	enum Type : uint8
+	{
+		Down,
+		Forward
+	};
+}

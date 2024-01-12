@@ -4,13 +4,12 @@
 
 #include "Characters/UpCharacter.h"
 
-void UUpAnimNotify_Footstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-                                    const FAnimNotifyEventReference& EventReference)
+void UUpAnimNotify_Footstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 
 	if (const auto Character = Cast<AUpCharacter>(MeshComp->GetOwner()))
 	{
-		Character->HandleFootstep();
+		Character->HandleFootstep(BoneName, TraceDirection, TraceLength, VolumeMultiplier);
 	}
 }

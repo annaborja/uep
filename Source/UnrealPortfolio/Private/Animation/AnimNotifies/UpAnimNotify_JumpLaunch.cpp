@@ -4,8 +4,7 @@
 
 #include "Characters/UpCharacter.h"
 
-void UUpAnimNotify_JumpLaunch::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-                                      const FAnimNotifyEventReference& EventReference)
+void UUpAnimNotify_JumpLaunch::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 

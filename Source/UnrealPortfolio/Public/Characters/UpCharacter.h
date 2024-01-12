@@ -82,10 +82,12 @@ public:
 
 	virtual UAnimMontage* GetGesturesMontage() const { return GesturesMontage_ThirdPerson; }
 	virtual UAnimMontage* GetMantlesMontage() const { return MantlesMontage_ThirdPerson; }
-	
-	void HandleFootstep() const;
+
+	void HandleFootstep(const FName& BoneName, const EUpTraceDirection::Type TraceDirection = EUpTraceDirection::Down,
+		const float TraceLength = 10.f, const float VolumeMultiplier = 1.f) const;
 	void HandleJumpLaunch() const;
-	void HandleJumpLand() const;
+	void HandleLanding(const FName& BoneName, const EUpTraceDirection::Type TraceDirection = EUpTraceDirection::Down,
+		const float TraceLength = 10.f, const float VolumeMultiplier = 1.f) const;
 
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 	FORCEINLINE FUpCharacterData GetCharacterData() const { return CharacterData; }
@@ -132,6 +134,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UP Data")
 	FUpCharacterEquipment Equipment;
 	
+	UPROPERTY(EditAnywhere, Category="UP Debug")
+	bool bDebugPhysicalMaterials = false;
+	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	FGameplayTag TagId;
 	
@@ -158,7 +163,8 @@ protected:
 	void AttachAndHideItem(AUpItem* ItemActor);
 	void AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName) const;
 
-	void HandleLanding(const TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap) const;
+	void HandleNoise(const TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap, const FName& BoneName,
+		const EUpTraceDirection::Type TraceDirection = EUpTraceDirection::Down, const float TraceLength = 10.f, const float VolumeMultiplier = 1.f) const;
 	
 	virtual void OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot) {}
 	virtual void OnItemUnequip(const EUpEquipmentSlot::Type EquipmentSlot) {}

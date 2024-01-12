@@ -39,6 +39,8 @@ private:
 	FGameplayTag TargetTagId;
 	UPROPERTY(EditInstanceOnly, Category="UP Params")
 	FGameplayTag TargetTag;
+	UPROPERTY(EditInstanceOnly, Category="UP Params")
+	bool bFindPlayerCharacter = false;
 	
 	UPROPERTY(EditInstanceOnly, Category="UP Params")
 	float OverlapSphereRadius = 5000.f;

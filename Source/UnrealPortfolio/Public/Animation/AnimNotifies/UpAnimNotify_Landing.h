@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "Utils/Enums.h"
-#include "UpAnimNotify_Footstep.generated.h"
+#include "UpAnimNotify_Landing.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpAnimNotify_Footstep : public UAnimNotify
+class UNREALPORTFOLIO_API UUpAnimNotify_Landing : public UAnimNotify
 {
 	GENERATED_BODY()
 

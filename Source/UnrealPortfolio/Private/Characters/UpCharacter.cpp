@@ -304,9 +304,9 @@ bool AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlo
 	return false;
 }
 
-void AUpCharacter::HandleFootstep() const
+void AUpCharacter::HandleFootstep(const FName& BoneName, const EUpTraceDirection::Type TraceDirection, const float TraceLength, const float VolumeMultiplier) const
 {
-	HandleLanding(SfxMap_Footsteps);
+	HandleNoise(SfxMap_Footsteps, BoneName, TraceDirection, TraceLength);
 }
 
 void AUpCharacter::HandleJumpLaunch() const
@@ -319,9 +319,9 @@ void AUpCharacter::HandleJumpLaunch() const
 		PlayableCharacter && PlayableCharacter->IsPlayer() ? 1.f : 0.5f);
 }
 
-void AUpCharacter::HandleJumpLand() const
+void AUpCharacter::HandleLanding(const FName& BoneName, const EUpTraceDirection::Type TraceDirection, const float TraceLength, const float VolumeMultiplier) const
 {
-	HandleLanding(SfxMap_JumpLandings);
+	HandleNoise(SfxMap_JumpLandings, BoneName, TraceDirection, TraceLength, VolumeMultiplier);
 }
 
 AUpItem* AUpCharacter::SpawnAndAttachItem(const TSubclassOf<AUpItem> ItemClass)
@@ -367,39 +367,55 @@ void AUpCharacter::AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName
 	}
 }
 
-void AUpCharacter::HandleLanding(const TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap) const
+void AUpCharacter::HandleNoise(const TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap, const FName& BoneName,
+	const EUpTraceDirection::Type TraceDirection, const float TraceLength, const float VolumeMultiplier) const
 {
 	if (const auto World = GetWorld())
 	{
-		if (const auto Capsule = GetCapsuleComponent())
+		if (const auto Mesh = GetMesh())
 		{
-			const auto TraceStart = GetActorLocation();
-
 			FCollisionQueryParams QueryParams;
-			QueryParams.bReturnPhysicalMaterial =  true;
+			QueryParams.bReturnPhysicalMaterial = true;
+
+			const auto TraceStart = BoneName.IsNone() ? GetActorLocation() : Mesh->GetBoneLocation(BoneName);
+			auto TraceEnd = TraceStart;
+
+			if (TraceDirection == EUpTraceDirection::Forward)
+			{
+				TraceEnd += GetActorForwardVector() * TraceLength;
+			} else
+			{
+				TraceEnd += FVector(0.0, 0.0, 1.0) * -1.0 * TraceLength;
+			}
 			
 			FHitResult HitResult;
-			World->LineTraceSingleByChannel(HitResult, TraceStart,
-				TraceStart + GetActorUpVector() * -1.0 * (Capsule->GetScaledCapsuleHalfHeight() + 10.0),
-				ECC_Visibility, QueryParams);
+			World->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, QueryParams);
 
-			if (HitResult.bBlockingHit)
+			if (bDebugPhysicalMaterials)
+			{
+				UKismetSystemLibrary::DrawDebugLine(this, TraceStart, TraceEnd, FColor::Cyan, 5.f);
+			}
+
+			if (const auto HitActor = HitResult.GetActor())
 			{
 				const auto SurfaceType = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
 				const auto SoundPtr = SfxMap.Find(SurfaceType);
+
+				if (bDebugPhysicalMaterials)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Landing surface type: %d (actor %s, blocking hit: %d)"),
+						SurfaceType, *HitActor->GetName(), HitResult.bBlockingHit)
+				}
 				
 				if (const auto Sound = SoundPtr == nullptr ? nullptr : *SoundPtr)
 				{
 					const auto PlayableCharacter = Cast<AUpPlayableCharacter>(this);
 					
 					UGameplayStatics::PlaySoundAtLocation(this, Sound, HitResult.ImpactPoint, GetActorRotation(),
-						PlayableCharacter && PlayableCharacter->IsPlayer() ? 1.f : 0.5f);
+						(PlayableCharacter && PlayableCharacter->IsPlayer() ? 1.f : 0.5f) * VolumeMultiplier);
 				} else
 				{
-					if (const auto HitActor = HitResult.GetActor())
-					{
-						UE_LOG(LogTemp, Error, TEXT("No sound for surface type %d for hit actor %s"), SurfaceType, *HitActor->GetName())
-					}
+					UE_LOG(LogTemp, Error, TEXT("No sound for surface type %d for hit actor %s"), SurfaceType, *HitActor->GetName())
 				}
 			}
 		}
