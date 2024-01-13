@@ -6,8 +6,24 @@
 #include "Items/UpItem.h"
 #include "UpLadder.generated.h"
 
+class AUpCharacter;
+class UBoxComponent;
+
 UCLASS()
 class UNREALPORTFOLIO_API AUpLadder : public AUpItem
 {
 	GENERATED_BODY()
+
+public:
+	AUpLadder();
+	
+	virtual void Interact(AUpPlayerController* PlayerController) override;
+
+protected:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UBoxComponent> InteractionBox;
+	
+	virtual FText GetInteractionPromptText(const AUpPlayerController* PlayerController) const override;
+
+	bool IsCharacterClimbing(const AUpCharacter* Character) const;
 };

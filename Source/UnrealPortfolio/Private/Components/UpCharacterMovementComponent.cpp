@@ -43,6 +43,36 @@ void UUpCharacterMovementComponent::BeginPlay()
 	OnPlayerJumpApexReachedDelegate.BindUFunction(this, FName("OnPlayerJumpApexReached"));
 }
 
+float UUpCharacterMovementComponent::GetMaxAcceleration() const
+{
+	if (MovementMode != MOVE_Custom) return Super::GetMaxAcceleration();
+	
+	switch(CustomMovementMode)
+	{
+	case EUpCustomMovementMode::Climb:
+		return MaxClimbAcceleration;
+	default:
+		UE_LOG(LogTemp, Error, TEXT("Invalid custom movement mode %d"), CustomMovementMode)
+		return 0.f;
+	}
+}
+
+float UUpCharacterMovementComponent::GetMaxBrakingDeceleration() const
+{
+	if (MovementMode == MOVE_Custom)
+	{
+		switch (CustomMovementMode)
+		{
+		case EUpCustomMovementMode::Climb:
+			return MaxClimbBrakingDeceleration;
+		default:
+			break;
+		}
+	}
+	
+	return Super::GetMaxBrakingDeceleration();
+}
+
 float UUpCharacterMovementComponent::GetMaxSpeed() const
 {
 	if (MovementMode == MOVE_Walking && !IsCrouching() && bWantsToSprint) return MaxSprintSpeed;
@@ -51,7 +81,8 @@ float UUpCharacterMovementComponent::GetMaxSpeed() const
 	
 	switch(CustomMovementMode)
 	{
-	case EUpCustomMovementMode::None:
+	case EUpCustomMovementMode::Climb:
+		return MaxClimbSpeed;
 	default:
 		UE_LOG(LogTemp, Error, TEXT("Invalid custom movement mode %d"), CustomMovementMode)
 		return 0.f;
@@ -61,6 +92,20 @@ float UUpCharacterMovementComponent::GetMaxSpeed() const
 void UUpCharacterMovementComponent::OnMovementModeChanged(const EMovementMode PreviousMovementMode, const uint8 PreviousCustomMode)
 {
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
+
+	if (PreviousMovementMode == MOVE_Custom && PreviousCustomMode == EUpCustomMovementMode::Climb)
+	{
+		if (Character) Character->SetOrientRotationToMovementForCameraView();
+
+		StopMovementImmediately();
+	}
+
+	if (IsClimbing())
+	{
+		bOrientRotationToMovement = false;
+		
+		// TODO(P1): Update capsule half height to match climbing animation.
+	}
 
 	if (bIsPlayer && PlayableCharacter)
 	{
@@ -110,7 +155,7 @@ void UUpCharacterMovementComponent::UpdateCharacterStateBeforeMovement(const flo
 
 				// HACK: We reuse third-person Mixamo animations for our first-person skeleton,
 				// and the translation process doesn't properly bring over root motion.
-				if (Character->IsInFirstPersonCameraView())
+				if (Character->IsInFirstPersonMode())
 				{
 					MainRootMotionSource.Reset();
 					MainRootMotionSource = MakeShared<FRootMotionSource_MoveToForce>();
@@ -295,12 +340,55 @@ void UUpCharacterMovementComponent::TearDownForPlayer()
 	}
 }
 
+bool UUpCharacterMovementComponent::IsClimbing() const
+{
+	return MovementMode == MOVE_Custom && CustomMovementMode == EUpCustomMovementMode::Climb;
+}
+
+void UUpCharacterMovementComponent::TryClimb(AActor* ClimbableActor)
+{
+	if (bDebugClimb)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TryClimb %s"), ClimbableActor ? *ClimbableActor->GetName() : TEXT("NONE"))
+	}
+
+	ClimbedActor = ClimbableActor;
+	SetMovementMode(MOVE_Custom, EUpCustomMovementMode::Climb);
+
+	if (PlayableCharacter && PlayableCharacter->IsPlayer())
+	{
+		if (const auto CustomController = PlayableCharacter->GetCustomPlayerController())
+		{
+			CustomController->SetIgnoreLookInput(true);
+		}
+	}
+}
+
+void UUpCharacterMovementComponent::StopClimb()
+{
+	if (bDebugClimb)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("StopClimb"))
+	}
+
+	ClimbedActor = nullptr;
+	SetMovementMode(MOVE_Falling);
+
+	if (PlayableCharacter && PlayableCharacter->IsPlayer())
+	{
+		if (const auto CustomController = PlayableCharacter->GetCustomPlayerController())
+		{
+			CustomController->ResetIgnoreLookInput();
+		}
+	}
+}
+
 bool UUpCharacterMovementComponent::TryMantle()
 {
 	// Can only mantle if we're walking/standing or jumping/falling.
 	if (!(MovementMode == MOVE_Walking && !IsCrouching()) && MovementMode != MOVE_Falling) return false;
 	
-	if (!Character) return false;
+	if (!Character || Character->IsBusy()) return false;
 
 	if (const auto World = GetWorld())
 	{
@@ -495,6 +583,20 @@ bool UUpCharacterMovementComponent::TryMantle()
 	return false;
 }
 
+void UUpCharacterMovementComponent::PhysCustom(const float deltaTime, const int32 Iterations)
+{
+	Super::PhysCustom(deltaTime, Iterations);
+
+	switch (CustomMovementMode)
+	{
+	case EUpCustomMovementMode::Climb:
+		PhysClimb(deltaTime, Iterations);
+		break;
+	default:
+		break;
+	}
+}
+
 void UUpCharacterMovementComponent::AllowJump()
 {
 	if (!PlayableCharacter) return;
@@ -520,6 +622,83 @@ void UUpCharacterMovementComponent::HandleAnimMontageEnded(UAnimMontage* Montage
 bool UUpCharacterMovementComponent::IsCustomMovementModeActive( const EUpCustomMovementMode::Type InCustomMovementMode) const
 {
 	return MovementMode == MOVE_Custom && CustomMovementMode == InCustomMovementMode;
+}
+
+// Much of the logic here is adapted from UE's `PhysFlying` function.
+void UUpCharacterMovementComponent::PhysClimb(const float DeltaTime, const int32 Iterations)
+{
+	if (!ClimbedActor)
+	{
+		StopClimb();
+		return;
+	}
+	
+	if (DeltaTime < MIN_TICK_TIME) return;
+
+	RestorePreAdditiveRootMotionVelocity();
+
+	if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
+	{
+		CalcVelocity(DeltaTime, 0.f, true, GetMaxBrakingDeceleration());
+	}
+
+	ApplyRootMotionToVelocity(DeltaTime);
+
+	const auto OldLocation = UpdatedComponent->GetComponentLocation();
+	const auto Adjusted = Velocity * DeltaTime;
+	FHitResult Hit(1.f);
+
+	const auto ClimbRotation = GetClimbRotation(DeltaTime);
+	
+	SafeMoveUpdatedComponent(Adjusted, ClimbRotation, true, Hit);
+
+	if (PlayableCharacter && PlayableCharacter->IsPlayer())
+	{
+		if (const auto CustomController = PlayableCharacter->GetCustomPlayerController())
+		{
+			CustomController->SetControlRotation(ClimbRotation.Rotator());
+		}
+	}
+
+	if (Hit.Time < 1.f)
+	{
+		HandleImpact(Hit, DeltaTime, Adjusted);
+		SlideAlongSurface(Adjusted, (1.f - Hit.Time), Hit.Normal, Hit, true);
+	}
+
+	if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
+	{
+		Velocity = (UpdatedComponent->GetComponentLocation() - OldLocation) / DeltaTime;
+	}
+
+	const auto ClimbedActorLocation = ClimbedActor->GetActorLocation();
+	
+	SnapToSurface(DeltaTime, FVector(ClimbedActorLocation.X, ClimbedActorLocation.Y, UpdatedComponent->GetComponentLocation().Z),
+		ClimbedActor->GetActorForwardVector());
+}
+
+FQuat UUpCharacterMovementComponent::GetClimbRotation(const float DeltaTime) const
+{
+	const auto CurrentQuat = UpdatedComponent->GetComponentQuat();
+
+	if (HasAnimRootMotion() || CurrentRootMotion.HasOverrideVelocity() || !ClimbedActor) return CurrentQuat;
+
+	return FMath::QInterpTo(CurrentQuat, FRotationMatrix::MakeFromX(ClimbedActor->GetActorForwardVector() * -1.0).ToQuat(), DeltaTime, ClimbRotationInterpSpeed);
+}
+
+void UUpCharacterMovementComponent::SnapToSurface(const float DeltaTime, const FVector& SurfaceLocation, const FVector& SurfaceNormal) const
+{
+	const auto ComponentLocation = UpdatedComponent->GetComponentLocation();
+	const auto ComponentToSurface = SurfaceLocation - ComponentLocation;
+	const auto StartLocation = SurfaceLocation + SurfaceNormal * ComponentToSurface.Length();
+	const auto StartLocationToSurface = SurfaceLocation - StartLocation;
+
+	if (!ComponentLocation.Equals(StartLocation, 0.1))
+	{
+		UpdatedComponent->SetWorldLocation(StartLocation);
+	}
+	
+	UpdatedComponent->MoveComponent(StartLocationToSurface * DeltaTime * GetMaxSpeed(), UpdatedComponent->GetComponentQuat(), true);
 }
 
 // TODO(P1): Add comments for this function (see explanation at https://youtu.be/3hk39el8dg8?feature=shared&t=4562).

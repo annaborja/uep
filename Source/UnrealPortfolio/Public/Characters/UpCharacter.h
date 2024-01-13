@@ -63,13 +63,15 @@ public:
 	virtual FGameplayTag GetTagId() const override { return TagId; }
 
 	FRotator GetSafeRotation() const;
+	void SetOrientRotationToMovementForCameraView() const;
 	void SetYaw(const float InYaw);
 	
 	void SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation);
 	void UnsetRootMotionTargetLocation();
 	
 	virtual EUpCameraView::Type GetCameraView() const { return EUpCameraView::ThirdPerson; }
-	bool IsInFirstPersonCameraView() const;
+	bool IsBusy() const;
+	bool IsInFirstPersonMode() const;
 	void SetRelaxed(const bool bInRelaxed);
 	
 	virtual TArray<UUpAttributeSet*> GetAttributeSets() const;

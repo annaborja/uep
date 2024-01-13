@@ -21,11 +21,11 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 			// const auto CurrentAcceleration = MovementComponent->GetCurrentAcceleration();
 			// const auto RunStopThreshold = MovementComponent->GetMaxSprintSpeed() * RunStopThresholdMultiplier;
 			
-			if (MovementComponent->ShouldDebugMovement())
-			{
+			// if (MovementComponent->ShouldDebugMovement())
+			// {
 				// UE_LOG(LogTemp, Warning, TEXT("%s GroundSpeed prev = %g; Acceleration current = %s"),
 					// *Character->GetName(), PrevGroundSpeed, *CurrentAcceleration.ToString())
-			}
+			// }
 			
 			GroundSpeed = UKismetMathLibrary::VSizeXY(MovementComponent->Velocity);
 			VerticalSpeed = MovementComponent->Velocity.Z;

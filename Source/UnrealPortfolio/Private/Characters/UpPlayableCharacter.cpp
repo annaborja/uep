@@ -99,14 +99,14 @@ EUpCameraView::Type AUpPlayableCharacter::GetCameraView() const
 
 UAnimMontage* AUpPlayableCharacter::GetMantlesMontage() const
 {
-	if (IsInFirstPersonCameraView()) return MantlesMontage_FirstPerson;
+	if (IsInFirstPersonMode()) return MantlesMontage_FirstPerson;
 	
 	return Super::GetMantlesMontage();
 }
 
 UAnimMontage* AUpPlayableCharacter::GetReloadsMontage() const
 {
-	if (IsInFirstPersonCameraView()) return ReloadsMontage_FirstPerson;
+	if (IsInFirstPersonMode()) return ReloadsMontage_FirstPerson;
 	
 	return Super::GetReloadsMontage();
 }
@@ -163,23 +163,12 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 		break;
 	case EUpCameraView::ThirdPerson:
 		SetUpThirdPersonMesh();
-		
-		if (CustomMovementComponent)
-		{
-			CustomMovementComponent->bOrientRotationToMovement = true;
-		}
-		
 		SetUpThirdPersonCamera();
 		
 		break;
 	case EUpCameraView::ThirdPerson_OverTheShoulder:
 		SetUpThirdPersonMesh();
 
-		if (CustomMovementComponent)
-		{
-			CustomMovementComponent->bOrientRotationToMovement = false;
-		}
-	
 		bUseControllerRotationPitch = false;
 		bUseControllerRotationRoll = false;
 		bUseControllerRotationYaw = true;
@@ -207,8 +196,10 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 	default:
 		UE_LOG(LogTemp, Warning, TEXT("Invalid camera view %d"), CameraViewType)
 	}
-
+	
 	if (CustomPlayerController) CustomPlayerController->SetCameraView(CameraViewType);
+	
+	SetOrientRotationToMovementForCameraView();
 }
 
 void AUpPlayableCharacter::OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot)
@@ -432,11 +423,6 @@ void AUpPlayableCharacter::SetUpFirstPersonMesh()
 		{
 			ItemActor->ToggleCastShadows(false);
 		}
-	}
-	
-	if (CustomMovementComponent)
-	{
-		CustomMovementComponent->bOrientRotationToMovement = false;
 	}
 
 	// TODO(P0): Set non-yaw to false and use aim offset instead.

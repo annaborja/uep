@@ -10,6 +10,7 @@
 #define SURFACE_CONCRETE SurfaceType1
 #define SURFACE_METAL SurfaceType2
 #define SURFACE_DIRT SurfaceType3
+#define SURFACE_WOOD SurfaceType4
 
 #define TRACE_CHANNEL_INTERACTION ECC_GameTraceChannel1
 #define TRACE_CHANNEL_CLIMBABLE ECC_GameTraceChannel2

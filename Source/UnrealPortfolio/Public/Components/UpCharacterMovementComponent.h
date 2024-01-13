@@ -15,7 +15,8 @@ namespace EUpCustomMovementMode
 {
 	enum Type : uint8
 	{
-		None
+		None,
+		Climb
 	};
 }
 
@@ -28,6 +29,8 @@ public:
 	UUpCharacterMovementComponent();
 
 	virtual void BeginPlay() override;
+	virtual float GetMaxAcceleration() const override;
+	virtual float GetMaxBrakingDeceleration() const override;
 	virtual float GetMaxSpeed() const override;
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
@@ -39,18 +42,36 @@ public:
 	void ResetMaxWalkSpeed() { MaxWalkSpeed = BaseMaxWalkSpeed; }
 	void ResetRotationRate() { RotationRate = BaseRotationRate; }
 	void ToggleCustomPressedJump(const bool bInCustomPressedJump) { bCustomPressedJump = bInCustomPressedJump; }
+
 	void ToggleSprint(const bool bInWantsToSprint) { bWantsToSprint = bInWantsToSprint; }
+
+	bool IsClimbing() const;
+	void TryClimb(AActor* ClimbableActor);
+	void StopClimb();
+	
 	bool TryMantle();
 
+	FORCEINLINE AActor* GetClimbedActor() const { return ClimbedActor; }
 	FORCEINLINE float GetMaxSprintSpeed() const { return MaxSprintSpeed; }
 	FORCEINLINE bool IsSprinting() const { return bWantsToSprint; }
-	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
+
+protected:
+	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 
 private:
 	UPROPERTY(EditAnywhere, Category="UP Debug")
-	bool bDebugMantle = false;
+	bool bDebugClimb = false;
 	UPROPERTY(EditAnywhere, Category="UP Debug")
-	bool bDebugMovement = false;
+	bool bDebugMantle = false;
+	
+	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
+	float ClimbRotationInterpSpeed = 5.f;
+	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
+	float MaxClimbAcceleration = 300.f;
+	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
+	float MaxClimbBrakingDeceleration = 400.f;
+	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
+	float MaxClimbSpeed = 100.f;
 
 	UPROPERTY(EditAnywhere, Category="UP Params|Jump")
 	float JumpCooldownTime = 0.1f;
@@ -83,6 +104,9 @@ private:
 	TObjectPtr<AUpCharacter> Character;
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayableCharacter> PlayableCharacter;
+	
+	UPROPERTY(Transient, VisibleInstanceOnly, Category="UP Runtime")
+	TObjectPtr<AActor> ClimbedActor;
 
 	float BaseGravityScale = 1.f;
 	float BaseMaxSprintSpeed = 0.f;
@@ -121,6 +145,10 @@ private:
 	void OnPlayerJumpApexReached() { GravityScale = JumpFallGravityScale; }
 
 	bool IsCustomMovementModeActive(const EUpCustomMovementMode::Type InCustomMovementMode) const;
+
+	void PhysClimb(const float DeltaTime, const int32 Iterations);
+	FQuat GetClimbRotation(const float DeltaTime) const;
+	void SnapToSurface(const float DeltaTime, const FVector& SurfaceLocation, const FVector& SurfaceNormal) const;
 
 	FVector GetMantleStartLocation(const FHitResult& FrontSurfaceHit, const FHitResult& TopSurfaceHit,
 		const float CapsuleHalfHeight, const float CapsuleRadius, const float MinMantleHeight, const bool bTallMantle) const;

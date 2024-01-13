@@ -15,6 +15,7 @@
 #include "Items/UpWeapon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Tags/GasTags.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -123,6 +124,21 @@ FRotator AUpCharacter::GetSafeRotation() const
 	return Result;
 }
 
+void AUpCharacter::SetOrientRotationToMovementForCameraView() const
+{
+	if (!CustomMovementComponent) return;
+	
+	switch (GetCameraView())
+	{
+	case EUpCameraView::FirstPerson:
+	case EUpCameraView::ThirdPerson_OverTheShoulder:
+		CustomMovementComponent->bOrientRotationToMovement = false;
+		break;
+	default:
+		CustomMovementComponent->bOrientRotationToMovement = true;
+	}
+}
+
 void AUpCharacter::SetYaw(const float InYaw)
 {
 	SetActorRotation(FRotator(0.f, InYaw, 0.f));
@@ -140,7 +156,26 @@ void AUpCharacter::UnsetRootMotionTargetLocation()
 	bHasRootMotionTargetLocation = false;
 }
 
-bool AUpCharacter::IsInFirstPersonCameraView() const
+bool AUpCharacter::IsBusy() const
+{
+	if (AbilitySystemComponent)
+	{
+		FGameplayTagContainer AbilitySystemTags;
+		AbilitySystemComponent->GetOwnedGameplayTags(AbilitySystemTags);
+
+		if (AbilitySystemTags.HasTagExact(TAG_State_Busy))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s is busy"), *GetName())
+			return true;
+		}
+
+		return false;
+	}
+
+	return false;
+}
+
+bool AUpCharacter::IsInFirstPersonMode() const
 {
 	const auto CameraView = GetCameraView();
 
@@ -363,7 +398,7 @@ void AUpCharacter::AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName
 		ItemActor->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), SocketName);
 		ItemActor->SetActorHiddenInGame(false);
 
-		if (IsInFirstPersonCameraView()) ItemActor->ToggleCastShadows(false);
+		if (IsInFirstPersonMode()) ItemActor->ToggleCastShadows(false);
 	}
 }
 
