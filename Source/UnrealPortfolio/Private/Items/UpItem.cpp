@@ -22,7 +22,7 @@ AUpItem::AUpItem()
 
 FUpInteractionData AUpItem::GetInteractionData(const AUpPlayerController* PlayerController)
 {
-	if (!CanInteract()) return FUpInteractionData();
+	if (!CanInteract(PlayerController)) return FUpInteractionData();
 	
 	return FUpInteractionData(this,
 		GetInteractionPromptText(PlayerController), GetInteractionPromptSubText(PlayerController));

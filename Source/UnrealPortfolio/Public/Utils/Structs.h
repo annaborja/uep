@@ -143,17 +143,22 @@ struct FUpCharacterEquipment
 		EquipmentSlotMap.FindChecked(EquipmentSlot).bActivated = false;
 	}
 
-	FUpEquipmentSlotData GetPotentialActiveWeaponSlotData() const
+	EUpEquipmentSlot::Type GetPotentialActiveWeaponSlot() const
 	{
 		for (const auto EquipmentSlot : GetWeaponSlots())
 		{
 			if (const auto& EquipmentSlotData = GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.bActivated)
 			{
-				return EquipmentSlotData;
+				return EquipmentSlot;
 			}
 		}
 
-		return GetEquipmentSlotData(EUpEquipmentSlot::Weapon1);
+		return EUpEquipmentSlot::Weapon1;
+	}
+
+	FUpEquipmentSlotData GetPotentialActiveWeaponSlotData() const
+	{
+		return GetEquipmentSlotData(GetPotentialActiveWeaponSlot());
 	}
 	
 	void SetEquipmentSlotActor(const EUpEquipmentSlot::Type EquipmentSlot, AUpItem* InItemActor)

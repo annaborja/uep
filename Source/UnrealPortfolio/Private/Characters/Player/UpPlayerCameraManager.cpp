@@ -3,6 +3,7 @@
 #include "Characters/Player/UpPlayerCameraManager.h"
 
 #include "Characters/UpPlayableCharacter.h"
+#include "Characters/Player/UpPlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 

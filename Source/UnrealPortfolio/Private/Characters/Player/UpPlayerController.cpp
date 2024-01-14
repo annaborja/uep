@@ -50,7 +50,7 @@ void AUpPlayerController::CloseCharacterSwitcher()
 	CustomHud->CloseCharacterSwitcher();
 	DisableMouse();
 	
-	if (CharacterSwitcherInputMappingContext) DeactivateInputMappingContext(CharacterSwitcherInputMappingContext);
+	if (InputMappingContext_CharacterSwitcher) DeactivateInputMappingContext(InputMappingContext_CharacterSwitcher);
 	ResetInputMappingContexts();
 }
 
@@ -105,44 +105,44 @@ void AUpPlayerController::ResetInputMappingContexts() const
 	
 	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
-		if (BaseInputMappingContext && !Subsystem->HasMappingContext(BaseInputMappingContext))
+		if (InputMappingContext_Base && !Subsystem->HasMappingContext(InputMappingContext_Base))
 		{
 			constexpr auto Priority = 0;
 			
 			if (bDebugInputMappingContexts)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Add input mapping context %s with priority %d"), *BaseInputMappingContext->GetName(), Priority)
+				UE_LOG(LogTemp, Warning, TEXT("Add input mapping context %s with priority %d"), *InputMappingContext_Base->GetName(), Priority)
 			}
 			
-			Subsystem->AddMappingContext(BaseInputMappingContext, Priority);
+			Subsystem->AddMappingContext(InputMappingContext_Base, Priority);
 		}
 		
 		if (PossessedCharacter)
 		{
-			if (GunInputMappingContext)
+			if (InputMappingContext_Gun)
 			{
 				if (const auto& Equipment = PossessedCharacter->GetCharacterEquipment();
 					Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1).bActivated || Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2).bActivated)
 				{
-					if (!Subsystem->HasMappingContext(GunInputMappingContext))
+					if (!Subsystem->HasMappingContext(InputMappingContext_Gun))
 					{
 						constexpr auto Priority = 1;
 						
 						if (bDebugInputMappingContexts)
 						{
-							UE_LOG(LogTemp, Warning, TEXT("Add input mapping context %s with priority %d"), *GunInputMappingContext->GetName(), Priority)
+							UE_LOG(LogTemp, Warning, TEXT("Add input mapping context %s with priority %d"), *InputMappingContext_Gun->GetName(), Priority)
 						}
 						
-						Subsystem->AddMappingContext(GunInputMappingContext, Priority);
+						Subsystem->AddMappingContext(InputMappingContext_Gun, Priority);
 					}
 				} else
 				{
 					if (bDebugInputMappingContexts)
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Remove input mapping context %s"), *GunInputMappingContext->GetName())
+						UE_LOG(LogTemp, Warning, TEXT("Remove input mapping context %s"), *InputMappingContext_Gun->GetName())
 					}
 					
-					Subsystem->RemoveMappingContext(GunInputMappingContext);
+					Subsystem->RemoveMappingContext(InputMappingContext_Gun);
 				}
 			}
 		}
@@ -155,7 +155,7 @@ void AUpPlayerController::CreateTemporaryCamera(const AActor* LookTarget, const 
 
 	if (TemporaryCamera) DestroyTemporaryCamera(CameraBlendTime);
 	
-	ActivateInputMappingContext(InteractionOnlyInputMappingContext);
+	ActivateInputMappingContext(InputMappingContext_InteractionOnly);
 
 	if (const auto PlayerCameraComponent = PossessedCharacter->GetCameraComponent())
 	{
@@ -202,10 +202,10 @@ void AUpPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	check(BaseInputMappingContext);
-	check(CharacterSwitcherInputMappingContext);
-	check(GunInputMappingContext);
-	check(InteractionOnlyInputMappingContext);
+	check(InputMappingContext_Base);
+	check(InputMappingContext_CharacterSwitcher);
+	check(InputMappingContext_Gun);
+	check(InputMappingContext_InteractionOnly);
 
 	check(AimGunInputAction);
 	check(CloseCharacterSwitcherInputAction);
@@ -381,7 +381,7 @@ void AUpPlayerController::OpenCharacterSwitcher(const FInputActionValue& InputAc
 	CustomHud->OpenCharacterSwitcher();
 	EnableMouse();
 
-	if (CharacterSwitcherInputMappingContext) ActivateInputMappingContext(CharacterSwitcherInputMappingContext);
+	if (InputMappingContext_CharacterSwitcher) ActivateInputMappingContext(InputMappingContext_CharacterSwitcher);
 }
 
 void AUpPlayerController::TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue)
@@ -469,11 +469,41 @@ void AUpPlayerController::Move(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
 	
+	if (const auto CustomMovementComponent = PossessedCharacter->GetCustomMovementComponent();
+		CustomMovementComponent && CustomMovementComponent->IsClimbing())
+	{
+		HandleClimbingMovement(InputActionValue);
+	} else
+	{
+		HandleGroundMovement(InputActionValue);
+	}
+}
+
+void AUpPlayerController::HandleGroundMovement(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+	
 	const auto InputActionVector = InputActionValue.Get<FVector2D>();
-	const FRotationMatrix RotationMatrix(FRotator(0.f, GetControlRotation().Yaw, 0.f));
+	const FRotationMatrix RotationMatrix(FRotator(0.0, GetControlRotation().Yaw, 0.0));
 
 	PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::X), InputActionVector.Y);
 	PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::Y), InputActionVector.X);
+}
+
+void AUpPlayerController::HandleClimbingMovement(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	if (const auto CustomMovementComponent = PossessedCharacter->GetCustomMovementComponent())
+	{
+		const auto InputActionVector = InputActionValue.Get<FVector2D>();
+		const auto ClimbedSurfaceNormal = CustomMovementComponent->GetClimbedSurfaceNormal();
+
+		PossessedCharacter->AddMovementInput(
+			FVector::CrossProduct(-ClimbedSurfaceNormal, PossessedCharacter->GetActorRightVector()), InputActionVector.Y);
+		PossessedCharacter->AddMovementInput(
+			FVector::CrossProduct(-ClimbedSurfaceNormal,-PossessedCharacter->GetActorUpVector()), InputActionVector.X);
+	}
 }
 
 void AUpPlayerController::StartAimingGun(const FInputActionValue& InputActionValue)

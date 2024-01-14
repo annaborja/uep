@@ -29,6 +29,7 @@ public:
 	UUpCharacterMovementComponent();
 
 	virtual void BeginPlay() override;
+	virtual FVector ConstrainAnimRootMotionVelocity(const FVector& RootMotionVelocity, const FVector& CurrentVelocity) const override;
 	virtual float GetMaxAcceleration() const override;
 	virtual float GetMaxBrakingDeceleration() const override;
 	virtual float GetMaxSpeed() const override;
@@ -38,6 +39,7 @@ public:
 
 	void InitForPlayer();
 	void TearDownForPlayer();
+	void HandleCameraViewChange();
 
 	void ResetMaxWalkSpeed() { MaxWalkSpeed = BaseMaxWalkSpeed; }
 	void ResetRotationRate() { RotationRate = BaseRotationRate; }
@@ -46,12 +48,16 @@ public:
 	void ToggleSprint(const bool bInWantsToSprint) { bWantsToSprint = bInWantsToSprint; }
 
 	bool IsClimbing() const;
+	bool IsClimbingLadder() const;
 	void TryClimb(AActor* ClimbableActor);
 	void StopClimb();
 	
 	bool TryMantle();
 
 	FORCEINLINE AActor* GetClimbedActor() const { return ClimbedActor; }
+	FORCEINLINE FVector GetClimbedSurfaceLocation() const { return ClimbedSurfaceLocation; }
+	FORCEINLINE FVector GetClimbedSurfaceNormal() const { return ClimbedSurfaceNormal; }
+	
 	FORCEINLINE float GetMaxSprintSpeed() const { return MaxSprintSpeed; }
 	FORCEINLINE bool IsSprinting() const { return bWantsToSprint; }
 
@@ -65,13 +71,21 @@ private:
 	bool bDebugMantle = false;
 	
 	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
+	float ClimbCapsuleHalfHeight = 64.f;
+	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
+	float ClimbFloorDetectionDistance = 10.f;
+	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
+	float ClimbPreSnapToSurfaceInterpSpeed = 100.f;
+	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
 	float ClimbRotationInterpSpeed = 5.f;
+	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
+	float ClimbTopTraceVerticalOffset = 20.f;
 	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
 	float MaxClimbAcceleration = 300.f;
 	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
 	float MaxClimbBrakingDeceleration = 400.f;
 	UPROPERTY(EditAnywhere, Category="UP Params|Climb")
-	float MaxClimbSpeed = 100.f;
+	float MaxClimbSpeed = 200.f;
 
 	UPROPERTY(EditAnywhere, Category="UP Params|Jump")
 	float JumpCooldownTime = 0.1f;
@@ -105,15 +119,21 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayableCharacter> PlayableCharacter;
 	
-	UPROPERTY(Transient, VisibleInstanceOnly, Category="UP Runtime")
+	UPROPERTY(Transient)
 	TObjectPtr<AActor> ClimbedActor;
+	UPROPERTY(Transient)
+	TEnumAsByte<EUpEquipmentSlot::Type> PrevActiveEquipmentSlot = EUpEquipmentSlot::Weapon1;
 
+	float BaseCapsuleHalfHeight = 88.f;
 	float BaseGravityScale = 1.f;
 	float BaseMaxSprintSpeed = 0.f;
 	float BaseMaxWalkSpeed = 0.f;
 	FRotator BaseRotationRate;
 
 	bool bWantsToSprint = false;
+
+	FVector ClimbedSurfaceNormal;
+	FVector ClimbedSurfaceLocation;
 
 	TScriptDelegate<FWeakObjectPtr> OnPlayerJumpApexReachedDelegate;
 	FTimerHandle JumpCooldownTimerHandle;
@@ -134,21 +154,26 @@ private:
 	bool bMainRootMotionSourceFinished = false;
 
 	FActiveGameplayEffectHandle BusyEffectHandle;
-	TScriptDelegate<FWeakObjectPtr> OnAnimMontageEndedDelegate;
+	TScriptDelegate<FWeakObjectPtr> OnMontageEndedDelegate;
 	uint8 MantlesMontageEndCount = 0;
 
 	UFUNCTION()
 	void AllowJump();
 	UFUNCTION()
-	void HandleAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	void HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	UFUNCTION()
 	void OnPlayerJumpApexReached() { GravityScale = JumpFallGravityScale; }
 
 	bool IsCustomMovementModeActive(const EUpCustomMovementMode::Type InCustomMovementMode) const;
+	void SetOrientRotationToMovementForCameraView();
+	void SnapToSurface(const float DeltaTime, const FVector& SurfaceLocation, const FVector& SurfaceNormal) const;
 
 	void PhysClimb(const float DeltaTime, const int32 Iterations);
 	FQuat GetClimbRotation(const float DeltaTime) const;
-	void SnapToSurface(const float DeltaTime, const FVector& SurfaceLocation, const FVector& SurfaceNormal) const;
+	bool HasReachedClimbBottom() const;
+	bool HasReachedClimbTop() const;
+	void PopulateClimbedSurfaceLocation();
+	void PopulateClimbedSurfaceNormal();
 
 	FVector GetMantleStartLocation(const FHitResult& FrontSurfaceHit, const FHitResult& TopSurfaceHit,
 		const float CapsuleHalfHeight, const float CapsuleRadius, const float MinMantleHeight, const bool bTallMantle) const;

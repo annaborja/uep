@@ -3,7 +3,6 @@
 #include "UI/Persistent/UpPersistentVitalStatsDisplayWidget.h"
 
 #include "Characters/UpPlayableCharacter.h"
-#include "Characters/Player/UpPlayerController.h"
 #include "GAS/Attributes/UpVitalAttributeSet.h"
 #include "Tags/AttributeTags.h"
 #include "UI/UpHud.h"

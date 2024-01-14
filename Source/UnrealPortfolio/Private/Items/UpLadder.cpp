@@ -12,12 +12,18 @@ AUpLadder::AUpLadder()
 {
 	bCanInteract = true;
 
+	if (const auto Mesh = GetStaticMeshComponent())
+	{
+		Mesh->SetCollisionProfileName(FName(TEXT("Custom")));
+		Mesh->SetCollisionResponseToChannel(TRACE_CHANNEL_CLIMBABLE, ECR_Block);
+	}
+
 	InteractionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	InteractionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
 	InteractionBox->SetupAttachment(GetRootComponent());
-	InteractionBox->SetRelativeLocation(FVector(10.0, 0.0, 120.0));
-	InteractionBox->SetBoxExtent(FVector(10.0, 40.0, 180.0));
+	InteractionBox->SetRelativeLocation(FVector(8.0, 0.0, 120.0));
+	InteractionBox->SetBoxExtent(FVector(8.0, 40.0, 180.0));
 	InteractionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
 	InteractionBox->SetCollisionResponseToChannel(TRACE_CHANNEL_INTERACTION, ECR_Block);
 }
@@ -37,6 +43,22 @@ void AUpLadder::Interact(AUpPlayerController* PlayerController)
 			}
 		}
 	}
+}
+
+bool AUpLadder::CanInteract(const AUpPlayerController* PlayerController) const
+{
+	// if (const auto Character = PlayerController->GetPossessedCharacter()) {
+	// 	const auto Angle = FMath::RadiansToDegrees(FMath::Acos(-Character->GetActorForwardVector().Dot(GetActorForwardVector())));
+	//
+	// 	if (bDebug)
+	// 	{
+	// 		UE_LOG(LogTemp, Warning, TEXT("Angle: %g"), Angle)
+	// 	}
+	// 	
+	// 	if (Angle > 90.0) return false;
+	// }
+	
+	return Super::CanInteract(PlayerController);
 }
 
 FText AUpLadder::GetInteractionPromptText(const AUpPlayerController* PlayerController) const

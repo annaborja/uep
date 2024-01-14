@@ -9,6 +9,7 @@
 #include "GAS/UpGasDataAsset.h"
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 #include "Items/UpItem.h"
+#include "Items/UpLadder.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
@@ -39,8 +40,35 @@ void UUpCharacterMovementComponent::BeginPlay()
 	BaseMaxSprintSpeed = MaxSprintSpeed;
 	BaseRotationRate = RotationRate;
 	
-	OnAnimMontageEndedDelegate.BindUFunction(this, FName("HandleAnimMontageEnded"));
+	OnMontageEndedDelegate.BindUFunction(this, FName("HandleMontageEnded"));
 	OnPlayerJumpApexReachedDelegate.BindUFunction(this, FName("OnPlayerJumpApexReached"));
+
+	if (Character)
+	{
+		if (const auto Capsule = Character->GetCapsuleComponent())
+		{
+			BaseCapsuleHalfHeight = Capsule->GetUnscaledCapsuleHalfHeight();
+		}
+	}
+
+	HandleCameraViewChange();
+}
+
+FVector UUpCharacterMovementComponent::ConstrainAnimRootMotionVelocity(const FVector& RootMotionVelocity, const FVector& CurrentVelocity) const
+{
+	if (IsFalling() && Character)
+	{
+		if (const auto Mesh = Character->GetMesh())
+		{
+			if (const auto AnimInstance = Mesh->GetAnimInstance(); AnimInstance && AnimInstance->IsAnyMontagePlaying())
+			{
+				// Allow root motion montages to control the Z-component of velocity.
+				return RootMotionVelocity;
+			}
+		}
+	}
+	
+	return Super::ConstrainAnimRootMotionVelocity(RootMotionVelocity, CurrentVelocity);
 }
 
 float UUpCharacterMovementComponent::GetMaxAcceleration() const
@@ -93,18 +121,37 @@ void UUpCharacterMovementComponent::OnMovementModeChanged(const EMovementMode Pr
 {
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
 
-	if (PreviousMovementMode == MOVE_Custom && PreviousCustomMode == EUpCustomMovementMode::Climb)
+	if (PreviousMovementMode == MOVE_Custom)
 	{
-		if (Character) Character->SetOrientRotationToMovementForCameraView();
+		if (PreviousCustomMode == EUpCustomMovementMode::Climb)
+		{
+			if (Character)
+			{
+				SetOrientRotationToMovementForCameraView();
 
-		StopMovementImmediately();
+				if (const auto Capsule = Character->GetCapsuleComponent())
+				{
+					Capsule->SetCapsuleHalfHeight(BaseCapsuleHalfHeight);
+				}
+			}
+
+			StopMovementImmediately();
+		}
 	}
 
 	if (IsClimbing())
 	{
 		bOrientRotationToMovement = false;
+
+		if (Character)
+		{
+			if (const auto Capsule = Character->GetCapsuleComponent())
+			{
+				Capsule->SetCapsuleHalfHeight(ClimbCapsuleHalfHeight);
+			}
+		}
 		
-		// TODO(P1): Update capsule half height to match climbing animation.
+		StopMovementImmediately();
 	}
 
 	if (bIsPlayer && PlayableCharacter)
@@ -340,19 +387,65 @@ void UUpCharacterMovementComponent::TearDownForPlayer()
 	}
 }
 
+void UUpCharacterMovementComponent::HandleCameraViewChange()
+{
+	SetOrientRotationToMovementForCameraView();
+
+	if (Character)
+	{
+		if (const auto Mesh = Character->GetMesh())
+		{
+			if (const auto AnimInstance = Mesh->GetAnimInstance())
+			{
+				if (!AnimInstance->OnMontageEnded.Contains(OnMontageEndedDelegate))
+				{
+					AnimInstance->OnMontageEnded.Add(OnMontageEndedDelegate);
+				}
+			}
+		}
+	}
+}
+
 bool UUpCharacterMovementComponent::IsClimbing() const
 {
 	return MovementMode == MOVE_Custom && CustomMovementMode == EUpCustomMovementMode::Climb;
 }
 
+bool UUpCharacterMovementComponent::IsClimbingLadder() const
+{
+	return IsClimbing() && Cast<AUpLadder>(ClimbedActor) != nullptr;
+}
+
 void UUpCharacterMovementComponent::TryClimb(AActor* ClimbableActor)
 {
+	if (!Character || Character->IsBusy()) return;
+	
 	if (bDebugClimb)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TryClimb %s"), ClimbableActor ? *ClimbableActor->GetName() : TEXT("NONE"))
 	}
 
 	ClimbedActor = ClimbableActor;
+	PopulateClimbedSurfaceLocation();
+	PopulateClimbedSurfaceNormal();
+
+	const auto& Equipment = Character->GetCharacterEquipment();
+	const auto PotentialActiveWeaponSlot = Equipment.GetPotentialActiveWeaponSlot();
+
+	if (const auto& WeaponSlotData = Equipment.GetEquipmentSlotData(PotentialActiveWeaponSlot); WeaponSlotData.bActivated)
+	{
+		PrevActiveEquipmentSlot = PotentialActiveWeaponSlot;
+		Character->DeactivateEquipment(PotentialActiveWeaponSlot);
+	}
+
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	{
+		if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
+		{
+			BusyEffectHandle = GameInstance->ApplyBusyEffect(AbilitySystemComponent);
+		}
+	}
+	
 	SetMovementMode(MOVE_Custom, EUpCustomMovementMode::Climb);
 
 	if (PlayableCharacter && PlayableCharacter->IsPlayer())
@@ -370,9 +463,22 @@ void UUpCharacterMovementComponent::StopClimb()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("StopClimb"))
 	}
-
+	
 	ClimbedActor = nullptr;
+	PopulateClimbedSurfaceLocation();
+	PopulateClimbedSurfaceNormal();
+	
 	SetMovementMode(MOVE_Falling);
+
+	if (Character)
+	{
+		if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
+		{
+			AbilitySystemComponent->RemoveActiveGameplayEffect(BusyEffectHandle);
+		}
+
+		Character->ActivateEquipment(PrevActiveEquipmentSlot);
+	}
 
 	if (PlayableCharacter && PlayableCharacter->IsPlayer())
 	{
@@ -549,29 +655,11 @@ bool UUpCharacterMovementComponent::TryMantle()
 				Character->PlayAnimMontage(MantlesMontage, 1 / TransitionRootMotionSource->Duration,
 					bTallMantle ? TEXT("MantleTallTransition") : TEXT("MantleShortTransition"));
 
-				if (const auto Mesh = Character->GetMesh())
+				if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(World))
 				{
-					if (const auto AnimInstance = Mesh->GetAnimInstance())
+					if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
 					{
-						if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(World))
-						{
-							if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
-							{
-								if (const auto BusyEffectClass = GasDataAsset->GetBusyEffectClass())
-								{
-									if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
-									{
-										BusyEffectHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
-											*AbilitySystemComponent->MakeOutgoingSpec(BusyEffectClass, 1.f, AbilitySystemComponent->MakeEffectContext()).Data.Get());
-
-										if (!AnimInstance->OnMontageEnded.Contains(OnAnimMontageEndedDelegate))
-										{
-											AnimInstance->OnMontageEnded.Add(OnAnimMontageEndedDelegate);
-										}
-									}
-								}
-							}
-						}
+						BusyEffectHandle = GameInstance->ApplyBusyEffect(AbilitySystemComponent);
 					}
 				}
 			}
@@ -604,11 +692,23 @@ void UUpCharacterMovementComponent::AllowJump()
 	PlayableCharacter->AllowJump();
 }
 
-void UUpCharacterMovementComponent::HandleAnimMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void UUpCharacterMovementComponent::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (!Character) return;
 
-	if (Character->GetMantlesMontage() == Montage) MantlesMontageEndCount++;
+	if (Montage == Character->GetMantlesMontage())
+	{
+		MantlesMontageEndCount++;
+	} else if (Montage == Character->GetClimbingMontage())
+	{
+		if (IsClimbing())
+		{
+			StopClimb();
+		} else
+		{
+			TryClimb(ClimbedActor);
+		}
+	}
 
 	if (MantlesMontageEndCount >= 2)
 	{
@@ -622,6 +722,43 @@ void UUpCharacterMovementComponent::HandleAnimMontageEnded(UAnimMontage* Montage
 bool UUpCharacterMovementComponent::IsCustomMovementModeActive( const EUpCustomMovementMode::Type InCustomMovementMode) const
 {
 	return MovementMode == MOVE_Custom && CustomMovementMode == InCustomMovementMode;
+}
+
+void UUpCharacterMovementComponent::SetOrientRotationToMovementForCameraView()
+{
+	if (!Character) return;
+	
+	switch (Character->GetCameraView())
+	{
+	case EUpCameraView::FirstPerson:
+	case EUpCameraView::ThirdPerson_OverTheShoulder:
+		bOrientRotationToMovement = false;
+		break;
+	default:
+		bOrientRotationToMovement = true;
+	}
+}
+
+void UUpCharacterMovementComponent::SnapToSurface(const float DeltaTime, const FVector& SurfaceLocation, const FVector& SurfaceNormal) const
+{
+	const auto ComponentLocation = UpdatedComponent->GetComponentLocation();
+	const auto ComponentToSurface = SurfaceLocation - ComponentLocation;
+
+	if (bDebugClimb)
+	{
+		UKismetSystemLibrary::DrawDebugPoint(this, SurfaceLocation, 10.f, FColor::Green);
+		UKismetSystemLibrary::DrawDebugLine(this, SurfaceLocation, SurfaceLocation + SurfaceNormal * 20.0, FColor::Green);
+	}
+	
+	// HACK: Make sure we start from a location where collision won't mess up our movement towards our goal location.
+	if (const auto StartLocation = SurfaceLocation + SurfaceNormal * ComponentToSurface.Length();
+		!ComponentLocation.Equals(StartLocation, 0.1))
+	{
+		UpdatedComponent->SetWorldLocation(FMath::VInterpConstantTo(ComponentLocation, StartLocation, DeltaTime, ClimbPreSnapToSurfaceInterpSpeed));
+	} else
+	{
+		UpdatedComponent->MoveComponent(ComponentToSurface * UKismetMathLibrary::Conv_FloatToDouble(DeltaTime), UpdatedComponent->GetComponentQuat(), true);
+	}
 }
 
 // Much of the logic here is adapted from UE's `PhysFlying` function.
@@ -644,8 +781,14 @@ void UUpCharacterMovementComponent::PhysClimb(const float DeltaTime, const int32
 
 	ApplyRootMotionToVelocity(DeltaTime);
 
+	if (IsClimbingLadder())
+	{
+		// Disallow lateral motion when on a ladder.
+		Velocity = FVector(0.0, Velocity.Y, Velocity.Z);
+	}
+
 	const auto OldLocation = UpdatedComponent->GetComponentLocation();
-	const auto Adjusted = Velocity * DeltaTime;
+	const auto Adjusted = Velocity * UKismetMathLibrary::Conv_FloatToDouble(DeltaTime);
 	FHitResult Hit(1.f);
 
 	const auto ClimbRotation = GetClimbRotation(DeltaTime);
@@ -656,6 +799,7 @@ void UUpCharacterMovementComponent::PhysClimb(const float DeltaTime, const int32
 	{
 		if (const auto CustomController = PlayableCharacter->GetCustomPlayerController())
 		{
+			// Adjust the camera angle.
 			CustomController->SetControlRotation(ClimbRotation.Rotator());
 		}
 	}
@@ -668,13 +812,30 @@ void UUpCharacterMovementComponent::PhysClimb(const float DeltaTime, const int32
 
 	if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
 	{
-		Velocity = (UpdatedComponent->GetComponentLocation() - OldLocation) / DeltaTime;
+		Velocity = (UpdatedComponent->GetComponentLocation() - OldLocation) / UKismetMathLibrary::Conv_FloatToDouble(DeltaTime);
 	}
 
-	const auto ClimbedActorLocation = ClimbedActor->GetActorLocation();
-	
-	SnapToSurface(DeltaTime, FVector(ClimbedActorLocation.X, ClimbedActorLocation.Y, UpdatedComponent->GetComponentLocation().Z),
-		ClimbedActor->GetActorForwardVector());
+	PopulateClimbedSurfaceLocation();
+	PopulateClimbedSurfaceNormal();
+
+	if (ClimbedSurfaceNormal.IsZero() || HasReachedClimbBottom())
+	{
+		StopClimb();
+		return;
+	}
+
+	SnapToSurface(DeltaTime, ClimbedSurfaceLocation, ClimbedSurfaceNormal);
+
+	if (HasReachedClimbTop())
+	{
+		if (Character)
+		{
+			if (const auto Montage = Character->GetClimbingMontage())
+			{
+				Character->PlayAnimMontage(Montage, 1.f, FName(TEXT("ClimbOverTop_Up")));
+			}
+		}
+	}
 }
 
 FQuat UUpCharacterMovementComponent::GetClimbRotation(const float DeltaTime) const
@@ -683,22 +844,112 @@ FQuat UUpCharacterMovementComponent::GetClimbRotation(const float DeltaTime) con
 
 	if (HasAnimRootMotion() || CurrentRootMotion.HasOverrideVelocity() || !ClimbedActor) return CurrentQuat;
 
-	return FMath::QInterpTo(CurrentQuat, FRotationMatrix::MakeFromX(ClimbedActor->GetActorForwardVector() * -1.0).ToQuat(), DeltaTime, ClimbRotationInterpSpeed);
+	return FMath::QInterpTo(CurrentQuat, FRotationMatrix::MakeFromX(ClimbedSurfaceNormal * -1.0).ToQuat(), DeltaTime, ClimbRotationInterpSpeed);
 }
 
-void UUpCharacterMovementComponent::SnapToSurface(const float DeltaTime, const FVector& SurfaceLocation, const FVector& SurfaceNormal) const
+bool UUpCharacterMovementComponent::HasReachedClimbBottom() const
 {
-	const auto ComponentLocation = UpdatedComponent->GetComponentLocation();
-	const auto ComponentToSurface = SurfaceLocation - ComponentLocation;
-	const auto StartLocation = SurfaceLocation + SurfaceNormal * ComponentToSurface.Length();
-	const auto StartLocationToSurface = SurfaceLocation - StartLocation;
-
-	if (!ComponentLocation.Equals(StartLocation, 0.1))
+	if (Velocity.Z < -10.f && Character)
 	{
-		UpdatedComponent->SetWorldLocation(StartLocation);
+		if (const auto Capsule = Character->GetCapsuleComponent())
+		{
+			const auto DownVector = -UpdatedComponent->GetUpVector();
+			const auto TraceStart = UpdatedComponent->GetComponentLocation() + DownVector *
+				UKismetMathLibrary::Conv_FloatToDouble(Capsule->GetScaledCapsuleHalfHeight());
+
+			FHitResult OutHit;
+			UKismetSystemLibrary::CapsuleTraceSingle(this, TraceStart,
+				TraceStart + DownVector * UKismetMathLibrary::Conv_FloatToDouble(ClimbFloorDetectionDistance),
+				Capsule->GetScaledCapsuleRadius(), 5.f, UEngineTypes::ConvertToTraceType(ECC_WorldStatic), false,
+				TArray<AActor*> { Character }, bDebugClimb ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, OutHit, true);
+
+			if (OutHit.bBlockingHit)
+			{
+				if (const auto HitActor = OutHit.GetActor())
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Floor hit: %s"), *HitActor->GetName())
+				}
+				
+				return true;
+			}
+		}
 	}
+
+	return false;
+}
+
+bool UUpCharacterMovementComponent::HasReachedClimbTop() const
+{
+	if (Velocity.Z > 10.f && Character)
+	{
+		if (const auto Capsule = Character->GetCapsuleComponent())
+		{
+			const auto ComponentUpVector = UpdatedComponent->GetUpVector();
+			
+			const auto HorizontalTraceStart = UpdatedComponent->GetComponentLocation() +
+				ComponentUpVector * UKismetMathLibrary::Conv_FloatToDouble(Capsule->GetScaledCapsuleHalfHeight() + ClimbTopTraceVerticalOffset);
+			const auto HorizontalTraceEnd = HorizontalTraceStart + UpdatedComponent->GetForwardVector() *
+				UKismetMathLibrary::Conv_FloatToDouble(Capsule->GetScaledCapsuleRadius()) * 3.0;
+
+			FHitResult HorizontalHitResult;
+			UKismetSystemLibrary::LineTraceSingle(this, HorizontalTraceStart, HorizontalTraceEnd, UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
+				false, TArray<AActor*> { Character }, bDebugClimb ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, HorizontalHitResult, true);
+
+			if (!HorizontalHitResult.bBlockingHit)
+			{
+				const auto VerticalTraceStart = HorizontalTraceEnd;
+				const auto VerticalTraceEnd = VerticalTraceStart + -ComponentUpVector * 100.0;
+				
+				FHitResult VerticalHitResult;
+				UKismetSystemLibrary::LineTraceSingle(this, VerticalTraceStart, VerticalTraceEnd, UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
+					false, TArray<AActor*> { Character }, bDebugClimb ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, VerticalHitResult, true);
+				
+				if (VerticalHitResult.bBlockingHit)
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+void UUpCharacterMovementComponent::PopulateClimbedSurfaceLocation()
+{
+	auto NewValue = FVector::ZeroVector;
 	
-	UpdatedComponent->MoveComponent(StartLocationToSurface * DeltaTime * GetMaxSpeed(), UpdatedComponent->GetComponentQuat(), true);
+	if (IsClimbingLadder())
+	{
+		const auto ActorLocation = ClimbedActor->GetActorLocation();
+		
+		NewValue = FVector(ActorLocation.X, ActorLocation.Y, UpdatedComponent->GetComponentLocation().Z);
+	}
+
+	ClimbedSurfaceLocation = NewValue;
+}
+
+void UUpCharacterMovementComponent::PopulateClimbedSurfaceNormal()
+{
+	auto NewValue = FVector::ZeroVector;
+	
+	if (IsClimbingLadder())
+	{
+		const auto ActorForwardVector = ClimbedActor->GetActorForwardVector();
+		
+		FHitResult HitResult;
+		UKismetSystemLibrary::LineTraceSingle(this, ClimbedSurfaceLocation + ActorForwardVector * 10.0,
+			ClimbedSurfaceLocation + ActorForwardVector * -1.0 * 10.0, UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_CLIMBABLE),
+			false, TArray<AActor*> { Character }, bDebugClimb ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, HitResult, true,
+			FColor::Red, FLinearColor::Green, 5.f);
+
+		if (HitResult.bBlockingHit)
+		{
+			NewValue = HitResult.ImpactNormal;
+		}
+	}
+
+	ClimbedSurfaceNormal = NewValue;
 }
 
 // TODO(P1): Add comments for this function (see explanation at https://youtu.be/3hk39el8dg8?feature=shared&t=4562).
@@ -709,11 +960,13 @@ FVector UUpCharacterMovementComponent::GetMantleStartLocation(const FHitResult& 
 	const auto EdgeTangent = FVector::CrossProduct(TopSurfaceHit.Normal, FrontSurfaceHit.Normal).GetSafeNormal();
 	
 	auto MantleStartLocation = TopSurfaceHit.Location;
-	MantleStartLocation += FrontSurfaceHit.Normal.GetSafeNormal2D() * (2.f + CapsuleRadius);
-	MantleStartLocation += UpdatedComponent->GetForwardVector().GetSafeNormal2D().ProjectOnTo(EdgeTangent) * CapsuleRadius * 0.3f;
-	MantleStartLocation += FVector::UpVector * CapsuleHalfHeight;
-	MantleStartLocation += FVector::DownVector * DownDistance;
-	MantleStartLocation += FrontSurfaceHit.Normal.GetSafeNormal2D() * FrontSurfaceHit.Normal.Dot(FVector::UpVector) * DownDistance;
+	MantleStartLocation += FrontSurfaceHit.Normal.GetSafeNormal2D() * (2.0 + CapsuleRadius);
+	MantleStartLocation += UpdatedComponent->GetForwardVector().GetSafeNormal2D().ProjectOnTo(EdgeTangent) *
+		UKismetMathLibrary::Conv_FloatToDouble(CapsuleRadius) * 0.3;
+	MantleStartLocation += FVector::UpVector * UKismetMathLibrary::Conv_FloatToDouble(CapsuleHalfHeight);
+	MantleStartLocation += FVector::DownVector * UKismetMathLibrary::Conv_FloatToDouble(DownDistance);
+	MantleStartLocation += FrontSurfaceHit.Normal.GetSafeNormal2D() * FrontSurfaceHit.Normal.Dot(FVector::UpVector) *
+		UKismetMathLibrary::Conv_FloatToDouble(DownDistance);
 
 	return MantleStartLocation;
 }

@@ -4,6 +4,7 @@
 
 #include "Characters/UpCharacter.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
+#include "GAS/UpGasDataAsset.h"
 #include "Tags/NpcTags.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -257,4 +258,18 @@ FUpWeaponData UUpGameInstance::GetWeaponData(const FGameplayTag& WeaponTagId)
 	}
 
 	return Result;
+}
+
+FActiveGameplayEffectHandle UUpGameInstance::ApplyBusyEffect(UAbilitySystemComponent* AbilitySystemComponent) const
+{
+	if (GasDataAsset)
+	{
+		if (const auto BusyEffectClass = GasDataAsset->GetBusyEffectClass())
+		{
+			return AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
+				*AbilitySystemComponent->MakeOutgoingSpec(BusyEffectClass, 1.f, AbilitySystemComponent->MakeEffectContext()).Data.Get());
+		}
+	}
+
+	return FActiveGameplayEffect().Handle;
 }

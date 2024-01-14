@@ -32,6 +32,7 @@ public:
 	bool IsAllowedToJump() const { return bAllowedToJump; };
 
 	virtual EUpCameraView::Type GetCameraView() const override;
+	virtual UAnimMontage* GetClimbingMontage() const override;
 	virtual UAnimMontage* GetMantlesMontage() const override;
 	virtual UAnimMontage* GetReloadsMontage() const override;
 
@@ -68,6 +69,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<USkeletalMesh> SkeletalMesh_ThirdPerson;
 	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> ClimbingMontage_FirstPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> MantlesMontage_FirstPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")

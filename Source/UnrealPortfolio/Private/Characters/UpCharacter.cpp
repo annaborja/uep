@@ -56,7 +56,8 @@ void AUpCharacter::BeginPlay()
 	
 	check(InitPrimaryAttributesEffectClass);
 	check(InitVitalAttributesEffectClass);
-	
+
+	check(ClimbingMontage_ThirdPerson);
 	check(GesturesMontage_ThirdPerson);
 	check(HitReactionsMontage_ThirdPerson);
 	check(MantlesMontage_ThirdPerson);
@@ -122,21 +123,6 @@ FRotator AUpCharacter::GetSafeRotation() const
 	Result.Roll = 0.0;
 
 	return Result;
-}
-
-void AUpCharacter::SetOrientRotationToMovementForCameraView() const
-{
-	if (!CustomMovementComponent) return;
-	
-	switch (GetCameraView())
-	{
-	case EUpCameraView::FirstPerson:
-	case EUpCameraView::ThirdPerson_OverTheShoulder:
-		CustomMovementComponent->bOrientRotationToMovement = false;
-		break;
-	default:
-		CustomMovementComponent->bOrientRotationToMovement = true;
-	}
 }
 
 void AUpCharacter::SetYaw(const float InYaw)

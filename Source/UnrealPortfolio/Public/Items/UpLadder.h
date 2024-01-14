@@ -22,7 +22,8 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UBoxComponent> InteractionBox;
-	
+
+	virtual bool CanInteract(const AUpPlayerController* PlayerController) const override;
 	virtual FText GetInteractionPromptText(const AUpPlayerController* PlayerController) const override;
 
 	bool IsCharacterClimbing(const AUpCharacter* Character) const;

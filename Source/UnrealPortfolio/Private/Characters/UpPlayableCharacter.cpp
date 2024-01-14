@@ -28,6 +28,7 @@ void AUpPlayableCharacter::BeginPlay()
 	check(SkeletalMesh_FirstPerson);
 	check(SkeletalMesh_ThirdPerson);
 
+	check(ClimbingMontage_FirstPerson);
 	check(MantlesMontage_FirstPerson);
 	check(ReloadsMontage_FirstPerson);
 
@@ -95,6 +96,13 @@ EUpCameraView::Type AUpPlayableCharacter::GetCameraView() const
 	if (CustomPlayerController) return CustomPlayerController->GetCameraView();
 	
 	return Super::GetCameraView();
+}
+
+UAnimMontage* AUpPlayableCharacter::GetClimbingMontage() const
+{
+	if (IsInFirstPersonMode()) return ClimbingMontage_FirstPerson;
+	
+	return Super::GetClimbingMontage();
 }
 
 UAnimMontage* AUpPlayableCharacter::GetMantlesMontage() const
@@ -199,7 +207,7 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 	
 	if (CustomPlayerController) CustomPlayerController->SetCameraView(CameraViewType);
 	
-	SetOrientRotationToMovementForCameraView();
+	if (CustomMovementComponent) CustomMovementComponent->HandleCameraViewChange();
 }
 
 void AUpPlayableCharacter::OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot)

@@ -17,26 +17,13 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 		
 		if (const auto MovementComponent = Character->GetCustomMovementComponent())
 		{
-			// const auto PrevGroundSpeed = GroundSpeed;
-			// const auto CurrentAcceleration = MovementComponent->GetCurrentAcceleration();
-			// const auto RunStopThreshold = MovementComponent->GetMaxSprintSpeed() * RunStopThresholdMultiplier;
-			
-			// if (MovementComponent->ShouldDebugMovement())
-			// {
-				// UE_LOG(LogTemp, Warning, TEXT("%s GroundSpeed prev = %g; Acceleration current = %s"),
-					// *Character->GetName(), PrevGroundSpeed, *CurrentAcceleration.ToString())
-			// }
-			
 			GroundSpeed = UKismetMathLibrary::VSizeXY(MovementComponent->Velocity);
 			VerticalSpeed = MovementComponent->Velocity.Z;
 
 			MaxWalkSpeed = MovementComponent->MaxWalkSpeed;
 			MaxSprintSpeed = MovementComponent->GetMaxSprintSpeed();
 
-			// TODO(P1): This logic works fine for NPCs but doesn't work well for the player character.
-			// bStoppedRunning = CurrentAcceleration.IsZero() && PrevGroundSpeed >= RunStopThreshold;
-			// bStoppedWalking = CurrentAcceleration.IsZero() && PrevGroundSpeed > 0.f && PrevGroundSpeed < RunStopThreshold;
-
+			bClimbingLadder = MovementComponent->IsClimbingLadder();
 			bIsCrouching = MovementComponent->IsCrouching();
 			bIsFalling = MovementComponent->IsFalling();
 			bIsMovingHorizontally = GroundSpeed > 5.f;

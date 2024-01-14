@@ -63,7 +63,7 @@ protected:
 	
 	virtual void BeginPlay() override;
 
-	virtual bool CanInteract() const { return bCanInteract; }
+	virtual bool CanInteract(const AUpPlayerController* PlayerController) const { return bCanInteract; }
 	virtual FText GetInteractionPromptText(const AUpPlayerController* PlayerController) const { return GetInGameName(); }
 	virtual FText GetInteractionPromptSubText(const AUpPlayerController* PlayerController) const { return FText::GetEmpty(); }
 	virtual int32 GetInteractionQuantity(const AUpPlayerController* PlayerController, const FGameplayTag& DynamicRelatedTag) const { return Quantity; }

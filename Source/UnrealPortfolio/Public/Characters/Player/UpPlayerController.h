@@ -53,13 +53,13 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
-	TObjectPtr<UInputMappingContext> BaseInputMappingContext;
+	TObjectPtr<UInputMappingContext> InputMappingContext_Base;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
-	TObjectPtr<UInputMappingContext> CharacterSwitcherInputMappingContext;
+	TObjectPtr<UInputMappingContext> InputMappingContext_CharacterSwitcher;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
-	TObjectPtr<UInputMappingContext> GunInputMappingContext;
+	TObjectPtr<UInputMappingContext> InputMappingContext_Gun;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
-	TObjectPtr<UInputMappingContext> InteractionOnlyInputMappingContext;
+	TObjectPtr<UInputMappingContext> InputMappingContext_InteractionOnly;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> CloseCharacterSwitcherInputAction;
@@ -145,6 +145,8 @@ private:
 	
 	void Look(const FInputActionValue& InputActionValue);
 	void Move(const FInputActionValue& InputActionValue);
+	void HandleGroundMovement(const FInputActionValue& InputActionValue);
+	void HandleClimbingMovement(const FInputActionValue& InputActionValue);
 	
 	void StartAimingGun(const FInputActionValue& InputActionValue);
 	void StopAimingGun(const FInputActionValue& InputActionValue);

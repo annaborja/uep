@@ -74,33 +74,39 @@ void AUpPlayerCharacter::BeginPlay()
 									NpcLocation += PlayerForwardVector * SquadMemberSpawnLocationOffset_Forward +
 										PlayerRightVector * SquadMemberSpawnLocationOffset_Right;
 								}
+
+								FActorSpawnParameters SpawnParams;
+								SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 						
-								const auto Npc = Cast<AUpPlayableNpc>(World->SpawnActor(NpcClass, &NpcLocation, &PlayerRotation));
+								const auto Npc = Cast<AUpPlayableNpc>(World->SpawnActor(NpcClass, &NpcLocation, &PlayerRotation, SpawnParams));
 
 								if (SquadMemberNumber == 1)
 								{
 									SquadMember1 = Npc;
 								} else
 								{
-									CustomHud->BroadcastSecondarySquadMember(Npc);
+									if (Npc) CustomHud->BroadcastSecondarySquadMember(Npc);
 								}
 
-								if (const auto NpcAbilitySystemComponent = Npc->GetAbilitySystemComponent())
+								if (Npc)
 								{
-									for (const auto AttributeSet : Npc->GetAttributeSets())
+									if (const auto NpcAbilitySystemComponent = Npc->GetAbilitySystemComponent())
 									{
-										for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
+										for (const auto AttributeSet : Npc->GetAttributeSets())
 										{
-											NpcAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value())
-												.AddLambda([this, AttributeSet, CustomHud, Npc, TagAttributeMapping](const FOnAttributeChangeData& Data)
-												{
-													if (IsValid(CustomHud))
+											for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
+											{
+												NpcAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value())
+													.AddLambda([this, AttributeSet, CustomHud, Npc, TagAttributeMapping](const FOnAttributeChangeData& Data)
 													{
-														CustomHud->BroadcastAttributeValue(Npc->GetTagId(), TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
-													}
-												});
-										}
-									}	
+														if (IsValid(CustomHud))
+														{
+															CustomHud->BroadcastAttributeValue(Npc->GetTagId(), TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
+														}
+													});
+											}
+										}	
+									}
 								}
 							}
 						}			

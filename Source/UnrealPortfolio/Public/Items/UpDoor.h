@@ -42,7 +42,7 @@ protected:
 	bool bOpen = false;
 	
 	virtual void BeginPlay() override;
-	
+
 	virtual FText GetInteractionPromptText(const AUpPlayerController* PlayerController) const override;
 
 private:
