@@ -62,7 +62,6 @@ public:
 	
 	virtual FGameplayTag GetTagId() const override { return TagId; }
 
-	FRotator GetSafeRotation() const;
 	void SetYaw(const float InYaw);
 	
 	void SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation);
@@ -96,6 +95,7 @@ public:
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
 	FORCEINLINE EUpCharacterPosture::Type GetPosture() const { return Posture; }
 	FORCEINLINE bool IsRelaxed() const { return bRelaxed; }
+	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
 	
 	FORCEINLINE FVector GetRootMotionTargetLocation() const { return RootMotionTargetLocation; }
 	FORCEINLINE bool HasRootMotionTargetLocation() const { return bHasRootMotionTargetLocation; }
@@ -138,6 +138,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UP Data")
 	FUpCharacterEquipment Equipment;
 	
+	UPROPERTY(EditAnywhere, Category="UP Debug")
+	bool bDebugMovement = false;
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugPhysicalMaterials = false;
 	

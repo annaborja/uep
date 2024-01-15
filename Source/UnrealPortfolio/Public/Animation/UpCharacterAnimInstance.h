@@ -19,26 +19,58 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	TEnumAsByte<EUpCameraView::Type> CameraView = EUpCameraView::ThirdPerson;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	float GroundSpeed = 0.f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
-	float VerticalSpeed;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
-	float MaxWalkSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
-	float MaxSprintSpeed;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
-	bool bClimbingLadder = false;
+	float VerticalSpeed = 0.f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bIsCrouching = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bIsFalling = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bIsMovingHorizontally = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	float HorizontalSpeed = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	float VerticalVelocity = 0.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	float AimPitch = 0.f;
+
+	// Difference between camera direction and movement direction, used for third-person strafing.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	float MovementOffsetYaw = 0.f;
+	// Used for rotating the root bone for turn-in-place logic.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	float RootBoneOffsetYaw = 0.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	float MaxWalkSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	float MaxSprintSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	float TurningThresholdYaw = 90.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bClimbingLadder = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bCrouching = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bFalling = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bMovingHorizontally = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bRelaxed = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
+
+private:
+	float Yaw = 0.f;
+	float PrevYaw = 0.f;
+	
+	float RotationCurveValue = 0.f;
+	float PrevRotationCurveValue = 0.f;
 };

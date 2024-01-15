@@ -153,6 +153,7 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 	{
 	case EUpCameraView::FirstPerson:
 		SetUpFirstPersonMesh();
+		SetUpFirstPersonController();
 
 		if (CameraSpringArm)
 		{
@@ -171,15 +172,13 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 		break;
 	case EUpCameraView::ThirdPerson:
 		SetUpThirdPersonMesh();
+		SetUpThirdPersonController();
 		SetUpThirdPersonCamera();
-		
+
 		break;
 	case EUpCameraView::ThirdPerson_OverTheShoulder:
 		SetUpThirdPersonMesh();
-
-		bUseControllerRotationPitch = false;
-		bUseControllerRotationRoll = false;
-		bUseControllerRotationYaw = true;
+		SetUpFirstPersonController();
 
 		if (CameraSpringArm)
 		{
@@ -198,6 +197,7 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 		break;
 	case EUpCameraView::FirstPerson_Debug:
 		SetUpFirstPersonMesh();
+		SetUpThirdPersonController();
 		SetUpThirdPersonCamera();
 		
 		break;
@@ -371,7 +371,11 @@ void AUpPlayableCharacter::TearDownForPlayer()
 {
 	if (CustomPlayerController)
 	{
-		if (!CustomPlayerController->IsDebugCameraActive()) SetUpThirdPersonMesh();
+		if (!CustomPlayerController->IsDebugCameraActive())
+		{
+			SetUpThirdPersonMesh();
+			SetUpThirdPersonController();
+		}
 	}
 
 	// Make sure the UI doesn't display a stale interaction prompt.
@@ -416,7 +420,14 @@ void AUpPlayableCharacter::TearDownForPlayer()
 	}
 }
 
-void AUpPlayableCharacter::SetUpFirstPersonMesh()
+void AUpPlayableCharacter::SetUpFirstPersonController()
+{
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = true;
+}
+
+void AUpPlayableCharacter::SetUpFirstPersonMesh() const
 {
 	if (const auto Mesh = GetMesh())
 	{
@@ -432,11 +443,6 @@ void AUpPlayableCharacter::SetUpFirstPersonMesh()
 			ItemActor->ToggleCastShadows(false);
 		}
 	}
-
-	// TODO(P0): Set non-yaw to false and use aim offset instead.
-	bUseControllerRotationPitch = true;
-	bUseControllerRotationRoll = true;
-	bUseControllerRotationYaw = true;
 }
 
 void AUpPlayableCharacter::SetUpThirdPersonCamera() const
@@ -456,12 +462,15 @@ void AUpPlayableCharacter::SetUpThirdPersonCamera() const
 	}
 }
 
-void AUpPlayableCharacter::SetUpThirdPersonMesh()
+void AUpPlayableCharacter::SetUpThirdPersonController()
 {
-	// In first-person mode, the character actor follows the controller rotation.
-	// Make sure we don't retain any non-yaw rotation when switching from first-person to third-person.
-	SetActorRotation(GetSafeRotation());
-	
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+}
+
+void AUpPlayableCharacter::SetUpThirdPersonMesh() const
+{
 	if (const auto Mesh = GetMesh())
 	{
 		Mesh->SetSkeletalMesh(SkeletalMesh_ThirdPerson);
@@ -476,10 +485,6 @@ void AUpPlayableCharacter::SetUpThirdPersonMesh()
 			ItemActor->ToggleCastShadows(true);
 		}
 	}
-
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationYaw = false;
 }
 
 void AUpPlayableCharacter::HandleWeaponDelegates(AUpWeapon* Weapon)

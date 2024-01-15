@@ -103,9 +103,11 @@ private:
 	void InitForPlayer();
 	void TearDownForPlayer();
 	
-	void SetUpFirstPersonMesh();
+	void SetUpFirstPersonController();
+	void SetUpFirstPersonMesh() const;
 	void SetUpThirdPersonCamera() const;
-	void SetUpThirdPersonMesh();
+	void SetUpThirdPersonController();
+	void SetUpThirdPersonMesh() const;
 
 	void HandleWeaponDelegates(AUpWeapon* Weapon);
 };

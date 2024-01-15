@@ -42,6 +42,12 @@ AUpCharacter::AUpCharacter()
 		Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 		Mesh->SetCollisionResponseToChannel(TRACE_CHANNEL_WEAPON, ECR_Block);
 	}
+
+	if (const auto MovementComponent = GetCharacterMovement())
+	{
+		MovementComponent->GroundFriction = 2.f;
+		MovementComponent->BrakingDecelerationWalking = 85.f;
+	}
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UUpAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	CombatComponent = CreateDefaultSubobject<UUpCombatComponent>(TEXT("CombatComponent"));
@@ -113,16 +119,6 @@ void AUpCharacter::Die()
 	{
 		CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-}
-
-FRotator AUpCharacter::GetSafeRotation() const
-{
-	// In case we're in first-person view, remove any non-yaw rotation.
-	auto Result = GetActorRotation();
-	Result.Pitch = 0.0;
-	Result.Roll = 0.0;
-
-	return Result;
 }
 
 void AUpCharacter::SetYaw(const float InYaw)
