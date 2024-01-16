@@ -287,13 +287,13 @@ void AUpPlayerController::ToggleCameraView(const FInputActionValue& InputActionV
 	switch (CameraView)
 	{
 	case EUpCameraView::FirstPerson:
-		PossessedCharacter->ActivateCameraView(EUpCameraView::ThirdPerson);
-		break;
-	case EUpCameraView::ThirdPerson:
 		PossessedCharacter->ActivateCameraView(EUpCameraView::ThirdPerson_OverTheShoulder);
 		break;
-	case EUpCameraView::ThirdPerson_OverTheShoulder:
+	case EUpCameraView::ThirdPerson:
 		PossessedCharacter->ActivateCameraView(EUpCameraView::FirstPerson);
+		break;
+	case EUpCameraView::ThirdPerson_OverTheShoulder:
+		PossessedCharacter->ActivateCameraView(EUpCameraView::ThirdPerson);
 		break;
 	default:
 		UE_LOG(LogTemp, Warning, TEXT("Invalid player camera view type %d"), CameraView)

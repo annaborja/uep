@@ -197,7 +197,7 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 		break;
 	case EUpCameraView::FirstPerson_Debug:
 		SetUpFirstPersonMesh();
-		SetUpThirdPersonController();
+		SetUpFirstPersonController();
 		SetUpThirdPersonCamera();
 		
 		break;

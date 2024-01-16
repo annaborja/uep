@@ -164,6 +164,11 @@ bool AUpCharacter::IsInFirstPersonMode() const
 	return CameraView == EUpCameraView::FirstPerson || CameraView == EUpCameraView::FirstPerson_Debug;
 }
 
+bool AUpCharacter::IsInStrafingMode() const
+{
+	return IsInFirstPersonMode() || GetCameraView() == EUpCameraView::ThirdPerson_OverTheShoulder;
+}
+
 void AUpCharacter::SetRelaxed(const bool bInRelaxed)
 {
 	bRelaxed = bInRelaxed;

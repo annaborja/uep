@@ -49,9 +49,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	float MaxWalkSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
-	float MaxSprintSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	float TurningThresholdYaw = 90.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bMovingHorizontally = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bMovingDownward = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bMovingUpward = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bClimbingLadder = false;
@@ -60,9 +65,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bFalling = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
-	bool bMovingHorizontally = false;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bRelaxed = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bSprinting = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;

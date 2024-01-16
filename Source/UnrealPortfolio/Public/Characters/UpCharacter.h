@@ -70,6 +70,7 @@ public:
 	virtual EUpCameraView::Type GetCameraView() const { return EUpCameraView::ThirdPerson; }
 	bool IsBusy() const;
 	bool IsInFirstPersonMode() const;
+	bool IsInStrafingMode() const;
 	void SetRelaxed(const bool bInRelaxed);
 	
 	virtual TArray<UUpAttributeSet*> GetAttributeSets() const;

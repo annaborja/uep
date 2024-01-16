@@ -15,13 +15,14 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 	
 	if (const auto Character = Cast<AUpCharacter>(TryGetPawnOwner()))
 	{
-		CameraView = Character->GetCameraView();
 		Yaw = Character->GetActorRotation().Yaw;
 		AimPitch = Character->GetBaseAimRotation().Pitch;
+		
+		CameraView = Character->GetCameraView();
 		Posture = Character->GetPosture();
 		bRelaxed = Character->IsRelaxed();
 		
-		if (CameraView == EUpCameraView::ThirdPerson_OverTheShoulder)
+		if (Character->IsInStrafingMode())
 		{
 			MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(
 				UKismetMathLibrary::MakeRotFromX(Character->GetVelocity()), Character->GetBaseAimRotation()).Yaw;
@@ -32,18 +33,20 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 
 		if (const auto MovementComponent = Character->GetCustomMovementComponent())
 		{
-			MaxWalkSpeed = MovementComponent->MaxWalkSpeed;
-			MaxSprintSpeed = MovementComponent->GetMaxSprintSpeed();
-			
 			HorizontalSpeed = UKismetMathLibrary::VSizeXY(MovementComponent->Velocity);
 			VerticalVelocity = MovementComponent->Velocity.Z;
+			
+			bMovingHorizontally = HorizontalSpeed > 5.f;
+			bMovingDownward = VerticalVelocity < -5.f;
+			bMovingUpward = VerticalVelocity > 5.f;
 			
 			bClimbingLadder = MovementComponent->IsClimbingLadder();
 			bCrouching = MovementComponent->IsCrouching();
 			bFalling = MovementComponent->IsFalling();
-			bMovingHorizontally = GroundSpeed > 5.f;
+			bSprinting = HorizontalSpeed > MovementComponent->MaxWalkSpeed + 5.f;
 
 			//// TODO(P2): Remove
+			MaxWalkSpeed = MovementComponent->MaxWalkSpeed;
 			GroundSpeed = HorizontalSpeed;
 			VerticalSpeed = VerticalVelocity;
 			bIsCrouching = bCrouching;
