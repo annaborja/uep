@@ -46,7 +46,8 @@ public:
 	FUpTutorialData GetTutorialData(const FGameplayTag& TagId);
 	FUpWeaponData GetWeaponData(const FGameplayTag& WeaponTagId);
 
-	FActiveGameplayEffectHandle ApplyBusyEffect(UAbilitySystemComponent* AbilitySystemComponent) const;
+	void ApplyBusyEffect(UAbilitySystemComponent* AbilitySystemComponent);
+	void RemoveBusyEffect(UAbilitySystemComponent* AbilitySystemComponent);
 
 	void SetLevelScriptActor(AUpLevelScriptActor* InLevelScriptActor) { LevelScriptActor = InLevelScriptActor; }
 	FORCEINLINE AUpLevelScriptActor* GetLevelScriptActor() const { return LevelScriptActor; }
@@ -110,4 +111,6 @@ private:
 	TArray<FUpTutorialData> AllTutorialData;
 	UPROPERTY(Transient)
 	TArray<FUpWeaponData> AllWeaponData;
+
+	FActiveGameplayEffectHandle BusyEffectHandle;
 };

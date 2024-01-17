@@ -32,7 +32,7 @@ FReply UUpCharacterSwitcherWidget::NativeOnKeyUp(const FGeometry& InGeometry, co
 	{
 		if (const auto CustomController = CustomHud->GetCustomController())
 		{
-			if (const auto InputAction = CustomController->GetCloseCharacterSwitcherInputAction())
+			if (const auto InputAction = CustomController->GetInputAction_CloseCharacterSwitcher())
 			{
 				if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(CustomController->GetLocalPlayer());
 					Subsystem && Subsystem->QueryKeysMappedToAction(InputAction).Contains(InKeyEvent.GetKey()))

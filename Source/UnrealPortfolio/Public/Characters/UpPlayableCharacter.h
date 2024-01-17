@@ -23,6 +23,7 @@ public:
 	explicit AUpPlayableCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
 
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void UnPossessed() override;
 
@@ -42,7 +43,7 @@ public:
 	void ActivateCameraView(const EUpCameraView::Type CameraViewType);
 
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return Camera; }
-	FORCEINLINE USpringArmComponent* GetSpringArmComponent() const { return CameraSpringArm; }
+	FORCEINLINE USpringArmComponent* GetSpringArmComponent() const { return SpringArm; }
 	FORCEINLINE AUpPlayerController* GetCustomPlayerController() const { return CustomPlayerController; }
 	FORCEINLINE FUpCharacterEquipment GetEquipment() const { return Equipment; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetPlayerInteractionComponent() const { return PlayerInteractionComponent; }
@@ -53,8 +54,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> Camera;
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USpringArmComponent> CameraSpringArm;
-
+	TObjectPtr<USpringArmComponent> SpringArm;
+	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpPlayerCombatComponent> PlayerCombatComponent;
 	UPROPERTY(VisibleAnywhere)
@@ -78,6 +79,36 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugTagSpecGrant = false;
+	
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float CameraBlendDuration = 0.5f;
+	
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float SpringArmLength_FirstPerson = 5.f;
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	FVector SpringArmSocketOffset_FirstPerson = FVector(10.f, 0.f, 80.f);
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	FVector CameraRelativeLocation_FirstPerson = FVector(0.f, 0.f, 0.f);
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	FRotator CameraRelativeRotation_FirstPerson = FRotator(0.f, 0.f, 0.f);
+	
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float SpringArmLength_ThirdPerson = 100.f;
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	FVector SpringArmSocketOffset_ThirdPerson = FVector(0.f, 55.f, 70.f);
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	FVector CameraRelativeLocation_ThirdPerson = FVector(0.f, 0.f, 0.f);
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	FRotator CameraRelativeRotation_ThirdPerson = FRotator(0.f, 0.f, 0.f);
+	
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float SpringArmLength_Debug = 300.f;
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	FVector SpringArmSocketOffset_Debug = FVector(0.f, 0.f, 108.f);
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	FVector CameraRelativeLocation_Debug = FVector(0.f, 0.f, 0.f);
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	FRotator CameraRelativeRotation_Debug = FRotator(-8.f, 0.f, 0.f);
 
 	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayerController> CustomPlayerController;
@@ -97,17 +128,42 @@ private:
 	TMap<FGameplayTag, FDelegateHandle> AttributeValueDelegateHandleMap;
 	TScriptDelegate<FWeakObjectPtr> CapsuleHitDelegate;
 
+	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
+	float CurrentCameraBlendTime = -1.f;
+	
+	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
+	float PrevSpringArmLength = -1.f;
+	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
+	float TargetSpringArmLength = -1.f;
+	
+	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
+	FVector PrevSpringArmSocketOffset = FVector::ZeroVector;
+	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
+	FVector TargetSpringArmSocketOffset = FVector::ZeroVector;
+	
+	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
+	FVector PrevCameraRelativeLocation = FVector::ZeroVector;
+	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
+	FVector TargetCameraRelativeLocation = FVector::ZeroVector;
+	
+	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
+	FRotator PrevCameraRelativeRotation = FRotator::ZeroRotator;
+	UPROPERTY(VisibleInstanceOnly, Category="UP Runtime")
+	FRotator TargetCameraRelativeRotation = FRotator::ZeroRotator;
+
 	UFUNCTION()
 	void OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 	void InitForPlayer();
 	void TearDownForPlayer();
-	
+
+	void SetCameraParams(const float SpringArmLength, const FVector& SpringArmSocketOffset, const FVector& CameraRelativeLocation, const FRotator& CameraRelativeRotation);
+	void SetUpCharacterForCameraView();
 	void SetUpFirstPersonController();
 	void SetUpFirstPersonMesh() const;
-	void SetUpThirdPersonCamera() const;
 	void SetUpThirdPersonController();
 	void SetUpThirdPersonMesh() const;
+	void SetUpThirdPersonCamera();
 
 	void HandleWeaponDelegates(AUpWeapon* Weapon);
 };

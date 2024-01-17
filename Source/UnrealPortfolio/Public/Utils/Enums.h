@@ -23,7 +23,8 @@ namespace EUpCameraView
 		FirstPerson,
 		FirstPerson_Debug,
 		ThirdPerson,
-		ThirdPerson_OverTheShoulder
+		ThirdPerson_OverTheShoulder,
+		ThirdPerson_OverTheShoulder_Debug
 	};
 }
 

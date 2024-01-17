@@ -6,7 +6,6 @@
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "GAS/UpGasDataAsset.h"
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 #include "Items/UpItem.h"
 #include "Items/UpLadder.h"
@@ -442,7 +441,7 @@ void UUpCharacterMovementComponent::TryClimb(AActor* ClimbableActor)
 	{
 		if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
 		{
-			BusyEffectHandle = GameInstance->ApplyBusyEffect(AbilitySystemComponent);
+			GameInstance->ApplyBusyEffect(AbilitySystemComponent);
 		}
 	}
 	
@@ -472,9 +471,12 @@ void UUpCharacterMovementComponent::StopClimb()
 
 	if (Character)
 	{
-		if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
+		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 		{
-			AbilitySystemComponent->RemoveActiveGameplayEffect(BusyEffectHandle);
+			if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
+			{
+				GameInstance->RemoveBusyEffect(AbilitySystemComponent);
+			}
 		}
 
 		Character->ActivateEquipment(PrevActiveEquipmentSlot);
@@ -659,7 +661,7 @@ bool UUpCharacterMovementComponent::TryMantle()
 				{
 					if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
 					{
-						BusyEffectHandle = GameInstance->ApplyBusyEffect(AbilitySystemComponent);
+						GameInstance->ApplyBusyEffect(AbilitySystemComponent);
 					}
 				}
 			}
@@ -712,9 +714,12 @@ void UUpCharacterMovementComponent::HandleMontageEnded(UAnimMontage* Montage, bo
 
 	if (MantlesMontageEndCount >= 2)
 	{
-		if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
+		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 		{
-			AbilitySystemComponent->RemoveActiveGameplayEffect(BusyEffectHandle);
+			if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
+			{
+				GameInstance->RemoveBusyEffect(AbilitySystemComponent);
+			}
 		}
 	}
 }

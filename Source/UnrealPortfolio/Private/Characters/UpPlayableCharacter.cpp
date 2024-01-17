@@ -15,6 +15,7 @@
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "GAS/Attributes/UpAttributeSet.h"
 #include "Items/UpAmmo.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Levels/UpLevelScriptActor.h"
 #include "UI/UpHud.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -22,6 +23,8 @@
 void AUpPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PrimaryActorTick.bCanEverTick = true;
 	
 	check(AnimClass_FirstPerson);
 	check(AnimClass_ThirdPerson);
@@ -42,6 +45,43 @@ void AUpPlayableCharacter::BeginPlay()
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
 	
 	if (bIsPlayer) CustomMovementComponent->InitForPlayer();
+}
+
+void AUpPlayableCharacter::Tick(const float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (CurrentCameraBlendTime >= 0.f)
+	{
+		const auto LerpAlpha = FMath::Clamp(UKismetMathLibrary::NormalizeToRange(CurrentCameraBlendTime, 0.0, CameraBlendDuration), 0.0, 1.0);
+
+		if (SpringArm)
+		{
+			SpringArm->TargetArmLength = FMath::Lerp(PrevSpringArmLength, TargetSpringArmLength, LerpAlpha);
+			SpringArm->SocketOffset = FMath::Lerp(PrevSpringArmSocketOffset, TargetSpringArmSocketOffset, LerpAlpha);
+		}
+
+		if (Camera)
+		{
+			Camera->SetRelativeLocation(FMath::Lerp(PrevCameraRelativeLocation, TargetCameraRelativeLocation, LerpAlpha));
+			Camera->SetRelativeRotation(FMath::Lerp(PrevCameraRelativeRotation, TargetCameraRelativeRotation, LerpAlpha));
+		}
+
+		if (CurrentCameraBlendTime >= CameraBlendDuration)
+		{
+			PrevSpringArmLength = SpringArm->TargetArmLength;
+			PrevSpringArmSocketOffset = SpringArm->SocketOffset;
+			PrevCameraRelativeLocation = Camera->GetRelativeLocation();
+			PrevCameraRelativeRotation = Camera->GetRelativeRotation();
+			
+			CurrentCameraBlendTime = -1.f;
+
+			if (IsInFirstPersonMode()) SetUpCharacterForCameraView();
+		} else
+		{
+			CurrentCameraBlendTime += DeltaSeconds;
+		}
+	}
 }
 
 void AUpPlayableCharacter::PossessedBy(AController* NewController)
@@ -152,54 +192,19 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 	switch (CameraViewType)
 	{
 	case EUpCameraView::FirstPerson:
-		SetUpFirstPersonMesh();
-		SetUpFirstPersonController();
-
-		if (CameraSpringArm)
-		{
-			CameraSpringArm->TargetArmLength = 5.f;
-			CameraSpringArm->SocketOffset = FVector(10.f, 0.f, 80.f);
-			CameraSpringArm->bUsePawnControlRotation = true;
-		}
-
-		if (Camera)
-		{
-			Camera->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
-			Camera->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
-			Camera->bUsePawnControlRotation = false;
-		}
-
-		break;
-	case EUpCameraView::ThirdPerson:
-		SetUpThirdPersonMesh();
-		SetUpThirdPersonController();
-		SetUpThirdPersonCamera();
-
-		break;
-	case EUpCameraView::ThirdPerson_OverTheShoulder:
-		SetUpThirdPersonMesh();
-		SetUpFirstPersonController();
-
-		if (CameraSpringArm)
-		{
-			CameraSpringArm->TargetArmLength = 100.f;
-			CameraSpringArm->SocketOffset = FVector(0.f, 55.f, 70.f);
-			CameraSpringArm->bUsePawnControlRotation = true;
-		}
-
-		if (Camera)
-		{
-			Camera->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
-			Camera->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
-			Camera->bUsePawnControlRotation = false;
-		}
-
+		SetCameraParams(SpringArmLength_FirstPerson, SpringArmSocketOffset_FirstPerson, CameraRelativeLocation_FirstPerson, CameraRelativeRotation_FirstPerson);
 		break;
 	case EUpCameraView::FirstPerson_Debug:
-		SetUpFirstPersonMesh();
-		SetUpFirstPersonController();
 		SetUpThirdPersonCamera();
-		
+		break;
+	case EUpCameraView::ThirdPerson_OverTheShoulder:
+		SetCameraParams(SpringArmLength_ThirdPerson, SpringArmSocketOffset_ThirdPerson, CameraRelativeLocation_ThirdPerson, CameraRelativeRotation_ThirdPerson);
+		break;
+	case EUpCameraView::ThirdPerson_OverTheShoulder_Debug:
+		SetUpThirdPersonCamera();
+		break;
+	case EUpCameraView::ThirdPerson:
+		SetUpThirdPersonCamera();
 		break;
 	default:
 		UE_LOG(LogTemp, Warning, TEXT("Invalid camera view %d"), CameraViewType)
@@ -207,7 +212,7 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 	
 	if (CustomPlayerController) CustomPlayerController->SetCameraView(CameraViewType);
 	
-	if (CustomMovementComponent) CustomMovementComponent->HandleCameraViewChange();
+	if (!IsInFirstPersonMode()) SetUpCharacterForCameraView();
 }
 
 void AUpPlayableCharacter::OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot)
@@ -283,7 +288,7 @@ void AUpPlayableCharacter::OnEquipmentDeactivation(const EUpEquipmentSlot::Type 
 }
 
 void AUpPlayableCharacter::OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+                                        UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (!IsPlayer()) return;
 
@@ -305,19 +310,21 @@ void AUpPlayableCharacter::InitForPlayer()
 	bIsPlayer = true;
 	
 	SetRelaxed(false);
-	
-	if (!IsValid(CameraSpringArm))
-	{
-		CameraSpringArm = NewObject<USpringArmComponent>(this, USpringArmComponent::StaticClass(), NAME_None, RF_Transient);
-		CameraSpringArm->SetupAttachment(GetRootComponent());
-		CameraSpringArm->RegisterComponent();
-	}
 
+	if (!IsValid(SpringArm))
+	{
+		SpringArm = NewObject<USpringArmComponent>(this, USpringArmComponent::StaticClass(), NAME_None, RF_Transient);
+		SpringArm->SetupAttachment(GetRootComponent());
+		SpringArm->RegisterComponent();
+		SpringArm->bUsePawnControlRotation = true;
+	}
+	
 	if (!IsValid(Camera))
 	{
 		Camera = NewObject<UCameraComponent>(this, UCameraComponent::StaticClass(), NAME_None, RF_Transient);
-		Camera->SetupAttachment(CameraSpringArm);
+		Camera->SetupAttachment(SpringArm);
 		Camera->RegisterComponent();
+		Camera->bUsePawnControlRotation = false;
 	}
 
 	if (!IsValid(PlayerInteractionComponent))
@@ -386,23 +393,9 @@ void AUpPlayableCharacter::TearDownForPlayer()
 	
 	if (!Cast<AUpPlayerCharacter>(this))
 	{
-		if (IsValid(CameraSpringArm))
-		{
-			CameraSpringArm->UnregisterComponent();
-			CameraSpringArm->DestroyComponent();
-		}
-
-		if (IsValid(Camera))
-		{
-			Camera->UnregisterComponent();
-			Camera->DestroyComponent();
-		}
-
-		if (IsValid(PlayerInteractionComponent))
-		{
-			PlayerInteractionComponent->UnregisterComponent();
-			PlayerInteractionComponent->DestroyComponent();
-		}
+		UUpBlueprintFunctionLibrary::TearDownActorComponent(Camera);
+		UUpBlueprintFunctionLibrary::TearDownActorComponent(SpringArm);
+		UUpBlueprintFunctionLibrary::TearDownActorComponent(PlayerInteractionComponent);
 	}
 	
 	if (CustomMovementComponent) CustomMovementComponent->TearDownForPlayer();
@@ -418,6 +411,78 @@ void AUpPlayableCharacter::TearDownForPlayer()
 			}
 		}
 	}
+}
+
+void AUpPlayableCharacter::SetCameraParams(const float SpringArmLength, const FVector& SpringArmSocketOffset,
+	const FVector& CameraRelativeLocation, const FRotator& CameraRelativeRotation)
+{
+	if (PrevSpringArmLength < 0.f)
+	{
+		if (SpringArm)
+		{
+			SpringArm->TargetArmLength = SpringArmLength;
+			PrevSpringArmLength = SpringArm->TargetArmLength;
+			
+			SpringArm->SocketOffset = SpringArmSocketOffset;
+		}
+
+		if (Camera)
+		{
+			Camera->SetRelativeLocation(CameraRelativeLocation);
+			Camera->SetRelativeRotation(CameraRelativeRotation);
+		}
+
+		if (IsInFirstPersonMode()) SetUpCharacterForCameraView();
+	} else
+	{
+		PrevSpringArmLength = SpringArm->TargetArmLength;
+		PrevSpringArmSocketOffset = SpringArm->SocketOffset;
+		PrevCameraRelativeLocation = Camera->GetRelativeLocation();
+		PrevCameraRelativeRotation = Camera->GetRelativeRotation();
+	
+		TargetSpringArmLength = SpringArmLength;
+		TargetSpringArmSocketOffset = SpringArmSocketOffset;
+		TargetCameraRelativeLocation = CameraRelativeLocation;
+		TargetCameraRelativeRotation = CameraRelativeRotation;
+			
+		CurrentCameraBlendTime = 0.f;
+	}
+}
+
+void AUpPlayableCharacter::SetUpCharacterForCameraView()
+{
+	switch (const auto CameraViewType = GetCameraView())
+	{
+	case EUpCameraView::FirstPerson:
+		SetUpFirstPersonMesh();
+		SetUpFirstPersonController();
+		
+		break;
+	case EUpCameraView::FirstPerson_Debug:
+		SetUpFirstPersonMesh();
+		SetUpFirstPersonController();
+		
+		break;
+	case EUpCameraView::ThirdPerson_OverTheShoulder:
+		SetUpThirdPersonMesh();
+		SetUpFirstPersonController();
+		
+		break;
+	case EUpCameraView::ThirdPerson_OverTheShoulder_Debug:
+		SetUpThirdPersonMesh();
+		SetUpFirstPersonController();
+		
+		break;
+	case EUpCameraView::ThirdPerson:
+		SetUpThirdPersonMesh();
+		SetUpThirdPersonController();
+		
+		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Invalid camera view %d"), CameraViewType)
+	}
+	
+	if (CustomMovementComponent) CustomMovementComponent->HandleCameraViewChange();
 }
 
 void AUpPlayableCharacter::SetUpFirstPersonController()
@@ -445,23 +510,6 @@ void AUpPlayableCharacter::SetUpFirstPersonMesh() const
 	}
 }
 
-void AUpPlayableCharacter::SetUpThirdPersonCamera() const
-{
-	if (CameraSpringArm)
-	{
-		CameraSpringArm->TargetArmLength = 300.f;
-		CameraSpringArm->SocketOffset = FVector(0.f, 0.f, 108.f);
-		CameraSpringArm->bUsePawnControlRotation = true;
-	}
-
-	if (Camera)
-	{
-		Camera->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
-		Camera->SetRelativeRotation(FRotator(-8.f, 0.f, 0.f));
-		Camera->bUsePawnControlRotation = false;
-	}
-}
-
 void AUpPlayableCharacter::SetUpThirdPersonController()
 {
 	bUseControllerRotationPitch = false;
@@ -485,6 +533,11 @@ void AUpPlayableCharacter::SetUpThirdPersonMesh() const
 			ItemActor->ToggleCastShadows(true);
 		}
 	}
+}
+
+void AUpPlayableCharacter::SetUpThirdPersonCamera()
+{
+	SetCameraParams(SpringArmLength_Debug, SpringArmSocketOffset_Debug, CameraRelativeLocation_Debug, CameraRelativeRotation_Debug);
 }
 
 void AUpPlayableCharacter::HandleWeaponDelegates(AUpWeapon* Weapon)

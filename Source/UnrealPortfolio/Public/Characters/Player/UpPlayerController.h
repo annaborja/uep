@@ -38,7 +38,7 @@ public:
 	void DestroyTemporaryCamera(const float CameraBlendTime);
 	void SetCameraView(const EUpCameraView::Type InCameraView) { CameraView = InCameraView; }
 	
-	FORCEINLINE UInputAction* GetCloseCharacterSwitcherInputAction() const { return CloseCharacterSwitcherInputAction; }
+	FORCEINLINE UInputAction* GetInputAction_CloseCharacterSwitcher() const { return InputAction_CloseCharacterSwitcher; }
 	
 	FORCEINLINE AActor* GetActiveInteractable() const { return ActiveInteractable; }
 	FORCEINLINE TEnumAsByte<EUpCameraView::Type> GetCameraView() const { return CameraView; }
@@ -62,40 +62,42 @@ private:
 	TObjectPtr<UInputMappingContext> InputMappingContext_InteractionOnly;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> CloseCharacterSwitcherInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> CrouchInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InteractInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> JumpInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> LookInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> MoveInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> NavigateCharacterSwitcherInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> OpenCharacterSwitcherInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> PauseGameInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> SprintInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> ToggleCameraViewInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> ToggleDebugCameraInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> Weapon1InputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> Weapon2InputAction;
+	TObjectPtr<UInputAction> InputAction_ToggleDebugCamera;
 	
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions|Weapon")
-	TObjectPtr<UInputAction> AimGunInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions|Weapon")
-	TObjectPtr<UInputAction> FireWeaponInputAction;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions|Weapon")
-	TObjectPtr<UInputAction> ReloadInputAction;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Move;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Sprint;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Look;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_SwitchCameraView;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_CloseCharacterSwitcher;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Crouch;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Interact;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Jump;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_NavigateCharacterSwitcher;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_OpenCharacterSwitcher;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_PauseGame;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Weapon1;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Weapon2;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_AimGun;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_FireWeapon;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Reload;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugInputMappingContexts = false;
@@ -120,11 +122,19 @@ private:
 
 	bool bInitialized = false;
 	
-	void ToggleCameraView(const FInputActionValue& InputActionValue);
 	void ToggleDebugCamera(const FInputActionValue& InputActionValue);
 	
+	void Move(const FInputActionValue& InputActionValue);
+	void HandleGroundMovement(const FInputActionValue& InputActionValue);
+	void HandleClimbingMovement(const FInputActionValue& InputActionValue);
+	
+	void StartSprint(const FInputActionValue& InputActionValue);
+	void StopSprint(const FInputActionValue& InputActionValue);
+	
+	void Look(const FInputActionValue& InputActionValue);
+	void SwitchCameraView(const FInputActionValue& InputActionValue);
+	
 	void PauseGame(const FInputActionValue& InputActionValue);
-	void Reload(const FInputActionValue& InputActionValue);
 	
 	void StartInteraction(const FInputActionValue& InputActionValue);
 	void EndInteraction(const FInputActionValue& InputActionValue);
@@ -139,15 +149,8 @@ private:
 
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
 	void Jump(const FInputActionValue& InputActionValue);
-
-	void StartSprint(const FInputActionValue& InputActionValue);
-	void StopSprint(const FInputActionValue& InputActionValue);
 	
-	void Look(const FInputActionValue& InputActionValue);
-	void Move(const FInputActionValue& InputActionValue);
-	void HandleGroundMovement(const FInputActionValue& InputActionValue);
-	void HandleClimbingMovement(const FInputActionValue& InputActionValue);
-	
+	void Reload(const FInputActionValue& InputActionValue);
 	void StartAimingGun(const FInputActionValue& InputActionValue);
 	void StopAimingGun(const FInputActionValue& InputActionValue);
 	void StartFiringWeapon(const FInputActionValue& InputActionValue);

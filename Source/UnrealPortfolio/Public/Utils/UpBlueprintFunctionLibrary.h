@@ -48,4 +48,7 @@ public:
 	static void GrantPlayerTagSpec(const UObject* WorldContextObject, const FUpTagSpec& TagSpec);
 
 	static FVector CalculateVelocity(const FVector& FromLocation, const FVector& ToLocation, const float Duration, const float GravityScale = 1.f);
+
+	static bool HasTargetBeenReached(const float CurrentVal, const float OldVal, const float TargetVal);
+	static void TearDownActorComponent(UActorComponent* ActorComponent);
 };

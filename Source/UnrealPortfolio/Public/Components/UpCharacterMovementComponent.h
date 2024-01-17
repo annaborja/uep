@@ -153,7 +153,6 @@ private:
 	FVector MainRootMotionEndLocation;
 	bool bMainRootMotionSourceFinished = false;
 
-	FActiveGameplayEffectHandle BusyEffectHandle;
 	TScriptDelegate<FWeakObjectPtr> OnMontageEndedDelegate;
 	uint8 MantlesMontageEndCount = 0;
 

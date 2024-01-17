@@ -260,16 +260,22 @@ FUpWeaponData UUpGameInstance::GetWeaponData(const FGameplayTag& WeaponTagId)
 	return Result;
 }
 
-FActiveGameplayEffectHandle UUpGameInstance::ApplyBusyEffect(UAbilitySystemComponent* AbilitySystemComponent) const
+void UUpGameInstance::ApplyBusyEffect(UAbilitySystemComponent* AbilitySystemComponent)
 {
-	if (GasDataAsset)
+	if (!GasDataAsset) return;
+	
+	if (const auto BusyEffectClass = GasDataAsset->GetBusyEffectClass())
 	{
-		if (const auto BusyEffectClass = GasDataAsset->GetBusyEffectClass())
-		{
-			return AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
-				*AbilitySystemComponent->MakeOutgoingSpec(BusyEffectClass, 1.f, AbilitySystemComponent->MakeEffectContext()).Data.Get());
-		}
+		BusyEffectHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
+			*AbilitySystemComponent->MakeOutgoingSpec(BusyEffectClass, 1.f, AbilitySystemComponent->MakeEffectContext()).Data.Get());
 	}
+}
 
-	return FActiveGameplayEffect().Handle;
+void UUpGameInstance::RemoveBusyEffect(UAbilitySystemComponent* AbilitySystemComponent)
+{
+	if (!BusyEffectHandle.IsValid()) return;
+	
+	AbilitySystemComponent->RemoveActiveGameplayEffect(BusyEffectHandle);
+	
+	BusyEffectHandle = FActiveGameplayEffect().Handle;
 }

@@ -353,3 +353,19 @@ FVector UUpBlueprintFunctionLibrary::CalculateVelocity(const FVector& FromLocati
 	(ToLocation.Y - FromLocation.Y) / Duration,
 	(ToLocation.Z - FromLocation.Z - FMath::Pow(Duration, 2) * 0.5f * GRAVITATIONAL_ACCELERATION * GravityScale) / Duration);
 }
+
+bool UUpBlueprintFunctionLibrary::HasTargetBeenReached(const float CurrentVal, const float OldVal, const float TargetVal)
+{
+	if (OldVal > TargetVal) return CurrentVal <= TargetVal;
+
+	return CurrentVal >= TargetVal;
+}
+
+void UUpBlueprintFunctionLibrary::TearDownActorComponent(UActorComponent* ActorComponent)
+{
+	if (IsValid(ActorComponent))
+	{
+		ActorComponent->UnregisterComponent();
+		ActorComponent->DestroyComponent();
+	}
+}

@@ -207,23 +207,11 @@ void AUpPlayerController::BeginPlay()
 	check(InputMappingContext_Gun);
 	check(InputMappingContext_InteractionOnly);
 
-	check(AimGunInputAction);
-	check(CloseCharacterSwitcherInputAction);
-	check(CrouchInputAction);
-	check(FireWeaponInputAction);
-	check(InteractInputAction);
-	check(JumpInputAction);
-	check(LookInputAction);
-	check(MoveInputAction);
-	check(NavigateCharacterSwitcherInputAction);
-	check(OpenCharacterSwitcherInputAction);
-	check(PauseGameInputAction);
-	check(ReloadInputAction);
-	check(SprintInputAction);
-	check(ToggleCameraViewInputAction);
-	check(ToggleDebugCameraInputAction);
-	check(Weapon1InputAction);
-	check(Weapon2InputAction);
+	check(InputAction_ToggleDebugCamera);
+	check(InputAction_Move);
+	check(InputAction_Sprint);
+	check(InputAction_Look);
+	check(InputAction_SwitchCameraView);
 
 	CustomHud = CastChecked<AUpHud>(GetHUD());
 	CustomHud->Init(this);
@@ -248,68 +236,62 @@ void AUpPlayerController::SetupInputComponent()
 
 	const auto EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 	
-	EnhancedInputComponent->BindAction(ToggleCameraViewInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCameraView);
-	EnhancedInputComponent->BindAction(ToggleDebugCameraInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleDebugCamera);
+	EnhancedInputComponent->BindAction(InputAction_ToggleDebugCamera, ETriggerEvent::Started, this, &ThisClass::ToggleDebugCamera);
 	
-	EnhancedInputComponent->BindAction(PauseGameInputAction, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
-	EnhancedInputComponent->BindAction(ReloadInputAction, ETriggerEvent::Triggered, this, &ThisClass::Reload);
+	EnhancedInputComponent->BindAction(InputAction_Move, ETriggerEvent::Triggered, this, &ThisClass::Move);
 	
-	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &ThisClass::StartInteraction);
-	EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Completed, this, &ThisClass::EndInteraction);
+	EnhancedInputComponent->BindAction(InputAction_Sprint, ETriggerEvent::Started, this, &ThisClass::StartSprint);
+	EnhancedInputComponent->BindAction(InputAction_Sprint, ETriggerEvent::Completed, this, &ThisClass::StopSprint);
 	
-	EnhancedInputComponent->BindAction(OpenCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
-	EnhancedInputComponent->BindAction(CloseCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::TriggerCloseCharacterSwitcher);
-	EnhancedInputComponent->BindAction(NavigateCharacterSwitcherInputAction, ETriggerEvent::Triggered, this, &ThisClass::NavigateCharacterSwitcher);
+	EnhancedInputComponent->BindAction(InputAction_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
+	EnhancedInputComponent->BindAction(InputAction_SwitchCameraView, ETriggerEvent::Triggered, this, &ThisClass::SwitchCameraView);
 	
-	EnhancedInputComponent->BindAction(Weapon1InputAction, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon1);
-	EnhancedInputComponent->BindAction(Weapon2InputAction, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon2);
+	EnhancedInputComponent->BindAction(InputAction_PauseGame, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
+	EnhancedInputComponent->BindAction(InputAction_Reload, ETriggerEvent::Triggered, this, &ThisClass::Reload);
 	
-	EnhancedInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
-	EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Started, this, &ThisClass::Jump);
-
-	EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Started, this, &ThisClass::StartSprint);
-	EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Completed, this, &ThisClass::StopSprint);
+	EnhancedInputComponent->BindAction(InputAction_Interact, ETriggerEvent::Started, this, &ThisClass::StartInteraction);
+	EnhancedInputComponent->BindAction(InputAction_Interact, ETriggerEvent::Completed, this, &ThisClass::EndInteraction);
 	
-	EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
-	EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
+	EnhancedInputComponent->BindAction(InputAction_OpenCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
+	EnhancedInputComponent->BindAction(InputAction_CloseCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::TriggerCloseCharacterSwitcher);
+	EnhancedInputComponent->BindAction(InputAction_NavigateCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::NavigateCharacterSwitcher);
 	
-	EnhancedInputComponent->BindAction(AimGunInputAction, ETriggerEvent::Started, this, &ThisClass::StartAimingGun);
-	EnhancedInputComponent->BindAction(AimGunInputAction, ETriggerEvent::Completed, this, &ThisClass::StopAimingGun);
+	EnhancedInputComponent->BindAction(InputAction_Weapon1, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon1);
+	EnhancedInputComponent->BindAction(InputAction_Weapon2, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon2);
 	
-	EnhancedInputComponent->BindAction(FireWeaponInputAction, ETriggerEvent::Started, this, &ThisClass::StartFiringWeapon);
-	EnhancedInputComponent->BindAction(FireWeaponInputAction, ETriggerEvent::Completed, this, &ThisClass::StopFiringWeapon);
-}
-
-void AUpPlayerController::ToggleCameraView(const FInputActionValue& InputActionValue)
-{
-	if (!PossessedCharacter) return;
+	EnhancedInputComponent->BindAction(InputAction_Crouch, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
+	EnhancedInputComponent->BindAction(InputAction_Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
 	
-	switch (CameraView)
-	{
-	case EUpCameraView::FirstPerson:
-		PossessedCharacter->ActivateCameraView(EUpCameraView::ThirdPerson_OverTheShoulder);
-		break;
-	case EUpCameraView::ThirdPerson:
-		PossessedCharacter->ActivateCameraView(EUpCameraView::FirstPerson);
-		break;
-	case EUpCameraView::ThirdPerson_OverTheShoulder:
-		PossessedCharacter->ActivateCameraView(EUpCameraView::ThirdPerson);
-		break;
-	default:
-		UE_LOG(LogTemp, Warning, TEXT("Invalid player camera view type %d"), CameraView)
-	}
+	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Started, this, &ThisClass::StartAimingGun);
+	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Completed, this, &ThisClass::StopAimingGun);
+	
+	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Started, this, &ThisClass::StartFiringWeapon);
+	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Completed, this, &ThisClass::StopFiringWeapon);
 }
 
 void AUpPlayerController::ToggleDebugCamera(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
 
-	if (CameraView == EUpCameraView::FirstPerson_Debug)
+	switch (CameraView)
 	{
-		PossessedCharacter->ActivateCameraView(EUpCameraView::FirstPerson);
-	} else
-	{
+	case EUpCameraView::FirstPerson:
 		PossessedCharacter->ActivateCameraView(EUpCameraView::FirstPerson_Debug);
+		break;
+	case EUpCameraView::FirstPerson_Debug:
+		PossessedCharacter->ActivateCameraView(EUpCameraView::FirstPerson);
+		break;
+	case EUpCameraView::ThirdPerson_OverTheShoulder:
+		PossessedCharacter->ActivateCameraView(EUpCameraView::ThirdPerson_OverTheShoulder_Debug);
+		break;
+	case EUpCameraView::ThirdPerson_OverTheShoulder_Debug:
+		PossessedCharacter->ActivateCameraView(EUpCameraView::ThirdPerson);
+		break;
+	case EUpCameraView::ThirdPerson:
+		PossessedCharacter->ActivateCameraView(EUpCameraView::ThirdPerson_OverTheShoulder);
+		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Invalid camera view type %d"), CameraView)
 	}
 	
 	// if (IsValid(DebugPawn))
@@ -328,25 +310,98 @@ void AUpPlayerController::ToggleDebugCamera(const FInputActionValue& InputAction
 	// }
 }
 
+void AUpPlayerController::Move(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+	
+	if (const auto CustomMovementComponent = PossessedCharacter->GetCustomMovementComponent();
+		CustomMovementComponent && CustomMovementComponent->IsClimbing())
+	{
+		HandleClimbingMovement(InputActionValue);
+	} else
+	{
+		HandleGroundMovement(InputActionValue);
+	}
+}
+
+void AUpPlayerController::HandleGroundMovement(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+	
+	const auto InputActionVector = InputActionValue.Get<FVector2D>();
+	const FRotationMatrix RotationMatrix(FRotator(0.0, GetControlRotation().Yaw, 0.0));
+
+	PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::X), InputActionVector.Y);
+	PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::Y), InputActionVector.X);
+}
+
+void AUpPlayerController::HandleClimbingMovement(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	if (const auto CustomMovementComponent = PossessedCharacter->GetCustomMovementComponent())
+	{
+		const auto InputActionVector = InputActionValue.Get<FVector2D>();
+		const auto ClimbedSurfaceNormal = CustomMovementComponent->GetClimbedSurfaceNormal();
+
+		PossessedCharacter->AddMovementInput(
+			FVector::CrossProduct(-ClimbedSurfaceNormal, PossessedCharacter->GetActorRightVector()), InputActionVector.Y);
+		PossessedCharacter->AddMovementInput(
+			FVector::CrossProduct(-ClimbedSurfaceNormal,-PossessedCharacter->GetActorUpVector()), InputActionVector.X);
+	}
+}
+
+void AUpPlayerController::StartSprint(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+	
+	if (const auto CustomMovementComponent = PossessedCharacter->GetCustomMovementComponent())
+	{
+		CustomMovementComponent->ToggleSprint(true);
+	}
+}
+
+void AUpPlayerController::StopSprint(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+	
+	if (const auto CustomMovementComponent = PossessedCharacter->GetCustomMovementComponent())
+	{
+		CustomMovementComponent->ToggleSprint(false);
+	}
+}
+
+void AUpPlayerController::Look(const FInputActionValue& InputActionValue)
+{
+	const auto InputActionVector = InputActionValue.Get<FVector2D>();
+
+	AddPitchInput(InputActionVector.Y);
+	AddYawInput(InputActionVector.X);
+}
+
+void AUpPlayerController::SwitchCameraView(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+	
+	switch (CameraView)
+	{
+	case EUpCameraView::FirstPerson:
+		PossessedCharacter->ActivateCameraView(EUpCameraView::ThirdPerson_OverTheShoulder);
+		break;
+	case EUpCameraView::ThirdPerson_OverTheShoulder:
+		PossessedCharacter->ActivateCameraView(EUpCameraView::FirstPerson);
+		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Invalid camera view type %d"), CameraView)
+		break;
+	}
+}
+
 void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
 {
 	if (CustomHud) CustomHud->OpenMainMenu();
 	
 	UGameplayStatics::SetGamePaused(this, true);
-}
-
-void AUpPlayerController::Reload(const FInputActionValue& InputActionValue)
-{
-	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
-	{
-		if (const auto AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent())
-		{
-			FGameplayTagContainer AbilityTags;
-			AbilityTags.AddTag(TAG_Combat_Reload);
-			
-			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
-		}
-	}
 }
 
 void AUpPlayerController::StartInteraction(const FInputActionValue& InputActionValue)
@@ -437,72 +492,17 @@ void AUpPlayerController::Jump(const FInputActionValue& InputActionValue)
 	PossessedCharacter->Jump();
 }
 
-void AUpPlayerController::StartSprint(const FInputActionValue& InputActionValue)
+void AUpPlayerController::Reload(const FInputActionValue& InputActionValue)
 {
-	if (!PossessedCharacter) return;
-	
-	if (const auto MovementComponent = PossessedCharacter->GetCustomMovementComponent())
+	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
 	{
-		MovementComponent->ToggleSprint(true);
-	}
-}
-
-void AUpPlayerController::StopSprint(const FInputActionValue& InputActionValue)
-{
-	if (!PossessedCharacter) return;
-	
-	if (const auto MovementComponent = PossessedCharacter->GetCustomMovementComponent())
-	{
-		MovementComponent->ToggleSprint(false);
-	}
-}
-
-void AUpPlayerController::Look(const FInputActionValue& InputActionValue)
-{
-	const auto InputActionVector = InputActionValue.Get<FVector2D>();
-
-	AddPitchInput(InputActionVector.Y);
-	AddYawInput(InputActionVector.X);
-}
-
-void AUpPlayerController::Move(const FInputActionValue& InputActionValue)
-{
-	if (!PossessedCharacter) return;
-	
-	if (const auto CustomMovementComponent = PossessedCharacter->GetCustomMovementComponent();
-		CustomMovementComponent && CustomMovementComponent->IsClimbing())
-	{
-		HandleClimbingMovement(InputActionValue);
-	} else
-	{
-		HandleGroundMovement(InputActionValue);
-	}
-}
-
-void AUpPlayerController::HandleGroundMovement(const FInputActionValue& InputActionValue)
-{
-	if (!PossessedCharacter) return;
-	
-	const auto InputActionVector = InputActionValue.Get<FVector2D>();
-	const FRotationMatrix RotationMatrix(FRotator(0.0, GetControlRotation().Yaw, 0.0));
-
-	PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::X), InputActionVector.Y);
-	PossessedCharacter->AddMovementInput(RotationMatrix.GetUnitAxis(EAxis::Y), InputActionVector.X);
-}
-
-void AUpPlayerController::HandleClimbingMovement(const FInputActionValue& InputActionValue)
-{
-	if (!PossessedCharacter) return;
-
-	if (const auto CustomMovementComponent = PossessedCharacter->GetCustomMovementComponent())
-	{
-		const auto InputActionVector = InputActionValue.Get<FVector2D>();
-		const auto ClimbedSurfaceNormal = CustomMovementComponent->GetClimbedSurfaceNormal();
-
-		PossessedCharacter->AddMovementInput(
-			FVector::CrossProduct(-ClimbedSurfaceNormal, PossessedCharacter->GetActorRightVector()), InputActionVector.Y);
-		PossessedCharacter->AddMovementInput(
-			FVector::CrossProduct(-ClimbedSurfaceNormal,-PossessedCharacter->GetActorUpVector()), InputActionVector.X);
+		if (const auto AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent())
+		{
+			FGameplayTagContainer AbilityTags;
+			AbilityTags.AddTag(TAG_Combat_Reload);
+			
+			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+		}
 	}
 }
 
