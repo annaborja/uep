@@ -30,6 +30,8 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 		{
 			MovementOffsetYaw = 0.f;
 		}
+		
+		bUseBackwardsBlendSpace = FMath::Abs(MovementOffsetYaw) > 120.f;
 
 		if (const auto MovementComponent = Character->GetCustomMovementComponent())
 		{

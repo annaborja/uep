@@ -70,6 +70,9 @@ protected:
 	bool bSprinting = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bUseBackwardsBlendSpace = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
 
 private:
