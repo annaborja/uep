@@ -17,6 +17,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Tags/CombatTags.h"
+#include "Tags/GasTags.h"
 #include "UI/UpHud.h"
 
 AUpPlayerController::AUpPlayerController(): APlayerController()
@@ -217,6 +218,26 @@ void AUpPlayerController::BeginPlay()
 	CustomHud->Init(this);
 }
 
+void AUpPlayerController::Tick(const float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (TargetCameraFov >= 0.f && PossessedCharacter)
+	{
+		if (const auto Camera = PossessedCharacter->GetCameraComponent())
+		{
+			if (FMath::IsNearlyEqual(Camera->FieldOfView, TargetCameraFov))
+			{
+				TargetCameraFov = -1.f;
+			} else
+			{
+				Camera->SetFieldOfView(FMath::FInterpTo(Camera->FieldOfView, TargetCameraFov, DeltaSeconds, InterpSpeed_CameraFov));
+				UE_LOG(LogTemp, Warning, TEXT("fov: %g"), Camera->FieldOfView)
+			}
+		}
+	}
+}
+
 void AUpPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -226,7 +247,7 @@ void AUpPlayerController::OnPossess(APawn* InPawn)
 		UE_LOG(LogTemp, Warning, TEXT("Possess %s"), *InPawn->GetName())
 	}
 	
-	PossessedCharacter = Cast<AUpPlayableCharacter>(InPawn);
+	PossessedCharacter = CastChecked<AUpPlayableCharacter>(InPawn);
 	ResetInputMappingContexts();
 }
 
@@ -354,20 +375,26 @@ void AUpPlayerController::HandleClimbingMovement(const FInputActionValue& InputA
 void AUpPlayerController::StartSprint(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
-	
-	if (const auto CustomMovementComponent = PossessedCharacter->GetCustomMovementComponent())
+
+	if (const auto AbilitySystemComponent = PossessedCharacter->GetAbilitySystemComponent())
 	{
-		CustomMovementComponent->ToggleSprint(true);
+		FGameplayTagContainer AbilityTags;
+		AbilityTags.AddTag(TAG_Ability_Sprint);
+		
+		AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
 	}
 }
 
 void AUpPlayerController::StopSprint(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
-	
-	if (const auto CustomMovementComponent = PossessedCharacter->GetCustomMovementComponent())
+
+	if (const auto AbilitySystemComponent = PossessedCharacter->GetAbilitySystemComponent())
 	{
-		CustomMovementComponent->ToggleSprint(false);
+		FGameplayTagContainer AbilityTags;
+		AbilityTags.AddTag(TAG_Ability_Sprint);
+		
+		AbilitySystemComponent->CancelAbilities(&AbilityTags);
 	}
 }
 

@@ -18,8 +18,9 @@ public:
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetAmmoGrantEffectClass() const { return AmmoGrantEffectClass; }
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetBusyEffectClass() const { return BusyEffectClass; }
 	
-	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetGrantedAbilityClasses_Character() const { return GrantedAbilityClasses_Character; }
 	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetGrantedAbilityClasses_Common() const { return GrantedAbilityClasses_Common; }
+	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetGrantedAbilityClasses_Character() const { return GrantedAbilityClasses_Character; }
+	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetGrantedAbilityClasses_PlayableCharacter() const { return GrantedAbilityClasses_PlayableCharacter; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
@@ -28,7 +29,10 @@ private:
 	TSubclassOf<UGameplayEffect> BusyEffectClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilityClasses_Common;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilityClasses_Character;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilityClasses_Common;
+	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilityClasses_PlayableCharacter;
 };

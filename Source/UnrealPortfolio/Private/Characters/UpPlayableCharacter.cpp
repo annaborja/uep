@@ -12,6 +12,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GAS/UpGasDataAsset.h"
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "GAS/Attributes/UpAttributeSet.h"
 #include "Items/UpAmmo.h"
@@ -20,11 +21,15 @@
 #include "UI/UpHud.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
+AUpPlayableCharacter::AUpPlayableCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
+}
+
 void AUpPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	PrimaryActorTick.bCanEverTick = true;
 	
 	check(AnimClass_FirstPerson);
 	check(AnimClass_ThirdPerson);
@@ -75,6 +80,7 @@ void AUpPlayableCharacter::Tick(const float DeltaSeconds)
 			PrevCameraRelativeRotation = Camera->GetRelativeRotation();
 			
 			CurrentCameraBlendTime = -1.f;
+			SetActorTickEnabled(false);
 
 			if (IsInFirstPersonMode()) SetUpCharacterForCameraView();
 		} else
@@ -215,6 +221,19 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 	if (!IsInFirstPersonMode()) SetUpCharacterForCameraView();
 }
 
+void AUpPlayableCharacter::GetAbilityClassesToGrant(TArray<TSubclassOf<UGameplayAbility>>& AbilityClasses) const
+{
+	Super::GetAbilityClassesToGrant(AbilityClasses);
+
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	{
+		if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+		{
+			AbilityClasses.Append(GasDataAsset->GetGrantedAbilityClasses_PlayableCharacter());
+		}
+	}
+}
+
 void AUpPlayableCharacter::OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot)
 {
 	Super::OnItemEquip(ItemActor, EquipmentSlot);
@@ -324,6 +343,7 @@ void AUpPlayableCharacter::InitForPlayer()
 		Camera = NewObject<UCameraComponent>(this, UCameraComponent::StaticClass(), NAME_None, RF_Transient);
 		Camera->SetupAttachment(SpringArm);
 		Camera->RegisterComponent();
+		Camera->SetFieldOfView(BaseCameraFov);
 		Camera->bUsePawnControlRotation = false;
 	}
 
@@ -414,38 +434,46 @@ void AUpPlayableCharacter::TearDownForPlayer()
 }
 
 void AUpPlayableCharacter::SetCameraParams(const float SpringArmLength, const FVector& SpringArmSocketOffset,
-	const FVector& CameraRelativeLocation, const FRotator& CameraRelativeRotation)
+                                           const FVector& CameraRelativeLocation, const FRotator& CameraRelativeRotation)
 {
-	if (PrevSpringArmLength < 0.f)
+	const auto bCameraParamsInitialized = PrevSpringArmLength < 0.f;
+
+	if (SpringArm)
+	{
+		PrevSpringArmLength = SpringArm->TargetArmLength;
+		PrevSpringArmSocketOffset = SpringArm->SocketOffset;
+	}
+
+	if (Camera)
+	{
+		PrevCameraRelativeLocation = Camera->GetRelativeLocation();
+		PrevCameraRelativeRotation = Camera->GetRelativeRotation();
+	}
+	
+	TargetSpringArmLength = SpringArmLength;
+	TargetSpringArmSocketOffset = SpringArmSocketOffset;
+	TargetCameraRelativeLocation = CameraRelativeLocation;
+	TargetCameraRelativeRotation = CameraRelativeRotation;
+	
+	if (bCameraParamsInitialized)
 	{
 		if (SpringArm)
 		{
-			SpringArm->TargetArmLength = SpringArmLength;
-			PrevSpringArmLength = SpringArm->TargetArmLength;
-			
-			SpringArm->SocketOffset = SpringArmSocketOffset;
+			SpringArm->TargetArmLength = TargetSpringArmLength;
+			SpringArm->SocketOffset = TargetSpringArmSocketOffset;
 		}
 
 		if (Camera)
 		{
-			Camera->SetRelativeLocation(CameraRelativeLocation);
-			Camera->SetRelativeRotation(CameraRelativeRotation);
+			Camera->SetRelativeLocation(TargetCameraRelativeLocation);
+			Camera->SetRelativeRotation(TargetCameraRelativeRotation);
 		}
-
+		
 		if (IsInFirstPersonMode()) SetUpCharacterForCameraView();
 	} else
 	{
-		PrevSpringArmLength = SpringArm->TargetArmLength;
-		PrevSpringArmSocketOffset = SpringArm->SocketOffset;
-		PrevCameraRelativeLocation = Camera->GetRelativeLocation();
-		PrevCameraRelativeRotation = Camera->GetRelativeRotation();
-	
-		TargetSpringArmLength = SpringArmLength;
-		TargetSpringArmSocketOffset = SpringArmSocketOffset;
-		TargetCameraRelativeLocation = CameraRelativeLocation;
-		TargetCameraRelativeRotation = CameraRelativeRotation;
-			
 		CurrentCameraBlendTime = 0.f;
+		SetActorTickEnabled(true);
 	}
 }
 
@@ -456,27 +484,22 @@ void AUpPlayableCharacter::SetUpCharacterForCameraView()
 	case EUpCameraView::FirstPerson:
 		SetUpFirstPersonMesh();
 		SetUpFirstPersonController();
-		
 		break;
 	case EUpCameraView::FirstPerson_Debug:
 		SetUpFirstPersonMesh();
 		SetUpFirstPersonController();
-		
 		break;
 	case EUpCameraView::ThirdPerson_OverTheShoulder:
 		SetUpThirdPersonMesh();
 		SetUpFirstPersonController();
-		
 		break;
 	case EUpCameraView::ThirdPerson_OverTheShoulder_Debug:
 		SetUpThirdPersonMesh();
 		SetUpFirstPersonController();
-		
 		break;
 	case EUpCameraView::ThirdPerson:
 		SetUpThirdPersonMesh();
 		SetUpThirdPersonController();
-		
 		break;
 	default:
 		UE_LOG(LogTemp, Warning, TEXT("Invalid camera view %d"), CameraViewType)

@@ -4,11 +4,14 @@
 
 #include "Characters/UpPlayableCharacter.h"
 #include "GAS/Attributes/UpVitalAttributeSet.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Tags/AttributeTags.h"
 #include "UI/UpHud.h"
 
 void UUpPersistentVitalStatsDisplayWidget::SetCharacter(AUpPlayableCharacter* InCharacter)
 {
+	const auto bHadCharacter = Character != nullptr;
+	
 	Character = InCharacter;
 	Image = InCharacter->GetCharacterData().Image_Head;
 
@@ -16,7 +19,7 @@ void UUpPersistentVitalStatsDisplayWidget::SetCharacter(AUpPlayableCharacter* In
 	{
 		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Health); Attribute.IsValid())
 		{
-			Health = Attribute.GetNumericValue(AttributeSet);
+			TargetHealth = Attribute.GetNumericValue(AttributeSet);
 		}
 
 		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxHealth); Attribute.IsValid())
@@ -26,14 +29,40 @@ void UUpPersistentVitalStatsDisplayWidget::SetCharacter(AUpPlayableCharacter* In
 		
 		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Shield); Attribute.IsValid())
 		{
-			Shield = Attribute.GetNumericValue(AttributeSet);
+			TargetShield = Attribute.GetNumericValue(AttributeSet);
 		}
 
 		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxShield); Attribute.IsValid())
 		{
 			MaxShield = Attribute.GetNumericValue(AttributeSet);
 		}
+
+		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Stamina); Attribute.IsValid())
+		{
+			TargetStamina = Attribute.GetNumericValue(AttributeSet);
+		}
+
+		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxStamina); Attribute.IsValid())
+		{
+			MaxStamina = Attribute.GetNumericValue(AttributeSet);
+		}
 	}
+
+	if (bHadCharacter)
+	{
+		Health = TargetHealth;
+		Shield = TargetShield;
+		Stamina = TargetStamina;
+	}
+}
+
+void UUpPersistentVitalStatsDisplayWidget::NativeTick(const FGeometry& MyGeometry, const float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	Health = UKismetMathLibrary::FInterpTo(Health, TargetHealth, InDeltaTime, InterpSpeed);
+	Shield = UKismetMathLibrary::FInterpTo(Shield, TargetShield, InDeltaTime, InterpSpeed);
+	Stamina = UKismetMathLibrary::FInterpTo(Stamina, TargetStamina, InDeltaTime, InterpSpeed);
 }
 
 void UUpPersistentVitalStatsDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewCustomHud)
@@ -59,21 +88,41 @@ float UUpPersistentVitalStatsDisplayWidget::GetShieldBarPercentage() const
 	return Shield / MaxShield;
 }
 
+float UUpPersistentVitalStatsDisplayWidget::GetStaminaBarPercentage() const
+{
+	if (MaxStamina <= 0.f) return 0.f;
+	
+	return Stamina / MaxStamina;
+}
+
+ESlateVisibility UUpPersistentVitalStatsDisplayWidget::GetStaminaBarVisibility() const
+{
+	if (!bShowStaminaBar) return ESlateVisibility::Hidden;
+
+	return ESlateVisibility::SelfHitTestInvisible;
+}
+
 void UUpPersistentVitalStatsDisplayWidget::HandleAttributeValueChange(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const float Value)
 {
 	if (!Character || !TagId.MatchesTagExact(Character->GetTagId())) return;
 	
 	if (AttributeTag.MatchesTagExact(TAG_Attribute_Vital_Health))
 	{
-		Health = Value;
+		TargetHealth = Value;
 	} else if (AttributeTag.MatchesTagExact(TAG_Attribute_Vital_MaxHealth))
 	{
 		MaxHealth = Value;
 	} else if (AttributeTag.MatchesTagExact(TAG_Attribute_Vital_Shield))
 	{
-		Shield = Value;
+		TargetShield = Value;
 	} else if (AttributeTag.MatchesTagExact(TAG_Attribute_Vital_MaxShield))
 	{
 		MaxShield = Value;
+	} else if (AttributeTag.MatchesTagExact(TAG_Attribute_Vital_Stamina))
+	{
+		TargetStamina = Value;
+	} else if (AttributeTag.MatchesTagExact(TAG_Attribute_Vital_MaxStamina))
+	{
+		MaxStamina = Value;
 	}
 }

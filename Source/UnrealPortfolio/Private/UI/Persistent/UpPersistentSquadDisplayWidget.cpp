@@ -14,15 +14,9 @@ void UUpPersistentSquadDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewC
 	CustomHud->PossessedCharacterDelegate.AddUObject(this, &ThisClass::HandlePossessedCharacterChange);
 	CustomHud->SecondarySquadMemberDelegate.AddUObject(this, &ThisClass::HandleSecondarySquadMemberBroadcast);
 
-	if (const auto CustomController = CustomHud->GetCustomController())
+	for (const auto Widget : GetSecondaryDisplayWidgets())
 	{
-		if (const auto PossessedCharacter = CustomController->GetPossessedCharacter())
-		{
-			if (const auto Widget = GetVitalStatsDisplay_Main())
-			{
-				Widget->SetCharacter(PossessedCharacter);
-			}
-		}
+		Widget->SetShowStaminaBar(false);
 	}
 }
 
@@ -30,9 +24,9 @@ void UUpPersistentSquadDisplayWidget::HandlePossessedCharacterChange(AUpPlayable
 {
 	UUpPersistentVitalStatsDisplayWidget* PrevSecondaryWidget = nullptr;
 	
-	for (const auto Widget : TArray { GetVitalStatsDisplay_Secondary1(), GetVitalStatsDisplay_Secondary2() })
+	for (const auto Widget : GetSecondaryDisplayWidgets())
 	{
-		if (Widget && Widget->GetCharacter() == PossessedCharacter)
+		if (Widget->GetCharacter() == PossessedCharacter)
 		{
 			PrevSecondaryWidget = Widget;
 			break;
@@ -52,12 +46,24 @@ void UUpPersistentSquadDisplayWidget::HandlePossessedCharacterChange(AUpPlayable
 
 void UUpPersistentSquadDisplayWidget::HandleSecondarySquadMemberBroadcast(AUpPlayableCharacter* Character)
 {
-	for (const auto Widget : TArray { GetVitalStatsDisplay_Secondary1(), GetVitalStatsDisplay_Secondary2() })
+	for (const auto Widget : GetSecondaryDisplayWidgets())
 	{
-		if (Widget && !Widget->GetCharacter())
+		if (!Widget->GetCharacter())
 		{
 			Widget->SetCharacter(Character);
 			return;
 		}
 	}
+}
+
+TArray<UUpPersistentVitalStatsDisplayWidget*> UUpPersistentSquadDisplayWidget::GetSecondaryDisplayWidgets()
+{
+	TArray<UUpPersistentVitalStatsDisplayWidget*> Widgets;
+
+	for (const auto Widget : TArray { GetVitalStatsDisplay_Secondary1(), GetVitalStatsDisplay_Secondary2() })
+	{
+		if (Widget) Widgets.Add(Widget);
+	}
+
+	return Widgets;
 }

@@ -165,6 +165,8 @@ protected:
 	FVector RootMotionTargetLocation;
 	bool bHasRootMotionTargetLocation = false;
 
+	virtual void GetAbilityClassesToGrant(TArray<TSubclassOf<UGameplayAbility>>& AbilityClasses) const;
+
 	AUpItem* SpawnAndAttachItem(const TSubclassOf<AUpItem> ItemClass);
 	
 	void AttachAndHideItem(AUpItem* ItemActor);

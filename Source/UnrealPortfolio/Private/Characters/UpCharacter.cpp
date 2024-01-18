@@ -76,14 +76,7 @@ void AUpCharacter::BeginPlay()
 	if (AbilitySystemComponent)
 	{
 		TArray<TSubclassOf<UGameplayAbility>> AbilityClasses;
-
-		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
-		{
-			if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
-			{
-				AbilityClasses.Append(GasDataAsset->GetGrantedAbilityClasses_Character());
-			}
-		}
+		GetAbilityClassesToGrant(AbilityClasses);
 		
 		AbilitySystemComponent->Init(this, this,
 			TArray { InitVitalAttributesEffectClass, InitPrimaryAttributesEffectClass }, AbilityClasses);
@@ -348,6 +341,17 @@ void AUpCharacter::HandleLanding(const FName& BoneName, const EUpTraceDirection:
 	HandleNoise(SfxMap_JumpLandings, BoneName, TraceDirection, TraceLength, VolumeMultiplier);
 }
 
+void AUpCharacter::GetAbilityClassesToGrant(TArray<TSubclassOf<UGameplayAbility>>& AbilityClasses) const
+{
+	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	{
+		if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+		{
+			AbilityClasses.Append(GasDataAsset->GetGrantedAbilityClasses_Character());
+		}
+	}
+}
+
 AUpItem* AUpCharacter::SpawnAndAttachItem(const TSubclassOf<AUpItem> ItemClass)
 {
 	if (const auto World = GetWorld())
@@ -409,7 +413,7 @@ void AUpCharacter::HandleNoise(const TMap<TEnumAsByte<EPhysicalSurface>, USoundB
 				TraceEnd += GetActorForwardVector() * TraceLength;
 			} else
 			{
-				TraceEnd += FVector(0.0, 0.0, 1.0) * -1.0 * TraceLength;
+				TraceEnd += -FVector(0.0, 0.0, 1.0) * TraceLength;
 			}
 			
 			FHitResult HitResult;

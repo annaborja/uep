@@ -37,6 +37,7 @@ public:
 	void CreateTemporaryCamera(const AActor* LookTarget, const float CameraBlendTime, const float AspectRatio, const float FieldOfView);
 	void DestroyTemporaryCamera(const float CameraBlendTime);
 	void SetCameraView(const EUpCameraView::Type InCameraView) { CameraView = InCameraView; }
+	void SetTargetCameraFov(const float InTargetCameraFov) { TargetCameraFov = InTargetCameraFov; }
 	
 	FORCEINLINE UInputAction* GetInputAction_CloseCharacterSwitcher() const { return InputAction_CloseCharacterSwitcher; }
 	
@@ -48,6 +49,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void SetupInputComponent() override;
 
@@ -103,6 +105,9 @@ private:
 	bool bDebugInputMappingContexts = false;
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugPossession = false;
+
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float InterpSpeed_CameraFov = 100.f;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> ActiveInteractable;
@@ -121,6 +126,7 @@ private:
 	TObjectPtr<ADefaultPawn> DebugPawn;
 
 	bool bInitialized = false;
+	float TargetCameraFov = -1.f;
 	
 	void ToggleDebugCamera(const FInputActionValue& InputActionValue);
 	

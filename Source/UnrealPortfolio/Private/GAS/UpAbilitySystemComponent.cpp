@@ -44,17 +44,8 @@ void UUpAbilitySystemComponent::Init(AActor* InOwnerActor, AActor* InAvatarActor
 void UUpAbilitySystemComponent::GrantAbility(const TSubclassOf<UGameplayAbility> AbilityClass)
 {
 	const auto Combatable = Cast<IUpCombatable>(GetAvatarActor());
-	auto AbilitySpec = FGameplayAbilitySpec(AbilityClass, Combatable ? Combatable->GetCombatLevel() : 1);
-
-	if (const auto Ability = Cast<UUpGameplayAbility>(AbilitySpec.Ability))
-	{
-		if (const auto& TagId = Ability->GetTagId(); TagId.IsValid())
-		{
-			AbilitySpec.DynamicAbilityTags.AddTag(TagId);
-		}
-	}
 	
-	GiveAbility(AbilitySpec);
+	GiveAbility(FGameplayAbilitySpec(AbilityClass, Combatable ? Combatable->GetCombatLevel() : 1));
 }
 
 bool UUpAbilitySystemComponent::TryActivateAbilityByTag(const FGameplayTag& Tag)

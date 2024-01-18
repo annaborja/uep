@@ -82,7 +82,7 @@ FName UUpHitReactionAbility::GetHitReactionsMontageSectionName(const FVector& Or
 		const auto ForwardVector = HitActor->GetActorForwardVector();
 		// We can't just use `HitResult.ImpactNormal` because the collision occurs on the character mesh,
 		// which complicates the resulting impact normals.
-		const auto ReverseAttackPath = ((HitResult.ImpactPoint - Origin) * -1).GetSafeNormal2D();
+		const auto ReverseAttackPath = (-(HitResult.ImpactPoint - Origin)).GetSafeNormal2D();
 
 		if (bDebug)
 		{

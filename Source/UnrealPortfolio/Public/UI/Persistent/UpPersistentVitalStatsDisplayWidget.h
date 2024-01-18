@@ -17,6 +17,7 @@ class UNREALPORTFOLIO_API UUpPersistentVitalStatsDisplayWidget : public UUpCommo
 
 public:
     void SetCharacter(AUpPlayableCharacter* InCharacter);
+    void SetShowStaminaBar(const bool bInShowStaminaBar) { bShowStaminaBar = bInShowStaminaBar; }
 
     FORCEINLINE AUpPlayableCharacter* GetCharacter() const { return Character; }
 
@@ -30,20 +31,40 @@ protected:
     float Shield = 0.f;
     UPROPERTY(BlueprintReadOnly)
     float MaxShield = 0.f;
+    
+    UPROPERTY(BlueprintReadOnly)
+    float Stamina = 0.f;
+    UPROPERTY(BlueprintReadOnly)
+    float MaxStamina = 0.f;
 
     UPROPERTY(BlueprintReadOnly)
     TObjectPtr<UTexture2D> Image;
+    
+    UPROPERTY(BlueprintReadOnly)
+    bool bShowStaminaBar = true;
 
+    virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
     virtual void OnCustomHudSet_Implementation(AUpHud* NewCustomHud) override;
 
     UFUNCTION(BlueprintCallable)
     float GetHealthBarPercentage() const;
     UFUNCTION(BlueprintCallable)
     float GetShieldBarPercentage() const;
+    UFUNCTION(BlueprintCallable)
+    float GetStaminaBarPercentage() const;
+	UFUNCTION(BlueprintCallable)
+	ESlateVisibility GetStaminaBarVisibility() const;
 
 private:
+    UPROPERTY(EditDefaultsOnly, Category="UP Params")
+    float InterpSpeed = 3.f;
+    
     UPROPERTY(Transient)
     TObjectPtr<AUpPlayableCharacter> Character;
+
+    float TargetHealth = 0.f;
+    float TargetShield = 0.f;
+    float TargetStamina = 0.f;
     
     UFUNCTION()
     void HandleAttributeValueChange(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const float Value);

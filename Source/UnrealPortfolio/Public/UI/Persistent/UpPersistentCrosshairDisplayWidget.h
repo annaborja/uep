@@ -13,9 +13,6 @@ class UNREALPORTFOLIO_API UUpPersistentCrosshairDisplayWidget : public UUpCommon
 {
 	GENERATED_BODY()
 
-public:
-	void SetTargetCrosshairSpread(const float InCrosshairSpread) { CrosshairSpread = InCrosshairSpread; }
-
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	UBorder* GetTopCrosshair() const;
@@ -36,9 +33,17 @@ private:
 	float CrosshairThickness = 1.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	float CrosshairSpread = 24.f;
-
-	float TargetCrosshairSpread = CrosshairSpread;
+	float CrosshairSpread_Min = 24.f;
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	float CrosshairSpread_Max = CrosshairSpread_Min * 3;
 	
-	void UpdateCrosshairSpread() const;
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	float InterpSpeed_Opacity = 5.f;
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	float InterpSpeed_Spread = 300.f;
+
+	float CrosshairOpacity = 1.f;
+	float CrosshairSpread = CrosshairSpread_Min;
+	
+	void UpdateCrosshair() const;
 };

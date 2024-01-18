@@ -33,7 +33,15 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData MaxShield;
 	ATTRIBUTE_ACCESSORS(UUpVitalAttributeSet, MaxShield)
-
+	
+	UPROPERTY(VisibleAnywhere)
+	FGameplayAttributeData Stamina;
+	ATTRIBUTE_ACCESSORS(UUpVitalAttributeSet, Stamina)
+	
+	UPROPERTY(VisibleAnywhere)
+	FGameplayAttributeData MaxStamina;
+	ATTRIBUTE_ACCESSORS(UUpVitalAttributeSet, MaxStamina)
+	
 	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UUpVitalAttributeSet, IncomingDamage);

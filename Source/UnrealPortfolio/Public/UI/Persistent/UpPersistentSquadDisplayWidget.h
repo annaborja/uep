@@ -29,4 +29,6 @@ private:
     void HandlePossessedCharacterChange(AUpPlayableCharacter* PossessedCharacter);
     UFUNCTION()
     void HandleSecondarySquadMemberBroadcast(AUpPlayableCharacter* Character);
+
+    TArray<UUpPersistentVitalStatsDisplayWidget*> GetSecondaryDisplayWidgets();
 };

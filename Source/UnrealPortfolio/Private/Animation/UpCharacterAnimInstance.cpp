@@ -45,7 +45,7 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 			bClimbingLadder = MovementComponent->IsClimbingLadder();
 			bCrouching = MovementComponent->IsCrouching();
 			bFalling = MovementComponent->IsFalling();
-			bSprinting = HorizontalSpeed > MovementComponent->MaxWalkSpeed + 5.f;
+			bSprinting = MovementComponent->IsSprinting();
 
 			//// TODO(P2): Remove
 			MaxWalkSpeed = MovementComponent->MaxWalkSpeed;

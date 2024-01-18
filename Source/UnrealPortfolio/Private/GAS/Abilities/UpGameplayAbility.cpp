@@ -2,19 +2,36 @@
 
 #include "GAS/Abilities/UpGameplayAbility.h"
 
+#include "Abilities/Tasks/AbilityTask_Repeat.h"
+
 UUpGameplayAbility::UUpGameplayAbility()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-void UUpGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UUpGameplayAbility::OnGameplayTaskInitialized(UGameplayTask& Task)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	Super::OnGameplayTaskInitialized(Task);
+
+	if (RepeatInterval > 0.f) OnRepeatDelegate.BindUFunction(this, FName("HandleRepeatAction"));
+}
+
+void UUpGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+                                         const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+{
+	// We purposely don't call the Super method because it calls `CommitAbility()`, which we want to control ourselves.
+	// Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	if (bDebug)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Start ability %s"), *GetName())
+	}
+
+	if (RepeatInterval > 0.f)
+	{
+		RepeatTask = UAbilityTask_Repeat::RepeatAction(this, RepeatInterval, MAX_int32);
+		RepeatTask->OnPerformAction.Add(OnRepeatDelegate);
+		RepeatTask->Activate();
 	}
 }
 
@@ -27,4 +44,6 @@ void UUpGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 	{
 		UE_LOG(LogTemp, Warning, TEXT("End ability %s"), *GetName())
 	}
+
+	if (RepeatTask) RepeatTask->EndTask();
 }

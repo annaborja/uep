@@ -849,7 +849,7 @@ FQuat UUpCharacterMovementComponent::GetClimbRotation(const float DeltaTime) con
 
 	if (HasAnimRootMotion() || CurrentRootMotion.HasOverrideVelocity() || !ClimbedActor) return CurrentQuat;
 
-	return FMath::QInterpTo(CurrentQuat, FRotationMatrix::MakeFromX(ClimbedSurfaceNormal * -1.0).ToQuat(), DeltaTime, ClimbRotationInterpSpeed);
+	return FMath::QInterpTo(CurrentQuat, FRotationMatrix::MakeFromX(-ClimbedSurfaceNormal).ToQuat(), DeltaTime, ClimbRotationInterpSpeed);
 }
 
 bool UUpCharacterMovementComponent::HasReachedClimbBottom() const
@@ -944,7 +944,7 @@ void UUpCharacterMovementComponent::PopulateClimbedSurfaceNormal()
 		
 		FHitResult HitResult;
 		UKismetSystemLibrary::LineTraceSingle(this, ClimbedSurfaceLocation + ActorForwardVector * 10.0,
-			ClimbedSurfaceLocation + ActorForwardVector * -1.0 * 10.0, UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_CLIMBABLE),
+			ClimbedSurfaceLocation + -ActorForwardVector * 10.0, UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_CLIMBABLE),
 			false, TArray<AActor*> { Character }, bDebugClimb ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, HitResult, true,
 			FColor::Red, FLinearColor::Green, 5.f);
 

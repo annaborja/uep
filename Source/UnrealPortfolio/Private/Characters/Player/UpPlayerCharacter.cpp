@@ -24,6 +24,7 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+	Camera->SetFieldOfView(BaseCameraFov);
 	Camera->bUsePawnControlRotation = false;
 	
 	PlayerCombatComponent = CreateDefaultSubobject<UUpPlayerCombatComponent>(TEXT("PlayerCombatComponent"));
@@ -70,7 +71,7 @@ void AUpPlayerCharacter::BeginPlay()
 								if (SquadMemberNumber == 2)
 								{
 									NpcLocation += PlayerForwardVector * SquadMemberSpawnLocationOffset_Forward +
-										PlayerRightVector * SquadMemberSpawnLocationOffset_Right * -1.0;
+										PlayerRightVector * -SquadMemberSpawnLocationOffset_Right;
 								} else if (SquadMemberNumber > 2)
 								{
 									NpcLocation += PlayerForwardVector * SquadMemberSpawnLocationOffset_Forward +

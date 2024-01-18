@@ -20,7 +20,7 @@ class UNREALPORTFOLIO_API AUpPlayableCharacter : public AUpCharacter, public IUp
 	GENERATED_BODY()
 
 public:
-	explicit AUpPlayableCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+	explicit AUpPlayableCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
@@ -42,6 +42,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ActivateCameraView(const EUpCameraView::Type CameraViewType);
 
+	FORCEINLINE float GetBaseCameraFov() const { return BaseCameraFov; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return Camera; }
 	FORCEINLINE USpringArmComponent* GetSpringArmComponent() const { return SpringArm; }
 	FORCEINLINE AUpPlayerController* GetCustomPlayerController() const { return CustomPlayerController; }
@@ -81,6 +82,8 @@ protected:
 	bool bDebugTagSpecGrant = false;
 	
 	UPROPERTY(EditAnywhere, Category="UP Params")
+	float BaseCameraFov = 90.f;
+	UPROPERTY(EditAnywhere, Category="UP Params")
 	float CameraBlendDuration = 0.5f;
 	
 	UPROPERTY(EditAnywhere, Category="UP Params")
@@ -117,6 +120,8 @@ protected:
 	
 	bool bAllowedToJump = true;
 	bool bIsPlayer = false;
+
+	virtual void GetAbilityClassesToGrant(TArray<TSubclassOf<UGameplayAbility>>& AbilityClasses) const override;
 
 	virtual void OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot) override;
 	virtual void OnItemUnequip(const EUpEquipmentSlot::Type EquipmentSlot) override;
