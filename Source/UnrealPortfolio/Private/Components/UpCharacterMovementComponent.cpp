@@ -190,6 +190,12 @@ void UUpCharacterMovementComponent::UpdateCharacterStateBeforeMovement(const flo
 			}
 		}
 
+		if (Character->IsAiming())
+		{
+			MaxWalkSpeed *= 0.75f;
+			MaxSprintSpeed *= 0.75f;
+		}
+
 		// Limit the character's speed when not moving forward.
 		if (Character->IsInStrafingMode() && FMath::Abs(Character->GetMovementOffsetYaw()) >= 90.f)
 		{
@@ -282,7 +288,7 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 	Super::UpdateCharacterStateAfterMovement(DeltaSeconds);
 
 	// Switch to the correct two-handed gun socket when necessary (alert vs relaxed).
-	if (Character && !Character->IsRelaxed())
+	if (Character && !Character->IsRelaxed() && !Character->IsAiming())
 	{
 		if (const auto& WeaponSlotData = Character->GetCharacterEquipment().GetPotentialActiveWeaponSlotData(); WeaponSlotData.bActivated)
 		{
@@ -293,7 +299,7 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 				{
 					const auto ParentSocketName = WeaponActor->GetAttachParentSocketName();
 
-					if (UKismetMathLibrary::VSizeXY(Velocity) > MaxWalkSpeed + 5.f)
+					if (Character->GetHorizontalSpeed() > MaxWalkSpeed + 5.f)
 					{
 						if (const auto DesiredSocketName = TAG_Socket_TwoHandedGun_Relaxed.GetTag().GetTagName();
 							!ParentSocketName.IsEqual(DesiredSocketName))

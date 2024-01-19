@@ -145,6 +145,13 @@ void AUpCharacter::UnsetRootMotionTargetLocation()
 	bHasRootMotionTargetLocation = false;
 }
 
+bool AUpCharacter::IsAiming() const
+{
+	if (AbilitySystemComponent) return AbilitySystemComponent->HasMatchingGameplayTag(TAG_State_Aiming);
+
+	return false;
+}
+
 bool AUpCharacter::IsBusy() const
 {
 	if (AbilitySystemComponent)

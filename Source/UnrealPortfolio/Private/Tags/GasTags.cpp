@@ -15,4 +15,5 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_StaminaRegen, "Ability.StaminaRegen")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_StaminaRegen, "Cooldown.StaminaRegen")
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Aiming, "State.Aiming")
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Busy, "State.Busy")

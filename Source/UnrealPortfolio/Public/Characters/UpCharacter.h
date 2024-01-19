@@ -70,6 +70,7 @@ public:
 	void UnsetRootMotionTargetLocation();
 	
 	virtual EUpCameraView::Type GetCameraView() const { return EUpCameraView::ThirdPerson; }
+	bool IsAiming() const;
 	bool IsBusy() const;
 	bool IsInFirstPersonMode() const;
 	bool IsInStrafingMode() const;

@@ -85,25 +85,6 @@ UUpDialogueOverlayWidget* UUpPersistentOverlayWidget::OpenDialogueFlow() const
 	return Widget;
 }
 
-ESlateVisibility UUpPersistentOverlayWidget::GetCrosshairVisibility() const
-{
-	if (IsDescendentWidgetActivated()) return ESlateVisibility::Hidden;
-	
-	if (CustomHud)
-	{
-		if (const auto CustomController = CustomHud->GetCustomController())
-		{
-			if (const auto CameraView = CustomController->GetCameraView();
-				CameraView != EUpCameraView::FirstPerson && CameraView != EUpCameraView::ThirdPerson_OverTheShoulder)
-			{
-				return ESlateVisibility::Hidden;
-			}
-		}
-	}
-
-	return ESlateVisibility::SelfHitTestInvisible;
-}
-
 ESlateVisibility UUpPersistentOverlayWidget::GetInteractionDisplayVisibility() const
 {
 	if (IsDescendentWidgetActivated()) return ESlateVisibility::Hidden;

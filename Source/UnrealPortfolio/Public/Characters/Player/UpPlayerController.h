@@ -74,6 +74,8 @@ private:
 	TObjectPtr<UInputAction> InputAction_Look;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_SwitchCameraView;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_AimGun;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_CloseCharacterSwitcher;
@@ -93,9 +95,6 @@ private:
 	TObjectPtr<UInputAction> InputAction_Weapon1;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_Weapon2;
-	
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_AimGun;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_FireWeapon;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
@@ -107,7 +106,7 @@ private:
 	bool bDebugPossession = false;
 
 	UPROPERTY(EditAnywhere, Category="UP Params")
-	float InterpSpeed_CameraFov = 100.f;
+	float InterpSpeed_CameraFov = 5.f;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> ActiveInteractable;
@@ -140,6 +139,9 @@ private:
 	void Look(const FInputActionValue& InputActionValue);
 	void SwitchCameraView(const FInputActionValue& InputActionValue);
 	
+	void StartAimingGun(const FInputActionValue& InputActionValue);
+	void StopAimingGun(const FInputActionValue& InputActionValue);
+	
 	void PauseGame(const FInputActionValue& InputActionValue);
 	
 	void StartInteraction(const FInputActionValue& InputActionValue);
@@ -157,8 +159,6 @@ private:
 	void Jump(const FInputActionValue& InputActionValue);
 	
 	void Reload(const FInputActionValue& InputActionValue);
-	void StartAimingGun(const FInputActionValue& InputActionValue);
-	void StopAimingGun(const FInputActionValue& InputActionValue);
 	void StartFiringWeapon(const FInputActionValue& InputActionValue);
 	void StopFiringWeapon(const FInputActionValue& InputActionValue);
 };

@@ -14,6 +14,8 @@ class UNREALPORTFOLIO_API UUpSprintAbility : public UUpGameplayAbility
 public:
 	UUpSprintAbility();
 
+	virtual void OnGameplayTaskInitialized(UGameplayTask& Task) override;
+
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;

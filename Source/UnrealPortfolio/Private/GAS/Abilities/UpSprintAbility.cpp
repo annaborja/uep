@@ -9,8 +9,17 @@
 UUpSprintAbility::UUpSprintAbility()
 {
 	AbilityTags.AddTag(TAG_Ability_Sprint);
+	
+	CancelAbilitiesWithTag.AddTag(TAG_Ability_AimDownSights);
 
 	RepeatInterval = 0.1f;
+}
+
+void UUpSprintAbility::OnGameplayTaskInitialized(UGameplayTask& Task)
+{
+	Super::OnGameplayTaskInitialized(Task);
+
+	check(CostGameplayEffectClass);
 }
 
 void UUpSprintAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,

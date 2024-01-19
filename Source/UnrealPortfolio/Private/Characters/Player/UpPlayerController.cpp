@@ -232,7 +232,6 @@ void AUpPlayerController::Tick(const float DeltaSeconds)
 			} else
 			{
 				Camera->SetFieldOfView(FMath::FInterpTo(Camera->FieldOfView, TargetCameraFov, DeltaSeconds, InterpSpeed_CameraFov));
-				UE_LOG(LogTemp, Warning, TEXT("fov: %g"), Camera->FieldOfView)
 			}
 		}
 	}
@@ -267,6 +266,9 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InputAction_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	EnhancedInputComponent->BindAction(InputAction_SwitchCameraView, ETriggerEvent::Triggered, this, &ThisClass::SwitchCameraView);
 	
+	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Started, this, &ThisClass::StartAimingGun);
+	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Completed, this, &ThisClass::StopAimingGun);
+	
 	EnhancedInputComponent->BindAction(InputAction_PauseGame, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
 	EnhancedInputComponent->BindAction(InputAction_Reload, ETriggerEvent::Triggered, this, &ThisClass::Reload);
 	
@@ -282,9 +284,6 @@ void AUpPlayerController::SetupInputComponent()
 	
 	EnhancedInputComponent->BindAction(InputAction_Crouch, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
 	EnhancedInputComponent->BindAction(InputAction_Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
-	
-	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Started, this, &ThisClass::StartAimingGun);
-	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Completed, this, &ThisClass::StopAimingGun);
 	
 	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Started, this, &ThisClass::StartFiringWeapon);
 	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Completed, this, &ThisClass::StopFiringWeapon);
@@ -424,6 +423,32 @@ void AUpPlayerController::SwitchCameraView(const FInputActionValue& InputActionV
 	}
 }
 
+void AUpPlayerController::StartAimingGun(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	if (const auto AbilitySystemComponent = PossessedCharacter->GetAbilitySystemComponent())
+	{
+		FGameplayTagContainer AbilityTags;
+		AbilityTags.AddTag(TAG_Ability_AimDownSights);
+		
+		AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+	}
+}
+
+void AUpPlayerController::StopAimingGun(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	if (const auto AbilitySystemComponent = PossessedCharacter->GetAbilitySystemComponent())
+	{
+		FGameplayTagContainer AbilityTags;
+		AbilityTags.AddTag(TAG_Ability_AimDownSights);
+		
+		AbilitySystemComponent->CancelAbilities(&AbilityTags);
+	}
+}
+
 void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
 {
 	if (CustomHud) CustomHud->OpenMainMenu();
@@ -531,16 +556,6 @@ void AUpPlayerController::Reload(const FInputActionValue& InputActionValue)
 			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
 		}
 	}
-}
-
-void AUpPlayerController::StartAimingGun(const FInputActionValue& InputActionValue)
-{
-	UE_LOG(LogTemp, Warning, TEXT("[temp] start aim gun"))
-}
-
-void AUpPlayerController::StopAimingGun(const FInputActionValue& InputActionValue)
-{
-	UE_LOG(LogTemp, Warning, TEXT("[temp] stop aim gun"))
 }
 
 void AUpPlayerController::StartFiringWeapon(const FInputActionValue& InputActionValue)

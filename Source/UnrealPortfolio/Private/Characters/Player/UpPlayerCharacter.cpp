@@ -11,7 +11,6 @@
 #include "Components/UpCharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GAS/Attributes/UpAttributeSet.h"
-#include "Kismet/GameplayStatics.h"
 #include "UI/UpHud.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 

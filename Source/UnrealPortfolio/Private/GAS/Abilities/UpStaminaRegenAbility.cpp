@@ -16,6 +16,7 @@ void UUpStaminaRegenAbility::OnGameplayTaskInitialized(UGameplayTask& Task)
 {
 	Super::OnGameplayTaskInitialized(Task);
 
+	check(CooldownGameplayEffectClass);
 	check(EffectClass);
 }
 

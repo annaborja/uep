@@ -44,11 +44,17 @@ void UUpPersistentCrosshairDisplayWidget::NativeTick(const FGeometry& MyGeometry
 		CrosshairSpread = FMath::Clamp(UKismetMathLibrary::FInterpTo_Constant(
 			CrosshairSpread, Character->GetVelocity().Size() / 10.f, InDeltaTime, InterpSpeed_Spread),
 			CrosshairSpread_Min, CrosshairSpread_Max);
+
+		if (Character->IsAiming())
+		{
+			CrosshairSpread *= 0.75f;
+		}
 		
 		if (const auto CustomMovementComponent = Character->GetCustomMovementComponent())
 		{
-			CrosshairOpacity = UKismetMathLibrary::FInterpTo_Constant(
-				CrosshairOpacity, CustomMovementComponent->IsSprinting() ? 0.f : 1.f, InDeltaTime, InterpSpeed_Opacity);
+			CrosshairOpacity = UKismetMathLibrary::FInterpTo_Constant(CrosshairOpacity,
+				CustomMovementComponent->IsSprinting() || Character->GetCameraView() == EUpCameraView::ThirdPerson ||
+				Character->GetPosture() == EUpCharacterPosture::Casual ? 0.f : 1.f, InDeltaTime, InterpSpeed_Opacity);
 		}
 	}
 	

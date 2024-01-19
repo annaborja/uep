@@ -31,8 +31,6 @@ protected:
 	UCommonActivatableWidgetContainerBase* GetMainMenuWidgetContainer() const;
 
 	UFUNCTION(BlueprintCallable)
-	ESlateVisibility GetCrosshairVisibility() const;
-	UFUNCTION(BlueprintCallable)
 	ESlateVisibility GetInteractionDisplayVisibility() const;
 	
 	virtual void NativePreConstruct() override;
