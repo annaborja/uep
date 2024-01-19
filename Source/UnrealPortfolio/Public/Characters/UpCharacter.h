@@ -62,6 +62,8 @@ public:
 	
 	virtual FGameplayTag GetTagId() const override { return TagId; }
 
+	float GetHorizontalSpeed() const;
+	float GetMovementOffsetYaw() const;
 	void SetYaw(const float InYaw);
 	
 	void SetRootMotionTargetLocation(const FVector& InRootMotionTargetLocation);
@@ -140,6 +142,8 @@ protected:
 	FUpCharacterEquipment Equipment;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
+	bool bDebugGas = false;
+	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugMovement = false;
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugPhysicalMaterials = false;
@@ -164,6 +168,9 @@ protected:
 	
 	FVector RootMotionTargetLocation;
 	bool bHasRootMotionTargetLocation = false;
+
+	UFUNCTION()
+	void HandleAbilitySystemTagEvent(const FGameplayTag Tag, int32 Count);
 
 	virtual void GetAbilityClassesToGrant(TArray<TSubclassOf<UGameplayAbility>>& AbilityClasses) const;
 

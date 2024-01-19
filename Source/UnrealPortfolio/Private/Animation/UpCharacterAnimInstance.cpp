@@ -4,7 +4,6 @@
 
 #include "Characters/UpCharacter.h"
 #include "Components/UpCharacterMovementComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 
 void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 {
@@ -15,33 +14,23 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 	
 	if (const auto Character = Cast<AUpCharacter>(TryGetPawnOwner()))
 	{
-		Yaw = Character->GetActorRotation().Yaw;
+		HorizontalSpeed = Character->GetHorizontalSpeed();
+		VerticalVelocity = Character->GetVelocity().Z;;
+		bMovingHorizontally = HorizontalSpeed > 5.f;
+		bMovingDownward = VerticalVelocity < -5.f;
+		bMovingUpward = VerticalVelocity > 5.f;	
+		
 		AimPitch = Character->GetBaseAimRotation().Pitch;
+		Yaw = Character->GetActorRotation().Yaw;
+		MovementOffsetYaw = Character->IsInStrafingMode() ? Character->GetMovementOffsetYaw() : 0.f;
+		bUseBackwardsBlendSpace = FMath::Abs(MovementOffsetYaw) > 120.f;
 		
 		CameraView = Character->GetCameraView();
 		Posture = Character->GetPosture();
 		bRelaxed = Character->IsRelaxed();
-		
-		if (Character->IsInStrafingMode())
-		{
-			MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(
-				UKismetMathLibrary::MakeRotFromX(Character->GetVelocity()), Character->GetBaseAimRotation()).Yaw;
-		} else
-		{
-			MovementOffsetYaw = 0.f;
-		}
-		
-		bUseBackwardsBlendSpace = FMath::Abs(MovementOffsetYaw) > 120.f;
 
 		if (const auto MovementComponent = Character->GetCustomMovementComponent())
 		{
-			HorizontalSpeed = UKismetMathLibrary::VSizeXY(MovementComponent->Velocity);
-			VerticalVelocity = MovementComponent->Velocity.Z;
-			
-			bMovingHorizontally = HorizontalSpeed > 5.f;
-			bMovingDownward = VerticalVelocity < -5.f;
-			bMovingUpward = VerticalVelocity > 5.f;
-			
 			bClimbingLadder = MovementComponent->IsClimbingLadder();
 			bCrouching = MovementComponent->IsCrouching();
 			bFalling = MovementComponent->IsFalling();

@@ -1,6 +1,6 @@
 // Copyright AB. All Rights Reserved.
 
-#include "GAS/Effects/UpMmc_GunMaxAmmoReserve.h"
+#include "GAS/Effects/MMCs/UpMmc_GunMaxAmmoReserve.h"
 
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "Items/UpWeapon.h"

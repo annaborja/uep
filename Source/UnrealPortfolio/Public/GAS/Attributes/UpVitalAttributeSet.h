@@ -13,11 +13,6 @@ class UNREALPORTFOLIO_API UUpVitalAttributeSet : public UUpAttributeSet
 	GENERATED_BODY()
 
 public:
-	UUpVitalAttributeSet();
-
-	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
-
-private:
 	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UUpVitalAttributeSet, Health)
@@ -45,4 +40,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UUpVitalAttributeSet, IncomingDamage);
+	
+	UUpVitalAttributeSet();
+
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 };

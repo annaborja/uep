@@ -9,7 +9,8 @@
 UUpSprintAbility::UUpSprintAbility()
 {
 	AbilityTags.AddTag(TAG_Ability_Sprint);
-	ActivationOwnedTags.AddTag(TAG_State_Sprinting);
+
+	RepeatInterval = 0.1f;
 }
 
 void UUpSprintAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,

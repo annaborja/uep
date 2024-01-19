@@ -3,8 +3,11 @@
 #include "GAS/Attributes/UpVitalAttributeSet.h"
 
 #include "GameplayEffectExtension.h"
+#include "UpGameInstance.h"
+#include "GAS/UpGasDataAsset.h"
 #include "Interfaces/UpCombatable.h"
 #include "Tags/AttributeTags.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 UUpVitalAttributeSet::UUpVitalAttributeSet()
 {
@@ -30,6 +33,21 @@ void UUpVitalAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	} else if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
 	{
 		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
+
+		if (Data.EvaluatedData.Magnitude < 0.f)
+		{
+			if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+			{
+				if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+				{
+					if (const auto EffectClass = GasDataAsset->GetEffectClass_StaminaRegenCooldown())
+					{
+						Data.Target.ApplyGameplayEffectSpecToSelf(
+							*Data.Target.MakeOutgoingSpec(EffectClass, 1.f, Data.Target.MakeEffectContext()).Data.Get());
+					}
+				}
+			}
+		}
 	} else if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
 		if (GetIncomingDamage() > 0.f)

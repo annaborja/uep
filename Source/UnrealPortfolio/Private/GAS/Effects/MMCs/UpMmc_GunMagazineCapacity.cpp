@@ -1,11 +1,11 @@
 // Copyright AB. All Rights Reserved.
 
-#include "GAS/Effects/UpMmc_GunMaxAmmo.h"
+#include "GAS/Effects/MMCs/UpMmc_GunMagazineCapacity.h"
 
 #include "Items/UpWeapon.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-float UUpMmc_GunMaxAmmo::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
+float UUpMmc_GunMagazineCapacity::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
 {
 	const auto EffectContextHandle = Spec.GetContext();
 
@@ -13,7 +13,7 @@ float UUpMmc_GunMaxAmmo::CalculateBaseMagnitude_Implementation(const FGameplayEf
 	{
 		if (const auto WeaponData = Weapon->GetWeaponData(); WeaponData.IsValid())
 		{
-			return WeaponData.BaseMaxAmmo;
+			return WeaponData.BaseMagazineCapacity;
 		}
 	}
 	

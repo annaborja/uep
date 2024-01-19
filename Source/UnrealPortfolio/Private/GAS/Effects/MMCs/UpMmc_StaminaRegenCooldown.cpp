@@ -1,10 +1,10 @@
 // Copyright AB. All Rights Reserved.
 
-#include "GAS/Effects/UpMmc_SprintCost.h"
+#include "GAS/Effects/MMCs/UpMmc_StaminaRegenCooldown.h"
 
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 
-UUpMmc_SprintCost::UUpMmc_SprintCost()
+UUpMmc_StaminaRegenCooldown::UUpMmc_StaminaRegenCooldown()
 {
 	ResilienceDef.AttributeToCapture = UUpPrimaryAttributeSet::GetResilienceAttribute();
 	ResilienceDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
@@ -13,7 +13,7 @@ UUpMmc_SprintCost::UUpMmc_SprintCost()
 	RelevantAttributesToCapture.Add(ResilienceDef);
 }
 
-float UUpMmc_SprintCost::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
+float UUpMmc_StaminaRegenCooldown::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
 {
 	const auto SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	const auto TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
@@ -26,5 +26,5 @@ float UUpMmc_SprintCost::CalculateBaseMagnitude_Implementation(const FGameplayEf
 	GetCapturedAttributeMagnitude(ResilienceDef, Spec, EvaluationParams, Resilience);
 	Resilience = FMath::Max(Resilience, 0.f);
 
-	return FMath::Min(-10.f + Resilience / 10.f, -1.f);
+	return 1.f;
 }

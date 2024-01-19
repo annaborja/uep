@@ -14,7 +14,9 @@
 #include "GAS/Attributes/UpVitalAttributeSet.h"
 #include "Items/UpWeapon.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Sound/SoundCue.h"
+#include "Tags/AttributeTags.h"
 #include "Tags/GasTags.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -80,6 +82,8 @@ void AUpCharacter::BeginPlay()
 		
 		AbilitySystemComponent->Init(this, this,
 			TArray { InitVitalAttributesEffectClass, InitPrimaryAttributesEffectClass }, AbilityClasses);
+		AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Cooldown_StaminaRegen, EGameplayTagEventType::AnyCountChange)
+			.AddUObject(this, &ThisClass::HandleAbilitySystemTagEvent);
 	}
 
 	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
@@ -112,6 +116,16 @@ void AUpCharacter::Die()
 	{
 		CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+}
+
+float AUpCharacter::GetHorizontalSpeed() const
+{
+	return UKismetMathLibrary::VSizeXY(GetVelocity());
+}
+
+float AUpCharacter::GetMovementOffsetYaw() const
+{
+	return UKismetMathLibrary::NormalizedDeltaRotator(UKismetMathLibrary::MakeRotFromX(GetVelocity()), GetBaseAimRotation()).Yaw;
 }
 
 void AUpCharacter::SetYaw(const float InYaw)
@@ -339,6 +353,22 @@ void AUpCharacter::HandleJumpLaunch() const
 void AUpCharacter::HandleLanding(const FName& BoneName, const EUpTraceDirection::Type TraceDirection, const float TraceLength, const float VolumeMultiplier) const
 {
 	HandleNoise(SfxMap_JumpLandings, BoneName, TraceDirection, TraceLength, VolumeMultiplier);
+}
+
+void AUpCharacter::HandleAbilitySystemTagEvent(const FGameplayTag Tag, const int32 Count)
+{
+	if (bDebugGas)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GAS tag event: %s (%d)"), *Tag.GetTagName().ToString(), Count)
+	}
+
+	if (Tag.MatchesTagExact(TAG_Cooldown_StaminaRegen) && Count <= 0 && AbilitySystemComponent)
+	{
+		FGameplayTagContainer AbilityTags;
+		AbilityTags.AddTag(TAG_Ability_StaminaRegen);
+					
+		AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+	}
 }
 
 void AUpCharacter::GetAbilityClassesToGrant(TArray<TSubclassOf<UGameplayAbility>>& AbilityClasses) const

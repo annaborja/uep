@@ -11,6 +11,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Gas_AbilityFailure_TagsMissing, "Gas.AbilityFailure.T
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_AimDownSights, "Ability.AimDownSights")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Sprint, "Ability.Sprint")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_StaminaRegen, "Ability.StaminaRegen")
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_StaminaRegen, "Cooldown.StaminaRegen")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Busy, "State.Busy")
-UE_DEFINE_GAMEPLAY_TAG(TAG_State_Sprinting, "State.Sprinting")

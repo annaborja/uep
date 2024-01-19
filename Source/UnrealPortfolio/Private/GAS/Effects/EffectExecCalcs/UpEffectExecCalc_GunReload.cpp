@@ -1,6 +1,6 @@
 // Copyright AB. All Rights Reserved.
 
-#include "GAS/Effects/UpEffectExecCalc_GunReload.h"
+#include "GAS/Effects/EffectExecCalcs/UpEffectExecCalc_GunReload.h"
 
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 

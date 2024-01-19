@@ -190,6 +190,12 @@ void UUpCharacterMovementComponent::UpdateCharacterStateBeforeMovement(const flo
 			}
 		}
 
+		// Limit the character's speed when not moving forward.
+		if (Character->IsInStrafingMode() && FMath::Abs(Character->GetMovementOffsetYaw()) >= 90.f)
+		{
+			MaxSprintSpeed = MaxWalkSpeed + (MaxSprintSpeed - MaxWalkSpeed) / 2;
+		}
+
 		if (bTransitionRootMotionSourceFinished)
 		{
 			if (PostTransitionMontageData.IsValid())
@@ -441,7 +447,7 @@ void UUpCharacterMovementComponent::TryClimb(AActor* ClimbableActor)
 	{
 		if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
 		{
-			GameInstance->ApplyBusyEffect(AbilitySystemComponent);
+			GameInstance->ApplyBusyState(AbilitySystemComponent);
 		}
 	}
 	
@@ -475,7 +481,7 @@ void UUpCharacterMovementComponent::StopClimb()
 		{
 			if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
 			{
-				GameInstance->RemoveBusyEffect(AbilitySystemComponent);
+				GameInstance->RemoveBusyState(AbilitySystemComponent);
 			}
 		}
 
@@ -661,7 +667,7 @@ bool UUpCharacterMovementComponent::TryMantle()
 				{
 					if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
 					{
-						GameInstance->ApplyBusyEffect(AbilitySystemComponent);
+						GameInstance->ApplyBusyState(AbilitySystemComponent);
 					}
 				}
 			}
@@ -718,7 +724,7 @@ void UUpCharacterMovementComponent::HandleMontageEnded(UAnimMontage* Montage, bo
 		{
 			if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
 			{
-				GameInstance->RemoveBusyEffect(AbilitySystemComponent);
+				GameInstance->RemoveBusyState(AbilitySystemComponent);
 			}
 		}
 	}
