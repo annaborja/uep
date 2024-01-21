@@ -42,20 +42,14 @@ void UUpPersistentCrosshairDisplayWidget::NativeTick(const FGeometry& MyGeometry
 	if (const auto Character = Cast<AUpPlayableCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)))
 	{
 		CrosshairSpread = FMath::Clamp(UKismetMathLibrary::FInterpTo_Constant(
-			CrosshairSpread, Character->GetVelocity().Size() / 10.f, InDeltaTime, InterpSpeed_Spread),
-			CrosshairSpread_Min, CrosshairSpread_Max);
+			CrosshairSpread, Character->GetVelocity().Size() / 10.f, InDeltaTime, InterpSpeed_Spread), CrosshairSpread_Min, CrosshairSpread_Max);
 
 		if (Character->IsAiming())
 		{
 			CrosshairSpread *= 0.75f;
 		}
 		
-		if (const auto CustomMovementComponent = Character->GetCustomMovementComponent())
-		{
-			CrosshairOpacity = UKismetMathLibrary::FInterpTo_Constant(CrosshairOpacity,
-				CustomMovementComponent->IsSprinting() || Character->GetCameraView() == EUpCameraView::ThirdPerson ||
-				Character->GetPosture() == EUpCharacterPosture::Casual ? 0.f : 1.f, InDeltaTime, InterpSpeed_Opacity);
-		}
+		CrosshairOpacity = UKismetMathLibrary::FInterpTo_Constant(CrosshairOpacity, Character->CanShoot() ? 1.f : 0.f, InDeltaTime, InterpSpeed_Opacity);
 	}
 	
 	UpdateCrosshair();

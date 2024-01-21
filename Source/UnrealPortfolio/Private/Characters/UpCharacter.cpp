@@ -185,6 +185,11 @@ bool AUpCharacter::IsInStrafingMode() const
 	return IsInFirstPersonMode() || CameraView == EUpCameraView::ThirdPerson_OverTheShoulder || CameraView == EUpCameraView::ThirdPerson_OverTheShoulder_Debug;
 }
 
+bool AUpCharacter::IsStrafingForward() const
+{
+	return IsInStrafingMode() && FMath::Abs(GetMovementOffsetYaw()) < 90.f;
+}
+
 void AUpCharacter::SetRelaxed(const bool bInRelaxed)
 {
 	bRelaxed = bInRelaxed;

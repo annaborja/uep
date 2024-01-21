@@ -20,16 +20,6 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	TEnumAsByte<EUpCameraView::Type> CameraView = EUpCameraView::ThirdPerson;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
-	float GroundSpeed = 0.f;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
-	float VerticalSpeed = 0.f;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
-	bool bIsCrouching = false;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
-	bool bIsFalling = false;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
-	bool bIsMovingHorizontally = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	float HorizontalSpeed = 0.f;

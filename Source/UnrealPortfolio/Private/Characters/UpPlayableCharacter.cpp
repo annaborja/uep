@@ -221,6 +221,12 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 	if (!IsInFirstPersonMode()) SetUpCharacterForCameraView();
 }
 
+bool AUpPlayableCharacter::CanShoot() const
+{
+	return (!CustomMovementComponent || !CustomMovementComponent->IsSprinting()) && GetCameraView() != EUpCameraView::ThirdPerson &&
+		GetPosture() != EUpCharacterPosture::Casual;
+}
+
 void AUpPlayableCharacter::GetAbilityClassesToGrant(TArray<TSubclassOf<UGameplayAbility>>& AbilityClasses) const
 {
 	Super::GetAbilityClassesToGrant(AbilityClasses);

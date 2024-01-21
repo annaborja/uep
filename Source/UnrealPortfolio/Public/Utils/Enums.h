@@ -15,6 +15,16 @@ namespace EUpAbilityGrantDuration
 	};
 }
 
+UENUM()
+namespace EUpAimAssistLevel
+{
+	enum Type : uint8
+	{
+		None,
+		Medium
+	};
+}
+
 UENUM(BlueprintType)
 namespace EUpCameraView
 {

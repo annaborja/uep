@@ -15,3 +15,4 @@
 #define TRACE_CHANNEL_INTERACTION ECC_GameTraceChannel1
 #define TRACE_CHANNEL_CLIMBABLE ECC_GameTraceChannel2
 #define TRACE_CHANNEL_WEAPON ECC_GameTraceChannel3
+#define TRACE_CHANNEL_AIM_ASSIST ECC_GameTraceChannel4

@@ -197,7 +197,7 @@ void UUpCharacterMovementComponent::UpdateCharacterStateBeforeMovement(const flo
 		}
 
 		// Limit the character's speed when not moving forward.
-		if (Character->IsInStrafingMode() && FMath::Abs(Character->GetMovementOffsetYaw()) >= 90.f)
+		if (Character->IsInStrafingMode() && !Character->IsStrafingForward())
 		{
 			MaxSprintSpeed = MaxWalkSpeed + (MaxSprintSpeed - MaxWalkSpeed) / 2;
 		}

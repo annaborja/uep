@@ -101,6 +101,8 @@ private:
 	TObjectPtr<UInputAction> InputAction_Reload;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
+	bool bDebugAimAssist = false;
+	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugInputMappingContexts = false;
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugPossession = false;
@@ -108,8 +110,15 @@ private:
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float InterpSpeed_CameraFov = 5.f;
 	
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float LookInputMultiplier_Aiming = 0.5f;
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float LookInputMultiplier_AimAssist = 0.5f;
+	
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> ActiveInteractable;
+	UPROPERTY(Transient)
+	TEnumAsByte<EUpAimAssistLevel::Type> AimAssistLevel = EUpAimAssistLevel::None;
 	UPROPERTY(Transient)
 	TEnumAsByte<EUpCameraView::Type> CameraView = EUpCameraView::FirstPerson;
 	UPROPERTY(Transient)

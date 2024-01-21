@@ -74,6 +74,7 @@ public:
 	bool IsBusy() const;
 	bool IsInFirstPersonMode() const;
 	bool IsInStrafingMode() const;
+	bool IsStrafingForward() const;
 	void SetRelaxed(const bool bInRelaxed);
 	
 	virtual TArray<UUpAttributeSet*> GetAttributeSets() const;

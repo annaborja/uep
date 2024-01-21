@@ -42,6 +42,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ActivateCameraView(const EUpCameraView::Type CameraViewType);
 
+	bool CanShoot() const;
+
 	FORCEINLINE float GetBaseCameraFov() const { return BaseCameraFov; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return Camera; }
 	FORCEINLINE USpringArmComponent* GetSpringArmComponent() const { return SpringArm; }

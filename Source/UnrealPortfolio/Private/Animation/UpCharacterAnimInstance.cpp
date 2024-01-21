@@ -36,15 +36,6 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 			bFalling = MovementComponent->IsFalling();
 			bSprinting = MovementComponent->IsSprinting();
 
-			//// TODO(P2): Remove
-			MaxWalkSpeed = MovementComponent->MaxWalkSpeed;
-			GroundSpeed = HorizontalSpeed;
-			VerticalSpeed = VerticalVelocity;
-			bIsCrouching = bCrouching;
-			bIsFalling = bFalling;
-			bIsMovingHorizontally = bMovingHorizontally;
-			////
-
 			// NOTE: Attempting to implement turn-in-place logic resulted in animation wonkiness,
 			// so the following logic is commented out for now.
 			//
@@ -90,10 +81,10 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 			// 	RotationCurveValue = 0.f;
 			// }
 
-			if (Character->ShouldDebugMovement())
-			{
-				UE_LOG(LogTemp, Warning, TEXT("%s"), "Debug movement")
-			}
+			// if (Character->ShouldDebugMovement())
+			// {
+			// 	UE_LOG(LogTemp, Warning, TEXT("%s"), "Debug movement")
+			// }
 		}
 	}
 }

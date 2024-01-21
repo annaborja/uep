@@ -19,6 +19,7 @@
 #include "Tags/CombatTags.h"
 #include "Tags/GasTags.h"
 #include "UI/UpHud.h"
+#include "Utils/Constants.h"
 
 AUpPlayerController::AUpPlayerController(): APlayerController()
 {
@@ -222,7 +223,9 @@ void AUpPlayerController::Tick(const float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (TargetCameraFov >= 0.f && PossessedCharacter)
+	if (!PossessedCharacter) return;
+
+	if (TargetCameraFov >= 0.f)
 	{
 		if (const auto Camera = PossessedCharacter->GetCameraComponent())
 		{
@@ -232,6 +235,39 @@ void AUpPlayerController::Tick(const float DeltaSeconds)
 			} else
 			{
 				Camera->SetFieldOfView(FMath::FInterpTo(Camera->FieldOfView, TargetCameraFov, DeltaSeconds, InterpSpeed_CameraFov));
+			}
+		}
+	}
+
+	AimAssistLevel = EUpAimAssistLevel::None;
+
+	if (PossessedCharacter->CanShoot() && GEngine && GEngine->GameViewport)
+	{
+		FVector2D ViewportSize;
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+		FVector CrosshairWorldPosition;
+		FVector CrosshairWorldDirection;
+
+		if (UGameplayStatics::DeprojectScreenToWorld(this, FVector2D(ViewportSize.X / 2.f, ViewportSize.Y / 2.f),
+			CrosshairWorldPosition, CrosshairWorldDirection))
+		{
+			const auto LineTraceStart = CrosshairWorldPosition;
+			TArray<AActor*> ActorsToIgnore { PossessedCharacter };
+
+			for (const auto Actor : PossessedCharacter->Children)
+			{
+				ActorsToIgnore.Add(Actor);
+			}
+			
+			FHitResult HitResult;
+			UKismetSystemLibrary::LineTraceSingle(this, LineTraceStart, LineTraceStart + CrosshairWorldDirection * 1000.f,
+				UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_AIM_ASSIST), false, ActorsToIgnore,
+				bDebugAimAssist ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, HitResult, true);
+
+			if (HitResult.bBlockingHit)
+			{
+				AimAssistLevel = EUpAimAssistLevel::Medium;
 			}
 		}
 	}
@@ -400,9 +436,28 @@ void AUpPlayerController::StopSprint(const FInputActionValue& InputActionValue)
 void AUpPlayerController::Look(const FInputActionValue& InputActionValue)
 {
 	const auto InputActionVector = InputActionValue.Get<FVector2D>();
+	auto InputMultiplier = 1.f;
 
-	AddPitchInput(InputActionVector.Y);
-	AddYawInput(InputActionVector.X);
+	if (PossessedCharacter)
+	{
+		if (PossessedCharacter->IsAiming())
+		{
+			InputMultiplier *= LookInputMultiplier_Aiming;
+		}
+
+		if (AimAssistLevel == EUpAimAssistLevel::Medium)
+		{
+			InputMultiplier *= LookInputMultiplier_AimAssist;
+		}
+	}
+
+	if (bDebugAimAssist)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Look input multiplier: %g"), InputMultiplier)
+	}
+
+	AddPitchInput(InputActionVector.Y * InputMultiplier);
+	AddYawInput(InputActionVector.X * InputMultiplier);
 }
 
 void AUpPlayerController::SwitchCameraView(const FInputActionValue& InputActionValue)
