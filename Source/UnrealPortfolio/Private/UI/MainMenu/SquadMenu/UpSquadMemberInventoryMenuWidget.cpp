@@ -8,7 +8,7 @@
 
 void UUpSquadMemberInventoryMenuWidget::SetNpc(const AUpPlayableNpc* Npc) const
 {
-	const auto Equipment = Npc->GetCharacterEquipment();
+	const auto& Equipment = Npc->GetEquipment();
 
 	if (const auto Widget = GetWeapon1Display())
 	{

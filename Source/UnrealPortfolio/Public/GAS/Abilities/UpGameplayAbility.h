@@ -19,11 +19,16 @@ public:
 	virtual void OnGameplayTaskInitialized(UGameplayTask& Task) override;
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	
 	UPROPERTY(EditDefaultsOnly, Category="UP Debug")
 	bool bDebug = false;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float RepeatInterval = -1.f;
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	int32 RepeatMaxActionCount = MAX_int32;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<UAbilityTask_Repeat> RepeatTask;
@@ -37,4 +42,9 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+
+	virtual float GetRepeatInterval() const { return RepeatInterval; }
+	virtual int32 GetRepeatMaxActionCount() const { return RepeatMaxActionCount; }
+	
+	void TriggerDamage(AActor* TargetActor) const;
 };

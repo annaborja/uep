@@ -2,6 +2,8 @@
 
 #include "GAS/Abilities/UpGameplayAbility.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_Repeat.h"
 
 UUpGameplayAbility::UUpGameplayAbility()
@@ -13,7 +15,7 @@ void UUpGameplayAbility::OnGameplayTaskInitialized(UGameplayTask& Task)
 {
 	Super::OnGameplayTaskInitialized(Task);
 
-	if (RepeatInterval > 0.f) OnRepeatDelegate.BindUFunction(this, FName("HandleRepeatAction"));
+	OnRepeatDelegate.BindUFunction(this, FName("HandleRepeatAction"));
 }
 
 void UUpGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -27,9 +29,9 @@ void UUpGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 		UE_LOG(LogTemp, Warning, TEXT("Start ability %s"), *GetName())
 	}
 
-	if (RepeatInterval > 0.f)
+	if (const auto DynamicRepeatInterval = GetRepeatInterval(); DynamicRepeatInterval > 0.f)
 	{
-		RepeatTask = UAbilityTask_Repeat::RepeatAction(this, RepeatInterval, MAX_int32);
+		RepeatTask = UAbilityTask_Repeat::RepeatAction(this, DynamicRepeatInterval, GetRepeatMaxActionCount());
 		RepeatTask->OnPerformAction.Add(OnRepeatDelegate);
 		RepeatTask->Activate();
 	}
@@ -46,4 +48,19 @@ void UUpGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 	}
 
 	if (RepeatTask) RepeatTask->EndTask();
+}
+
+void UUpGameplayAbility::TriggerDamage(AActor* TargetActor) const
+{
+	if (!DamageEffectClass) return;
+	
+	if (const auto SourceAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo()))
+	{
+		if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
+		{
+			SourceAbilitySystemComponent->ApplyGameplayEffectSpecToTarget(
+				*SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), SourceAbilitySystemComponent->MakeEffectContext()).Data.Get(),
+				TargetAbilitySystemComponent);
+		}
+	}
 }

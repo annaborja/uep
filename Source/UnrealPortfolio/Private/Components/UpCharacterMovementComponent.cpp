@@ -9,6 +9,7 @@
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 #include "Items/UpItem.h"
 #include "Items/UpLadder.h"
+#include "Items/UpWeapon.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
@@ -290,31 +291,27 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 	// Switch to the correct two-handed gun socket when necessary (alert vs relaxed).
 	if (Character && !Character->IsRelaxed() && !Character->IsAiming())
 	{
-		if (const auto& WeaponSlotData = Character->GetCharacterEquipment().GetPotentialActiveWeaponSlotData(); WeaponSlotData.bActivated)
+		if (const auto Weapon = Character->GetActiveWeapon(); Weapon && UUpBlueprintFunctionLibrary::IsTwoHandedGunTag(Weapon->GetTagId()))
 		{
-			if (const auto WeaponActor = WeaponSlotData.ItemInstance.ItemActor;
-				WeaponActor && UUpBlueprintFunctionLibrary::IsTwoHandedGunTag(WeaponActor->GetTagId()))
+			if (const auto Mesh = Character->GetMesh())
 			{
-				if (const auto Mesh = Character->GetMesh())
-				{
-					const auto ParentSocketName = WeaponActor->GetAttachParentSocketName();
+				const auto ParentSocketName = Weapon->GetAttachParentSocketName();
 
-					if (Character->GetHorizontalSpeed() > MaxWalkSpeed + 5.f)
+				if (Character->GetHorizontalSpeed() > MaxWalkSpeed + 5.f)
+				{
+					if (const auto DesiredSocketName = TAG_Socket_TwoHandedGun_Relaxed.GetTag().GetTagName();
+						!ParentSocketName.IsEqual(DesiredSocketName))
 					{
-						if (const auto DesiredSocketName = TAG_Socket_TwoHandedGun_Relaxed.GetTag().GetTagName();
-							!ParentSocketName.IsEqual(DesiredSocketName))
-						{
-							WeaponActor->AttachToComponentWithScaling(Mesh,
-								FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), DesiredSocketName);
-						}
-					} else
+						Weapon->AttachToComponentWithScaling(Mesh,
+							FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), DesiredSocketName);
+					}
+				} else
+				{
+					if (const auto DesiredSocketName = TAG_Socket_TwoHandedGun.GetTag().GetTagName();
+						!ParentSocketName.IsEqual(DesiredSocketName))
 					{
-						if (const auto DesiredSocketName = TAG_Socket_TwoHandedGun.GetTag().GetTagName();
-							!ParentSocketName.IsEqual(DesiredSocketName))
-						{
-							WeaponActor->AttachToComponentWithScaling(Mesh,
-								FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), DesiredSocketName);
-						}
+						Weapon->AttachToComponentWithScaling(Mesh,
+							FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), DesiredSocketName);
 					}
 				}
 			}
@@ -440,7 +437,7 @@ void UUpCharacterMovementComponent::TryClimb(AActor* ClimbableActor)
 	PopulateClimbedSurfaceLocation();
 	PopulateClimbedSurfaceNormal();
 
-	const auto& Equipment = Character->GetCharacterEquipment();
+	const auto& Equipment = Character->GetEquipment();
 	const auto PotentialActiveWeaponSlot = Equipment.GetPotentialActiveWeaponSlot();
 
 	if (const auto& WeaponSlotData = Equipment.GetEquipmentSlotData(PotentialActiveWeaponSlot); WeaponSlotData.bActivated)

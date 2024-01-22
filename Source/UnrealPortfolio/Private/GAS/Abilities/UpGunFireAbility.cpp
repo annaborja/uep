@@ -4,91 +4,146 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "GameplayEffectCustomApplicationRequirement.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_Repeat.h"
 #include "Characters/UpCharacter.h"
 #include "Items/UpWeapon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Tags/CombatTags.h"
+#include "Tags/GasTags.h"
 #include "Utils/Constants.h"
 
 UUpGunFireAbility::UUpGunFireAbility()
 {
-	AbilityTags.AddTag(TAG_Combat_Attack_Gun_Fire);
+	AbilityTags.AddTag(TAG_Ability_GunFire);
 }
 
-void UUpGunFireAbility::HandleRepeatAction(int32 ActionNumber)
+void UUpGunFireAbility::OnGameplayTaskInitialized(UGameplayTask& Task)
+{
+	Super::OnGameplayTaskInitialized(Task);
+
+	check(CooldownGameplayEffectClass);
+	check(EffectClass_AmmoCost);
+}
+
+float UUpGunFireAbility::GetRepeatInterval() const
+{
+	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
+	{
+		if (const auto Weapon = Character->GetActiveWeapon())
+		{
+			return Weapon->GetBurstShotInterval();
+		}
+	}
+
+	return 0.1f;
+}
+
+void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 {
 	Super::HandleRepeatAction(ActionNumber);
 
-	if (const auto AvatarActor = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
+	if (!CheckCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo())) return;
+	
+	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 	{
-		if (const auto& WeaponSlotData = AvatarActor->GetCharacterEquipment().GetPotentialActiveWeaponSlotData(); WeaponSlotData.bActivated)
+		if (const auto Weapon = Character->GetActiveWeapon())
 		{
-			if (const auto Weapon = Cast<AUpWeapon>(WeaponSlotData.ItemInstance.ItemActor))
+			if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
 			{
-				bool bHasSufficientAmmo = true;
+				bool bHasSufficientAmmo = false;
 
-				if (AmmoCostEffectClass)
+				if (const auto Effect = EffectClass_AmmoCost ? EffectClass_AmmoCost->GetDefaultObject<UGameplayEffect>() : nullptr)
 				{
-					if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
-					{
-						bHasSufficientAmmo = WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
-							*WeaponAbilitySystemComponent->MakeOutgoingSpec(AmmoCostEffectClass, GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get()
-								).WasSuccessfullyApplied();
-					}
+					// Manually do what `CheckCost()` does under the hood since we're checking attributes on a different actor.
+					bHasSufficientAmmo = WeaponAbilitySystemComponent->CanApplyAttributeModifiers(Effect, GetAbilityLevel(),
+						WeaponAbilitySystemComponent->MakeEffectContext());
 				}
-			
+	
 				if (bHasSufficientAmmo)
 				{
-					if (const auto World = GetWorld())
+					FVector ReticleWorldPosition;
+					FVector ReticleWorldDirection;
+
+					if (const auto CustomPlayerController = Cast<AUpPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+						CustomPlayerController && CustomPlayerController->ProjectReticleToWorld(ReticleWorldPosition, ReticleWorldDirection))
 					{
-						FVector2D ViewportSize;
-						if (GEngine && GEngine->GameViewport) GEngine->GameViewport->GetViewportSize(ViewportSize);
+						WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
+							*WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass_AmmoCost, GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get());
 
-						FVector CrosshairWorldPosition;
-						FVector CrosshairWorldDirection;
-
-						if (const auto PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-							PlayerController && UGameplayStatics::DeprojectScreenToWorld(PlayerController,
-							FVector2D(ViewportSize.X / 2.f, ViewportSize.Y / 2.f), CrosshairWorldPosition, CrosshairWorldDirection))
+						if (const auto Montage = Character->GetGunFiringMontage())
 						{
-							const auto LineTraceStart = CrosshairWorldPosition;
+							const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+								this, NAME_None, Montage, 1.f, Weapon->GetMontageSectionName());
+							PlayMontageAndWaitTask->Activate();
+						}
+				
+						const auto LineTraceStart = ReticleWorldPosition;
+						TArray<AActor*> IgnoredActors { Character };
 
-							FCollisionQueryParams LineTraceParams;
-							LineTraceParams.AddIgnoredActor(AvatarActor);
-							LineTraceParams.AddIgnoredActors(AvatarActor->Children);
+						for (const auto Actor : Character->Children)
+						{
+							IgnoredActors.Add(Actor);
+						}
 
-							FHitResult HitResult;
-							World->LineTraceSingleByChannel(HitResult, LineTraceStart,
-								LineTraceStart + CrosshairWorldDirection * LineTraceLength, TRACE_CHANNEL_WEAPON, LineTraceParams);
+						TArray<FHitResult> HitResults;
+						UKismetSystemLibrary::LineTraceMulti(this, LineTraceStart, LineTraceStart + ReticleWorldDirection * Weapon->GetRange(),
+							UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_WEAPON), false, IgnoredActors,
+							bDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, HitResults, true);
 
-							if (HitResult.bBlockingHit)
+						for (const auto& HitResult : HitResults)
+						{
+							if (bDebug)
 							{
-								if (const auto HitActor = HitResult.GetActor())
-								{
-									if (bDebug)
-									{
-										UE_LOG(LogTemp, Warning, TEXT("Hit actor: %s, component: %s"), *HitActor->GetName(), *HitResult.GetComponent()->GetName())
-									}
-
-									if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor))
-									{
-										auto EffectContextHandle = TargetAbilitySystemComponent->MakeEffectContext();
-										EffectContextHandle.AddHitResult(HitResult);
-										EffectContextHandle.AddOrigin(LineTraceStart);
-
-										FGameplayEventData EventPayload;
-										EventPayload.ContextHandle = EffectContextHandle;
-
-										UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, TAG_Combat_HitReaction, EventPayload);
-									}
-
-									TriggerDamage(HitActor);
-								}
-
-								if (ImpactParticleSystem) UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticleSystem, HitResult.Location);
+								UE_LOG(LogTemp, Warning, TEXT("Hit actor %s"), *HitResult.GetActor()->GetName())
 							}
 						}
+			
+						UE_LOG(LogTemp, Warning, TEXT("Shoot"))
+					
+						if (Weapon->GetFiringMode() == EUpWeaponFiringMode::SemiAutomatic)
+						{
+							ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
+							EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+							return;
+						}
+
+						BurstShotCount++;
+
+						if (bDebug)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Burst shot count: %d"), BurstShotCount)
+						}
+
+						if (BurstShotCount >= Weapon->GetBurstSize())
+						{
+							BurstShotCount = 0;
+							ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
+						}
+						
+						return;
+
+						// 		if (HitResult.bBlockingHit)
+						// 		{
+						// 			if (const auto HitActor = HitResult.GetActor())
+						// 			{
+						// 				if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor))
+						// 				{
+						// 					auto EffectContextHandle = TargetAbilitySystemComponent->MakeEffectContext();
+						// 					EffectContextHandle.AddHitResult(HitResult);
+						// 					EffectContextHandle.AddOrigin(LineTraceStart);
+						//
+						// 					FGameplayEventData EventPayload;
+						// 					EventPayload.ContextHandle = EffectContextHandle;
+						//
+						// 					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, TAG_Combat_HitReaction, EventPayload);
+						// 				}
+						//
+						// 				TriggerDamage(HitActor);
+						// 			}
+						//
+						// 			// if (ImpactParticleSystem) UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticleSystem, HitResult.Location);
+						// 		}
 					}
 				} else
 				{
@@ -96,11 +151,15 @@ void UUpGunFireAbility::HandleRepeatAction(int32 ActionNumber)
 					{
 						FGameplayTagContainer AbilityTags;
 						AbilityTags.AddTag(TAG_Combat_Reload);
-			
+
 						AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
 					}
+
+					return;
 				}
 			}
 		}
 	}
+
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, true);
 }

@@ -22,10 +22,11 @@ class UNREALPORTFOLIO_API AUpPlayerController : public APlayerController
 
 public:
 	AUpPlayerController();
-	
+
 	void EnableMouse();
 	void DisableMouse();
 	bool IsDebugCameraActive() const;
+	bool ProjectReticleToWorld(FVector& WorldPosition, FVector& WorldDirection) const;
 	
 	void CloseCharacterSwitcher();
 	void SwitchCharacter(AUpPlayableNpc* Npc);
@@ -75,7 +76,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_SwitchCameraView;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Jump;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_AimGun;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_FireWeapon;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_CloseCharacterSwitcher;
@@ -83,8 +88,6 @@ private:
 	TObjectPtr<UInputAction> InputAction_Crouch;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_Interact;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_Jump;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_NavigateCharacterSwitcher;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
@@ -95,8 +98,6 @@ private:
 	TObjectPtr<UInputAction> InputAction_Weapon1;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_Weapon2;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_FireWeapon;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_Reload;
 	
@@ -148,8 +149,13 @@ private:
 	void Look(const FInputActionValue& InputActionValue);
 	void SwitchCameraView(const FInputActionValue& InputActionValue);
 	
+	void Jump(const FInputActionValue& InputActionValue);
+	
 	void StartAimingGun(const FInputActionValue& InputActionValue);
 	void StopAimingGun(const FInputActionValue& InputActionValue);
+	
+	void StartFiringWeapon(const FInputActionValue& InputActionValue);
+	void StopFiringWeapon(const FInputActionValue& InputActionValue);
 	
 	void PauseGame(const FInputActionValue& InputActionValue);
 	
@@ -165,9 +171,6 @@ private:
 	void ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlot) const;
 
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
-	void Jump(const FInputActionValue& InputActionValue);
 	
 	void Reload(const FInputActionValue& InputActionValue);
-	void StartFiringWeapon(const FInputActionValue& InputActionValue);
-	void StopFiringWeapon(const FInputActionValue& InputActionValue);
 };

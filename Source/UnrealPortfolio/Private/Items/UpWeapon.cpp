@@ -22,8 +22,8 @@ FUpInteractionData AUpWeapon::GetInteractionData(const AUpPlayerController* Play
 
 	if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
 	{
-		const auto& Weapon1SlotData = PossessedCharacter->GetCharacterEquipment().GetEquipmentSlotData(EUpEquipmentSlot::Weapon1);
-		const auto& Weapon2SlotData = PossessedCharacter->GetCharacterEquipment().GetEquipmentSlotData(EUpEquipmentSlot::Weapon2);
+		const auto& Weapon1SlotData = PossessedCharacter->GetEquipment().GetEquipmentSlotData(EUpEquipmentSlot::Weapon1);
+		const auto& Weapon2SlotData = PossessedCharacter->GetEquipment().GetEquipmentSlotData(EUpEquipmentSlot::Weapon2);
 		const auto Weapon1 = Weapon1SlotData.ItemInstance.ItemActor;
 		const auto Weapon2 = Weapon2SlotData.ItemInstance.ItemActor;
 
@@ -100,8 +100,8 @@ void AUpWeapon::Interact(AUpPlayerController* PlayerController)
 {
 	if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
 	{
-		const auto& Weapon1SlotData = PossessedCharacter->GetCharacterEquipment().GetEquipmentSlotData(EUpEquipmentSlot::Weapon1);
-		const auto& Weapon2SlotData = PossessedCharacter->GetCharacterEquipment().GetEquipmentSlotData(EUpEquipmentSlot::Weapon2);
+		const auto& Weapon1SlotData = PossessedCharacter->GetEquipment().GetEquipmentSlotData(EUpEquipmentSlot::Weapon1);
+		const auto& Weapon2SlotData = PossessedCharacter->GetEquipment().GetEquipmentSlotData(EUpEquipmentSlot::Weapon2);
 		const auto Weapon1 = Weapon1SlotData.ItemInstance.ItemActor;
 		const auto Weapon2 = Weapon2SlotData.ItemInstance.ItemActor;
 
@@ -164,6 +164,29 @@ void AUpWeapon::Interact(AUpPlayerController* PlayerController)
 			UE_LOG(LogTemp, Warning, TEXT("(Ammo Full)"));
 		}
 	}
+}
+
+FName AUpWeapon::GetMontageSectionName() const
+{
+	TArray<FString> TagSegments;
+	TagId.ToString().ParseIntoArray(TagSegments, TEXT("."));
+
+	return FName(TagSegments[2]);
+}
+
+float AUpWeapon::GetBurstShotInterval() const
+{
+	return WeaponData.BurstShotInterval;
+}
+
+int32 AUpWeapon::GetBurstSize() const
+{
+	return WeaponData.BurstSize;
+}
+
+float AUpWeapon::GetRange() const
+{
+	return WeaponData.Range;
 }
 
 void AUpWeapon::BeginPlay()

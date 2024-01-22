@@ -1,12 +1,12 @@
 // Copyright AB. All Rights Reserved.
 
-#include "GAS/Effects/MMCs/UpMmc_SprintCost.h"
+#include "GAS/Effects/MMCs/UpMmc_SprintCost_Stamina.h"
 
 #include "Characters/UpCharacter.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 
-UUpMmc_SprintCost::UUpMmc_SprintCost()
+UUpMmc_SprintCost_Stamina::UUpMmc_SprintCost_Stamina()
 {
 	ResilienceDef.AttributeToCapture = UUpPrimaryAttributeSet::GetResilienceAttribute();
 	ResilienceDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
@@ -15,7 +15,7 @@ UUpMmc_SprintCost::UUpMmc_SprintCost()
 	RelevantAttributesToCapture.Add(ResilienceDef);
 }
 
-float UUpMmc_SprintCost::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
+float UUpMmc_SprintCost_Stamina::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
 {
 	const auto EffectSpecHandle = Spec.GetContext();
 	

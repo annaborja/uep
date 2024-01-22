@@ -34,6 +34,7 @@ public:
 
 	virtual EUpCameraView::Type GetCameraView() const override;
 	virtual UAnimMontage* GetClimbingMontage() const override;
+	virtual UAnimMontage* GetGunFiringMontage() const override;
 	virtual UAnimMontage* GetMantlesMontage() const override;
 	virtual UAnimMontage* GetReloadsMontage() const override;
 
@@ -48,7 +49,6 @@ public:
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return Camera; }
 	FORCEINLINE USpringArmComponent* GetSpringArmComponent() const { return SpringArm; }
 	FORCEINLINE AUpPlayerController* GetCustomPlayerController() const { return CustomPlayerController; }
-	FORCEINLINE FUpCharacterEquipment GetEquipment() const { return Equipment; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetPlayerInteractionComponent() const { return PlayerInteractionComponent; }
 	FORCEINLINE UUpPlayerCombatComponent* GetPlayerCombatComponent() const { return PlayerCombatComponent; }
 	FORCEINLINE bool IsPlayer() const { return bIsPlayer; }
@@ -75,6 +75,8 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> ClimbingMontage_FirstPerson;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> GunFiringMontage_FirstPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> MantlesMontage_FirstPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")

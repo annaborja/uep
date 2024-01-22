@@ -4,18 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameplayModMagnitudeCalculation.h"
-#include "UpMmc_SprintCost.generated.h"
+#include "UpMmc_GunFireCost_Ammo.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpMmc_SprintCost : public UGameplayModMagnitudeCalculation
+class UNREALPORTFOLIO_API UUpMmc_GunFireCost_Ammo : public UGameplayModMagnitudeCalculation
 {
 	GENERATED_BODY()
 
 public:
-	UUpMmc_SprintCost();
-	
 	virtual float CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const override;
-	
-private:
-	FGameplayEffectAttributeCaptureDefinition ResilienceDef;
 };

@@ -37,6 +37,7 @@ void AUpPlayableCharacter::BeginPlay()
 	check(SkeletalMesh_ThirdPerson);
 
 	check(ClimbingMontage_FirstPerson);
+	check(GunFiringMontage_FirstPerson);
 	check(MantlesMontage_FirstPerson);
 	check(ReloadsMontage_FirstPerson);
 
@@ -149,6 +150,13 @@ UAnimMontage* AUpPlayableCharacter::GetClimbingMontage() const
 	if (IsInFirstPersonMode()) return ClimbingMontage_FirstPerson;
 	
 	return Super::GetClimbingMontage();
+}
+
+UAnimMontage* AUpPlayableCharacter::GetGunFiringMontage() const
+{
+	if (IsInFirstPersonMode()) return GunFiringMontage_FirstPerson;
+	
+	return Super::GetGunFiringMontage();
 }
 
 UAnimMontage* AUpPlayableCharacter::GetMantlesMontage() const

@@ -49,6 +49,8 @@ protected:
 	bool bMovingUpward = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bAiming = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bClimbingLadder = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bCrouching = false;

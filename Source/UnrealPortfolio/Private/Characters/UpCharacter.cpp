@@ -67,6 +67,7 @@ void AUpCharacter::BeginPlay()
 
 	check(ClimbingMontage_ThirdPerson);
 	check(GesturesMontage_ThirdPerson);
+	check(GunFiringMontage_ThirdPerson);
 	check(HitReactionsMontage_ThirdPerson);
 	check(MantlesMontage_ThirdPerson);
 	check(ReloadsMontage_ThirdPerson);
@@ -347,6 +348,16 @@ bool AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlo
 	return false;
 }
 
+AUpWeapon* AUpCharacter::GetActiveWeapon() const
+{
+	if (const auto& EquipmentSlotData = GetEquipment().GetPotentialActiveWeaponSlotData(); EquipmentSlotData.bActivated)
+	{
+		return Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor);
+	}
+
+	return nullptr;
+}
+
 void AUpCharacter::HandleFootstep(const FName& BoneName, const EUpTraceDirection::Type TraceDirection, const float TraceLength, const float VolumeMultiplier) const
 {
 	HandleNoise(SfxMap_Footsteps, BoneName, TraceDirection, TraceLength);
@@ -455,7 +466,7 @@ void AUpCharacter::HandleNoise(const TMap<TEnumAsByte<EPhysicalSurface>, USoundB
 				TraceEnd += GetActorForwardVector() * TraceLength;
 			} else
 			{
-				TraceEnd += -FVector(0.0, 0.0, 1.0) * TraceLength;
+				TraceEnd += FVector::DownVector * TraceLength;
 			}
 			
 			FHitResult HitResult;

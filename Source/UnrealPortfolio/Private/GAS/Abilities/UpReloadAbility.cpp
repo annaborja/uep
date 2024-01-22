@@ -20,36 +20,33 @@ void UUpReloadAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 	if (const auto AvatarActor = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 	{
-		if (const auto& WeaponSlotData = AvatarActor->GetCharacterEquipment().GetPotentialActiveWeaponSlotData(); WeaponSlotData.bActivated)
+		if (const auto Weapon = AvatarActor->GetActiveWeapon())
 		{
-			if (const auto Weapon = Cast<AUpWeapon>(WeaponSlotData.ItemInstance.ItemActor))
+			if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
 			{
-				if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
+				bool bCanReload = true;
+
+				if (EffectClass)
 				{
-					bool bCanReload = true;
-
-					if (EffectClass)
+					bCanReload = WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
+						*WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass, GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get()
+						).WasSuccessfullyApplied();
+				}
+				
+				if (bCanReload)
+				{
+					if (const auto Combatable = Cast<IUpCombatable>(AvatarActor))
 					{
-						bCanReload = WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
-							*WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass, GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get()
-							).WasSuccessfullyApplied();
-					}
-					
-					if (bCanReload)
-					{
-						if (const auto Combatable = Cast<IUpCombatable>(AvatarActor))
+						if (const auto Montage = Combatable->GetReloadsMontage())
 						{
-							if (const auto Montage = Combatable->GetReloadsMontage())
-							{
-								const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-									this, NAME_None, Montage, 1.f, GetReloadsMontageSectionName());
-								PlayMontageAndWaitTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-								PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageInterrupted);
-								PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageInterrupted);
-								PlayMontageAndWaitTask->Activate();
+							const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+								this, NAME_None, Montage, 1.f, GetReloadsMontageSectionName());
+							PlayMontageAndWaitTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+							PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageInterrupted);
+							PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageInterrupted);
+							PlayMontageAndWaitTask->Activate();
 
-								return;
-							}
+							return;
 						}
 					}
 				}
@@ -66,15 +63,12 @@ void UUpReloadAbility::OnMontageCompleted()
 	{
 		if (const auto AvatarActor = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 		{
-			if (const auto& WeaponSlotData = AvatarActor->GetCharacterEquipment().GetPotentialActiveWeaponSlotData(); WeaponSlotData.bActivated)
+			if (const auto Weapon = AvatarActor->GetActiveWeapon())
 			{
-				if (const auto Weapon = Cast<AUpWeapon>(WeaponSlotData.ItemInstance.ItemActor))
+				if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
 				{
-					if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
-					{
-						WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
-							*WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass_Success, GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get());
-					}
+					WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
+						*WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass_Success, GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get());
 				}
 			}
 		}

@@ -20,7 +20,7 @@ bool AUpAmmo::HandleAmmoTagSpecGrant(const AUpCharacter* Character, const FUpTag
 		{
 			if (const auto EffectClass = GasDataAsset->GetAmmoGrantEffectClass())
 			{
-				if (const auto& Equipment = Character->GetCharacterEquipment();
+				if (const auto& Equipment = Character->GetEquipment();
 					TryGrantAmmoForWeaponSlot(EffectClass, TagSpec.RelatedTag, TagSpec.Count, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1))
 					|| TryGrantAmmoForWeaponSlot(EffectClass, TagSpec.RelatedTag, TagSpec.Count, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2)))
 				{
@@ -84,7 +84,7 @@ FUpInteractionData AUpAmmo::GetInteractionData(const AUpPlayerController* Player
 					{
 						if (const auto EffectClass = GasDataAsset->GetAmmoGrantEffectClass())
 						{
-							if (const auto& Equipment = PossessedCharacter->GetCharacterEquipment();
+							if (const auto& Equipment = PossessedCharacter->GetEquipment();
 								!TryGrantAmmoForWeaponSlot(EffectClass, WeaponTag, 0, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1))
 								&& !TryGrantAmmoForWeaponSlot(EffectClass, WeaponTag, 0, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2)))
 							{
@@ -109,7 +109,7 @@ int32 AUpAmmo::GetInteractionQuantity(const AUpPlayerController* PlayerControlle
 		{
 			if (const auto WeaponData = GameInstance->GetWeaponData(DynamicRelatedTag); WeaponData.IsValid())
 			{
-				return WeaponData.BaseMagazineCapacity;
+				return WeaponData.MagazineCapacity;
 			}
 		}
 	}

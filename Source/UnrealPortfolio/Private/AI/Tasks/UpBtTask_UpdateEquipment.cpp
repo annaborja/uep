@@ -11,8 +11,6 @@ EBTNodeResult::Type UUpBtTask_UpdateEquipment::ExecuteTask(UBehaviorTreeComponen
 	{
 		if (const auto Character = Cast<AUpCharacter>(AiController->GetPawn()))
 		{
-			auto Equipment = Character->GetCharacterEquipment();
-
 			switch (Command.CommandType)
 			{
 			case EUpUpdateEquipmentCommandType::Equip:

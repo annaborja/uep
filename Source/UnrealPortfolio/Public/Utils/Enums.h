@@ -85,3 +85,13 @@ namespace EUpTraceDirection
 		Forward
 	};
 }
+
+UENUM()
+namespace EUpWeaponFiringMode
+{
+	enum Type : uint8
+	{
+		SemiAutomatic,
+		Automatic
+	};
+}

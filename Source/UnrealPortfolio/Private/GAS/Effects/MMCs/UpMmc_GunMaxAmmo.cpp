@@ -13,7 +13,7 @@ float UUpMmc_GunMaxAmmo::CalculateBaseMagnitude_Implementation(const FGameplayEf
 	{
 		if (const auto WeaponData = Weapon->GetWeaponData(); WeaponData.IsValid())
 		{
-			return WeaponData.BaseMaxAmmo;
+			return WeaponData.MaxAmmo;
 		}
 	}
 	

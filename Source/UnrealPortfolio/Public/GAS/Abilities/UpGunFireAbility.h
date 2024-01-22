@@ -3,25 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GAS/Abilities/UpAttackAbility.h"
+#include "UpGameplayAbility.h"
 #include "UpGunFireAbility.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpGunFireAbility : public UUpAttackAbility
+class UNREALPORTFOLIO_API UUpGunFireAbility : public UUpGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
 	UUpGunFireAbility();
 
+	virtual void OnGameplayTaskInitialized(UGameplayTask& Task) override;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> AmmoCostEffectClass;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TObjectPtr<UParticleSystem> ImpactParticleSystem;
-	
-	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	float LineTraceLength = 10000.f;
+	TSubclassOf<UGameplayEffect> EffectClass_AmmoCost;
 
+	virtual float GetRepeatInterval() const override;
 	virtual void HandleRepeatAction(int32 ActionNumber) override;
+
+private:
+	uint8 BurstShotCount = 0;
 };

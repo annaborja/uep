@@ -317,7 +317,19 @@ struct FUpWeaponData : public FTableRowBase
 	FGameplayTag TagId;
 	
 	UPROPERTY(EditDefaultsOnly)
-	uint8 BaseMagazineCapacity = 0;
+	uint8 MagazineCapacity = 0;
 	UPROPERTY(EditDefaultsOnly)
-	uint8 BaseMaxAmmo = 0;
+	uint8 MaxAmmo = 0;
+
+	UPROPERTY(EditDefaultsOnly)
+	TEnumAsByte<EUpWeaponFiringMode::Type> FiringMode = EUpWeaponFiringMode::SemiAutomatic;
+	UPROPERTY(EditDefaultsOnly)
+	uint8 BurstSize = 1;
+	UPROPERTY(EditDefaultsOnly)
+	float BurstShotInterval = 0.1f;
+	UPROPERTY(EditDefaultsOnly)
+	float BurstInterval = 1.f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float Range = 20000.f;
 };

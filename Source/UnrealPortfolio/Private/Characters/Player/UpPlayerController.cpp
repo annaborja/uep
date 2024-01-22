@@ -45,6 +45,17 @@ bool AUpPlayerController::IsDebugCameraActive() const
 	return IsValid(DebugPawn);
 }
 
+bool AUpPlayerController::ProjectReticleToWorld(FVector& WorldPosition, FVector& WorldDirection) const
+{
+	if (!GEngine || !GEngine->GameViewport) return false;
+
+	FVector2D ViewportSize;
+	GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+	return UGameplayStatics::DeprojectScreenToWorld(this, FVector2D(ViewportSize.X / 2.f, ViewportSize.Y / 2.f),
+		WorldPosition, WorldDirection);
+}
+
 void AUpPlayerController::CloseCharacterSwitcher()
 {
 	if (!CustomHud) return;
@@ -123,7 +134,7 @@ void AUpPlayerController::ResetInputMappingContexts() const
 		{
 			if (InputMappingContext_Gun)
 			{
-				if (const auto& Equipment = PossessedCharacter->GetCharacterEquipment();
+				if (const auto& Equipment = PossessedCharacter->GetEquipment();
 					Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1).bActivated || Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2).bActivated)
 				{
 					if (!Subsystem->HasMappingContext(InputMappingContext_Gun))
@@ -214,6 +225,9 @@ void AUpPlayerController::BeginPlay()
 	check(InputAction_Sprint);
 	check(InputAction_Look);
 	check(InputAction_SwitchCameraView);
+	check(InputAction_Jump);
+	check(InputAction_AimGun);
+	check(InputAction_FireWeapon);
 
 	CustomHud = CastChecked<AUpHud>(GetHUD());
 	CustomHud->Init(this);
@@ -240,35 +254,28 @@ void AUpPlayerController::Tick(const float DeltaSeconds)
 	}
 
 	AimAssistLevel = EUpAimAssistLevel::None;
+	FVector ReticleWorldPosition;
+	FVector ReticleWorldDirection;
 
-	if (PossessedCharacter->CanShoot() && GEngine && GEngine->GameViewport)
+	if (const auto Weapon = PossessedCharacter->GetActiveWeapon();
+		Weapon && PossessedCharacter->CanShoot() && ProjectReticleToWorld(ReticleWorldPosition, ReticleWorldDirection))
 	{
-		FVector2D ViewportSize;
-		GEngine->GameViewport->GetViewportSize(ViewportSize);
+		const auto LineTraceStart = ReticleWorldPosition;
+		TArray<AActor*> ActorsToIgnore { PossessedCharacter };
 
-		FVector CrosshairWorldPosition;
-		FVector CrosshairWorldDirection;
-
-		if (UGameplayStatics::DeprojectScreenToWorld(this, FVector2D(ViewportSize.X / 2.f, ViewportSize.Y / 2.f),
-			CrosshairWorldPosition, CrosshairWorldDirection))
+		for (const auto Actor : PossessedCharacter->Children)
 		{
-			const auto LineTraceStart = CrosshairWorldPosition;
-			TArray<AActor*> ActorsToIgnore { PossessedCharacter };
+			ActorsToIgnore.Add(Actor);
+		}
+		
+		FHitResult HitResult;
+		UKismetSystemLibrary::LineTraceSingle(this, LineTraceStart, LineTraceStart + ReticleWorldDirection * Weapon->GetRange(),
+			UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_AIM_ASSIST), false, ActorsToIgnore,
+			bDebugAimAssist ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, HitResult, true);
 
-			for (const auto Actor : PossessedCharacter->Children)
-			{
-				ActorsToIgnore.Add(Actor);
-			}
-			
-			FHitResult HitResult;
-			UKismetSystemLibrary::LineTraceSingle(this, LineTraceStart, LineTraceStart + CrosshairWorldDirection * 1000.f,
-				UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_AIM_ASSIST), false, ActorsToIgnore,
-				bDebugAimAssist ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, HitResult, true);
-
-			if (HitResult.bBlockingHit)
-			{
-				AimAssistLevel = EUpAimAssistLevel::Medium;
-			}
+		if (HitResult.bBlockingHit)
+		{
+			AimAssistLevel = EUpAimAssistLevel::Medium;
 		}
 	}
 }
@@ -478,6 +485,13 @@ void AUpPlayerController::SwitchCameraView(const FInputActionValue& InputActionV
 	}
 }
 
+void AUpPlayerController::Jump(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	PossessedCharacter->Jump();
+}
+
 void AUpPlayerController::StartAimingGun(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
@@ -499,6 +513,32 @@ void AUpPlayerController::StopAimingGun(const FInputActionValue& InputActionValu
 	{
 		FGameplayTagContainer AbilityTags;
 		AbilityTags.AddTag(TAG_Ability_AimDownSights);
+		
+		AbilitySystemComponent->CancelAbilities(&AbilityTags);
+	}
+}
+
+void AUpPlayerController::StartFiringWeapon(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	if (const auto AbilitySystemComponent = PossessedCharacter->GetAbilitySystemComponent())
+	{
+		FGameplayTagContainer AbilityTags;
+		AbilityTags.AddTag(TAG_Ability_GunFire);
+		
+		AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+	}
+}
+
+void AUpPlayerController::StopFiringWeapon(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	if (const auto AbilitySystemComponent = PossessedCharacter->GetAbilitySystemComponent())
+	{
+		FGameplayTagContainer AbilityTags;
+		AbilityTags.AddTag(TAG_Ability_GunFire);
 		
 		AbilitySystemComponent->CancelAbilities(&AbilityTags);
 	}
@@ -570,7 +610,7 @@ void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlo
 {
 	if (!PossessedCharacter) return;
 
-	if (PossessedCharacter->GetCharacterEquipment().GetEquipmentSlotData(EquipmentSlot).bActivated)
+	if (PossessedCharacter->GetEquipment().GetEquipmentSlotData(EquipmentSlot).bActivated)
 	{
 		PossessedCharacter->DeactivateEquipment(EquipmentSlot);
 	} else
@@ -592,13 +632,6 @@ void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue
 	}
 }
 
-void AUpPlayerController::Jump(const FInputActionValue& InputActionValue)
-{
-	if (!PossessedCharacter) return;
-
-	PossessedCharacter->Jump();
-}
-
 void AUpPlayerController::Reload(const FInputActionValue& InputActionValue)
 {
 	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
@@ -609,34 +642,6 @@ void AUpPlayerController::Reload(const FInputActionValue& InputActionValue)
 			AbilityTags.AddTag(TAG_Combat_Reload);
 			
 			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
-		}
-	}
-}
-
-void AUpPlayerController::StartFiringWeapon(const FInputActionValue& InputActionValue)
-{
-	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
-	{
-		if (const auto AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent())
-		{
-			FGameplayTagContainer AbilityTags;
-			AbilityTags.AddTag(TAG_Combat_Attack_Gun_Fire);
-			
-			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
-		}
-	}
-}
-
-void AUpPlayerController::StopFiringWeapon(const FInputActionValue& InputActionValue)
-{
-	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
-	{
-		if (const auto AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent())
-		{
-			FGameplayTagContainer AbilityTags;
-			AbilityTags.AddTag(TAG_Combat_Attack_Gun_Fire);
-
-			AbilitySystemComponent->CancelAbilities(&AbilityTags);
 		}
 	}
 }

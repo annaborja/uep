@@ -13,7 +13,7 @@ float UUpMmc_GunMagazineCapacity::CalculateBaseMagnitude_Implementation(const FG
 	{
 		if (const auto WeaponData = Weapon->GetWeaponData(); WeaponData.IsValid())
 		{
-			return WeaponData.BaseMagazineCapacity;
+			return WeaponData.MagazineCapacity;
 		}
 	}
 	

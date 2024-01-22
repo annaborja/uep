@@ -11,6 +11,7 @@
 #include "Utils/Structs.h"
 #include "UpCharacter.generated.h"
 
+class AUpWeapon;
 class UBehaviorTree;
 class UDialogueVoice;
 class UGameplayEffect;
@@ -78,15 +79,16 @@ public:
 	void SetRelaxed(const bool bInRelaxed);
 	
 	virtual TArray<UUpAttributeSet*> GetAttributeSets() const;
-	
-	FUpCharacterEquipment GetCharacterEquipment() const { return Equipment; }
+
 	void EquipItem(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot);
 	void UnequipItem(const EUpEquipmentSlot::Type EquipmentSlot);
 	bool ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 	bool DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
+	AUpWeapon* GetActiveWeapon() const;
 
 	virtual UAnimMontage* GetClimbingMontage() const { return ClimbingMontage_ThirdPerson; }
 	virtual UAnimMontage* GetGesturesMontage() const { return GesturesMontage_ThirdPerson; }
+	virtual UAnimMontage* GetGunFiringMontage() const { return GunFiringMontage_ThirdPerson; }
 	virtual UAnimMontage* GetMantlesMontage() const { return MantlesMontage_ThirdPerson; }
 
 	void HandleFootstep(const FName& BoneName, const EUpTraceDirection::Type TraceDirection = EUpTraceDirection::Down,
@@ -98,6 +100,7 @@ public:
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 	FORCEINLINE FUpCharacterData GetCharacterData() const { return CharacterData; }
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
+	FORCEINLINE FUpCharacterEquipment GetEquipment() const { return Equipment; }
 	FORCEINLINE EUpCharacterPosture::Type GetPosture() const { return Posture; }
 	FORCEINLINE bool IsRelaxed() const { return bRelaxed; }
 	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
@@ -121,6 +124,8 @@ protected:
 	TObjectPtr<UAnimMontage> ClimbingMontage_ThirdPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> GesturesMontage_ThirdPerson;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> GunFiringMontage_ThirdPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> HitReactionsMontage_ThirdPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")

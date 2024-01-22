@@ -23,7 +23,13 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 
+	FName GetMontageSectionName() const;
+	float GetBurstShotInterval() const;
+	int32 GetBurstSize() const;
+	float GetRange() const;
+
 	FORCEINLINE UUpAmmoAttributeSet* GetAmmoAttributeSet() const { return AmmoAttributeSet; }
+	FORCEINLINE EUpWeaponFiringMode::Type GetFiringMode() const { return WeaponData.FiringMode; }
 	FORCEINLINE FUpWeaponData GetWeaponData() const { return WeaponData; }
 	
 protected:
