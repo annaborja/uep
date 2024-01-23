@@ -56,6 +56,7 @@ public:
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 
+	virtual float CalculateDamageDealt(const FHitResult& HitResult) const override;
 	virtual void Die() override;
 	virtual UUpCombatComponent* GetCombatComponent() const override { return CombatComponent; }
 	virtual UAnimMontage* GetHitReactionsMontage() const override { return HitReactionsMontage_ThirdPerson; }
@@ -102,6 +103,7 @@ public:
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
 	FORCEINLINE FUpCharacterEquipment GetEquipment() const { return Equipment; }
 	FORCEINLINE EUpCharacterPosture::Type GetPosture() const { return Posture; }
+	FORCEINLINE USoundCue* GetSfx_BulletImpacts() const { return Sfx_BulletImpacts; }
 	FORCEINLINE bool IsRelaxed() const { return bRelaxed; }
 	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
 	
@@ -139,11 +141,13 @@ protected:
 	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
+	TObjectPtr<USoundCue> Sfx_BulletImpacts;
+	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
+	TObjectPtr<USoundCue> Sfx_JumpLaunches;
+	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
 	TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap_Footsteps;
 	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
 	TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap_JumpLandings;
-	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
-	TObjectPtr<USoundCue> Sfx_JumpLaunches;
 	
 	UPROPERTY(EditAnywhere, Category="UP Data")
 	FUpCharacterEquipment Equipment;

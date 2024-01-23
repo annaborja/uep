@@ -19,9 +19,6 @@ public:
 	virtual void OnGameplayTaskInitialized(UGameplayTask& Task) override;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
-	
 	UPROPERTY(EditDefaultsOnly, Category="UP Debug")
 	bool bDebug = false;
 	
@@ -46,5 +43,5 @@ protected:
 	virtual float GetRepeatInterval() const { return RepeatInterval; }
 	virtual int32 GetRepeatMaxActionCount() const { return RepeatMaxActionCount; }
 	
-	void TriggerDamage(AActor* TargetActor) const;
+	void TriggerDamage(const FHitResult& HitResult) const;
 };

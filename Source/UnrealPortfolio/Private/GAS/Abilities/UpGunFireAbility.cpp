@@ -9,7 +9,6 @@
 #include "Characters/UpCharacter.h"
 #include "Items/UpWeapon.h"
 #include "Kismet/GameplayStatics.h"
-#include "Tags/CombatTags.h"
 #include "Tags/GasTags.h"
 #include "Utils/Constants.h"
 
@@ -24,6 +23,15 @@ void UUpGunFireAbility::OnGameplayTaskInitialized(UGameplayTask& Task)
 
 	check(CooldownGameplayEffectClass);
 	check(EffectClass_AmmoCost);
+}
+
+void UUpGunFireAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	ResetBurstShotCount();
+	
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
 float UUpGunFireAbility::GetRepeatInterval() const
@@ -62,104 +70,121 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 	
 				if (bHasSufficientAmmo)
 				{
+					if (EffectClass_AmmoCost)
+					{
+						WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
+							*WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass_AmmoCost, GetAbilityLevel(),
+								WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get());
+					}
+
+					if (const auto Montage = Character->GetGunFiringMontage())
+					{
+						UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+							this, NAME_None, Montage, 1.f, Weapon->GetMontageSectionName())->Activate();
+					}
+					
 					FVector ReticleWorldPosition;
 					FVector ReticleWorldDirection;
 
 					if (const auto CustomPlayerController = Cast<AUpPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 						CustomPlayerController && CustomPlayerController->ProjectReticleToWorld(ReticleWorldPosition, ReticleWorldDirection))
 					{
-						WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
-							*WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass_AmmoCost, GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get());
-
-						if (const auto Montage = Character->GetGunFiringMontage())
+						if (const auto WeaponMesh = Weapon->GetStaticMeshComponent())
 						{
-							const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-								this, NAME_None, Montage, 1.f, Weapon->GetMontageSectionName());
-							PlayMontageAndWaitTask->Activate();
-						}
-				
-						const auto LineTraceStart = ReticleWorldPosition;
-						TArray<AActor*> IgnoredActors { Character };
+							const auto ReticleTraceStart = ReticleWorldPosition;
+							TArray<AActor*> IgnoredActors { Character };
 
-						for (const auto Actor : Character->Children)
-						{
-							IgnoredActors.Add(Actor);
-						}
-
-						TArray<FHitResult> HitResults;
-						UKismetSystemLibrary::LineTraceMulti(this, LineTraceStart, LineTraceStart + ReticleWorldDirection * Weapon->GetRange(),
-							UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_WEAPON), false, IgnoredActors,
-							bDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, HitResults, true);
-
-						for (const auto& HitResult : HitResults)
-						{
-							if (bDebug)
+							for (const auto Actor : Character->Children)
 							{
-								UE_LOG(LogTemp, Warning, TEXT("Hit actor %s"), *HitResult.GetActor()->GetName())
+								IgnoredActors.Add(Actor);
+							}
+
+							TArray<FHitResult> ReticleHitResults;
+							UKismetSystemLibrary::LineTraceMulti(this,
+								ReticleTraceStart, ReticleTraceStart + ReticleWorldDirection * Weapon->GetRange(),
+								UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_WEAPON), false, IgnoredActors,
+								EDrawDebugTrace::None, ReticleHitResults, true);
+
+							if (ReticleHitResults.Num() > 0)
+							{
+								TArray<FHitResult> MuzzleHitResults;
+								UKismetSystemLibrary::LineTraceMulti(this,
+									WeaponMesh->GetSocketLocation(FName(SOCKET_NAME_ATTACK_SOURCE)), ReticleHitResults.Last().ImpactPoint,
+									UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_WEAPON), false, IgnoredActors,
+									bDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, MuzzleHitResults, true);
+
+								for (const auto& MuzzleHitResult : MuzzleHitResults)
+								{
+									if (const auto HitActor = MuzzleHitResult.GetActor())
+									{
+										if (bDebug)
+										{
+											UE_LOG(LogTemp, Warning, TEXT("Hit actor %s"), *HitActor->GetName())
+										}
+										
+										if (MuzzleHitResult.bBlockingHit)
+										{
+											if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor))
+											{
+												FGameplayCueParameters CueParams;
+												CueParams.Location = MuzzleHitResult.ImpactPoint;
+												CueParams.Normal = MuzzleHitResult.ImpactNormal;
+												CueParams.SourceObject = Weapon;
+
+												TargetAbilitySystemComponent->ExecuteGameplayCue(TAG_GameplayCue_GunFire_Impact, CueParams);
+												
+												auto EffectContextHandle = TargetAbilitySystemComponent->MakeEffectContext();
+												EffectContextHandle.AddHitResult(MuzzleHitResult);
+			
+												FGameplayEventData EventPayload;
+												EventPayload.ContextHandle = EffectContextHandle;
+			
+												UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, TAG_Ability_HitReaction, EventPayload);
+											}
+			
+											TriggerDamage(MuzzleHitResult);
+										}
+									}
+								}
 							}
 						}
+					}
 			
-						UE_LOG(LogTemp, Warning, TEXT("Shoot"))
-					
-						if (Weapon->GetFiringMode() == EUpWeaponFiringMode::SemiAutomatic)
-						{
-							ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
-							EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-							return;
-						}
-
-						BurstShotCount++;
-
-						if (bDebug)
-						{
-							UE_LOG(LogTemp, Warning, TEXT("Burst shot count: %d"), BurstShotCount)
-						}
-
-						if (BurstShotCount >= Weapon->GetBurstSize())
-						{
-							BurstShotCount = 0;
-							ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
-						}
-						
-						return;
-
-						// 		if (HitResult.bBlockingHit)
-						// 		{
-						// 			if (const auto HitActor = HitResult.GetActor())
-						// 			{
-						// 				if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor))
-						// 				{
-						// 					auto EffectContextHandle = TargetAbilitySystemComponent->MakeEffectContext();
-						// 					EffectContextHandle.AddHitResult(HitResult);
-						// 					EffectContextHandle.AddOrigin(LineTraceStart);
-						//
-						// 					FGameplayEventData EventPayload;
-						// 					EventPayload.ContextHandle = EffectContextHandle;
-						//
-						// 					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, TAG_Combat_HitReaction, EventPayload);
-						// 				}
-						//
-						// 				TriggerDamage(HitActor);
-						// 			}
-						//
-						// 			// if (ImpactParticleSystem) UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticleSystem, HitResult.Location);
-						// 		}
-					}
-				} else
-				{
-					if (const auto AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo())
+					if (Weapon->GetFiringMode() == EUpWeaponFiringMode::SemiAutomatic)
 					{
-						FGameplayTagContainer AbilityTags;
-						AbilityTags.AddTag(TAG_Combat_Reload);
-
-						AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+						ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
+						EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+						return;
 					}
 
+					BurstShotCount++;
+
+					if (BurstShotCount >= Weapon->GetBurstSize())
+					{
+						ResetBurstShotCount();
+						ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
+					}
+					
 					return;
 				}
+				
+				if (const auto AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo())
+				{
+					FGameplayTagContainer AbilityTags;
+					AbilityTags.AddTag(TAG_Ability_GunReload);
+
+					AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+				}
+
+				return;
 			}
 		}
 	}
 
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, true);
+}
+
+void UUpGunFireAbility::ResetBurstShotCount()
+{
+	BurstShotCount = 0;
 }

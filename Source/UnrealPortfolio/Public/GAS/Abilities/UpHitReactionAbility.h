@@ -19,8 +19,5 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 private:
-	UFUNCTION()
-	void OnMontageEnd();
-
-	FName GetHitReactionsMontageSectionName(const FVector& Origin, const FHitResult& HitResult) const;
+	FName GetMontageSectionName(const FVector& Origin, const FHitResult& HitResult) const;
 };

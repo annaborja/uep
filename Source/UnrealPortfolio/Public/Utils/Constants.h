@@ -7,6 +7,8 @@
 
 #define GRAVITATIONAL_ACCELERATION -980.f
 
+#define SOCKET_NAME_ATTACK_SOURCE TEXT("AttackSource")
+
 #define SURFACE_CONCRETE SurfaceType1
 #define SURFACE_METAL SurfaceType2
 #define SURFACE_DIRT SurfaceType3

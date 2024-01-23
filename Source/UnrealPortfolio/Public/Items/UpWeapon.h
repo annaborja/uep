@@ -22,7 +22,8 @@ public:
 	virtual void Interact(AUpPlayerController* PlayerController) override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
-
+	
+	float CalculateDamage() const;
 	FName GetMontageSectionName() const;
 	float GetBurstShotInterval() const;
 	int32 GetBurstSize() const;
@@ -30,6 +31,7 @@ public:
 
 	FORCEINLINE UUpAmmoAttributeSet* GetAmmoAttributeSet() const { return AmmoAttributeSet; }
 	FORCEINLINE EUpWeaponFiringMode::Type GetFiringMode() const { return WeaponData.FiringMode; }
+	FORCEINLINE UNiagaraSystem* GetNiagaraSystem_Impact() const { return WeaponData.NiagaraSystem_Impact; }
 	FORCEINLINE FUpWeaponData GetWeaponData() const { return WeaponData; }
 	
 protected:

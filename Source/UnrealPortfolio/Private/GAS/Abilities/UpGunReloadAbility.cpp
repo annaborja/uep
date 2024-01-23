@@ -1,19 +1,19 @@
 // Copyright AB. All Rights Reserved.
 
-#include "GAS/Abilities/UpReloadAbility.h"
+#include "GAS/Abilities/UpGunReloadAbility.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Characters/UpCharacter.h"
 #include "Interfaces/UpCombatable.h"
 #include "Items/UpWeapon.h"
-#include "Tags/CombatTags.h"
+#include "Tags/GasTags.h"
 
-UUpReloadAbility::UUpReloadAbility()
+UUpGunReloadAbility::UUpGunReloadAbility()
 {
-	AbilityTags.AddTag(TAG_Combat_Reload);
+	AbilityTags.AddTag(TAG_Ability_GunReload);
 }
 
-void UUpReloadAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+void UUpGunReloadAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                        const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
@@ -57,7 +57,7 @@ void UUpReloadAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, true);
 }
 
-void UUpReloadAbility::OnMontageCompleted()
+void UUpGunReloadAbility::OnMontageCompleted()
 {
 	if (EffectClass_Success)
 	{
@@ -77,12 +77,12 @@ void UUpReloadAbility::OnMontageCompleted()
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }
 
-void UUpReloadAbility::OnMontageInterrupted()
+void UUpGunReloadAbility::OnMontageInterrupted()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, true);
 }
 
-FName UUpReloadAbility::GetReloadsMontageSectionName() const
+FName UUpGunReloadAbility::GetReloadsMontageSectionName() const
 {
 	return NAME_None;
 }

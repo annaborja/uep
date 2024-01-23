@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
+#include "Utils/Constants.h"
 #include "UpAnimNotify_WeaponVfx.generated.h"
 
 class UNiagaraSystem;
@@ -18,7 +19,7 @@ public:
 
 private:
 	UPROPERTY(EditInstanceOnly, Category="UP Params")
-	FName SocketName = FName(TEXT("Muzzle"));
+	FName SocketName = FName(SOCKET_NAME_ATTACK_SOURCE);
 	
 	UPROPERTY(EditInstanceOnly, Category="UP Params")
 	TObjectPtr<UNiagaraSystem> NiagaraSystem;

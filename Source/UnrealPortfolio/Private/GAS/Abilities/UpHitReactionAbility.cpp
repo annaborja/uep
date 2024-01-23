@@ -4,13 +4,19 @@
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Characters/UpCharacter.h"
-#include "Interfaces/UpCombatable.h"
+#include "Characters/UpPlayableCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Tags/CombatTags.h"
+#include "Tags/GasTags.h"
 
 UUpHitReactionAbility::UUpHitReactionAbility()
 {
-	AbilityTags.AddTag(TAG_Combat_HitReaction);
+	AbilityTags.AddTag(TAG_Ability_HitReaction);
+
+	auto TriggerData = FAbilityTriggerData();
+	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+	TriggerData.TriggerTag = TAG_Ability_HitReaction;
+	
+	AbilityTriggers.Add(TriggerData);
 }
 
 void UUpHitReactionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -18,15 +24,15 @@ void UUpHitReactionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (TriggerEventData)
+	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 	{
-		if (const auto Combatable = Cast<IUpCombatable>(GetAvatarActorFromActorInfo()))
+		if (const auto PlayableCharacter = Cast<AUpPlayableCharacter>(Character); !PlayableCharacter || !PlayableCharacter->IsPlayer())
 		{
-			if (const auto HitReactionsMontage = Combatable->GetHitReactionsMontage())
+			if (const auto Montage = Character->GetHitReactionsMontage())
 			{
 				if (const auto HitResult = TriggerEventData->ContextHandle.GetHitResult(); HitResult && TriggerEventData->ContextHandle.HasOrigin())
 				{
-					const auto MontageSectionName = GetHitReactionsMontageSectionName(TriggerEventData->ContextHandle.GetOrigin(), *HitResult);
+					const auto MontageSectionName = GetMontageSectionName(TriggerEventData->ContextHandle.GetOrigin(), *HitResult);
 
 					if (bDebug)
 					{
@@ -34,85 +40,80 @@ void UUpHitReactionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 					}
 				
 					const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-						this, NAME_None, HitReactionsMontage, 1.f, MontageSectionName);
-					PlayMontageAndWaitTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageEnd);
-					PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageEnd);
-					PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageEnd);
+						this, NAME_None, Montage, 1.f, MontageSectionName);
 					PlayMontageAndWaitTask->Activate();
-
-					return;
-				}
+				}	
 			}
 		}
 	}
-	
+
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
-void UUpHitReactionAbility::OnMontageEnd()
+FName UUpHitReactionAbility::GetMontageSectionName(const FVector& Origin, const FHitResult& HitResult) const
 {
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-}
-
-FName UUpHitReactionAbility::GetHitReactionsMontageSectionName(const FVector& Origin, const FHitResult& HitResult) const
-{
-	FString MontageSectionString = "";
+	FString MontageSectionString = TEXT("");
 	
-	if (const auto HitActor = HitResult.GetActor())
+	if (const auto Character = Cast<AUpCharacter>(HitResult.GetActor()))
 	{
-		if (const auto Character = Cast<AUpCharacter>(HitActor))
+		if (Character->IsRelaxed())
+		{
+			MontageSectionString += TEXT("Unarmed");
+		} else
 		{
 			switch (Character->GetPosture())
 			{
 			case EUpCharacterPosture::ArmedPistol:
-				MontageSectionString += "Pistol";
+				MontageSectionString += TEXT("ArmedPistol");
 				break;
 			case EUpCharacterPosture::ArmedRevolver:
-				MontageSectionString += "Revolver";
+				MontageSectionString += TEXT("ArmedRevolver");
 				break;
 			case EUpCharacterPosture::ArmedRifle:
-				MontageSectionString += "Rifle";
+				MontageSectionString += TEXT("ArmedRifle");
 				break;
 			default:
-				MontageSectionString += "Unarmed";
+				MontageSectionString += TEXT("Unarmed");
 				break;
 			}
 		}
-		
-		const auto ForwardVector = HitActor->GetActorForwardVector();
+
+		MontageSectionString += TEXT(".");
+	
+		const auto CharacterForwardVector = Character->GetActorForwardVector();
 		// We can't just use `HitResult.ImpactNormal` because the collision occurs on the character mesh,
 		// which complicates the resulting impact normals.
-		const auto ReverseAttackPath = (-(HitResult.ImpactPoint - Origin)).GetSafeNormal2D();
+		const auto ReverseHitPath = (-(HitResult.ImpactPoint - Origin)).GetSafeNormal2D();
 
 		if (bDebug)
 		{
-			const auto ActorLocation = HitActor->GetActorLocation();
+			const auto CharacterLocation = Character->GetActorLocation();
 			
 			UKismetSystemLibrary::DrawDebugArrow(this,
-				HitResult.ImpactPoint, HitResult.ImpactPoint + ReverseAttackPath * 100.0, 10.f, FColor::Red, 1.f);
+				HitResult.ImpactPoint, HitResult.ImpactPoint + ReverseHitPath * 100.0, 10.f, FColor::Red, 1.f);
 			UKismetSystemLibrary::DrawDebugArrow(this,
-				ActorLocation, ActorLocation + ForwardVector * 100.0, 10.f, FColor::Green, 1.f);
+				CharacterLocation, CharacterLocation + CharacterForwardVector * 100.0, 10.f, FColor::Green, 1.f);
 		}
 		
-		auto Theta = FMath::RadiansToDegrees(FMath::Acos(ForwardVector.Dot(ReverseAttackPath)));
+		auto Theta = FMath::RadiansToDegrees(FMath::Acos(CharacterForwardVector.Dot(ReverseHitPath)));
 
-		if (FVector::CrossProduct(ForwardVector, ReverseAttackPath).Z < 0)
+		if (FVector::CrossProduct(CharacterForwardVector, ReverseHitPath).Z < 0)
 		{
 			Theta *= -1.f;
 		}
 
 		if (Theta >= -45.f && Theta <= 45.f)
 		{
-			MontageSectionString += "Backward";
+			MontageSectionString += TEXT("Bwd");
 		} else if (Theta < -45.f && Theta > -135.f)
 		{
-			MontageSectionString += "Rightward";
+			MontageSectionString += TEXT("Rwd");
 		} else if (Theta > 45.f && Theta < 135.f)
 		{
-			MontageSectionString += "Leftward";
+			MontageSectionString += TEXT("Lwd");
 		} else
 		{
-			MontageSectionString += "Forward";
+			MontageSectionString += TEXT("Fwd");
 		}
 	}
 

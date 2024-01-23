@@ -71,7 +71,8 @@ void AUpCharacter::BeginPlay()
 	check(HitReactionsMontage_ThirdPerson);
 	check(MantlesMontage_ThirdPerson);
 	check(ReloadsMontage_ThirdPerson);
-	
+
+	check(Sfx_BulletImpacts);
 	check(Sfx_JumpLaunches);
 
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
@@ -96,6 +97,11 @@ void AUpCharacter::BeginPlay()
 		
 		if (Equipment.GetEquipmentSlotData(EquipmentSlot).bActivated) ActivateEquipment(EquipmentSlot);
 	}
+}
+
+float AUpCharacter::CalculateDamageDealt(const FHitResult& HitResult) const
+{
+	return 1.f;
 }
 
 void AUpCharacter::Die()

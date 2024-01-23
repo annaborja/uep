@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GAS/Abilities/UpGameplayAbility.h"
-#include "UpReloadAbility.generated.h"
+#include "UpGunReloadAbility.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpReloadAbility : public UUpGameplayAbility
+class UNREALPORTFOLIO_API UUpGunReloadAbility : public UUpGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UUpReloadAbility();
+	UUpGunReloadAbility();
 
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,

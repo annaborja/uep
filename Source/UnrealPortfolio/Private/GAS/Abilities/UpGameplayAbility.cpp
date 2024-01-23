@@ -4,7 +4,11 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "UpGameInstance.h"
 #include "Abilities/Tasks/AbilityTask_Repeat.h"
+#include "GAS/UpGasDataAsset.h"
+#include "Tags/GasTags.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 UUpGameplayAbility::UUpGameplayAbility()
 {
@@ -50,17 +54,29 @@ void UUpGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 	if (RepeatTask) RepeatTask->EndTask();
 }
 
-void UUpGameplayAbility::TriggerDamage(AActor* TargetActor) const
+void UUpGameplayAbility::TriggerDamage(const FHitResult& HitResult) const
 {
-	if (!DamageEffectClass) return;
-	
-	if (const auto SourceAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo()))
+	if (const auto HitActor = HitResult.GetActor())
 	{
-		if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
+		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(HitActor))
 		{
-			SourceAbilitySystemComponent->ApplyGameplayEffectSpecToTarget(
-				*SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), SourceAbilitySystemComponent->MakeEffectContext()).Data.Get(),
-				TargetAbilitySystemComponent);
+			if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+			{
+				if (const auto EffectClass = GasDataAsset->GetEffectClass_Damage())
+				{
+					if (const auto SourceAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo()))
+					{
+						if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor))
+						{
+							auto EffectContext = SourceAbilitySystemComponent->MakeEffectContext();
+							EffectContext.AddHitResult(HitResult);
+						
+							SourceAbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*SourceAbilitySystemComponent->MakeOutgoingSpec(
+								EffectClass, GetAbilityLevel(), EffectContext).Data.Get(), TargetAbilitySystemComponent);
+						}
+					}
+				}
+			}
 		}
 	}
 }

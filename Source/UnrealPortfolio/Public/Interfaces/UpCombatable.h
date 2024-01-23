@@ -19,6 +19,7 @@ class UNREALPORTFOLIO_API IUpCombatable
 	GENERATED_BODY()
 
 public:
+	virtual float CalculateDamageDealt(const FHitResult& HitResult) const = 0;
 	virtual void Die() = 0;
 	virtual UUpCombatComponent* GetCombatComponent() const = 0;
 	virtual uint8 GetCombatLevel() const { return 1; }

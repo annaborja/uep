@@ -166,6 +166,11 @@ void AUpWeapon::Interact(AUpPlayerController* PlayerController)
 	}
 }
 
+float AUpWeapon::CalculateDamage() const
+{
+	return 25.f;
+}
+
 FName AUpWeapon::GetMontageSectionName() const
 {
 	TArray<FString> TagSegments;

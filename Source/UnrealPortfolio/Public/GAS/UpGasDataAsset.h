@@ -17,6 +17,7 @@ class UNREALPORTFOLIO_API UUpGasDataAsset : public UDataAsset
 public:
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetAmmoGrantEffectClass() const { return AmmoGrantEffectClass; }
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetEffectClass_BusyState() const { return EffectClass_BusyState; }
+	FORCEINLINE TSubclassOf<UGameplayEffect> GetEffectClass_Damage() const { return EffectClass_Damage; }
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetEffectClass_StaminaRegenCooldown() const { return EffectClass_StaminaRegenCooldown; }
 	
 	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetGrantedAbilityClasses_Common() const { return GrantedAbilityClasses_Common; }
@@ -28,6 +29,8 @@ private:
 	TSubclassOf<UGameplayEffect> AmmoGrantEffectClass;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> EffectClass_BusyState;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TSubclassOf<UGameplayEffect> EffectClass_Damage;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> EffectClass_StaminaRegenCooldown;
 	

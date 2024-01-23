@@ -11,11 +11,17 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Gas_AbilityFailure_TagsMissing, "Gas.AbilityFailure.T
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_AimDownSights, "Ability.AimDownSights")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_GunFire, "Ability.GunFire")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_GunReload, "Ability.GunReload")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HitReaction, "Ability.HitReaction")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Sprint, "Ability.Sprint")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_StaminaRegen, "Ability.StaminaRegen")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_GunFire, "Cooldown.GunFire")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_StaminaRegen, "Cooldown.StaminaRegen")
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_GunFire_Impact, "GameplayCue.GunFire.Impact")
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Magnitude_Damage, "Magnitude.Damage")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Aiming, "State.Aiming")
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Busy, "State.Busy")

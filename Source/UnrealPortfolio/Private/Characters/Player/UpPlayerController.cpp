@@ -16,7 +16,6 @@
 #include "Interfaces/UpInteractable.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Tags/CombatTags.h"
 #include "Tags/GasTags.h"
 #include "UI/UpHud.h"
 #include "Utils/Constants.h"
@@ -226,6 +225,8 @@ void AUpPlayerController::BeginPlay()
 	check(InputAction_Look);
 	check(InputAction_SwitchCameraView);
 	check(InputAction_Jump);
+	check(InputAction_Reload);
+	check(InputAction_Interact);
 	check(InputAction_AimGun);
 	check(InputAction_FireWeapon);
 
@@ -307,16 +308,23 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InputAction_Sprint, ETriggerEvent::Completed, this, &ThisClass::StopSprint);
 	
 	EnhancedInputComponent->BindAction(InputAction_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
+	
 	EnhancedInputComponent->BindAction(InputAction_SwitchCameraView, ETriggerEvent::Triggered, this, &ThisClass::SwitchCameraView);
 	
-	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Started, this, &ThisClass::StartAimingGun);
-	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Completed, this, &ThisClass::StopAimingGun);
+	EnhancedInputComponent->BindAction(InputAction_Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
 	
-	EnhancedInputComponent->BindAction(InputAction_PauseGame, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
 	EnhancedInputComponent->BindAction(InputAction_Reload, ETriggerEvent::Triggered, this, &ThisClass::Reload);
 	
 	EnhancedInputComponent->BindAction(InputAction_Interact, ETriggerEvent::Started, this, &ThisClass::StartInteraction);
 	EnhancedInputComponent->BindAction(InputAction_Interact, ETriggerEvent::Completed, this, &ThisClass::EndInteraction);
+	
+	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Started, this, &ThisClass::StartAimingGun);
+	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Completed, this, &ThisClass::StopAimingGun);
+	
+	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Started, this, &ThisClass::StartFiringWeapon);
+	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Completed, this, &ThisClass::StopFiringWeapon);
+	
+	EnhancedInputComponent->BindAction(InputAction_PauseGame, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
 	
 	EnhancedInputComponent->BindAction(InputAction_OpenCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
 	EnhancedInputComponent->BindAction(InputAction_CloseCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::TriggerCloseCharacterSwitcher);
@@ -326,10 +334,6 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InputAction_Weapon2, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon2);
 	
 	EnhancedInputComponent->BindAction(InputAction_Crouch, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
-	EnhancedInputComponent->BindAction(InputAction_Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
-	
-	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Started, this, &ThisClass::StartFiringWeapon);
-	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Completed, this, &ThisClass::StopFiringWeapon);
 }
 
 void AUpPlayerController::ToggleDebugCamera(const FInputActionValue& InputActionValue)
@@ -492,6 +496,44 @@ void AUpPlayerController::Jump(const FInputActionValue& InputActionValue)
 	PossessedCharacter->Jump();
 }
 
+void AUpPlayerController::Reload(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	if (const auto AbilitySystemComponent = PossessedCharacter->GetAbilitySystemComponent())
+	{
+		FGameplayTagContainer AbilityTags;
+		AbilityTags.AddTag(TAG_Ability_GunReload);
+		
+		AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+	}
+}
+
+void AUpPlayerController::StartInteraction(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	if (const auto InteractionComponent = PossessedCharacter->GetPlayerInteractionComponent())
+	{
+		if (const auto TargetInteractable = InteractionComponent->GetTargetInteractable())
+		{
+			if (const auto Interactable = Cast<IUpInteractable>(TargetInteractable))
+			{
+				ActiveInteractable = TargetInteractable;
+				Interactable->Interact(this);
+			}
+		}
+	}
+}
+
+void AUpPlayerController::EndInteraction(const FInputActionValue& InputActionValue)
+{
+	if (const auto Interactable = Cast<IUpInteractable>(ActiveInteractable))
+	{
+		Interactable->OnInteractionEnd(this);
+	}
+}
+
 void AUpPlayerController::StartAimingGun(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
@@ -551,31 +593,6 @@ void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
 	UGameplayStatics::SetGamePaused(this, true);
 }
 
-void AUpPlayerController::StartInteraction(const FInputActionValue& InputActionValue)
-{
-	if (!PossessedCharacter) return;
-
-	if (const auto InteractionComponent = PossessedCharacter->GetPlayerInteractionComponent())
-	{
-		if (const auto TargetInteractable = InteractionComponent->GetTargetInteractable())
-		{
-			if (const auto Interactable = Cast<IUpInteractable>(TargetInteractable))
-			{
-				ActiveInteractable = TargetInteractable;
-				Interactable->Interact(this);
-			}
-		}
-	}
-}
-
-void AUpPlayerController::EndInteraction(const FInputActionValue& InputActionValue)
-{
-	if (const auto Interactable = Cast<IUpInteractable>(ActiveInteractable))
-	{
-		Interactable->OnInteractionEnd(this);
-	}
-}
-
 void AUpPlayerController::OpenCharacterSwitcher(const FInputActionValue& InputActionValue)
 {
 	if (!CustomHud) return;
@@ -629,19 +646,5 @@ void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue
 	} else
 	{
 		PossessedCharacter->Crouch();
-	}
-}
-
-void AUpPlayerController::Reload(const FInputActionValue& InputActionValue)
-{
-	if (const auto AbilitySystemInterface = Cast<IAbilitySystemInterface>(PossessedCharacter))
-	{
-		if (const auto AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent())
-		{
-			FGameplayTagContainer AbilityTags;
-			AbilityTags.AddTag(TAG_Combat_Reload);
-			
-			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
-		}
 	}
 }

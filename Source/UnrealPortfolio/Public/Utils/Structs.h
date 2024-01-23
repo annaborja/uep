@@ -9,6 +9,7 @@
 #include "Tags/ItemTags.h"
 #include "Structs.generated.h"
 
+class UNiagaraSystem;
 class AUpItem;
 
 USTRUCT(BlueprintType)
@@ -332,4 +333,7 @@ struct FUpWeaponData : public FTableRowBase
 	
 	UPROPERTY(EditDefaultsOnly)
 	float Range = 20000.f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraSystem> NiagaraSystem_Impact;
 };
