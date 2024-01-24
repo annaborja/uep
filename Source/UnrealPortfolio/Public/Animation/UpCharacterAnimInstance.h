@@ -55,6 +55,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bCrouching = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
+	bool bDead = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bFalling = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UP Runtime")
 	bool bRelaxed = false;

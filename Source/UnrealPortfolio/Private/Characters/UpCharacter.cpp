@@ -66,6 +66,7 @@ void AUpCharacter::BeginPlay()
 	check(InitVitalAttributesEffectClass);
 
 	check(ClimbingMontage_ThirdPerson);
+	check(DeathsMontage_ThirdPerson);
 	check(GesturesMontage_ThirdPerson);
 	check(GunFiringMontage_ThirdPerson);
 	check(HitReactionsMontage_ThirdPerson);
@@ -101,7 +102,7 @@ void AUpCharacter::BeginPlay()
 
 float AUpCharacter::CalculateDamageDealt(const FHitResult& HitResult) const
 {
-	return 1.f;
+	return 10.f;
 }
 
 void AUpCharacter::Die()
@@ -114,7 +115,6 @@ void AUpCharacter::Die()
 	if (const auto Mesh = GetMesh())
 	{
 		Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-		Mesh->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 		Mesh->SetEnableGravity(true);
 		Mesh->SetSimulatePhysics(true);
 	}
@@ -173,6 +173,19 @@ bool AUpCharacter::IsBusy() const
 		}
 
 		return false;
+	}
+
+	return false;
+}
+
+bool AUpCharacter::IsDead() const
+{
+	if (AbilitySystemComponent)
+	{
+		FGameplayTagContainer AbilitySystemTags;
+		AbilitySystemComponent->GetOwnedGameplayTags(AbilitySystemTags);
+
+		return AbilitySystemTags.HasTagExact(TAG_State_Dead);
 	}
 
 	return false;

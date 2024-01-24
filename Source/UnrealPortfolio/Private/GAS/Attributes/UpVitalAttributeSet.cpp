@@ -5,8 +5,8 @@
 #include "GameplayEffectExtension.h"
 #include "UpGameInstance.h"
 #include "GAS/UpGasDataAsset.h"
-#include "Interfaces/UpCombatable.h"
 #include "Tags/AttributeTags.h"
+#include "Tags/GasTags.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
 UUpVitalAttributeSet::UUpVitalAttributeSet()
@@ -58,10 +58,10 @@ void UUpVitalAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 			{
 				if (const auto TargetAbilitySystemComponent = &Data.Target; IsValid(TargetAbilitySystemComponent))
 				{
-					if (const auto Combatable = Cast<IUpCombatable>(TargetAbilitySystemComponent->GetAvatarActor()))
-					{
-						Combatable->Die();
-					}
+					FGameplayTagContainer AbilityTags;
+					AbilityTags.AddTag(TAG_Ability_Death);
+					
+					TargetAbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
 				}
 			}
 		}

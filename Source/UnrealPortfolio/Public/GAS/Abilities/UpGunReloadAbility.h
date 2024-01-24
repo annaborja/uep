@@ -14,6 +14,8 @@ class UNREALPORTFOLIO_API UUpGunReloadAbility : public UUpGameplayAbility
 public:
 	UUpGunReloadAbility();
 
+	virtual void OnGameplayTaskInitialized(UGameplayTask& Task) override;
+
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
@@ -21,13 +23,9 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> EffectClass;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> EffectClass_Success;
 
 	UFUNCTION()
 	virtual void OnMontageCompleted();
 	UFUNCTION()
 	virtual void OnMontageInterrupted();
-
-	FName GetReloadsMontageSectionName() const;
 };

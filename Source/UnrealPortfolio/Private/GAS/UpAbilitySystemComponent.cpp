@@ -17,8 +17,8 @@ void UUpAbilitySystemComponent::Init(AActor* InOwnerActor, AActor* InAvatarActor
 
 	for (const auto EffectClass : InitAttributesEffectClasses)
 	{
-		ApplyGameplayEffectSpecToTarget(*MakeOutgoingSpec(
-			EffectClass, Combatable ? Combatable->GetCombatLevel() : 1.f, MakeEffectContext()).Data.Get(), this);
+		ApplyGameplayEffectSpecToSelf(*MakeOutgoingSpec(
+			EffectClass, Combatable ? Combatable->GetCombatLevel() : 1.f, MakeEffectContext()).Data.Get());
 	}
 
 	if (InAvatarActor->HasAuthority())

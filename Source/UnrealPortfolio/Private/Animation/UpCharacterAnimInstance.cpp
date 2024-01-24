@@ -28,6 +28,7 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 		CameraView = Character->GetCameraView();
 		Posture = Character->GetPosture();
 		bAiming = Character->IsAiming();
+		bDead = Character->IsDead();
 		bRelaxed = Character->IsRelaxed();
 
 		if (const auto MovementComponent = Character->GetCustomMovementComponent())

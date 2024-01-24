@@ -13,10 +13,7 @@ float UUpMmc_GunFireCooldown::CalculateBaseMagnitude_Implementation(const FGamep
 	{
 		if (const auto Weapon = Character->GetActiveWeapon())
 		{
-			if (const auto WeaponData = Weapon->GetWeaponData(); WeaponData.IsValid())
-			{
-				return WeaponData.BurstInterval;
-			}
+			return Weapon->GetBurstInterval();
 		}
 	}
 	

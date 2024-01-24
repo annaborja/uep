@@ -2,52 +2,84 @@
 
 #include "GAS/Abilities/UpGunReloadAbility.h"
 
+#include "GameplayEffectCustomApplicationRequirement.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Characters/UpCharacter.h"
-#include "Interfaces/UpCombatable.h"
 #include "Items/UpWeapon.h"
 #include "Tags/GasTags.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 UUpGunReloadAbility::UUpGunReloadAbility()
 {
 	AbilityTags.AddTag(TAG_Ability_GunReload);
 }
 
+void UUpGunReloadAbility::OnGameplayTaskInitialized(UGameplayTask& Task)
+{
+	Super::OnGameplayTaskInitialized(Task);
+
+	check(EffectClass);
+}
+
 void UUpGunReloadAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-                                       const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+                                          const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (const auto AvatarActor = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
+	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 	{
-		if (const auto Weapon = AvatarActor->GetActiveWeapon())
+		if (const auto Weapon = Character->GetActiveWeapon())
 		{
 			if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
 			{
 				bool bCanReload = true;
 
-				if (EffectClass)
+				if (const auto Effect = EffectClass ? EffectClass->GetDefaultObject<UGameplayEffect>() : nullptr)
 				{
-					bCanReload = WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
-						*WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass, GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get()
-						).WasSuccessfullyApplied();
+					for (const auto AppReq : Effect->ApplicationRequirements)
+					{
+						const auto AppReqDefaultObject = AppReq ?
+							AppReq->GetDefaultObject<UGameplayEffectCustomApplicationRequirement>() : nullptr;
+
+						if (const auto EffectSpec = WeaponAbilitySystemComponent->MakeOutgoingSpec(
+							EffectClass, GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get();
+								AppReqDefaultObject && EffectSpec && EffectSpec->Def)
+						{
+							if (!AppReqDefaultObject->CanApplyGameplayEffect(EffectSpec->Def, *EffectSpec, WeaponAbilitySystemComponent))
+							{
+								bCanReload = false;
+								break;
+							}
+						} else
+						{
+							bCanReload = false;
+							break;
+						}
+					}
+				} else
+				{
+					bCanReload = false;
 				}
 				
 				if (bCanReload)
 				{
-					if (const auto Combatable = Cast<IUpCombatable>(AvatarActor))
+					if (const auto Montage = Character->GetReloadsMontage())
 					{
-						if (const auto Montage = Combatable->GetReloadsMontage())
-						{
-							const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-								this, NAME_None, Montage, 1.f, GetReloadsMontageSectionName());
-							PlayMontageAndWaitTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-							PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageInterrupted);
-							PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageInterrupted);
-							PlayMontageAndWaitTask->Activate();
+						const auto MontageSectionName = FName(UUpBlueprintFunctionLibrary::GetWeaponMontageSectionName(Character));
 
-							return;
+						if (bDebug)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Montage section name: %s"), *MontageSectionName.ToString())
 						}
+						
+						const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+							this, NAME_None, Montage, 1.f, MontageSectionName);
+						PlayMontageAndWaitTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+						PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageInterrupted);
+						PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageInterrupted);
+						PlayMontageAndWaitTask->Activate();
+
+						return;
 					}
 				}
 			}
@@ -59,16 +91,17 @@ void UUpGunReloadAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 void UUpGunReloadAbility::OnMontageCompleted()
 {
-	if (EffectClass_Success)
+	if (EffectClass)
 	{
-		if (const auto AvatarActor = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
+		if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 		{
-			if (const auto Weapon = AvatarActor->GetActiveWeapon())
+			if (const auto Weapon = Character->GetActiveWeapon())
 			{
 				if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
 				{
 					WeaponAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
-						*WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass_Success, GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get());
+						*WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass, GetAbilityLevel(),
+							WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get());
 				}
 			}
 		}
@@ -80,9 +113,4 @@ void UUpGunReloadAbility::OnMontageCompleted()
 void UUpGunReloadAbility::OnMontageInterrupted()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, true);
-}
-
-FName UUpGunReloadAbility::GetReloadsMontageSectionName() const
-{
-	return NAME_None;
 }

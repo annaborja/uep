@@ -74,6 +74,7 @@ public:
 	virtual EUpCameraView::Type GetCameraView() const { return EUpCameraView::ThirdPerson; }
 	bool IsAiming() const;
 	bool IsBusy() const;
+	bool IsDead() const;
 	bool IsInFirstPersonMode() const;
 	bool IsInStrafingMode() const;
 	bool IsStrafingForward() const;
@@ -88,6 +89,7 @@ public:
 	AUpWeapon* GetActiveWeapon() const;
 
 	virtual UAnimMontage* GetClimbingMontage() const { return ClimbingMontage_ThirdPerson; }
+	virtual UAnimMontage* GetDeathsMontage() const { return DeathsMontage_ThirdPerson; }
 	virtual UAnimMontage* GetGesturesMontage() const { return GesturesMontage_ThirdPerson; }
 	virtual UAnimMontage* GetGunFiringMontage() const { return GunFiringMontage_ThirdPerson; }
 	virtual UAnimMontage* GetMantlesMontage() const { return MantlesMontage_ThirdPerson; }
@@ -124,6 +126,8 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> ClimbingMontage_ThirdPerson;
+	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> DeathsMontage_ThirdPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> GesturesMontage_ThirdPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")

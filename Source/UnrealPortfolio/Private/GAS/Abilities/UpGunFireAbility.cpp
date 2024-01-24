@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Tags/GasTags.h"
 #include "Utils/Constants.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 UUpGunFireAbility::UUpGunFireAbility()
 {
@@ -79,8 +80,8 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 
 					if (const auto Montage = Character->GetGunFiringMontage())
 					{
-						UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-							this, NAME_None, Montage, 1.f, Weapon->GetMontageSectionName())->Activate();
+						UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, Montage, 1.f,
+							FName(UUpBlueprintFunctionLibrary::GetWeaponMontageSectionName(Character)))->Activate();
 					}
 					
 					FVector ReticleWorldPosition;

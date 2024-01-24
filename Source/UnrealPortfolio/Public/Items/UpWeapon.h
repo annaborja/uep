@@ -24,7 +24,9 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 	
 	float CalculateDamage() const;
-	FName GetMontageSectionName() const;
+	float GetMagazineCapacity() const;
+	float GetMaxAmmo() const;
+	float GetBurstInterval() const;
 	float GetBurstShotInterval() const;
 	int32 GetBurstSize() const;
 	float GetRange() const;
@@ -39,9 +41,7 @@ protected:
 	TObjectPtr<UUpAbilitySystemComponent> AbilitySystemComponent;
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> InitAmmoCapacityAttributesEffectClass;
-	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TSubclassOf<UGameplayEffect> InitAmmoAmountAttributesEffectClass;
+	TSubclassOf<UGameplayEffect> EffectClass_InitAmmo;
 	
 	UPROPERTY()
 	TObjectPtr<UUpAmmoAttributeSet> AmmoAttributeSet;

@@ -171,12 +171,19 @@ float AUpWeapon::CalculateDamage() const
 	return 25.f;
 }
 
-FName AUpWeapon::GetMontageSectionName() const
+float AUpWeapon::GetMagazineCapacity() const
 {
-	TArray<FString> TagSegments;
-	TagId.ToString().ParseIntoArray(TagSegments, TEXT("."));
+	return WeaponData.MagazineCapacity;
+}
 
-	return FName(TagSegments[2]);
+float AUpWeapon::GetMaxAmmo() const
+{
+	return WeaponData.MaxAmmo;
+}
+
+float AUpWeapon::GetBurstInterval() const
+{
+	return WeaponData.BurstInterval;
 }
 
 float AUpWeapon::GetBurstShotInterval() const
@@ -207,13 +214,11 @@ void AUpWeapon::BeginPlay()
 
 	check(WeaponData.IsValid())
 	
-	check(InitAmmoCapacityAttributesEffectClass);
-	check(InitAmmoAmountAttributesEffectClass);
+	check(EffectClass_InitAmmo);
 
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->Init(this, this,
-			TArray { InitAmmoCapacityAttributesEffectClass, InitAmmoAmountAttributesEffectClass },
-			TArray<TSubclassOf<UGameplayAbility>> {});
+			TArray { EffectClass_InitAmmo }, TArray<TSubclassOf<UGameplayAbility>> {});
 	}
 }

@@ -199,6 +199,23 @@ bool UUpBlueprintFunctionLibrary::ValidateWeaponTag(const FGameplayTag& Tag, con
 	return true;	
 }
 
+FString UUpBlueprintFunctionLibrary::GetWeaponMontageSectionName(const AUpCharacter* Character)
+{
+	if (Character->IsRelaxed()) return TEXT("Unarmed");
+	
+	switch (Character->GetPosture())
+	{
+	case EUpCharacterPosture::ArmedPistol:
+		return TEXT("ArmedPistol");
+	case EUpCharacterPosture::ArmedRevolver:
+		return TEXT("ArmedRevolver");
+	case EUpCharacterPosture::ArmedRifle:
+		return TEXT("ArmedRifle");
+	default:
+		return TEXT("Unarmed");
+	}
+}
+
 bool UUpBlueprintFunctionLibrary::IsTwoHandedGunTag(const FGameplayTag& Tag)
 {
 	FGameplayTagContainer TwoHandedGunTags;

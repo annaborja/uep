@@ -7,6 +7,7 @@
 #include "Characters/UpPlayableCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Tags/GasTags.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 UUpHitReactionAbility::UUpHitReactionAbility()
 {
@@ -39,9 +40,8 @@ void UUpHitReactionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 						UE_LOG(LogTemp, Warning, TEXT("Montage section name: %s"), *MontageSectionName.ToString())
 					}
 				
-					const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-						this, NAME_None, Montage, 1.f, MontageSectionName);
-					PlayMontageAndWaitTask->Activate();
+					UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+						this, NAME_None, Montage, 1.f, MontageSectionName)->Activate();
 				}	
 			}
 		}
@@ -56,28 +56,7 @@ FName UUpHitReactionAbility::GetMontageSectionName(const FVector& Origin, const 
 	
 	if (const auto Character = Cast<AUpCharacter>(HitResult.GetActor()))
 	{
-		if (Character->IsRelaxed())
-		{
-			MontageSectionString += TEXT("Unarmed");
-		} else
-		{
-			switch (Character->GetPosture())
-			{
-			case EUpCharacterPosture::ArmedPistol:
-				MontageSectionString += TEXT("ArmedPistol");
-				break;
-			case EUpCharacterPosture::ArmedRevolver:
-				MontageSectionString += TEXT("ArmedRevolver");
-				break;
-			case EUpCharacterPosture::ArmedRifle:
-				MontageSectionString += TEXT("ArmedRifle");
-				break;
-			default:
-				MontageSectionString += TEXT("Unarmed");
-				break;
-			}
-		}
-
+		MontageSectionString += UUpBlueprintFunctionLibrary::GetWeaponMontageSectionName(Character);
 		MontageSectionString += TEXT(".");
 	
 		const auto CharacterForwardVector = Character->GetActorForwardVector();
