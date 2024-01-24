@@ -2,6 +2,7 @@
 
 #include "Characters/Player/UpPlayerController.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
@@ -227,6 +228,8 @@ void AUpPlayerController::BeginPlay()
 	check(InputAction_Jump);
 	check(InputAction_Reload);
 	check(InputAction_Interact);
+	check(InputAction_Weapon1);
+	check(InputAction_Weapon2);
 	check(InputAction_AimGun);
 	check(InputAction_FireWeapon);
 
@@ -318,6 +321,9 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InputAction_Interact, ETriggerEvent::Started, this, &ThisClass::StartInteraction);
 	EnhancedInputComponent->BindAction(InputAction_Interact, ETriggerEvent::Completed, this, &ThisClass::EndInteraction);
 	
+	EnhancedInputComponent->BindAction(InputAction_Weapon1, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon1);
+	EnhancedInputComponent->BindAction(InputAction_Weapon2, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon2);
+	
 	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Started, this, &ThisClass::StartAimingGun);
 	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Completed, this, &ThisClass::StopAimingGun);
 	
@@ -329,9 +335,6 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InputAction_OpenCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
 	EnhancedInputComponent->BindAction(InputAction_CloseCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::TriggerCloseCharacterSwitcher);
 	EnhancedInputComponent->BindAction(InputAction_NavigateCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::NavigateCharacterSwitcher);
-	
-	EnhancedInputComponent->BindAction(InputAction_Weapon1, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon1);
-	EnhancedInputComponent->BindAction(InputAction_Weapon2, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon2);
 	
 	EnhancedInputComponent->BindAction(InputAction_Crouch, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
 }
@@ -534,6 +537,34 @@ void AUpPlayerController::EndInteraction(const FInputActionValue& InputActionVal
 	}
 }
 
+void AUpPlayerController::ToggleWeapon1(const FInputActionValue& InputActionValue)
+{
+	ToggleWeapon(EUpEquipmentSlot::Weapon1);
+}
+
+void AUpPlayerController::ToggleWeapon2(const FInputActionValue& InputActionValue)
+{
+	ToggleWeapon(EUpEquipmentSlot::Weapon2);
+}
+
+void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlot) const
+{
+	if (!PossessedCharacter) return;
+
+	FGameplayEventData EventPayload;
+	EventPayload.EventMagnitude = EquipmentSlot;
+		
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PossessedCharacter, TAG_Ability_ActivateEquipment, EventPayload);
+	
+	// if (PossessedCharacter->GetEquipment().GetEquipmentSlotData(EquipmentSlot).bActivated)
+	// {
+		// PossessedCharacter->DeactivateEquipment(EquipmentSlot);
+	// } else
+	// {
+		// PossessedCharacter->ActivateEquipment(EquipmentSlot);
+	// }
+}
+
 void AUpPlayerController::StartAimingGun(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
@@ -611,29 +642,6 @@ void AUpPlayerController::TriggerCloseCharacterSwitcher(const FInputActionValue&
 void AUpPlayerController::NavigateCharacterSwitcher(const FInputActionValue& InputActionValue)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[temp] navigate char switcher"))
-}
-
-void AUpPlayerController::ToggleWeapon1(const FInputActionValue& InputActionValue)
-{
-	ToggleWeapon(EUpEquipmentSlot::Weapon1);
-}
-
-void AUpPlayerController::ToggleWeapon2(const FInputActionValue& InputActionValue)
-{
-	ToggleWeapon(EUpEquipmentSlot::Weapon2);
-}
-
-void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlot) const
-{
-	if (!PossessedCharacter) return;
-
-	if (PossessedCharacter->GetEquipment().GetEquipmentSlotData(EquipmentSlot).bActivated)
-	{
-		PossessedCharacter->DeactivateEquipment(EquipmentSlot);
-	} else
-	{
-		PossessedCharacter->ActivateEquipment(EquipmentSlot);
-	}
 }
 
 void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue)

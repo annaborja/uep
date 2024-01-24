@@ -93,6 +93,7 @@ public:
 	virtual UAnimMontage* GetGesturesMontage() const { return GesturesMontage_ThirdPerson; }
 	virtual UAnimMontage* GetGunFiringMontage() const { return GunFiringMontage_ThirdPerson; }
 	virtual UAnimMontage* GetMantlesMontage() const { return MantlesMontage_ThirdPerson; }
+	virtual UAnimMontage* GetWeaponEquipMontage() const { return WeaponEquipMontage_ThirdPerson; }
 
 	void HandleFootstep(const FName& BoneName, const EUpTraceDirection::Type TraceDirection = EUpTraceDirection::Down,
 		const float TraceLength = 10.f, const float VolumeMultiplier = 1.f) const;
@@ -138,6 +139,8 @@ protected:
 	TObjectPtr<UAnimMontage> MantlesMontage_ThirdPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> ReloadsMontage_ThirdPerson;
+	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> WeaponEquipMontage_ThirdPerson;
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets|GAS")
 	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;

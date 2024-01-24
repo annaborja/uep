@@ -10,6 +10,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Gas_AbilityFailure_TagsBlocked, "Gas.AbilityFailure.T
 UE_DEFINE_GAMEPLAY_TAG(TAG_Gas_AbilityFailure_TagsMissing, "Gas.AbilityFailure.TagsMissing")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability, "Ability")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_ActivateEquipment, "Ability.ActivateEquipment")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_AimDownSights, "Ability.AimDownSights")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Death, "Ability.Death")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_GunFire, "Ability.GunFire")

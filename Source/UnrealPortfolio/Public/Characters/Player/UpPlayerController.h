@@ -82,6 +82,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_Interact;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Weapon1;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Weapon2;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_AimGun;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_FireWeapon;
@@ -96,10 +100,6 @@ private:
 	TObjectPtr<UInputAction> InputAction_OpenCharacterSwitcher;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_PauseGame;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_Weapon1;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_Weapon2;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugAimAssist = false;
@@ -157,6 +157,10 @@ private:
 	void StartInteraction(const FInputActionValue& InputActionValue);
 	void EndInteraction(const FInputActionValue& InputActionValue);
 	
+	void ToggleWeapon1(const FInputActionValue& InputActionValue);
+	void ToggleWeapon2(const FInputActionValue& InputActionValue);
+	void ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlot) const;
+	
 	void StartAimingGun(const FInputActionValue& InputActionValue);
 	void StopAimingGun(const FInputActionValue& InputActionValue);
 	
@@ -168,10 +172,6 @@ private:
 	void OpenCharacterSwitcher(const FInputActionValue& InputActionValue);
 	void TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue);
 	void NavigateCharacterSwitcher(const FInputActionValue& InputActionValue);
-
-	void ToggleWeapon1(const FInputActionValue& InputActionValue);
-	void ToggleWeapon2(const FInputActionValue& InputActionValue);
-	void ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlot) const;
-
+	
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
 };

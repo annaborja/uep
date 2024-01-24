@@ -36,16 +36,15 @@ void UUpGunReloadAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 				if (const auto Effect = EffectClass ? EffectClass->GetDefaultObject<UGameplayEffect>() : nullptr)
 				{
-					for (const auto AppReq : Effect->ApplicationRequirements)
+					// This code is based on code in the engine in an attempt to avoid a situation where the game
+					// would randomly crash while executing this ability (maybe due to something being garbage collected?).
+					for (const auto& AppReq : Effect->ApplicationRequirements)
 					{
-						const auto AppReqDefaultObject = AppReq ?
-							AppReq->GetDefaultObject<UGameplayEffectCustomApplicationRequirement>() : nullptr;
-
-						if (const auto EffectSpec = WeaponAbilitySystemComponent->MakeOutgoingSpec(
-							EffectClass, GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get();
-								AppReqDefaultObject && EffectSpec && EffectSpec->Def)
+						if (*AppReq)
 						{
-							if (!AppReqDefaultObject->CanApplyGameplayEffect(EffectSpec->Def, *EffectSpec, WeaponAbilitySystemComponent))
+							if (!AppReq->GetDefaultObject<UGameplayEffectCustomApplicationRequirement>()->
+								CanApplyGameplayEffect(Effect, *WeaponAbilitySystemComponent->MakeOutgoingSpec(EffectClass,
+									GetAbilityLevel(), WeaponAbilitySystemComponent->MakeEffectContext()).Data.Get(), WeaponAbilitySystemComponent))
 							{
 								bCanReload = false;
 								break;

@@ -72,6 +72,7 @@ void AUpCharacter::BeginPlay()
 	check(HitReactionsMontage_ThirdPerson);
 	check(MantlesMontage_ThirdPerson);
 	check(ReloadsMontage_ThirdPerson);
+	check(WeaponEquipMontage_ThirdPerson);
 
 	check(Sfx_BulletImpacts);
 	check(Sfx_JumpLaunches);
