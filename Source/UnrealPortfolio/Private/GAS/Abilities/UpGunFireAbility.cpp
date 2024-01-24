@@ -108,34 +108,38 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 
 							if (ReticleHitResults.Num() > 0)
 							{
+								const auto MuzzleTraceStart = WeaponMesh->GetSocketLocation(FName(SOCKET_NAME_ATTACK_SOURCE));
+								const auto& ReticleHit = ReticleHitResults.Last();
+								
 								TArray<FHitResult> MuzzleHitResults;
-								UKismetSystemLibrary::LineTraceMulti(this,
-									WeaponMesh->GetSocketLocation(FName(SOCKET_NAME_ATTACK_SOURCE)), ReticleHitResults.Last().ImpactPoint,
+								UKismetSystemLibrary::LineTraceMulti(this, MuzzleTraceStart,
+									// Add some buffer space to make sure the line trace isn't too short.
+									ReticleHit.ImpactPoint + (ReticleHit.ImpactPoint - MuzzleTraceStart).GetSafeNormal() * 10.f,
 									UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_WEAPON), false, IgnoredActors,
 									bDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, MuzzleHitResults, true);
 
-								for (const auto& MuzzleHitResult : MuzzleHitResults)
+								for (const auto& MuzzleHit : MuzzleHitResults)
 								{
-									if (const auto HitActor = MuzzleHitResult.GetActor())
+									if (const auto HitActor = MuzzleHit.GetActor())
 									{
 										if (bDebug)
 										{
 											UE_LOG(LogTemp, Warning, TEXT("Hit actor %s"), *HitActor->GetName())
 										}
 										
-										if (MuzzleHitResult.bBlockingHit)
+										if (MuzzleHit.bBlockingHit)
 										{
 											if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor))
 											{
 												FGameplayCueParameters CueParams;
-												CueParams.Location = MuzzleHitResult.ImpactPoint;
-												CueParams.Normal = MuzzleHitResult.ImpactNormal;
+												CueParams.Location = MuzzleHit.ImpactPoint;
+												CueParams.Normal = MuzzleHit.ImpactNormal;
 												CueParams.SourceObject = Weapon;
 
 												TargetAbilitySystemComponent->ExecuteGameplayCue(TAG_GameplayCue_GunFire_Impact, CueParams);
 												
 												auto EffectContextHandle = TargetAbilitySystemComponent->MakeEffectContext();
-												EffectContextHandle.AddHitResult(MuzzleHitResult);
+												EffectContextHandle.AddHitResult(MuzzleHit);
 			
 												FGameplayEventData EventPayload;
 												EventPayload.ContextHandle = EffectContextHandle;
@@ -143,7 +147,7 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 												UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, TAG_Ability_HitReaction, EventPayload);
 											}
 			
-											TriggerDamage(MuzzleHitResult);
+											TriggerDamage(MuzzleHit);
 										}
 									}
 								}

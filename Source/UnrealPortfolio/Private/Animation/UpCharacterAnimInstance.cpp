@@ -18,11 +18,22 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 		VerticalVelocity = Character->GetVelocity().Z;;
 		bMovingHorizontally = HorizontalSpeed > 5.f;
 		bMovingDownward = VerticalVelocity < -5.f;
-		bMovingUpward = VerticalVelocity > 5.f;	
-		
+		bMovingUpward = VerticalVelocity > 5.f;
+
 		AimPitch = Character->GetBaseAimRotation().Pitch;
 		Yaw = Character->GetActorRotation().Yaw;
-		MovementOffsetYaw = Character->IsInStrafingMode() ? Character->GetMovementOffsetYaw() : 0.f;
+		MovementOffsetYaw = 0.f;
+
+		if (const auto Mesh = Character->GetMesh())
+		{
+			if (const auto AnimInstance = Mesh->GetAnimInstance())
+			{
+				// Lateral movement animations look bad when combined with the gun fire montage sequences,
+				// so make sure the character is always animated as moving forward while a montage is playing.
+				MovementOffsetYaw = Character->IsInStrafingMode() && !AnimInstance->Montage_IsPlaying(nullptr) ? Character->GetMovementOffsetYaw() : 0.f;
+			}
+		}
+		
 		bUseBackwardsBlendSpace = FMath::Abs(MovementOffsetYaw) > 120.f;
 		
 		CameraView = Character->GetCameraView();
