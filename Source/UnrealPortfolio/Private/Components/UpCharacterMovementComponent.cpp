@@ -291,27 +291,25 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 	// Switch to the correct two-handed gun socket when necessary (alert vs relaxed).
 	if (Character && !Character->IsRelaxed() && !Character->IsAiming())
 	{
-		if (const auto Weapon = Character->GetActiveWeapon(); Weapon && UUpBlueprintFunctionLibrary::IsTwoHandedGunTag(Weapon->GetTagId()))
+		if (const auto Weapon = Character->GetActiveWeapon(); Weapon && Weapon->IsRifleType())
 		{
 			if (const auto Mesh = Character->GetMesh())
 			{
 				const auto ParentSocketName = Weapon->GetAttachParentSocketName();
 
-				if (Character->GetHorizontalSpeed() > MaxWalkSpeed + 5.f)
+				if (IsSprinting())
 				{
-					if (const auto DesiredSocketName = TAG_Socket_TwoHandedGun_Relaxed.GetTag().GetTagName();
-						!ParentSocketName.IsEqual(DesiredSocketName))
+					if (const auto DesiredSocketName = FName(FString::Printf(TEXT("%s.%s.%s"),
+						*Weapon->GetWeaponTypeNameSectionString(), NAME_STRING_ACTIVATED, NAME_STRING_RELAXED)); !ParentSocketName.IsEqual(DesiredSocketName))
 					{
-						Weapon->AttachToComponentWithScaling(Mesh,
-							FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), DesiredSocketName);
+						Weapon->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, DesiredSocketName);
 					}
 				} else
 				{
-					if (const auto DesiredSocketName = TAG_Socket_TwoHandedGun.GetTag().GetTagName();
-						!ParentSocketName.IsEqual(DesiredSocketName))
+					if (const auto DesiredSocketName = FName(FString::Printf(TEXT("%s.%s"),
+						*Weapon->GetWeaponTypeNameSectionString(), NAME_STRING_ACTIVATED)); !ParentSocketName.IsEqual(DesiredSocketName))
 					{
-						Weapon->AttachToComponentWithScaling(Mesh,
-							FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), DesiredSocketName);
+						Weapon->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, DesiredSocketName);
 					}
 				}
 			}

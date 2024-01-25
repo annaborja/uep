@@ -20,7 +20,7 @@ protected:
 
 private:
 	UFUNCTION()
-	virtual void OnMontageCompleted();
+	void OnMontageCompleted();
 	
 	static FName GetMontageSectionName();
 };

@@ -7,6 +7,17 @@
 
 #define GRAVITATIONAL_ACCELERATION -980.f
 
+#define NAME_STRING_ARMED_PISTOL TEXT("ArmedPistol")
+#define NAME_STRING_ARMED_RIFLE TEXT("ArmedRifle")
+#define NAME_STRING_UNARMED TEXT("Unarmed")
+
+#define NAME_STRING_PISTOL_TYPE TEXT("Pistol")
+#define NAME_STRING_RIFLE_TYPE TEXT("Rifle")
+
+#define NAME_STRING_ACTIVATED TEXT("Activated")
+#define NAME_STRING_DEACTIVATED TEXT("Deactivated")
+#define NAME_STRING_RELAXED TEXT("Relaxed")
+
 #define SOCKET_NAME_ATTACK_SOURCE TEXT("AttackSource")
 
 #define SURFACE_CONCRETE SurfaceType1

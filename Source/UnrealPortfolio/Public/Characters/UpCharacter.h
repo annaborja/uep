@@ -87,6 +87,9 @@ public:
 	bool ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 	bool DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 	AUpWeapon* GetActiveWeapon() const;
+	
+	void AttachActivatedItem(AUpItem* ItemActor);
+	void AttachDeactivatedItem(AUpItem* ItemActor);
 
 	virtual UAnimMontage* GetClimbingMontage() const { return ClimbingMontage_ThirdPerson; }
 	virtual UAnimMontage* GetDeathsMontage() const { return DeathsMontage_ThirdPerson; }
@@ -100,7 +103,7 @@ public:
 	void HandleJumpLaunch() const;
 	void HandleLanding(const FName& BoneName, const EUpTraceDirection::Type TraceDirection = EUpTraceDirection::Down,
 		const float TraceLength = 10.f, const float VolumeMultiplier = 1.f) const;
-
+	
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 	FORCEINLINE FUpCharacterData GetCharacterData() const { return CharacterData; }
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
@@ -193,9 +196,6 @@ protected:
 	virtual void GetAbilityClassesToGrant(TArray<TSubclassOf<UGameplayAbility>>& AbilityClasses) const;
 
 	AUpItem* SpawnAndAttachItem(const TSubclassOf<AUpItem> ItemClass);
-	
-	void AttachAndHideItem(AUpItem* ItemActor);
-	void AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName) const;
 
 	void HandleNoise(const TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap, const FName& BoneName,
 		const EUpTraceDirection::Type TraceDirection = EUpTraceDirection::Down, const float TraceLength = 10.f, const float VolumeMultiplier = 1.f) const;

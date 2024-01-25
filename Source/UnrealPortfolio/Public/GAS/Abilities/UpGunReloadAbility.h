@@ -25,7 +25,7 @@ private:
 	TSubclassOf<UGameplayEffect> EffectClass;
 
 	UFUNCTION()
-	virtual void OnMontageCompleted();
+	void OnMontageCompleted();
 	UFUNCTION()
-	virtual void OnMontageInterrupted();
+	void OnMontageInterrupted();
 };

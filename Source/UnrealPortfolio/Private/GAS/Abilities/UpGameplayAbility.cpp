@@ -30,7 +30,7 @@ void UUpGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	
 	if (bDebug)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Start ability %s"), *GetName())
+		UE_LOG(LogTemp, Warning, TEXT("Start ability %s (%s)"), *GetName(), *GetAvatarActorFromActorInfo()->GetName())
 	}
 
 	if (const auto DynamicRepeatInterval = GetRepeatInterval(); DynamicRepeatInterval > 0.f)
@@ -48,7 +48,7 @@ void UUpGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 
 	if (bDebug)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("End ability %s"), *GetName())
+		UE_LOG(LogTemp, Warning, TEXT("End ability %s (%s)"), *GetName(), *GetAvatarActorFromActorInfo()->GetName())
 	}
 
 	if (RepeatTask) RepeatTask->EndTask();

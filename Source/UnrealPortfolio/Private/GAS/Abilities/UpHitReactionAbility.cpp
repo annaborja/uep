@@ -31,9 +31,9 @@ void UUpHitReactionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		{
 			if (const auto Montage = Character->GetHitReactionsMontage())
 			{
-				if (const auto HitResult = TriggerEventData->ContextHandle.GetHitResult(); HitResult && TriggerEventData->ContextHandle.HasOrigin())
+				if (const auto HitResult = TriggerEventData->ContextHandle.GetHitResult())
 				{
-					const auto MontageSectionName = GetMontageSectionName(TriggerEventData->ContextHandle.GetOrigin(), *HitResult);
+					const auto MontageSectionName = GetMontageSectionName(*HitResult);
 
 					if (bDebug)
 					{
@@ -50,7 +50,7 @@ void UUpHitReactionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
-FName UUpHitReactionAbility::GetMontageSectionName(const FVector& Origin, const FHitResult& HitResult) const
+FName UUpHitReactionAbility::GetMontageSectionName(const FHitResult& HitResult) const
 {
 	FString MontageSectionString = TEXT("");
 	
@@ -62,7 +62,7 @@ FName UUpHitReactionAbility::GetMontageSectionName(const FVector& Origin, const 
 		const auto CharacterForwardVector = Character->GetActorForwardVector();
 		// We can't just use `HitResult.ImpactNormal` because the collision occurs on the character mesh,
 		// which complicates the resulting impact normals.
-		const auto ReverseHitPath = (-(HitResult.ImpactPoint - Origin)).GetSafeNormal2D();
+		const auto ReverseHitPath = (-(HitResult.ImpactPoint - HitResult.TraceStart)).GetSafeNormal2D();
 
 		if (bDebug)
 		{

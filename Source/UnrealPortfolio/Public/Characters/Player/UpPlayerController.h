@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "GameFramework/PlayerController.h"
 #include "Utils/Enums.h"
 #include "UpPlayerController.generated.h"
@@ -136,6 +138,9 @@ private:
 
 	bool bInitialized = false;
 	float TargetCameraFov = -1.f;
+	
+	FGameplayTag PostPossessionGameplayEventTag = FGameplayTag::EmptyTag;
+	FGameplayEventData PostPossessionGameplayEventData;
 	
 	void ToggleDebugCamera(const FInputActionValue& InputActionValue);
 	

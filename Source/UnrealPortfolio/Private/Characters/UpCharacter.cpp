@@ -2,6 +2,7 @@
 
 #include "Characters/UpCharacter.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffect.h"
 #include "UpGameInstance.h"
 #include "AI/UpAiController.h"
@@ -97,7 +98,15 @@ void AUpCharacter::BeginPlay()
 			Equipment.SetEquipmentSlotActor(EquipmentSlot, SpawnAndAttachItem(ItemClass));
 		}
 		
-		if (Equipment.GetEquipmentSlotData(EquipmentSlot).bActivated) ActivateEquipment(EquipmentSlot);
+		if (Equipment.GetEquipmentSlotData(EquipmentSlot).bActivated)
+		{
+			Equipment.DeactivateEquipmentSlot(EquipmentSlot);
+			
+			FGameplayEventData EventPayload;
+			EventPayload.EventMagnitude = EquipmentSlot;
+
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, TAG_Ability_ActivateEquipment, EventPayload);
+		}
 	}
 }
 
@@ -217,13 +226,19 @@ void AUpCharacter::SetRelaxed(const bool bInRelaxed)
 
 	if (const auto& WeaponSlotData = Equipment.GetPotentialActiveWeaponSlotData(); WeaponSlotData.bActivated)
 	{
-		if (const auto WeaponActor = WeaponSlotData.ItemInstance.ItemActor;
-			WeaponActor && UUpBlueprintFunctionLibrary::IsTwoHandedGunTag(WeaponActor->GetTagId()))
+		if (const auto Weapon = Cast<AUpWeapon>(WeaponSlotData.ItemInstance.ItemActor); Weapon && Weapon->IsRifleType())
 		{
 			if (const auto Mesh = GetMesh())
 			{
-				WeaponActor->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false),
-					bRelaxed ? TAG_Socket_TwoHandedGun_Relaxed.GetTag().GetTagName() : TAG_Socket_TwoHandedGun.GetTag().GetTagName());
+				auto SocketNameString = FString::Printf(TEXT("%s.%s"), *Weapon->GetWeaponTypeNameSectionString(), NAME_STRING_ACTIVATED);
+
+				if (bRelaxed)
+				{
+					SocketNameString += TEXT(".");
+					SocketNameString += NAME_STRING_RELAXED;
+				}
+				
+				Weapon->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName(SocketNameString));
 			}
 		}
 	}
@@ -242,7 +257,7 @@ void AUpCharacter::EquipItem(AUpItem* ItemActor, const EUpEquipmentSlot::Type Eq
 	
 	Equipment.SetEquipmentSlotClass(EquipmentSlot, ItemActor->GetClass());
 	Equipment.SetEquipmentSlotActor(EquipmentSlot, ItemActor);
-	AttachAndHideItem(ItemActor);
+	AttachDeactivatedItem(ItemActor);
 
 	OnItemEquip(ItemActor, EquipmentSlot);
 
@@ -264,8 +279,6 @@ void AUpCharacter::UnequipItem(const EUpEquipmentSlot::Type EquipmentSlot)
 
 bool AUpCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 {
-	DeactivateEquipment(EquipmentSlot);
-	
 	if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot);
 		EquipmentSlotData.ItemInstance.ItemClass && !EquipmentSlotData.bActivated)
 	{
@@ -289,17 +302,9 @@ bool AUpCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 						Posture = ItemData.ResultingPosture;
 					}
 
-					if (EquipmentSlotData.ItemInstance.ItemActor)
+					if (const auto ItemActor = EquipmentSlotData.ItemInstance.ItemActor)
 					{
-						auto SocketTag = ItemData.SocketTag.IsValid() ? ItemData.SocketTag : TAG_Socket_None;
-
-						if (SocketTag.MatchesTagExact(TAG_Socket_TwoHandedGun) && bRelaxed)
-						{
-							SocketTag = TAG_Socket_TwoHandedGun_Relaxed;
-						}
-						
-						AttachAndShowItem(EquipmentSlotData.ItemInstance.ItemActor,
-							SocketTag.MatchesTagExact(TAG_Socket_None) ? NAME_None : SocketTag.GetTagName());
+						AttachActivatedItem(ItemActor);
 					}
 
 					if (AbilitySystemComponent)
@@ -342,7 +347,10 @@ bool AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlo
 					Posture = EUpCharacterPosture::Casual;
 				}
 
-				if (EquipmentSlotData.ItemInstance.ItemActor) AttachAndHideItem(EquipmentSlotData.ItemInstance.ItemActor);
+				if (const auto ItemActor = EquipmentSlotData.ItemInstance.ItemActor)
+				{
+					AttachDeactivatedItem(ItemActor);
+				}
 
 				if (AbilitySystemComponent)
 				{
@@ -376,6 +384,52 @@ AUpWeapon* AUpCharacter::GetActiveWeapon() const
 	}
 
 	return nullptr;
+}
+
+void AUpCharacter::AttachActivatedItem(AUpItem* ItemActor)
+{
+	if (const auto Mesh = GetMesh())
+	{
+		if (!ItemActor->IsAttachedTo(this)) ItemActor->Attach(this);
+
+		FString NameString = TEXT("");
+
+		if (const auto Weapon = Cast<AUpWeapon>(ItemActor))
+		{
+			NameString += Weapon->GetWeaponTypeNameSectionString();
+		}
+
+		NameString += TEXT(".");
+		NameString += NAME_STRING_ACTIVATED;
+
+		if (NameString.StartsWith(NAME_STRING_RIFLE_TYPE) && bRelaxed)
+		{
+			NameString += TEXT(".");
+			NameString += NAME_STRING_RELAXED;
+		}
+		
+		ItemActor->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName(NameString));
+	}
+}
+
+void AUpCharacter::AttachDeactivatedItem(AUpItem* ItemActor)
+{
+	if (const auto Mesh = GetMesh())
+	{
+		if (!ItemActor->IsAttachedTo(this)) ItemActor->Attach(this);
+
+		FString NameString = TEXT("");
+
+		if (const auto Weapon = Cast<AUpWeapon>(ItemActor))
+		{
+			NameString += Weapon->GetWeaponTypeNameSectionString();
+		}
+
+		NameString += TEXT(".");
+		NameString += NAME_STRING_DEACTIVATED;
+		
+		ItemActor->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName(NameString));
+	}
 }
 
 void AUpCharacter::HandleFootstep(const FName& BoneName, const EUpTraceDirection::Type TraceDirection, const float TraceLength, const float VolumeMultiplier) const
@@ -437,35 +491,13 @@ AUpItem* AUpCharacter::SpawnAndAttachItem(const TSubclassOf<AUpItem> ItemClass)
 
 		if (const auto ItemActor = Cast<AUpItem>(World->SpawnActor(ItemClass, &SpawnLocation, &SpawnRotation, SpawnParams)))
 		{
-			AttachAndHideItem(ItemActor);
+			AttachDeactivatedItem(ItemActor);
 			
 			return ItemActor;
 		}
 	}
 
 	return nullptr;
-}
-
-void AUpCharacter::AttachAndHideItem(AUpItem* ItemActor)
-{
-	if (const auto Mesh = GetMesh())
-	{
-		if (!ItemActor->IsAttachedTo(this)) ItemActor->Attach(this);
-		
-		ItemActor->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false));
-		ItemActor->SetActorHiddenInGame(true);
-	}
-}
-
-void AUpCharacter::AttachAndShowItem(AUpItem* ItemActor, const FName& SocketName) const
-{
-	if (const auto Mesh = GetMesh())
-	{
-		ItemActor->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), SocketName);
-		ItemActor->SetActorHiddenInGame(false);
-
-		if (IsInFirstPersonMode()) ItemActor->ToggleCastShadows(false);
-	}
 }
 
 void AUpCharacter::HandleNoise(const TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap, const FName& BoneName,

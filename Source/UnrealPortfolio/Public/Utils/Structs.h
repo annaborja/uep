@@ -278,8 +278,6 @@ struct FUpItemData : public FTableRowBase
 	
 	UPROPERTY(EditDefaultsOnly)
 	TEnumAsByte<EUpCharacterPosture::Type> ResultingPosture = EUpCharacterPosture::Casual;
-	UPROPERTY(EditDefaultsOnly)
-	FGameplayTag SocketTag = TAG_Socket_None;
 	
 	UPROPERTY(EditDefaultsOnly)
 	FUpTagSpec UsageEffect;

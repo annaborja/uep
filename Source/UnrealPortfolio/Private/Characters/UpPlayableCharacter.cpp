@@ -537,7 +537,7 @@ void AUpPlayableCharacter::SetUpFirstPersonController()
 	bUseControllerRotationYaw = true;
 }
 
-void AUpPlayableCharacter::SetUpFirstPersonMesh() const
+void AUpPlayableCharacter::SetUpFirstPersonMesh()
 {
 	if (const auto Mesh = GetMesh())
 	{
@@ -548,8 +548,11 @@ void AUpPlayableCharacter::SetUpFirstPersonMesh() const
 
 	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
 	{
-		if (const auto ItemActor = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor)
+		const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot);
+		
+		if (const auto ItemActor = EquipmentSlotData.ItemInstance.ItemActor)
 		{
+			EquipmentSlotData.bActivated ? AttachActivatedItem(ItemActor) : AttachDeactivatedItem(ItemActor);
 			ItemActor->ToggleCastShadows(false);
 		}
 	}
@@ -562,7 +565,7 @@ void AUpPlayableCharacter::SetUpThirdPersonController()
 	bUseControllerRotationYaw = false;
 }
 
-void AUpPlayableCharacter::SetUpThirdPersonMesh() const
+void AUpPlayableCharacter::SetUpThirdPersonMesh()
 {
 	if (const auto Mesh = GetMesh())
 	{
@@ -573,8 +576,11 @@ void AUpPlayableCharacter::SetUpThirdPersonMesh() const
 
 	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
 	{
-		if (const auto ItemActor = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor)
+		const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot);
+		
+		if (const auto ItemActor = EquipmentSlotData.ItemInstance.ItemActor)
 		{
+			EquipmentSlotData.bActivated ? AttachActivatedItem(ItemActor) : AttachDeactivatedItem(ItemActor);
 			ItemActor->ToggleCastShadows(true);
 		}
 	}

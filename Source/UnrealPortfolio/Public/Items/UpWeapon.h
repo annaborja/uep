@@ -31,6 +31,10 @@ public:
 	int32 GetBurstSize() const;
 	float GetRange() const;
 
+	FString GetWeaponTypeNameSectionString() const;
+	bool IsPistolType() const;
+	bool IsRifleType() const;
+
 	FORCEINLINE UUpAmmoAttributeSet* GetAmmoAttributeSet() const { return AmmoAttributeSet; }
 	FORCEINLINE EUpWeaponFiringMode::Type GetFiringMode() const { return WeaponData.FiringMode; }
 	FORCEINLINE UNiagaraSystem* GetNiagaraSystem_Impact() const { return WeaponData.NiagaraSystem_Impact; }

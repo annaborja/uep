@@ -19,5 +19,5 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 private:
-	FName GetMontageSectionName(const FVector& Origin, const FHitResult& HitResult) const;
+	FName GetMontageSectionName(const FHitResult& HitResult) const;
 };

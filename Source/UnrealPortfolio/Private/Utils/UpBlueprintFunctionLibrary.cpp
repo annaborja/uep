@@ -201,30 +201,17 @@ bool UUpBlueprintFunctionLibrary::ValidateWeaponTag(const FGameplayTag& Tag, con
 
 FString UUpBlueprintFunctionLibrary::GetWeaponMontageSectionName(const AUpCharacter* Character)
 {
-	if (Character->IsRelaxed()) return TEXT("Unarmed");
+	if (Character->IsRelaxed()) return NAME_STRING_UNARMED;
 	
 	switch (Character->GetPosture())
 	{
 	case EUpCharacterPosture::ArmedPistol:
-		return TEXT("ArmedPistol");
-	case EUpCharacterPosture::ArmedRevolver:
-		return TEXT("ArmedRevolver");
+		return NAME_STRING_ARMED_PISTOL;
 	case EUpCharacterPosture::ArmedRifle:
-		return TEXT("ArmedRifle");
+		return NAME_STRING_ARMED_RIFLE;
 	default:
-		return TEXT("Unarmed");
+		return NAME_STRING_UNARMED;
 	}
-}
-
-bool UUpBlueprintFunctionLibrary::IsTwoHandedGunTag(const FGameplayTag& Tag)
-{
-	FGameplayTagContainer TwoHandedGunTags;
-	TwoHandedGunTags.AddTag(TAG_Item_Weapon_AssaultRifle);
-	TwoHandedGunTags.AddTag(TAG_Item_Weapon_Shotgun);
-	TwoHandedGunTags.AddTag(TAG_Item_Weapon_SniperRifle);
-	TwoHandedGunTags.AddTag(TAG_Item_Weapon_SubmachineGun);
-
-	return TwoHandedGunTags.HasTag(Tag);
 }
 
 bool UUpBlueprintFunctionLibrary::IsEntityTagSpecSatisfied(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec, const bool bProhibition)

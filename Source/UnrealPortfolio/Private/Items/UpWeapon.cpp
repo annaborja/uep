@@ -7,6 +7,7 @@
 #include "GAS/UpGasDataAsset.h"
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "Items/UpAmmo.h"
+#include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
 AUpWeapon::AUpWeapon()
@@ -199,6 +200,34 @@ int32 AUpWeapon::GetBurstSize() const
 float AUpWeapon::GetRange() const
 {
 	return WeaponData.Range;
+}
+
+FString AUpWeapon::GetWeaponTypeNameSectionString() const
+{
+	if (IsPistolType()) return NAME_STRING_PISTOL_TYPE;
+	if (IsRifleType()) return NAME_STRING_RIFLE_TYPE;
+
+	return TEXT("");
+}
+
+bool AUpWeapon::IsPistolType() const
+{
+	FGameplayTagContainer Tags;
+	Tags.AddTag(TAG_Item_Weapon_Pistol);
+	Tags.AddTag(TAG_Item_Weapon_Revolver);
+	
+	return TagId.MatchesAny(Tags);
+}
+
+bool AUpWeapon::IsRifleType() const
+{
+	FGameplayTagContainer Tags;
+    Tags.AddTag(TAG_Item_Weapon_AssaultRifle);
+    Tags.AddTag(TAG_Item_Weapon_Shotgun);
+    Tags.AddTag(TAG_Item_Weapon_SniperRifle);
+    Tags.AddTag(TAG_Item_Weapon_SubmachineGun);
+    
+    return TagId.MatchesAny(Tags);
 }
 
 void AUpWeapon::BeginPlay()

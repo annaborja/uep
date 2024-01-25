@@ -8,6 +8,7 @@
 #include "UpActivateEquipmentAbility.generated.h"
 
 class AUpCharacter;
+class UAbilityTask_WaitGameplayEvent;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpActivateEquipmentAbility : public UUpGameplayAbility
@@ -17,6 +18,8 @@ class UNREALPORTFOLIO_API UUpActivateEquipmentAbility : public UUpGameplayAbilit
 public:
 	UUpActivateEquipmentAbility();
 
+	FORCEINLINE EUpEquipmentSlot::Type GetEquipmentSlot() const { return EquipmentSlot; }
+
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
@@ -24,11 +27,18 @@ protected:
 private:
 	UPROPERTY(Transient)
 	TEnumAsByte<EUpEquipmentSlot::Type> EquipmentSlot = EUpEquipmentSlot::Weapon1;
+	UPROPERTY(Transient)
+	TObjectPtr<UAbilityTask_WaitGameplayEvent> WaitGameplayEventTask;
+
+	bool bActivate = false;
+
+	UFUNCTION()
+	void OnGameplayEventReceived(FGameplayEventData Payload);
 	
 	UFUNCTION()
-	virtual void OnMontageCompleted();
+	void OnMontageCompleted();
 	UFUNCTION()
-	virtual void OnMontageInterrupted();
+	void OnMontageInterrupted();
 	
 	FName GetMontageSectionName(const AUpCharacter* Character) const;
 };

@@ -14,6 +14,7 @@
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "GameFramework/DefaultPawn.h"
+#include "GAS/Abilities/UpActivateEquipmentAbility.h"
 #include "Interfaces/UpInteractable.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -69,6 +70,38 @@ void AUpPlayerController::CloseCharacterSwitcher()
 
 void AUpPlayerController::SwitchCharacter(AUpPlayableNpc* Npc)
 {
+	// Because we switch skeletal meshes when switching characters (going from third-person to first-person),
+	// gameplay abilities that rely on montages can be left hanging.
+	//
+	// TODO(P0): Should handle this issue going the other direction too.
+	if (const auto Mesh = Npc->GetMesh())
+	{
+		if (const auto AnimInstance = Mesh->GetAnimInstance())
+		{
+			if (const auto WeaponEquipMontage = Npc->GetWeaponEquipMontage(); WeaponEquipMontage && AnimInstance->Montage_IsPlaying(WeaponEquipMontage))
+			{
+				if (const auto NpcAbilitySystemComponent = Npc->GetAbilitySystemComponent())
+				{
+					if (const auto Ability = Cast<UUpActivateEquipmentAbility>(NpcAbilitySystemComponent->GetAnimatingAbility()))
+					{
+						if (bDebugPossession)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Animating ability %s"), *Ability->GetName())
+						}
+						
+						FGameplayEventData EventPayload;
+						EventPayload.EventMagnitude = Ability->GetEquipmentSlot();
+						
+						PostPossessionGameplayEventTag = TAG_Ability_ActivateEquipment;
+						PostPossessionGameplayEventData = EventPayload;
+					}
+					
+					AnimInstance->Montage_Stop(0.1f, WeaponEquipMontage);
+				}
+			}
+		}
+	}
+	
 	CloseCharacterSwitcher();
 	Possess(Npc);
 }
@@ -295,6 +328,13 @@ void AUpPlayerController::OnPossess(APawn* InPawn)
 	
 	PossessedCharacter = CastChecked<AUpPlayableCharacter>(InPawn);
 	ResetInputMappingContexts();
+
+	if (PostPossessionGameplayEventTag.IsValid())
+	{
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PossessedCharacter, PostPossessionGameplayEventTag, PostPossessionGameplayEventData);
+		
+		PostPossessionGameplayEventTag = FGameplayTag::EmptyTag;
+	}
 }
 
 void AUpPlayerController::SetupInputComponent()
@@ -555,14 +595,6 @@ void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlo
 	EventPayload.EventMagnitude = EquipmentSlot;
 		
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PossessedCharacter, TAG_Ability_ActivateEquipment, EventPayload);
-	
-	// if (PossessedCharacter->GetEquipment().GetEquipmentSlotData(EquipmentSlot).bActivated)
-	// {
-		// PossessedCharacter->DeactivateEquipment(EquipmentSlot);
-	// } else
-	// {
-		// PossessedCharacter->ActivateEquipment(EquipmentSlot);
-	// }
 }
 
 void AUpPlayerController::StartAimingGun(const FInputActionValue& InputActionValue)

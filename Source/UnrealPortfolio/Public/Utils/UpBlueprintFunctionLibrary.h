@@ -39,7 +39,6 @@ public:
 	static bool ValidateWeaponTag(const FGameplayTag& Tag, const FString FuncName);
 
 	static FString GetWeaponMontageSectionName(const AUpCharacter* Character);
-	static bool IsTwoHandedGunTag(const FGameplayTag& Tag);
 	
 	static bool IsEntityTagSpecSatisfied(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec, const bool bProhibition = false);
 	static void ProcessEntityTagSpecGrants(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec);

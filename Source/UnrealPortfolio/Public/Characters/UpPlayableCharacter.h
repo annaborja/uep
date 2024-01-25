@@ -172,9 +172,9 @@ private:
 	void SetCameraParams(const float SpringArmLength, const FVector& SpringArmSocketOffset, const FVector& CameraRelativeLocation, const FRotator& CameraRelativeRotation);
 	void SetUpCharacterForCameraView();
 	void SetUpFirstPersonController();
-	void SetUpFirstPersonMesh() const;
+	void SetUpFirstPersonMesh();
 	void SetUpThirdPersonController();
-	void SetUpThirdPersonMesh() const;
+	void SetUpThirdPersonMesh();
 	void SetUpThirdPersonCamera();
 
 	void HandleWeaponDelegates(AUpWeapon* Weapon);
