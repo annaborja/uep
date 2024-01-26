@@ -3,6 +3,7 @@
 #include "Tags/ScriptTags.h"
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_ActivateEquipment_SocketSwitch, "Event.ActivateEquipment.SocketSwitch")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death_DetachItems, "Event.Death.DetachItems")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Tutorial_HowToLook, "Tutorial.HowToLook")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Tutorial_HowToMove, "Tutorial.HowToMove")

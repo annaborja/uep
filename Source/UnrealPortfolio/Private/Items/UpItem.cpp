@@ -51,6 +51,11 @@ void AUpItem::Interact(AUpPlayerController* PlayerController)
 
 void AUpItem::AttachToComponentWithScaling(USceneComponent* Parent, const FAttachmentTransformRules& AttachmentRules, const FName& SocketName)
 {
+	if (bDebug)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Attach %s to %s at socket %s"), *GetName(), *Parent->GetName(), *SocketName.ToString())
+	}
+	
 	AttachToComponent(Parent, AttachmentRules, SocketName);
 
 	if (const auto ItemClass = GetClass())
@@ -91,25 +96,24 @@ void AUpItem::Detach()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	SetActorEnableCollision(true);
-	SetActorHiddenInGame(false);
 
-	const auto RootStaticMeshComponent = GetStaticMeshComponent();
+	const auto RootMesh = GetStaticMeshComponent();
 
 	TArray<UActorComponent*> Components;
 	GetComponents(UStaticMeshComponent::StaticClass(), Components);
 
 	for (const auto Component : Components)
 	{
-		if (const auto StaticMeshComponent = Cast<UStaticMeshComponent>(Component))
+		if (const auto ComponentMesh = Cast<UStaticMeshComponent>(Component))
 		{
-			StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-			StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-			StaticMeshComponent->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+			ComponentMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+			ComponentMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+			ComponentMesh->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 			
-			if (Component == RootStaticMeshComponent)
+			if (Component == RootMesh)
 			{
-				RootStaticMeshComponent->SetEnableGravity(true);
-				RootStaticMeshComponent->SetSimulatePhysics(true);
+				RootMesh->SetEnableGravity(true);
+				RootMesh->SetSimulatePhysics(true);
 			}
 		}
 	}

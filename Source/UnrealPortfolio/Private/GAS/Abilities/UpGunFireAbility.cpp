@@ -16,6 +16,8 @@
 UUpGunFireAbility::UUpGunFireAbility()
 {
 	AbilityTags.AddTag(TAG_Ability_GunFire);
+
+	ActivationOwnedTags.AddTag(TAG_State_Shooting);
 }
 
 void UUpGunFireAbility::OnGameplayTaskInitialized(UGameplayTask& Task)

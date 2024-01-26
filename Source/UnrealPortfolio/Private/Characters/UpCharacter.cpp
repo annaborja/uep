@@ -112,27 +112,24 @@ void AUpCharacter::BeginPlay()
 
 float AUpCharacter::CalculateDamageDealt(const FHitResult& HitResult) const
 {
-	return 10.f;
+	return 20.f;
 }
 
 void AUpCharacter::Die()
 {
-	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
-	{
-		UnequipItem(EquipmentSlot);
-	}
-
-	if (const auto Mesh = GetMesh())
-	{
-		Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-		Mesh->SetEnableGravity(true);
-		Mesh->SetSimulatePhysics(true);
-	}
-
 	if (const auto CapsuleComponent = GetCapsuleComponent())
 	{
 		CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+
+	if (const auto Mesh = GetMesh())
+	{
+		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Mesh->SetEnableGravity(true);
+		Mesh->SetSimulatePhysics(true);
+	}
+
+	if (Controller) Controller->UnPossess();
 }
 
 float AUpCharacter::GetHorizontalSpeed() const
@@ -215,6 +212,19 @@ bool AUpCharacter::IsInStrafingMode() const
 	return IsInFirstPersonMode() || CameraView == EUpCameraView::ThirdPerson_OverTheShoulder || CameraView == EUpCameraView::ThirdPerson_OverTheShoulder_Debug;
 }
 
+bool AUpCharacter::IsShooting() const
+{
+	if (AbilitySystemComponent)
+	{
+		FGameplayTagContainer AbilitySystemTags;
+		AbilitySystemComponent->GetOwnedGameplayTags(AbilitySystemTags);
+
+		return AbilitySystemTags.HasTagExact(TAG_State_Shooting);
+	}
+
+	return false;
+}
+
 bool AUpCharacter::IsStrafingForward() const
 {
 	return IsInStrafingMode() && FMath::Abs(GetMovementOffsetYaw()) < 90.f;
@@ -269,10 +279,10 @@ void AUpCharacter::UnequipItem(const EUpEquipmentSlot::Type EquipmentSlot)
 	if (const auto ItemActor = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor)
 	{
 		ItemActor->Detach();
+		Equipment.DeactivateEquipmentSlot(EquipmentSlot);
 		Equipment.SetEquipmentSlotActor(EquipmentSlot, nullptr);
 		Equipment.SetEquipmentSlotClass(EquipmentSlot, nullptr);
-		Equipment.DeactivateEquipmentSlot(EquipmentSlot);
-		
+
 		OnItemUnequip(EquipmentSlot);
 	}
 }

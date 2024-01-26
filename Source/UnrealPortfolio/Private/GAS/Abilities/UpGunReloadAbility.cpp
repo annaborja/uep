@@ -12,6 +12,8 @@
 UUpGunReloadAbility::UUpGunReloadAbility()
 {
 	AbilityTags.AddTag(TAG_Ability_GunReload);
+
+	ActivationBlockedTags.AddTag(TAG_Ability_GunFire);
 }
 
 void UUpGunReloadAbility::OnGameplayTaskInitialized(UGameplayTask& Task)

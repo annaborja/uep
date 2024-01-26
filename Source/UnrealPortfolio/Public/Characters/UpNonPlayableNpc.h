@@ -16,6 +16,8 @@ class UNREALPORTFOLIO_API AUpNonPlayableNpc : public AUpCharacter
 public:
 	explicit AUpNonPlayableNpc(const FObjectInitializer& ObjectInitializer);
 
+	virtual void Die() override;
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCapsuleComponent> AimAssistCapsule_Body;

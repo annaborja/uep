@@ -5,6 +5,7 @@
 #include "NativeGameplayTags.h"
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_ActivateEquipment_SocketSwitch)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_Death_DetachItems)
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Tutorial_HowToLook)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Tutorial_HowToMove)

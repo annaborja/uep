@@ -77,7 +77,9 @@ public:
 	bool IsDead() const;
 	bool IsInFirstPersonMode() const;
 	bool IsInStrafingMode() const;
+	bool IsShooting() const;
 	bool IsStrafingForward() const;
+	void SetPosture(const EUpCharacterPosture::Type InPosture) { Posture = InPosture; }
 	void SetRelaxed(const bool bInRelaxed);
 	
 	virtual TArray<UUpAttributeSet*> GetAttributeSets() const;

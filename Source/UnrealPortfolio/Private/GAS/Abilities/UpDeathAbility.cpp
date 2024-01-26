@@ -3,9 +3,11 @@
 #include "GAS/Abilities/UpDeathAbility.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Characters/UpCharacter.h"
 #include "Characters/UpPlayableCharacter.h"
 #include "Tags/GasTags.h"
+#include "Tags/ScriptTags.h"
 
 UUpDeathAbility::UUpDeathAbility()
 {
@@ -38,16 +40,37 @@ void UUpDeathAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 				{
 					UE_LOG(LogTemp, Warning, TEXT("Montage section name: %s"), *MontageSectionName.ToString())
 				}
-			
+
 				const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 					this, NAME_None, Montage, 1.f, MontageSectionName);
 				PlayMontageAndWaitTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageCompleted);
 				PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCompleted);
 				PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCompleted);
 				PlayMontageAndWaitTask->Activate();
+
+				if (WaitGameplayEventTask) WaitGameplayEventTask->EndTask();
+				
+				WaitGameplayEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, TAG_Event_Death_DetachItems);
+				WaitGameplayEventTask->EventReceived.AddDynamic(this, &ThisClass::OnGameplayEventReceived);
+				WaitGameplayEventTask->Activate();
 			}
 		}
 	}
+}
+
+void UUpDeathAbility::OnGameplayEventReceived(const FGameplayEventData Payload)
+{
+	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
+	{
+		for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
+		{
+			Character->UnequipItem(EquipmentSlot);
+		}
+
+		Character->SetPosture(EUpCharacterPosture::Casual);
+	}
+	
+	WaitGameplayEventTask->EndTask();
 }
 
 void UUpDeathAbility::OnMontageCompleted()
@@ -58,7 +81,14 @@ void UUpDeathAbility::OnMontageCompleted()
 	}
 }
 
-FName UUpDeathAbility::GetMontageSectionName()
+FName UUpDeathAbility::GetMontageSectionName() const
 {
+	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo())) {
+		if (const auto Montage = Character->GetDeathsMontage())
+		{
+			return Montage->GetSectionName(FMath::RandRange(0, Montage->GetNumSections() - 1));
+		}
+	}
+
 	return NAME_None;
 }

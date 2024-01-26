@@ -34,6 +34,13 @@ void AUpPlayableNpc::BeginPlay()
 	}
 }
 
+void AUpPlayableNpc::Die()
+{
+	Super::Die();
+
+	if (InteractionSphere) UUpBlueprintFunctionLibrary::TearDownActorComponent(InteractionSphere);
+}
+
 void AUpPlayableNpc::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))

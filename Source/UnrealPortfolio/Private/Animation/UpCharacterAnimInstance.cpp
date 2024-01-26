@@ -28,9 +28,9 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 		{
 			if (const auto AnimInstance = Mesh->GetAnimInstance())
 			{
-				// Lateral movement animations look bad when combined with the gun fire montage sequences,
+				// Lateral movement animations look bad when combined with montage sequences,
 				// so make sure the character is always animated as moving forward while a montage is playing.
-				MovementOffsetYaw = Character->IsInStrafingMode() && !AnimInstance->Montage_IsPlaying(nullptr) ? Character->GetMovementOffsetYaw() : 0.f;
+				MovementOffsetYaw = Character->IsInStrafingMode() && !Character->IsShooting() && !AnimInstance->Montage_IsPlaying(nullptr) ? Character->GetMovementOffsetYaw() : 0.f;
 			}
 		}
 		

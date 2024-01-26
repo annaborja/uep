@@ -291,25 +291,30 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 	// Switch to the correct two-handed gun socket when necessary (alert vs relaxed).
 	if (Character && !Character->IsRelaxed() && !Character->IsAiming())
 	{
-		if (const auto Weapon = Character->GetActiveWeapon(); Weapon && Weapon->IsRifleType())
+		if (const auto Mesh = Character->GetMesh())
 		{
-			if (const auto Mesh = Character->GetMesh())
+			// Don't auto-switch sockets while a montage is playing
+			// (especially since some montages might explicitly switch sockets--e.g., weapon equipment).
+			if (const auto AnimInstance = Mesh->GetAnimInstance(); AnimInstance && !AnimInstance->Montage_IsPlaying(nullptr))
 			{
-				const auto ParentSocketName = Weapon->GetAttachParentSocketName();
+				if (const auto Weapon = Character->GetActiveWeapon(); Weapon && Weapon->IsRifleType())
+				{
+					const auto ParentSocketName = Weapon->GetAttachParentSocketName();
 
-				if (IsSprinting())
-				{
-					if (const auto DesiredSocketName = FName(FString::Printf(TEXT("%s.%s.%s"),
-						*Weapon->GetWeaponTypeNameSectionString(), NAME_STRING_ACTIVATED, NAME_STRING_RELAXED)); !ParentSocketName.IsEqual(DesiredSocketName))
+					if (IsSprinting())
 					{
-						Weapon->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, DesiredSocketName);
-					}
-				} else
-				{
-					if (const auto DesiredSocketName = FName(FString::Printf(TEXT("%s.%s"),
-						*Weapon->GetWeaponTypeNameSectionString(), NAME_STRING_ACTIVATED)); !ParentSocketName.IsEqual(DesiredSocketName))
+						if (const auto DesiredSocketName = FName(FString::Printf(TEXT("%s.%s.%s"),
+							*Weapon->GetWeaponTypeNameSectionString(), NAME_STRING_ACTIVATED, NAME_STRING_RELAXED)); !ParentSocketName.IsEqual(DesiredSocketName))
+						{
+							Weapon->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, DesiredSocketName);
+						}
+					} else
 					{
-						Weapon->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, DesiredSocketName);
+						if (const auto DesiredSocketName = FName(FString::Printf(TEXT("%s.%s"),
+							*Weapon->GetWeaponTypeNameSectionString(), NAME_STRING_ACTIVATED)); !ParentSocketName.IsEqual(DesiredSocketName))
+						{
+							Weapon->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, DesiredSocketName);
+						}
 					}
 				}
 			}

@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Utils/Constants.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 AUpNonPlayableNpc::AUpNonPlayableNpc(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UUpCharacterMovementComponent>(CharacterMovementComponentName))
@@ -34,4 +35,12 @@ AUpNonPlayableNpc::AUpNonPlayableNpc(const FObjectInitializer& ObjectInitializer
 			AimAssistCapsule_Head->SetCapsuleRadius(AimAssistHeadRadius);
 		}
 	}
+}
+
+void AUpNonPlayableNpc::Die()
+{
+	Super::Die();
+
+	if (AimAssistCapsule_Body) UUpBlueprintFunctionLibrary::TearDownActorComponent(AimAssistCapsule_Body);
+	if (AimAssistCapsule_Head) UUpBlueprintFunctionLibrary::TearDownActorComponent(AimAssistCapsule_Head);
 }

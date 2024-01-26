@@ -6,6 +6,8 @@
 #include "GAS/Abilities/UpGameplayAbility.h"
 #include "UpDeathAbility.generated.h"
 
+class UAbilityTask_WaitGameplayEvent;
+
 UCLASS()
 class UNREALPORTFOLIO_API UUpDeathAbility : public UUpGameplayAbility
 {
@@ -19,8 +21,13 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 private:
+	UPROPERTY(Transient)
+	TObjectPtr<UAbilityTask_WaitGameplayEvent> WaitGameplayEventTask;
+	
+	UFUNCTION()
+	void OnGameplayEventReceived(FGameplayEventData Payload);
 	UFUNCTION()
 	void OnMontageCompleted();
 	
-	static FName GetMontageSectionName();
+	FName GetMontageSectionName() const;
 };

@@ -10,6 +10,7 @@
 AUpDoor::AUpDoor()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 	bCanInteract = true;
 
 	InteractionSphere->SetRelativeLocation(InteractionSphere->GetRelativeLocation() + FVector(0.f, 50.f, 0.f));
@@ -70,8 +71,6 @@ void AUpDoor::BeginPlay()
 
 	check(Sfx_Close);
 	check(Sfx_Swing);
-
-	SetActorTickEnabled(false);
 }
 
 FText AUpDoor::GetInteractionPromptText(const AUpPlayerController* PlayerController) const
