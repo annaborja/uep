@@ -289,8 +289,11 @@ void AUpCharacter::UnequipItem(const EUpEquipmentSlot::Type EquipmentSlot)
 
 bool AUpCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 {
-	if (const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot);
-		EquipmentSlotData.ItemInstance.ItemClass && !EquipmentSlotData.bActivated)
+	const auto& EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot);
+
+	if (EquipmentSlotData.bActivated) return true;
+	
+	if (const auto Item = EquipmentSlotData.ItemInstance.ItemActor)
 	{
 		// If we're activating a weapon slot, make sure all other weapon slots are deactivated.
 		if (FUpCharacterEquipment::IsWeaponSlot(EquipmentSlot))
@@ -300,40 +303,28 @@ bool AUpCharacter::ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot)
 				if (WeaponSlot != EquipmentSlot) DeactivateEquipment(WeaponSlot);
 			}
 		}
-		
-		if (const auto DefaultObject = EquipmentSlotData.ItemInstance.ItemClass.GetDefaultObject())
+	
+		if (const auto ResultingPosture = Item->GetCharacterPosture(); ResultingPosture != EUpCharacterPosture::Casual)
 		{
-			if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+			Posture = ResultingPosture;
+		}
+
+		AttachActivatedItem(Item);
+
+		if (AbilitySystemComponent)
+		{
+			for (const auto& AbilityGrantSpec : Item->GetItemData().AbilityGrantSpecs)
 			{
-				if (const auto& ItemData = GameInstance->GetItemData(DefaultObject->GetTagId()); ItemData.IsValid())
-				{
-					if (ItemData.ResultingPosture != EUpCharacterPosture::Casual)
-					{
-						Posture = ItemData.ResultingPosture;
-					}
-
-					if (const auto ItemActor = EquipmentSlotData.ItemInstance.ItemActor)
-					{
-						AttachActivatedItem(ItemActor);
-					}
-
-					if (AbilitySystemComponent)
-					{
-						for (const auto& AbilityGrantSpec : ItemData.AbilityGrantSpecs)
-						{
-							if (!AbilityGrantSpec.IsValid()) continue;
-					
-							AbilitySystemComponent->GrantAbility(AbilityGrantSpec.AbilityClass);
-						}
-					}
-			
-					Equipment.ActivateEquipmentSlot(EquipmentSlot);
-					OnEquipmentActivation(EquipmentSlot);
-
-					return true;
-				}
+				if (!AbilityGrantSpec.IsValid()) continue;
+	
+				AbilitySystemComponent->GrantAbility(AbilityGrantSpec.AbilityClass);
 			}
 		}
+
+		Equipment.ActivateEquipmentSlot(EquipmentSlot);
+		OnEquipmentActivation(EquipmentSlot);
+
+		return true;
 	}
 
 	return false;
@@ -345,42 +336,32 @@ bool AUpCharacter::DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlo
 	
 	if (!EquipmentSlotData.bActivated) return true;
 	
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this);
-		GameInstance && EquipmentSlotData.ItemInstance.ItemClass)
+	if (const auto Item = EquipmentSlotData.ItemInstance.ItemActor)
 	{
-		if (const auto DefaultObject = EquipmentSlotData.ItemInstance.ItemClass.GetDefaultObject())
+		if (const auto ResultingPosture = Item->GetCharacterPosture(); ResultingPosture != EUpCharacterPosture::Casual)
 		{
-			if (const auto& ItemData = GameInstance->GetItemData(DefaultObject->GetTagId()); ItemData.IsValid())
+			Posture = EUpCharacterPosture::Casual;
+		}
+
+		AttachDeactivatedItem(Item);
+
+		if (AbilitySystemComponent)
+		{
+			for (const auto& AbilityGrantSpec : Item->GetItemData().AbilityGrantSpecs)
 			{
-				if (ItemData.ResultingPosture != EUpCharacterPosture::Casual)
-				{
-					Posture = EUpCharacterPosture::Casual;
-				}
+				if (!AbilityGrantSpec.IsValid()) continue;
 
-				if (const auto ItemActor = EquipmentSlotData.ItemInstance.ItemActor)
+				if (AbilityGrantSpec.GrantDuration == EUpAbilityGrantDuration::WhileEquipped)
 				{
-					AttachDeactivatedItem(ItemActor);
+					AbilitySystemComponent->RevokeAbility(AbilityGrantSpec.AbilityClass);
 				}
-
-				if (AbilitySystemComponent)
-				{
-					for (const auto& AbilityGrantSpec : ItemData.AbilityGrantSpecs)
-					{
-						if (!AbilityGrantSpec.IsValid()) continue;
-
-						if (AbilityGrantSpec.GrantDuration == EUpAbilityGrantDuration::WhileEquipped)
-						{
-							AbilitySystemComponent->RevokeAbility(AbilityGrantSpec.AbilityClass);
-						}
-					}
-				}
-			
-				Equipment.DeactivateEquipmentSlot(EquipmentSlot);
-				OnEquipmentDeactivation(EquipmentSlot);
-			
-				return true;
 			}
 		}
+	
+		Equipment.DeactivateEquipmentSlot(EquipmentSlot);
+		OnEquipmentDeactivation(EquipmentSlot);
+	
+		return true;
 	}
 
 	return false;

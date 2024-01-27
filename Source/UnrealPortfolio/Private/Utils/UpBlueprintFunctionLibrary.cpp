@@ -2,13 +2,16 @@
 
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
+#include "GameplayEffectCustomApplicationRequirement.h"
 #include "GameplayTagAssetInterface.h"
 #include "GameplayTagContainer.h"
 #include "UpGameInstance.h"
 #include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
+#include "GAS/UpGasDataAsset.h"
 #include "Items/UpItem.h"
+#include "Items/UpWeapon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Tags/ItemTags.h"
@@ -212,6 +215,44 @@ FString UUpBlueprintFunctionLibrary::GetWeaponMontageSectionName(const AUpCharac
 	default:
 		return NAME_STRING_UNARMED;
 	}
+}
+
+bool UUpBlueprintFunctionLibrary::CanGrantAmmo(const AUpWeapon* Weapon)
+{
+	if (const auto GameInstance = GetGameInstance(Weapon))
+	{
+		if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+		{
+			if (const auto EffectClass = GasDataAsset->GetEffectClass_AmmoGrant())
+			{
+				if (const auto Effect = EffectClass->GetDefaultObject<UGameplayEffect>())
+				{
+					if (const auto AbilitySystemComponent = Weapon->GetAbilitySystemComponent())
+					{
+						for (const auto& AppReq : Effect->ApplicationRequirements)
+						{
+							if (*AppReq)
+							{
+								if (!AppReq->GetDefaultObject<UGameplayEffectCustomApplicationRequirement>()->
+									CanApplyGameplayEffect(Effect, *AbilitySystemComponent->MakeOutgoingSpec(EffectClass,
+										1.f, AbilitySystemComponent->MakeEffectContext()).Data.Get(), AbilitySystemComponent))
+								{
+									return false;
+								}
+							} else
+							{
+								return false;
+							}
+						}
+
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 bool UUpBlueprintFunctionLibrary::IsEntityTagSpecSatisfied(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec, const bool bProhibition)

@@ -29,6 +29,8 @@ public:
 
 	virtual FGameplayTag GetTagId() const override { return TagId; }
 
+	virtual EUpCharacterPosture::Type GetCharacterPosture() const { return EUpCharacterPosture::Casual; }
+	
 	void AttachToComponentWithScaling(USceneComponent* Parent, const FAttachmentTransformRules& AttachmentRules, const FName& SocketName = NAME_None);
 	void Attach(AActor* Actor);
 	void Detach();

@@ -277,9 +277,6 @@ struct FUpItemData : public FTableRowBase
 	TObjectPtr<UTexture2D> Image_Large;
 	
 	UPROPERTY(EditDefaultsOnly)
-	TEnumAsByte<EUpCharacterPosture::Type> ResultingPosture = EUpCharacterPosture::Casual;
-	
-	UPROPERTY(EditDefaultsOnly)
 	FUpTagSpec UsageEffect;
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FUpAbilityGrantSpec> AbilityGrantSpecs;

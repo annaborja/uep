@@ -88,7 +88,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_Weapon2;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_AimGun;
+	TObjectPtr<UInputAction> InputAction_Character1;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_Character2;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_AimWeapon;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_FireWeapon;
 	
@@ -166,8 +170,11 @@ private:
 	void ToggleWeapon2(const FInputActionValue& InputActionValue);
 	void ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlot) const;
 	
-	void StartAimingGun(const FInputActionValue& InputActionValue);
-	void StopAimingGun(const FInputActionValue& InputActionValue);
+	void SwitchToCharacter1(const FInputActionValue& InputActionValue);
+	void SwitchToCharacter2(const FInputActionValue& InputActionValue);
+	
+	void StartAimingWeapon(const FInputActionValue& InputActionValue);
+	void StopAimingWeapon(const FInputActionValue& InputActionValue);
 	
 	void StartFiringWeapon(const FInputActionValue& InputActionValue);
 	void StopFiringWeapon(const FInputActionValue& InputActionValue);

@@ -6,7 +6,7 @@
 #include "UpGameInstance.h"
 #include "Characters/UpPlayableCharacter.h"
 #include "GAS/UpGasDataAsset.h"
-#include "GAS/Effects/CustomAppReqs/UpEffectCar_GunHasAmmoReserveSpace.h"
+#include "GAS/Effects/CustomAppReqs/UpEffectCar_AmmoGrant.h"
 #include "Items/UpWeapon.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -18,7 +18,7 @@ bool AUpAmmo::HandleAmmoTagSpecGrant(const AUpCharacter* Character, const FUpTag
 	{
 		if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
 		{
-			if (const auto EffectClass = GasDataAsset->GetAmmoGrantEffectClass())
+			if (const auto EffectClass = GasDataAsset->GetEffectClass_AmmoGrant())
 			{
 				if (const auto& Equipment = Character->GetEquipment();
 					TryGrantAmmoForWeaponSlot(EffectClass, TagSpec.RelatedTag, TagSpec.Count, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1))
@@ -47,7 +47,7 @@ bool AUpAmmo::TryGrantAmmoForWeaponSlot(const TSubclassOf<UGameplayEffect> Effec
 			// Quantity <= 0 indicates a test only.
 			if (Quantity <= 0.f)
 			{
-				if (const auto DefaultObject = UUpEffectCar_GunHasAmmoReserveSpace::StaticClass()->GetDefaultObject<UUpEffectCar_GunHasAmmoReserveSpace>())
+				if (const auto DefaultObject = UUpEffectCar_AmmoGrant::StaticClass()->GetDefaultObject<UUpEffectCar_AmmoGrant>())
 				{
 					const auto EffectSpec = EffectSpecHandle.Data.Get();
 					
@@ -82,7 +82,7 @@ FUpInteractionData AUpAmmo::GetInteractionData(const AUpPlayerController* Player
 				{
 					if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
 					{
-						if (const auto EffectClass = GasDataAsset->GetAmmoGrantEffectClass())
+						if (const auto EffectClass = GasDataAsset->GetEffectClass_AmmoGrant())
 						{
 							if (const auto& Equipment = PossessedCharacter->GetEquipment();
 								!TryGrantAmmoForWeaponSlot(EffectClass, WeaponTag, 0, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1))

@@ -263,7 +263,9 @@ void AUpPlayerController::BeginPlay()
 	check(InputAction_Interact);
 	check(InputAction_Weapon1);
 	check(InputAction_Weapon2);
-	check(InputAction_AimGun);
+	check(InputAction_Character1);
+	check(InputAction_Character2);
+	check(InputAction_AimWeapon);
 	check(InputAction_FireWeapon);
 
 	CustomHud = CastChecked<AUpHud>(GetHUD());
@@ -364,8 +366,11 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InputAction_Weapon1, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon1);
 	EnhancedInputComponent->BindAction(InputAction_Weapon2, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon2);
 	
-	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Started, this, &ThisClass::StartAimingGun);
-	EnhancedInputComponent->BindAction(InputAction_AimGun, ETriggerEvent::Completed, this, &ThisClass::StopAimingGun);
+	EnhancedInputComponent->BindAction(InputAction_Character1, ETriggerEvent::Started, this, &ThisClass::SwitchToCharacter1);
+	EnhancedInputComponent->BindAction(InputAction_Character2, ETriggerEvent::Started, this, &ThisClass::SwitchToCharacter2);
+	
+	EnhancedInputComponent->BindAction(InputAction_AimWeapon, ETriggerEvent::Started, this, &ThisClass::StartAimingWeapon);
+	EnhancedInputComponent->BindAction(InputAction_AimWeapon, ETriggerEvent::Completed, this, &ThisClass::StopAimingWeapon);
 	
 	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Started, this, &ThisClass::StartFiringWeapon);
 	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Completed, this, &ThisClass::StopFiringWeapon);
@@ -575,6 +580,8 @@ void AUpPlayerController::EndInteraction(const FInputActionValue& InputActionVal
 	{
 		Interactable->OnInteractionEnd(this);
 	}
+	
+	ActiveInteractable = nullptr;
 }
 
 void AUpPlayerController::ToggleWeapon1(const FInputActionValue& InputActionValue)
@@ -597,7 +604,15 @@ void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlo
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PossessedCharacter, TAG_Ability_ActivateEquipment, EventPayload);
 }
 
-void AUpPlayerController::StartAimingGun(const FInputActionValue& InputActionValue)
+void AUpPlayerController::SwitchToCharacter1(const FInputActionValue& InputActionValue)
+{
+}
+
+void AUpPlayerController::SwitchToCharacter2(const FInputActionValue& InputActionValue)
+{
+}
+
+void AUpPlayerController::StartAimingWeapon(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
 
@@ -610,7 +625,7 @@ void AUpPlayerController::StartAimingGun(const FInputActionValue& InputActionVal
 	}
 }
 
-void AUpPlayerController::StopAimingGun(const FInputActionValue& InputActionValue)
+void AUpPlayerController::StopAimingWeapon(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
 

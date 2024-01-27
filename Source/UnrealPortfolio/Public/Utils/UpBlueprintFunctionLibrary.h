@@ -11,6 +11,7 @@
 class AUnrealPortfolioGameModeBase;
 class AUpCharacter;
 class AUpHud;
+class AUpWeapon;
 struct FGameplayTag;
 struct FUpEntityTagSpec;
 struct FUpTagSpec;
@@ -39,6 +40,7 @@ public:
 	static bool ValidateWeaponTag(const FGameplayTag& Tag, const FString FuncName);
 
 	static FString GetWeaponMontageSectionName(const AUpCharacter* Character);
+	static bool CanGrantAmmo(const AUpWeapon* Weapon);
 	
 	static bool IsEntityTagSpecSatisfied(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec, const bool bProhibition = false);
 	static void ProcessEntityTagSpecGrants(const UObject* WorldContextObject, const FUpEntityTagSpec& EntityTagSpec);

@@ -8,6 +8,7 @@
 #include "GAS/UpAbilitySystemComponent.h"
 #include "UpWeapon.generated.h"
 
+class USoundCue;
 class UUpAmmoAttributeSet;
 
 UCLASS()
@@ -22,8 +23,11 @@ public:
 	virtual void Interact(AUpPlayerController* PlayerController) override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
+
+	virtual EUpCharacterPosture::Type GetCharacterPosture() const override;
 	
 	float CalculateDamage() const;
+	float GetAmmoGrantAmount() const;
 	float GetMagazineCapacity() const;
 	float GetMaxAmmo() const;
 	float GetBurstInterval() const;
@@ -32,6 +36,8 @@ public:
 	float GetRange() const;
 
 	FString GetWeaponTypeNameSectionString() const;
+	EUpInGameWeaponType::Type GetInGameWeaponType() const;
+	bool IsAmmoCompatible(const AUpWeapon* OtherWeapon) const;
 	bool IsPistolType() const;
 	bool IsRifleType() const;
 
@@ -46,6 +52,11 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> EffectClass_InitAmmo;
+	UPROPERTY(EditAnywhere, Category="UP Assets")
+	TObjectPtr<USoundCue> Sfx_AmmoGrant;
+	
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float VolumeMultiplier_AmmoGrant = 1.f;
 	
 	UPROPERTY()
 	TObjectPtr<UUpAmmoAttributeSet> AmmoAttributeSet;
@@ -53,4 +64,6 @@ protected:
 	FUpWeaponData WeaponData;
 	
 	virtual void BeginPlay() override;
+
+	void OnAmmoGrantSuccess();
 };

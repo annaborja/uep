@@ -64,6 +64,16 @@ namespace EUpEquipmentSlot
 }
 
 UENUM(BlueprintType)
+namespace EUpInGameWeaponType
+{
+	enum Type : uint8
+	{
+		Pistol,
+		Rifle
+	};
+}
+
+UENUM(BlueprintType)
 namespace EUpItemCategory
 {
 	enum Type : uint8

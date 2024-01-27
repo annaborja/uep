@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffectCustomApplicationRequirement.h"
-#include "UpEffectCar_GunHasAmmoReserveSpace.generated.h"
+#include "UpEffectCar_AmmoGrant.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpEffectCar_GunHasAmmoReserveSpace : public UGameplayEffectCustomApplicationRequirement
+class UNREALPORTFOLIO_API UUpEffectCar_AmmoGrant : public UGameplayEffectCustomApplicationRequirement
 {
 	GENERATED_BODY()
 

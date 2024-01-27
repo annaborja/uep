@@ -27,69 +27,95 @@ void UUpActivateEquipmentAbility::ActivateAbility(const FGameplayAbilitySpecHand
                                                   const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	NumMontagesRemaining = 1;
+	NumGameplayEventsRemaining = NumMontagesRemaining;
 
 	if (TriggerEventData)
 	{
-		EquipmentSlot = static_cast<EUpEquipmentSlot::Type>(TriggerEventData->EventMagnitude);
+		MainEquipmentSlot = static_cast<EUpEquipmentSlot::Type>(TriggerEventData->EventMagnitude);
+		RelatedEquipmentSlot = MainEquipmentSlot;
 		
 		if (bDebug)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Equipment slot: %d"), EquipmentSlot)
+			UE_LOG(LogTemp, Warning, TEXT("Equipment slot: %d"), MainEquipmentSlot)
 		}
-		
+
 		if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 		{
-			bActivate = !Character->GetEquipment().GetEquipmentSlotData(EquipmentSlot).bActivated;
+			const auto& Equipment = Character->GetEquipment();
 
-			if (const auto Montage = Character->GetWeaponEquipMontage())
+			bActivate = !Equipment.GetEquipmentSlotData(MainEquipmentSlot).bActivated;
+
+			if (const auto PotentialActiveWeaponSlot = Equipment.GetPotentialActiveWeaponSlot();
+				bActivate && Equipment.GetEquipmentSlotData(PotentialActiveWeaponSlot).bActivated)
 			{
-				const auto MontageSectionName = GetMontageSectionName(Character);
-
-				if (bDebug)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Montage section name: %s"), *MontageSectionName.ToString())
-				}
-				
-				const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-								this, NAME_None, Montage, 1.f, MontageSectionName);
-				PlayMontageAndWaitTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageCompleted);
-				PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageInterrupted);
-				PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageInterrupted);
-				PlayMontageAndWaitTask->Activate();
-
-				if (WaitGameplayEventTask) WaitGameplayEventTask->EndTask();
-				
-				WaitGameplayEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-					this, TAG_Event_ActivateEquipment_SocketSwitch);
-				WaitGameplayEventTask->EventReceived.AddDynamic(this, &ThisClass::OnGameplayEventReceived);
-				WaitGameplayEventTask->Activate();
-				
-				return;
+				RelatedEquipmentSlot = PotentialActiveWeaponSlot;
+				NumMontagesRemaining = 2;
+				NumGameplayEventsRemaining = NumMontagesRemaining;
 			}
+			
+			PlayMontage(Character);
+			
+			return;
 		}
 	}
 	
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, true);
 }
 
 void UUpActivateEquipmentAbility::OnGameplayEventReceived(const FGameplayEventData Payload)
 {
+	const auto bRelatedGameplayEvent = NumGameplayEventsRemaining > 1;
+	
 	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 	{
-		if (const auto Item = Character->GetEquipment().GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor)
+		if (const auto Item = Character->GetEquipment().GetEquipmentSlotData(
+			bRelatedGameplayEvent ? RelatedEquipmentSlot : MainEquipmentSlot).ItemInstance.ItemActor)
 		{
-			bActivate ? Character->AttachActivatedItem(Item) : Character->AttachDeactivatedItem(Item);
+			if (!bActivate || bRelatedGameplayEvent)
+			{
+				Character->AttachDeactivatedItem(Item);
+			} else
+			{
+				Character->AttachActivatedItem(Item);
+			}
 		}
 	}
 
-	WaitGameplayEventTask->EndTask();
+	if (bRelatedGameplayEvent)
+	{
+		RelatedWaitGameplayEventTask->EndTask();
+	} else
+	{
+		MainWaitGameplayEventTask->EndTask();
+	}
+
+	NumGameplayEventsRemaining--;
 }
 
 void UUpActivateEquipmentAbility::OnMontageCompleted()
 {
 	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 	{
-		bActivate ? Character->ActivateEquipment(EquipmentSlot) : Character->DeactivateEquipment(EquipmentSlot);
+		const auto bRelatedMontage = NumMontagesRemaining > 1;
+		const auto EquipmentSlot = bRelatedMontage ? RelatedEquipmentSlot : MainEquipmentSlot;
+
+		if (!bActivate || bRelatedMontage)
+		{
+			Character->DeactivateEquipment(EquipmentSlot);
+		} else
+		{
+			Character->ActivateEquipment(EquipmentSlot);
+		}
+		
+		NumMontagesRemaining--;
+
+		if (NumMontagesRemaining > 0)
+		{
+			PlayMontage(Character);
+			return;
+		}
 	}
 	
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
@@ -100,12 +126,11 @@ void UUpActivateEquipmentAbility::OnMontageInterrupted()
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, true);
 }
 
-FName UUpActivateEquipmentAbility::GetMontageSectionName(const AUpCharacter* Character) const
+FName UUpActivateEquipmentAbility::GetMontageSectionName(const AUpCharacter* Character, const EUpEquipmentSlot::Type EquipmentSlot) const
 {
 	FString MontageSectionString = TEXT("");
-	const auto& EquipmentSlotData = Character->GetEquipment().GetEquipmentSlotData(EquipmentSlot);
 
-	if (const auto Weapon = Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor))
+	if (const auto Weapon = Cast<AUpWeapon>(Character->GetEquipment().GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemActor))
 	{
 		if (Weapon->IsPistolType())
 		{
@@ -120,4 +145,49 @@ FName UUpActivateEquipmentAbility::GetMontageSectionName(const AUpCharacter* Cha
 	MontageSectionString += bActivate ? TEXT("Activate") : TEXT("Deactivate");
 
 	return FName(MontageSectionString);
+}
+
+void UUpActivateEquipmentAbility::PlayMontage(const AUpCharacter* Character)
+{
+	if (const auto Montage = Character->GetWeaponEquipMontage())
+	{
+		const auto bRelatedMontage = NumMontagesRemaining > 1;
+		const auto MontageSectionName = GetMontageSectionName(Character, bRelatedMontage ? RelatedEquipmentSlot : MainEquipmentSlot);
+
+		if (bDebug)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Montage section name: %s"), *MontageSectionName.ToString())
+		}
+
+		if (Montage->IsValidSectionName(MontageSectionName))
+		{
+			const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+							this, NAME_None, Montage, 1.f, MontageSectionName);
+			PlayMontageAndWaitTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageCompleted);
+			PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageInterrupted);
+			PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageInterrupted);
+			PlayMontageAndWaitTask->Activate();
+
+			const auto WaitGameplayEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+				this, TAG_Event_ActivateEquipment_SocketSwitch);
+			WaitGameplayEventTask->EventReceived.AddDynamic(this, &ThisClass::OnGameplayEventReceived);
+			WaitGameplayEventTask->Activate();
+
+			if (bRelatedMontage)
+			{
+				if (RelatedWaitGameplayEventTask) RelatedWaitGameplayEventTask->EndTask();
+
+				RelatedWaitGameplayEventTask = WaitGameplayEventTask;
+			} else
+			{
+				if (MainWaitGameplayEventTask) MainWaitGameplayEventTask->EndTask();
+
+				MainWaitGameplayEventTask = WaitGameplayEventTask;
+			}
+			
+			return;
+		}
+	}
+	
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, true);
 }
