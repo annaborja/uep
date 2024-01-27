@@ -31,7 +31,8 @@ public:
 	bool ProjectReticleToWorld(FVector& WorldPosition, FVector& WorldDirection) const;
 	
 	void CloseCharacterSwitcher();
-	void SwitchCharacter(AUpPlayableNpc* Npc);
+	void SwitchCharacter(AUpPlayableCharacter* Npc);
+	void AddSquadMember(AUpPlayableNpc* Npc);
 	
 	void ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting = true, const int32 Priority = 0) const;
 	void DeactivateInputMappingContext(const UInputMappingContext* InputMappingContext) const;
@@ -88,9 +89,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_Weapon2;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_Character1;
+	TObjectPtr<UInputAction> InputAction_SquadMember1;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_Character2;
+	TObjectPtr<UInputAction> InputAction_SquadMember2;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_AimWeapon;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
@@ -136,6 +137,11 @@ private:
 	TObjectPtr<ACameraActor> TemporaryCamera;
 	
 	UPROPERTY(Transient)
+	TObjectPtr<AUpPlayableCharacter> SquadMember1;
+	UPROPERTY(Transient)
+	TObjectPtr<AUpPlayableCharacter> SquadMember2;
+	
+	UPROPERTY(Transient)
 	TObjectPtr<AUpPlayableCharacter> DebugCharacter;
 	UPROPERTY(Transient)
 	TObjectPtr<ADefaultPawn> DebugPawn;
@@ -170,8 +176,8 @@ private:
 	void ToggleWeapon2(const FInputActionValue& InputActionValue);
 	void ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlot) const;
 	
-	void SwitchToCharacter1(const FInputActionValue& InputActionValue);
-	void SwitchToCharacter2(const FInputActionValue& InputActionValue);
+	void SwitchToSquadMember1(const FInputActionValue& InputActionValue);
+	void SwitchToSquadMember2(const FInputActionValue& InputActionValue);
 	
 	void StartAimingWeapon(const FInputActionValue& InputActionValue);
 	void StopAimingWeapon(const FInputActionValue& InputActionValue);

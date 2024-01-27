@@ -68,7 +68,7 @@ void AUpPlayerController::CloseCharacterSwitcher()
 	ResetInputMappingContexts();
 }
 
-void AUpPlayerController::SwitchCharacter(AUpPlayableNpc* Npc)
+void AUpPlayerController::SwitchCharacter(AUpPlayableCharacter* Npc)
 {
 	// Because we switch skeletal meshes when switching characters (going from third-person to first-person),
 	// gameplay abilities that rely on montages can be left hanging.
@@ -104,6 +104,19 @@ void AUpPlayerController::SwitchCharacter(AUpPlayableNpc* Npc)
 	
 	CloseCharacterSwitcher();
 	Possess(Npc);
+}
+
+void AUpPlayerController::AddSquadMember(AUpPlayableNpc* Npc)
+{
+	if (SquadMember1)
+	{
+		SquadMember2 = Npc;
+	} else
+	{
+		SquadMember1 = Npc;
+	}
+	
+	if (CustomHud) CustomHud->BroadcastSecondarySquadMember(Npc);
 }
 
 void AUpPlayerController::ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting, const int32 Priority) const
@@ -263,8 +276,8 @@ void AUpPlayerController::BeginPlay()
 	check(InputAction_Interact);
 	check(InputAction_Weapon1);
 	check(InputAction_Weapon2);
-	check(InputAction_Character1);
-	check(InputAction_Character2);
+	check(InputAction_SquadMember1);
+	check(InputAction_SquadMember2);
 	check(InputAction_AimWeapon);
 	check(InputAction_FireWeapon);
 
@@ -366,8 +379,8 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InputAction_Weapon1, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon1);
 	EnhancedInputComponent->BindAction(InputAction_Weapon2, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon2);
 	
-	EnhancedInputComponent->BindAction(InputAction_Character1, ETriggerEvent::Started, this, &ThisClass::SwitchToCharacter1);
-	EnhancedInputComponent->BindAction(InputAction_Character2, ETriggerEvent::Started, this, &ThisClass::SwitchToCharacter2);
+	EnhancedInputComponent->BindAction(InputAction_SquadMember1, ETriggerEvent::Started, this, &ThisClass::SwitchToSquadMember1);
+	EnhancedInputComponent->BindAction(InputAction_SquadMember2, ETriggerEvent::Started, this, &ThisClass::SwitchToSquadMember2);
 	
 	EnhancedInputComponent->BindAction(InputAction_AimWeapon, ETriggerEvent::Started, this, &ThisClass::StartAimingWeapon);
 	EnhancedInputComponent->BindAction(InputAction_AimWeapon, ETriggerEvent::Completed, this, &ThisClass::StopAimingWeapon);
@@ -604,12 +617,22 @@ void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlo
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PossessedCharacter, TAG_Ability_ActivateEquipment, EventPayload);
 }
 
-void AUpPlayerController::SwitchToCharacter1(const FInputActionValue& InputActionValue)
+void AUpPlayerController::SwitchToSquadMember1(const FInputActionValue& InputActionValue)
 {
+	if (const auto Npc = SquadMember1)
+	{
+		SquadMember1 = PossessedCharacter;
+		SwitchCharacter(Npc);
+	}
 }
 
-void AUpPlayerController::SwitchToCharacter2(const FInputActionValue& InputActionValue)
+void AUpPlayerController::SwitchToSquadMember2(const FInputActionValue& InputActionValue)
 {
+	if (const auto Npc = SquadMember2)
+	{
+		SquadMember2 = PossessedCharacter;
+		SwitchCharacter(Npc);
+	}
 }
 
 void AUpPlayerController::StartAimingWeapon(const FInputActionValue& InputActionValue)

@@ -87,7 +87,7 @@ void AUpPlayerCharacter::BeginPlay()
 									SquadMember1 = Npc;
 								} else
 								{
-									if (Npc) CustomHud->BroadcastSecondarySquadMember(Npc);
+									if (Npc) CustomPlayerController->AddSquadMember(Npc);
 								}
 
 								if (Npc)
