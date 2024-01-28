@@ -17,7 +17,7 @@ class UNREALPORTFOLIO_API UUpPersistentVitalStatsDisplayWidget : public UUpCommo
 
 public:
     void SetCharacter(AUpPlayableCharacter* InCharacter);
-    void SetShowStaminaBar(const bool bInShowStaminaBar) { bShowStaminaBar = bInShowStaminaBar; }
+    void SetSecondary(const bool bInSecondary) { bSecondary = bInSecondary; }
 
     FORCEINLINE AUpPlayableCharacter* GetCharacter() const { return Character; }
 
@@ -41,7 +41,7 @@ protected:
     TObjectPtr<UTexture2D> Image;
     
     UPROPERTY(BlueprintReadOnly)
-    bool bShowStaminaBar = true;
+    bool bSecondary = false;
 
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
     virtual void OnCustomHudSet_Implementation(AUpHud* NewCustomHud) override;
@@ -53,7 +53,9 @@ protected:
     UFUNCTION(BlueprintCallable)
     float GetStaminaBarPercentage() const;
 	UFUNCTION(BlueprintCallable)
-	ESlateVisibility GetStaminaBarVisibility() const;
+	ESlateVisibility HideIfSecondary() const;
+	UFUNCTION(BlueprintCallable)
+	ESlateVisibility ShowIfSecondary() const;
 
 private:
     UPROPERTY(EditDefaultsOnly, Category="UP Params")

@@ -95,9 +95,16 @@ float UUpPersistentVitalStatsDisplayWidget::GetStaminaBarPercentage() const
 	return Stamina / MaxStamina;
 }
 
-ESlateVisibility UUpPersistentVitalStatsDisplayWidget::GetStaminaBarVisibility() const
+ESlateVisibility UUpPersistentVitalStatsDisplayWidget::HideIfSecondary() const
 {
-	if (!bShowStaminaBar) return ESlateVisibility::Hidden;
+	if (bSecondary) return ESlateVisibility::Collapsed;
+
+	return ESlateVisibility::SelfHitTestInvisible;
+}
+
+ESlateVisibility UUpPersistentVitalStatsDisplayWidget::ShowIfSecondary() const
+{
+	if (!bSecondary) return ESlateVisibility::Collapsed;
 
 	return ESlateVisibility::SelfHitTestInvisible;
 }

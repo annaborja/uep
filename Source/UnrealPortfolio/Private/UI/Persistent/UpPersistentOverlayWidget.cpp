@@ -2,7 +2,6 @@
 
 #include "UI/Persistent/UpPersistentOverlayWidget.h"
 
-#include "Characters/Player/UpPlayerController.h"
 #include "Input/CommonUIActionRouterBase.h"
 #include "UI/UpHud.h"
 #include "UI/UpCommonActivatableWidget.h"

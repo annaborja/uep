@@ -16,7 +16,7 @@ void UUpPersistentSquadDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewC
 
 	for (const auto Widget : GetSecondaryDisplayWidgets())
 	{
-		Widget->SetShowStaminaBar(false);
+		Widget->SetSecondary(true);
 	}
 }
 

@@ -30,6 +30,7 @@ void UUpMainMenuSwitcherWidget::NativeOnActivated()
 {
 	Super::NativeOnActivated();
 
+	UGameplayStatics::PlaySound2D(this, SFX_MainMenuOpen);
 	SetUpTabList();
 }
 

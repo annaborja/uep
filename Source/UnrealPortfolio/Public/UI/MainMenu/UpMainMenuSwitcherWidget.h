@@ -42,6 +42,8 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UUpTabWidget> MenuTabClass;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<USoundBase> SFX_MainMenuOpen;
 	
 	void ResumeGame() const;
 	void SetUpTabList() const;
