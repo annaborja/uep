@@ -12,6 +12,7 @@
 #include "Utils/Structs.h"
 #include "UpItem.generated.h"
 
+class USoundCue;
 class USphereComponent;
 
 UCLASS()
@@ -37,10 +38,14 @@ public:
 	void ToggleCastShadows(const bool bEnable) const;
 
 	FORCEINLINE FUpItemData GetItemData() const { return ItemData; }
+	FORCEINLINE USoundCue* GetSfx_Equip() const { return Sfx_Equip; }
 	
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> InteractionSphere;
+	
+	UPROPERTY(EditAnywhere, Category="UP Assets")
+	TObjectPtr<USoundCue> Sfx_Equip;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebug = false;

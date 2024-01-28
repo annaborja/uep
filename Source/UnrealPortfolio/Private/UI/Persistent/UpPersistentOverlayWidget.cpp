@@ -12,10 +12,7 @@
 
 bool UUpPersistentOverlayWidget::IsDescendentWidgetActivated() const
 {
-	if (const auto WidgetContainer = GetMainMenuWidgetContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
-	{
-		return true;
-	}
+	if (IsMainMenuOpen()) return true;
 
 	if (const auto WidgetContainer = GetCharacterSwitcherContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
 	{
@@ -25,6 +22,16 @@ bool UUpPersistentOverlayWidget::IsDescendentWidgetActivated() const
 	if (const auto WidgetContainer = GetDialogueWidgetContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
 	{
 		return true;
+	}
+
+	return false;
+}
+
+bool UUpPersistentOverlayWidget::IsMainMenuOpen() const
+{
+	if (const auto WidgetContainer = GetMainMenuWidgetContainer())
+	{
+		return WidgetContainer->GetActiveWidget() != nullptr;
 	}
 
 	return false;

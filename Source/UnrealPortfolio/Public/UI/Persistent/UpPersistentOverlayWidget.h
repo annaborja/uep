@@ -18,6 +18,7 @@ class UNREALPORTFOLIO_API UUpPersistentOverlayWidget : public UUpCommonUserWidge
 
 public:
 	bool IsDescendentWidgetActivated() const;
+	bool IsMainMenuOpen() const;
 	void OpenMainMenu() const;
 	UUpCharacterSwitcherWidget* OpenCharacterSwitcher() const;
 	UUpDialogueOverlayWidget* OpenDialogueFlow() const;

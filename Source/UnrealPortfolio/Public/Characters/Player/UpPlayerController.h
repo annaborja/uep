@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Abilities/GameplayAbilityTypes.h"
+#include "Characters/UpPlayableCharacter.h"
 #include "GameFramework/PlayerController.h"
 #include "Utils/Enums.h"
 #include "UpPlayerController.generated.h"
@@ -77,6 +78,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_Look;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_PauseGame;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_SwitchCameraView;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_Jump;
@@ -95,6 +98,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_AimWeapon;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
+	TObjectPtr<UInputAction> InputAction_SpecialMove;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_FireWeapon;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
@@ -105,8 +110,6 @@ private:
 	TObjectPtr<UInputAction> InputAction_NavigateCharacterSwitcher;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_OpenCharacterSwitcher;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_PauseGame;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugAimAssist = false;
@@ -163,6 +166,8 @@ private:
 	
 	void Look(const FInputActionValue& InputActionValue);
 	
+	void PauseGame(const FInputActionValue& InputActionValue);
+	
 	void SwitchCameraView(const FInputActionValue& InputActionValue);
 	
 	void Jump(const FInputActionValue& InputActionValue);
@@ -178,14 +183,15 @@ private:
 	
 	void SwitchToSquadMember1(const FInputActionValue& InputActionValue);
 	void SwitchToSquadMember2(const FInputActionValue& InputActionValue);
+	void SwitchToSquadMember(const AUpPlayableCharacter* TargetCharacter) const;
 	
 	void StartAimingWeapon(const FInputActionValue& InputActionValue);
 	void StopAimingWeapon(const FInputActionValue& InputActionValue);
 	
+	void StartSpecialMove(const FInputActionValue& InputActionValue);
+	
 	void StartFiringWeapon(const FInputActionValue& InputActionValue);
 	void StopFiringWeapon(const FInputActionValue& InputActionValue);
-	
-	void PauseGame(const FInputActionValue& InputActionValue);
 	
 	void OpenCharacterSwitcher(const FInputActionValue& InputActionValue);
 	void TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue);

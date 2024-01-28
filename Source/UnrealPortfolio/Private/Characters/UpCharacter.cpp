@@ -63,8 +63,8 @@ void AUpCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	check(InitPrimaryAttributesEffectClass);
-	check(InitVitalAttributesEffectClass);
+	check(EffectClass_InitPrimaryAttributes);
+	check(EffectClass_InitVitalAttributes);
 
 	check(ClimbingMontage_ThirdPerson);
 	check(DeathsMontage_ThirdPerson);
@@ -83,10 +83,11 @@ void AUpCharacter::BeginPlay()
 	if (AbilitySystemComponent)
 	{
 		TArray<TSubclassOf<UGameplayAbility>> AbilityClasses;
+		AbilityClasses.Append(AbilityClassesToGrant);
 		GetAbilityClassesToGrant(AbilityClasses);
 		
 		AbilitySystemComponent->Init(this, this,
-			TArray { InitVitalAttributesEffectClass, InitPrimaryAttributesEffectClass }, AbilityClasses);
+			TArray { EffectClass_InitVitalAttributes, EffectClass_InitPrimaryAttributes }, AbilityClasses);
 		AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Cooldown_StaminaRegen, EGameplayTagEventType::AnyCountChange)
 			.AddUObject(this, &ThisClass::HandleAbilitySystemTagEvent);
 	}
@@ -543,5 +544,13 @@ void AUpCharacter::HandleNoise(const TMap<TEnumAsByte<EPhysicalSurface>, USoundB
 				}
 			}
 		}
+	}
+}
+
+void AUpCharacter::OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot)
+{
+	if (const auto Sound = ItemActor->GetSfx_Equip())
+	{
+		UGameplayStatics::PlaySound2D(this, Sound);
 	}
 }

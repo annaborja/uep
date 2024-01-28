@@ -55,9 +55,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TObjectPtr<USoundCue> Sfx_AmmoGrant;
 	
-	UPROPERTY(EditAnywhere, Category="UP Params")
-	float VolumeMultiplier_AmmoGrant = 1.f;
-	
 	UPROPERTY()
 	TObjectPtr<UUpAmmoAttributeSet> AmmoAttributeSet;
 

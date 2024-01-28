@@ -95,7 +95,7 @@ void AUpPlayerController::SwitchCharacter(AUpPlayableCharacter* Npc)
 						PostPossessionGameplayEventTag = TAG_Ability_ActivateEquipment;
 						PostPossessionGameplayEventData = EventPayload;
 					}
-					
+
 					AnimInstance->Montage_Stop(0.1f, WeaponEquipMontage);
 				}
 			}
@@ -270,6 +270,7 @@ void AUpPlayerController::BeginPlay()
 	check(InputAction_Move);
 	check(InputAction_Sprint);
 	check(InputAction_Look);
+	check(InputAction_PauseGame);
 	check(InputAction_SwitchCameraView);
 	check(InputAction_Jump);
 	check(InputAction_Reload);
@@ -279,6 +280,7 @@ void AUpPlayerController::BeginPlay()
 	check(InputAction_SquadMember1);
 	check(InputAction_SquadMember2);
 	check(InputAction_AimWeapon);
+	check(InputAction_SpecialMove);
 	check(InputAction_FireWeapon);
 
 	CustomHud = CastChecked<AUpHud>(GetHUD());
@@ -340,8 +342,18 @@ void AUpPlayerController::OnPossess(APawn* InPawn)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Possess %s"), *InPawn->GetName())
 	}
-	
+
+	const auto PrevPossessedCharacter = PossessedCharacter;
 	PossessedCharacter = CastChecked<AUpPlayableCharacter>(InPawn);
+
+	if (SquadMember1 == PossessedCharacter)
+	{
+		SquadMember1 = PrevPossessedCharacter;
+	} else if (SquadMember2 == PossessedCharacter)
+	{
+		SquadMember2 = PrevPossessedCharacter;
+	}
+	
 	ResetInputMappingContexts();
 
 	if (PostPossessionGameplayEventTag.IsValid())
@@ -367,6 +379,8 @@ void AUpPlayerController::SetupInputComponent()
 	
 	EnhancedInputComponent->BindAction(InputAction_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	
+	EnhancedInputComponent->BindAction(InputAction_PauseGame, ETriggerEvent::Started, this, &ThisClass::PauseGame);
+	
 	EnhancedInputComponent->BindAction(InputAction_SwitchCameraView, ETriggerEvent::Triggered, this, &ThisClass::SwitchCameraView);
 	
 	EnhancedInputComponent->BindAction(InputAction_Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
@@ -379,16 +393,16 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InputAction_Weapon1, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon1);
 	EnhancedInputComponent->BindAction(InputAction_Weapon2, ETriggerEvent::Started, this, &ThisClass::ToggleWeapon2);
 	
-	EnhancedInputComponent->BindAction(InputAction_SquadMember1, ETriggerEvent::Started, this, &ThisClass::SwitchToSquadMember1);
-	EnhancedInputComponent->BindAction(InputAction_SquadMember2, ETriggerEvent::Started, this, &ThisClass::SwitchToSquadMember2);
+	EnhancedInputComponent->BindAction(InputAction_SquadMember1, ETriggerEvent::Triggered, this, &ThisClass::SwitchToSquadMember1);
+	EnhancedInputComponent->BindAction(InputAction_SquadMember2, ETriggerEvent::Triggered, this, &ThisClass::SwitchToSquadMember2);
 	
 	EnhancedInputComponent->BindAction(InputAction_AimWeapon, ETriggerEvent::Started, this, &ThisClass::StartAimingWeapon);
 	EnhancedInputComponent->BindAction(InputAction_AimWeapon, ETriggerEvent::Completed, this, &ThisClass::StopAimingWeapon);
 	
+	EnhancedInputComponent->BindAction(InputAction_SpecialMove, ETriggerEvent::Started, this, &ThisClass::StartSpecialMove);
+	
 	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Started, this, &ThisClass::StartFiringWeapon);
 	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Completed, this, &ThisClass::StopFiringWeapon);
-	
-	EnhancedInputComponent->BindAction(InputAction_PauseGame, ETriggerEvent::Completed, this, &ThisClass::PauseGame);
 	
 	EnhancedInputComponent->BindAction(InputAction_OpenCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
 	EnhancedInputComponent->BindAction(InputAction_CloseCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::TriggerCloseCharacterSwitcher);
@@ -532,6 +546,15 @@ void AUpPlayerController::Look(const FInputActionValue& InputActionValue)
 	AddYawInput(InputActionVector.X * InputMultiplier);
 }
 
+void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
+{
+	if (CustomHud && !CustomHud->IsMainMenuOpen())
+	{
+		CustomHud->OpenMainMenu();
+		UGameplayStatics::SetGamePaused(this, true);
+	}
+}
+
 void AUpPlayerController::SwitchCameraView(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
@@ -619,20 +642,22 @@ void AUpPlayerController::ToggleWeapon(const EUpEquipmentSlot::Type EquipmentSlo
 
 void AUpPlayerController::SwitchToSquadMember1(const FInputActionValue& InputActionValue)
 {
-	if (const auto Npc = SquadMember1)
-	{
-		SquadMember1 = PossessedCharacter;
-		SwitchCharacter(Npc);
-	}
+	SwitchToSquadMember(SquadMember1);
 }
 
 void AUpPlayerController::SwitchToSquadMember2(const FInputActionValue& InputActionValue)
 {
-	if (const auto Npc = SquadMember2)
-	{
-		SquadMember2 = PossessedCharacter;
-		SwitchCharacter(Npc);
-	}
+	SwitchToSquadMember(SquadMember2);
+}
+
+void AUpPlayerController::SwitchToSquadMember(const AUpPlayableCharacter* TargetCharacter) const
+{
+	if (!PossessedCharacter || !TargetCharacter) return;
+
+	FGameplayEventData EventPayload;
+	EventPayload.Target = TargetCharacter;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PossessedCharacter, TAG_Ability_SwitchOutOfSquadMember, EventPayload);
 }
 
 void AUpPlayerController::StartAimingWeapon(const FInputActionValue& InputActionValue)
@@ -661,6 +686,22 @@ void AUpPlayerController::StopAimingWeapon(const FInputActionValue& InputActionV
 	}
 }
 
+void AUpPlayerController::StartSpecialMove(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	if (const auto SpecialMoveTag = PossessedCharacter->GetActiveSpecialMoveTag(); SpecialMoveTag.IsValid())
+	{
+		if (const auto AbilitySystemComponent = PossessedCharacter->GetAbilitySystemComponent())
+		{
+			FGameplayTagContainer AbilityTags;
+			AbilityTags.AddTag(SpecialMoveTag);
+		
+			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+		}
+	}
+}
+
 void AUpPlayerController::StartFiringWeapon(const FInputActionValue& InputActionValue)
 {
 	if (!PossessedCharacter) return;
@@ -685,13 +726,6 @@ void AUpPlayerController::StopFiringWeapon(const FInputActionValue& InputActionV
 		
 		AbilitySystemComponent->CancelAbilities(&AbilityTags);
 	}
-}
-
-void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)
-{
-	if (CustomHud) CustomHud->OpenMainMenu();
-	
-	UGameplayStatics::SetGamePaused(this, true);
 }
 
 void AUpPlayerController::OpenCharacterSwitcher(const FInputActionValue& InputActionValue)

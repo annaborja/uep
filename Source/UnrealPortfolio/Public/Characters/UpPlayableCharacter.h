@@ -42,7 +42,7 @@ public:
 	virtual bool GrantTagSpec(const FUpTagSpec& TagSpec) override;
 	
 	UFUNCTION(BlueprintCallable)
-	void ActivateCameraView(const EUpCameraView::Type CameraViewType);
+	void ActivateCameraView(const EUpCameraView::Type CameraViewType, const bool bInstant = false);
 
 	bool CanShoot() const;
 
@@ -169,7 +169,8 @@ private:
 	void InitForPlayer();
 	void TearDownForPlayer();
 
-	void SetCameraParams(const float SpringArmLength, const FVector& SpringArmSocketOffset, const FVector& CameraRelativeLocation, const FRotator& CameraRelativeRotation);
+	void SetCameraParams(const float SpringArmLength, const FVector& SpringArmSocketOffset,
+		const FVector& CameraRelativeLocation, const FRotator& CameraRelativeRotation, const bool bInstant = false);
 	void SetUpCharacterForCameraView();
 	void SetUpFirstPersonController();
 	void SetUpFirstPersonMesh();

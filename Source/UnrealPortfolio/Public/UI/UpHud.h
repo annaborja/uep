@@ -67,6 +67,7 @@ public:
 	
 	void Init(AUpPlayerController* InPlayerController);
 	void OpenMainMenu() const;
+	bool IsMainMenuOpen() const;
 	
 	void OpenCharacterSwitcher();
 	void CloseCharacterSwitcher() const;

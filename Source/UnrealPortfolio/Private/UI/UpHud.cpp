@@ -37,6 +37,13 @@ void AUpHud::OpenMainMenu() const
 	PersistentOverlayWidget->OpenMainMenu();
 }
 
+bool AUpHud::IsMainMenuOpen() const
+{
+	if (PersistentOverlayWidget) return PersistentOverlayWidget->IsMainMenuOpen();
+
+	return false;
+}
+
 void AUpHud::OpenCharacterSwitcher()
 {
 	if (!PersistentOverlayWidget) return;

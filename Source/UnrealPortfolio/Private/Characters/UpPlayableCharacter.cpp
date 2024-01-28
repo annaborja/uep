@@ -18,6 +18,7 @@
 #include "Items/UpAmmo.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Levels/UpLevelScriptActor.h"
+#include "Tags/GasTags.h"
 #include "UI/UpHud.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -209,18 +210,18 @@ bool AUpPlayableCharacter::GrantTagSpec(const FUpTagSpec& TagSpec)
 	return bSuccess;
 }
 
-void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraViewType)
+void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraViewType, const bool bInstant)
 {
 	switch (CameraViewType)
 	{
 	case EUpCameraView::FirstPerson:
-		SetCameraParams(SpringArmLength_FirstPerson, SpringArmSocketOffset_FirstPerson, CameraRelativeLocation_FirstPerson, CameraRelativeRotation_FirstPerson);
+		SetCameraParams(SpringArmLength_FirstPerson, SpringArmSocketOffset_FirstPerson, CameraRelativeLocation_FirstPerson, CameraRelativeRotation_FirstPerson, bInstant);
 		break;
 	case EUpCameraView::FirstPerson_Debug:
 		SetUpThirdPersonCamera();
 		break;
 	case EUpCameraView::ThirdPerson_OverTheShoulder:
-		SetCameraParams(SpringArmLength_ThirdPerson, SpringArmSocketOffset_ThirdPerson, CameraRelativeLocation_ThirdPerson, CameraRelativeRotation_ThirdPerson);
+		SetCameraParams(SpringArmLength_ThirdPerson, SpringArmSocketOffset_ThirdPerson, CameraRelativeLocation_ThirdPerson, CameraRelativeRotation_ThirdPerson, bInstant);
 		break;
 	case EUpCameraView::ThirdPerson_OverTheShoulder_Debug:
 		SetUpThirdPersonCamera();
@@ -379,7 +380,7 @@ void AUpPlayableCharacter::InitForPlayer()
 	
 	if (CustomPlayerController)
 	{
-		ActivateCameraView(CustomPlayerController->GetCameraView());
+		ActivateCameraView(CustomPlayerController->GetCameraView(), true);
 
 		if (const auto CustomHud = CustomPlayerController->GetCustomHud())
 		{
@@ -413,6 +414,14 @@ void AUpPlayableCharacter::InitForPlayer()
 				}
 			}
 		}
+	}
+
+	if (AbilitySystemComponent)
+	{
+		FGameplayTagContainer AbilityTags;
+		AbilityTags.AddTag(TAG_Ability_SwitchIntoSquadMember);
+		
+		AbilitySystemComponent->CancelAbilities(&AbilityTags);
 	}
 }
 
@@ -456,9 +465,9 @@ void AUpPlayableCharacter::TearDownForPlayer()
 }
 
 void AUpPlayableCharacter::SetCameraParams(const float SpringArmLength, const FVector& SpringArmSocketOffset,
-                                           const FVector& CameraRelativeLocation, const FRotator& CameraRelativeRotation)
+                                           const FVector& CameraRelativeLocation, const FRotator& CameraRelativeRotation, const bool bInstant)
 {
-	const auto bCameraParamsInitialized = PrevSpringArmLength < 0.f;
+	const auto bCameraParamsInitialized = PrevSpringArmLength >= 0.f;
 
 	if (SpringArm)
 	{
@@ -477,7 +486,11 @@ void AUpPlayableCharacter::SetCameraParams(const float SpringArmLength, const FV
 	TargetCameraRelativeLocation = CameraRelativeLocation;
 	TargetCameraRelativeRotation = CameraRelativeRotation;
 	
-	if (bCameraParamsInitialized)
+	if (bCameraParamsInitialized && !bInstant)
+	{
+		CurrentCameraBlendTime = 0.f;
+		SetActorTickEnabled(true);
+	} else
 	{
 		if (SpringArm)
 		{
@@ -492,10 +505,6 @@ void AUpPlayableCharacter::SetCameraParams(const float SpringArmLength, const FV
 		}
 		
 		if (IsInFirstPersonMode()) SetUpCharacterForCameraView();
-	} else
-	{
-		CurrentCameraBlendTime = 0.f;
-		SetActorTickEnabled(true);
 	}
 }
 

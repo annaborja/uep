@@ -106,6 +106,7 @@ public:
 	void HandleLanding(const FName& BoneName, const EUpTraceDirection::Type TraceDirection = EUpTraceDirection::Down,
 		const float TraceLength = 10.f, const float VolumeMultiplier = 1.f) const;
 	
+	FORCEINLINE FGameplayTag GetActiveSpecialMoveTag() const { return ActiveSpecialMoveTag; }
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 	FORCEINLINE FUpCharacterData GetCharacterData() const { return CharacterData; }
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
@@ -130,33 +131,35 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
 	
-	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> ClimbingMontage_ThirdPerson;
-	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> DeathsMontage_ThirdPerson;
-	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> GesturesMontage_ThirdPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> GunFiringMontage_ThirdPerson;
-	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> HitReactionsMontage_ThirdPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> MantlesMontage_ThirdPerson;
-	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> ReloadsMontage_ThirdPerson;
-	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> WeaponEquipMontage_ThirdPerson;
 	
-	UPROPERTY(EditAnywhere, Category="UP Assets|GAS")
-	TSubclassOf<UGameplayEffect> InitPrimaryAttributesEffectClass;
-	UPROPERTY(EditAnywhere, Category="UP Assets|GAS")
-	TSubclassOf<UGameplayEffect> InitVitalAttributesEffectClass;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|GAS")
+	TArray<TSubclassOf<UGameplayAbility>> AbilityClassesToGrant;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|GAS")
+	TSubclassOf<UGameplayEffect> EffectClass_InitPrimaryAttributes;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|GAS")
+	TSubclassOf<UGameplayEffect> EffectClass_InitVitalAttributes;
 	
-	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|SFX")
 	TObjectPtr<USoundCue> Sfx_BulletImpacts;
-	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|SFX")
 	TObjectPtr<USoundCue> Sfx_JumpLaunches;
-	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|SFX")
 	TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap_Footsteps;
 	UPROPERTY(EditAnywhere, Category="UP Assets|SFX")
 	TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap_JumpLandings;
@@ -173,14 +176,13 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	FGameplayTag TagId;
-	
-	UPROPERTY(Transient, VisibleAnywhere, Category="UP Runtime")
-	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
-	UPROPERTY(VisibleAnywhere, Category="UP Runtime")
-	bool bRelaxed = true;
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	FGameplayTag ActiveSpecialMoveTag = FGameplayTag::EmptyTag;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;
+	UPROPERTY(Transient)
+	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
 
 	UPROPERTY()
 	TObjectPtr<UUpPrimaryAttributeSet> PrimaryAttributeSet;
@@ -188,6 +190,7 @@ protected:
 	TObjectPtr<UUpVitalAttributeSet> VitalAttributeSet;
 	
 	FUpCharacterData CharacterData;
+	bool bRelaxed = true;
 	
 	FVector RootMotionTargetLocation;
 	bool bHasRootMotionTargetLocation = false;
@@ -202,7 +205,7 @@ protected:
 	void HandleNoise(const TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap, const FName& BoneName,
 		const EUpTraceDirection::Type TraceDirection = EUpTraceDirection::Down, const float TraceLength = 10.f, const float VolumeMultiplier = 1.f) const;
 	
-	virtual void OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot) {}
+	virtual void OnItemEquip(AUpItem* ItemActor, const EUpEquipmentSlot::Type EquipmentSlot);
 	virtual void OnItemUnequip(const EUpEquipmentSlot::Type EquipmentSlot) {}
 	virtual void OnEquipmentActivation(const EUpEquipmentSlot::Type EquipmentSlot) {}
 	virtual void OnEquipmentDeactivation(const EUpEquipmentSlot::Type EquipmentSlot) {}
