@@ -8,6 +8,8 @@
 #include "Interfaces/UpTagIdable.h"
 #include "UpTargetActor.generated.h"
 
+class USphereComponent;
+
 UCLASS()
 class UNREALPORTFOLIO_API AUpTargetActor : public AActor, public IUpTagIdable
 {
@@ -19,6 +21,9 @@ public:
 	virtual FGameplayTag GetTagId() const override { return TagId; }
 
 protected:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USphereComponent> SphereComponent;
+	
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	FGameplayTag TagId;
 };

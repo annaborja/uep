@@ -86,6 +86,15 @@ namespace EUpItemCategory
 	};
 }
 
+UENUM()
+namespace EUpMontageType
+{
+	enum Type : uint8
+	{
+		Gestures
+	};
+}
+
 UENUM(BlueprintType)
 namespace EUpTraceDirection
 {

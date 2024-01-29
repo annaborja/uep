@@ -50,7 +50,7 @@ void UUpPersistentBarkDisplayWidget::AdvanceDialogueLine()
 		
 		StopAudio();
 
-		if (BarkData.bNotifyLevelOnEnd)
+		if (BarkData.NotifyTag.IsValid())
 		{
 			if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 			{

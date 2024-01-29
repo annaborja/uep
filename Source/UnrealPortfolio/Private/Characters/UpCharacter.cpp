@@ -26,7 +26,7 @@ AUpCharacter::AUpCharacter()
 {
 	AIControllerClass = AUpAiController::StaticClass();
 	PrimaryActorTick.bCanEverTick = false;
-	
+
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;

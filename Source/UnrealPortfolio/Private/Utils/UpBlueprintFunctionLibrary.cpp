@@ -20,11 +20,26 @@
 #include "Utils/Constants.h"
 #include "Utils/Structs.h"
 
+AUpPlayerController* UUpBlueprintFunctionLibrary::GetCustomPlayerController(const UObject* WorldContextObject)
+{
+	return Cast<AUpPlayerController>(UGameplayStatics::GetPlayerController(WorldContextObject, 0));
+}
+
+AUpPlayableCharacter* UUpBlueprintFunctionLibrary::GetPlayerPossessedCharacter(const UObject* WorldContextObject)
+{
+	if (const auto CustomPlayerController = GetCustomPlayerController(WorldContextObject))
+	{
+		return CustomPlayerController->GetPossessedCharacter();
+	}
+
+	return nullptr;
+}
+
 AUpHud* UUpBlueprintFunctionLibrary::GetCustomHud(const UObject* WorldContextObject)
 {
-	if (const auto PlayerController = Cast<AUpPlayerController>(UGameplayStatics::GetPlayerController(WorldContextObject, 0)))
+	if (const auto CustomPlayerController = GetCustomPlayerController(WorldContextObject))
 	{
-		return PlayerController->GetCustomHud();
+		return CustomPlayerController->GetCustomHud();
 	}
 
 	return nullptr;
@@ -35,9 +50,73 @@ UUpGameInstance* UUpBlueprintFunctionLibrary::GetGameInstance(const UObject* Wor
 	return Cast<UUpGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));
 }
 
+AUpLevelScriptActor* UUpBlueprintFunctionLibrary::GetLevelScriptActor(const UObject* WorldContextObject)
+{
+	if (const auto GameInstance = GetGameInstance(WorldContextObject))
+	{
+		return GameInstance->GetLevelScriptActor();
+	}
+
+	return nullptr;
+}
+
 AUnrealPortfolioGameModeBase* UUpBlueprintFunctionLibrary::GetGameMode(const UObject* WorldContextObject)
 {
 	return Cast<AUnrealPortfolioGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+}
+
+TArray<AActor*> UUpBlueprintFunctionLibrary::FindActors(const UObject* WorldContextObject, const TSubclassOf<AActor> ActorClass, const FGameplayTag& TagId)
+{
+	TArray<AActor*> Result;
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(WorldContextObject, ActorClass, OutActors);
+
+	for (const auto Actor : OutActors)
+	{
+		if (TagId.IsValid())
+		{
+			if (const auto TagIdable = Cast<IUpTagIdable>(Actor); TagIdable && TagIdable->GetTagId().MatchesTagExact(TagId))
+			{
+				Result.Add(Actor);
+			}
+		} else
+		{
+			Result.Add(Actor);
+		}
+	}
+
+	return Result;
+}
+
+bool UUpBlueprintFunctionLibrary::SatisfiesActorParams(const FUpScriptActorParams& ActorParams, const AActor* Actor)
+{
+	if (ActorParams.ActorClass && !Actor->IsA(ActorParams.ActorClass)) return false;
+	
+	if (ActorParams.TagId.IsValid())
+	{
+		if (const auto TagIdable = Cast<IUpTagIdable>(Actor); !TagIdable || !TagIdable->GetTagId().MatchesTagExact(ActorParams.TagId))
+		{
+			return false;
+		}
+	}
+
+	if (ActorParams.bPlayerOnly)
+	{
+		if (const auto PlayableCharacter = Cast<AUpPlayableCharacter>(Actor); !PlayableCharacter || !PlayableCharacter->IsPlayerControlled())
+		{
+			return false;
+		}
+	}
+
+	if (ActorParams.bExcludePlayer)
+	{
+		if (const auto PlayableCharacter = Cast<AUpPlayableCharacter>(Actor); PlayableCharacter && PlayableCharacter->IsPlayerControlled())
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 FText UUpBlueprintFunctionLibrary::GetInGameName(const UObject* WorldContextObject, const FGameplayTag& TagId)

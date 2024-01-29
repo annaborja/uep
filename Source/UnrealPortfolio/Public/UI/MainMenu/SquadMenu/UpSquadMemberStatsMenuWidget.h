@@ -37,10 +37,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	TArray<FGameplayTag> PrimaryAttributeTags {
-		TAG_Attribute_Primary_Strength,
+		TAG_Attribute_Primary_Resilience,
 		TAG_Attribute_Primary_Speed,
 		TAG_Attribute_Primary_Dexterity,
-		TAG_Attribute_Primary_Resilience,
 		TAG_Attribute_Primary_Intelligence,
 		TAG_Attribute_Primary_Instinct
 	};

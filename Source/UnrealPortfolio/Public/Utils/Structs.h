@@ -282,16 +282,29 @@ struct FUpItemData : public FTableRowBase
 	TArray<FUpAbilityGrantSpec> AbilityGrantSpecs;
 };
 
+USTRUCT()
+struct FUpScriptActorParams
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> ActorClass;
+	UPROPERTY(EditAnywhere)
+	FGameplayTag TagId;
+	
+	UPROPERTY(EditAnywhere)
+	bool bPlayerOnly = false;
+	UPROPERTY(EditAnywhere)
+	bool bExcludePlayer = false;
+};
+
 USTRUCT(BlueprintType)
 struct FUpTutorialData : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	bool IsValid() const { return TagId.IsValid() && !Text.IsEmpty(); }
+	bool IsValid() const { return !Text.IsEmpty(); }
 
-	UPROPERTY(EditDefaultsOnly)
-	FGameplayTag TagId;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText Text;
 

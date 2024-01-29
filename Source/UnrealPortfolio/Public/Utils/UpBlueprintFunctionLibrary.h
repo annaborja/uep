@@ -8,6 +8,9 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UpBlueprintFunctionLibrary.generated.h"
 
+class AUpLevelScriptActor;
+class AUpPlayableCharacter;
+class AUpPlayerController;
 class AUnrealPortfolioGameModeBase;
 class AUpCharacter;
 class AUpHud;
@@ -23,9 +26,15 @@ class UNREALPORTFOLIO_API UUpBlueprintFunctionLibrary : public UBlueprintFunctio
 	GENERATED_BODY()
 
 public:
+	static AUpPlayerController* GetCustomPlayerController(const UObject* WorldContextObject);
+	static AUpPlayableCharacter* GetPlayerPossessedCharacter(const UObject* WorldContextObject);
 	static AUpHud* GetCustomHud(const UObject* WorldContextObject);
 	static UUpGameInstance* GetGameInstance(const UObject* WorldContextObject);
+	static AUpLevelScriptActor* GetLevelScriptActor(const UObject* WorldContextObject);
 	static AUnrealPortfolioGameModeBase* GetGameMode(const UObject* WorldContextObject);
+	
+	static TArray<AActor*> FindActors(const UObject* WorldContextObject, const TSubclassOf<AActor> ActorClass, const FGameplayTag& TagId);
+	static bool SatisfiesActorParams(const FUpScriptActorParams& ActorParams, const AActor* Actor);
 
 	static FText GetInGameName(const UObject* WorldContextObject, const FGameplayTag& TagId);
 	static FText GetInGameNameifiedText(const UObject* WorldContextObject, const FText InText);

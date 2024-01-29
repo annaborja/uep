@@ -24,6 +24,7 @@ UUpCharacterMovementComponent::UUpCharacterMovementComponent()
 	JumpZVelocity = 640.f;
 	MaxWalkSpeed = 400.f;
 	MaxWalkSpeedCrouched = 135.f;
+	RotationRate = FRotator(0.f, 240.f, 0.f);
 	bUseAccelerationForPaths = true;
 	bUseControllerDesiredRotation = true;
 }
@@ -743,9 +744,9 @@ bool UUpCharacterMovementComponent::IsCustomMovementModeActive( const EUpCustomM
 
 void UUpCharacterMovementComponent::SetOrientRotationToMovementForCameraView()
 {
-	if (!Character) return;
+	if (!PlayableCharacter || !PlayableCharacter->IsPlayer()) return;
 	
-	switch (Character->GetCameraView())
+	switch (PlayableCharacter->GetCameraView())
 	{
 	case EUpCameraView::FirstPerson:
 	case EUpCameraView::ThirdPerson_OverTheShoulder:

@@ -46,13 +46,13 @@ struct FUpDialogueLine
 };
 
 USTRUCT()
-struct FUpBarkData
+struct FUpBarkData : public FTableRowBase
 {
 	GENERATED_BODY()
 
 	FUpBarkData() {}
-	explicit FUpBarkData(const FGameplayTag& InSpeakerTagId, const TArray<FUpDialogueLine> InDialogueLines, const bool bInNotifyLevelOnEnd = false) :
-		SpeakerTagId(InSpeakerTagId), DialogueLines(InDialogueLines), bNotifyLevelOnEnd(bInNotifyLevelOnEnd) {}
+	explicit FUpBarkData(const FGameplayTag& InSpeakerTagId, const TArray<FUpDialogueLine> InDialogueLines, const uint8 InPriority = 1) :
+		SpeakerTagId(InSpeakerTagId), DialogueLines(InDialogueLines), Priority(InPriority) {}
 
 	bool IsValid() const { return SpeakerTagId.IsValid() && DialogueLines.Num() > 0; }
 
@@ -64,9 +64,6 @@ struct FUpBarkData
 	
 	UPROPERTY(EditDefaultsOnly)
 	uint8 Priority = 1;
-	
-	UPROPERTY(EditDefaultsOnly)
-	bool bNotifyLevelOnEnd = false;
 
 	FGameplayTag NotifyTag;
 };

@@ -43,7 +43,6 @@ public:
 
 	FUpItemData GetItemData(const FGameplayTag& ItemTagId);
 	FUpInventory GetNpcInventory(const FGameplayTag& NpcTagId);
-	FUpTutorialData GetTutorialData(const FGameplayTag& TagId);
 	FUpWeaponData GetWeaponData(const FGameplayTag& WeaponTagId);
 
 	void ApplyBusyState(UAbilitySystemComponent* AbilitySystemComponent);
@@ -71,8 +70,6 @@ private:
 	TObjectPtr<UDataTable> CharacterDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpItemData"))
 	TObjectPtr<UDataTable> ItemDataTable;
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpTutorialData"))
-	TObjectPtr<UDataTable> TutorialDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpWeaponData"))
 	TObjectPtr<UDataTable> WeaponDataTable;
 	
@@ -107,8 +104,6 @@ private:
 	TArray<FUpCharacterData> AllCharacterData;
 	UPROPERTY(Transient)
 	TArray<FUpItemData> AllItemData;
-	UPROPERTY(Transient)
-	TArray<FUpTutorialData> AllTutorialData;
 	UPROPERTY(Transient)
 	TArray<FUpWeaponData> AllWeaponData;
 

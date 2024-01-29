@@ -13,55 +13,46 @@ namespace EUpScriptCommandType
 {
 	enum Type : uint8
 	{
-		DisplayTutorial,
 		GrantQuest,
+		PlayAnimation,
 		PlayBark,
+		SetPawnFollowTarget,
 		SetPawnLookTarget,
 		SetPawnMoveTarget,
 		SetPotentialLookTarget,
-		PlayAnimation,
+		ShowTutorial,
 	};
 }
 
 USTRUCT()
-struct FUpScriptCommand
+struct FUpScriptCommand : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	FUpScriptCommand() {}
-	explicit FUpScriptCommand(const EUpScriptCommandType::Type InCommandType, const FGameplayTag& InDataTag) :
-		CommandType(InCommandType), DataTag(InDataTag) {}
-
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag TriggerTag;
+	UPROPERTY(EditDefaultsOnly)
+	float Delay = 0.f;
+	
 	UPROPERTY(EditDefaultsOnly)
 	TEnumAsByte<EUpScriptCommandType::Type> CommandType = EUpScriptCommandType::PlayBark;
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag NotifyTag;
 	
+	UPROPERTY(EditDefaultsOnly)
+	FDataTableRowHandle DataRowHandle;
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag DataTag;
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AActor> RelevantClass;
+	bool bUseTransform = false;
 	
 	UPROPERTY(EditDefaultsOnly)
-	FGameplayTag DataTag_Secondary;
+	FUpScriptActorParams ActorParamsA;
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AActor> RelevantClass_Secondary;
+	FUpScriptActorParams ActorParamsB;
 	
-	UPROPERTY(EditDefaultsOnly)
-	FGameplayTag DataTag_Tertiary;
-	
-	UPROPERTY(EditDefaultsOnly)
-	float Delay = 0.f;
-
 	float DelayTimeElapsed = 0.f;
 	bool bExecuted = false;
-};
-
-USTRUCT()
-struct FUpScriptCommandList
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<FUpScriptCommand> Commands;
 };
 
 UCLASS()
@@ -70,21 +61,17 @@ class UNREALPORTFOLIO_API AUpLevelScriptActor : public ALevelScriptActor, public
 	GENERATED_BODY()
 
 public:
-	void NotifyTag(const FGameplayTag& Tag);
-
+	AUpLevelScriptActor();
+	
 	virtual FUpInteractionData GetInteractionData(const AUpPlayerController* PlayerController) override;
 	virtual void Interact(AUpPlayerController* PlayerController) override;
 	virtual void OnInteractionEnd(AUpPlayerController* PlayerController) override;
 	
+	void NotifyTag(const FGameplayTag& Tag);
+	
 protected:
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(TitleProperty="CommandType"))
-	TArray<FUpScriptCommand> LevelStartCommands;
-	
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(ForceInlineRow))
-	TMap<FGameplayTag, FUpScriptCommandList> TagNotificationCommandsMap;
-	
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(ForceInlineRow))
-	TMap<FGameplayTag, FUpBarkData> BarkDataMap;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpScriptCommand"))
+	TObjectPtr<UDataTable> ScriptCommandsTable;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Debug")
 	bool bDebug = false;
@@ -93,22 +80,30 @@ protected:
 	float LevelFadeInDuration = 1.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	float LookTargetCameraBlendTime = 0.5f;
-	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float LookTargetAspectRatio = 21.f / 9.f;
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	float LookTargetCameraBlendTime = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float LookTargetFieldOfView = 60.f;
 
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
-	
-	void ExecuteCommand(const FUpScriptCommand& Command);
-
-private:
+	UPROPERTY(Transient)
+	TArray<FUpScriptCommand> AllScriptCommands;
 	UPROPERTY(Transient)
 	TArray<FUpScriptCommand> CommandsToExecute;
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> PotentialLookTarget;
 
-	AActor* FindActorWithTag(const TSubclassOf<AActor> ActorClass, const FGameplayTag& TagId) const;
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+	
+	void ExecuteCommand(const FUpScriptCommand& Command);
+	void PlayAnimation(const FUpScriptCommand& Command) const;
+	void PlayBark(const FUpScriptCommand& Command) const;
+	void SetPawnFollowTarget(const FUpScriptCommand& Command) const;
+	void SetPawnLookTarget(const FUpScriptCommand& Command) const;
+	void SetPawnMoveTarget(const FUpScriptCommand& Command) const;
+	void SetPotentialLookTarget(const FUpScriptCommand& Command);
+	void ShowTutorial(const FUpScriptCommand& Command) const;
+
+	void SetBlackboardKey(const FUpScriptCommand& Command, const FName& BlackboardKey) const;
 };

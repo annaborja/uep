@@ -2,26 +2,26 @@
 
 #include "Tags/ScriptTags.h"
 
+// Events
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_ActivateEquipment_SocketSwitch, "Event.ActivateEquipment.SocketSwitch")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death_DetachItems, "Event.Death.DetachItems")
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Tutorial_HowToLook, "Tutorial.HowToLook")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Tutorial_HowToMove, "Tutorial.HowToMove")
+// Montages
+UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Gestures, "Montage.Gestures")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Gestures_Nod, "Montage.Gestures.Nod")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Gestures_PointHigh, "Montage.Gestures.PointHigh")
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script, "Script")
+// Scripts
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyBIntro1, "Script.Tutorial.AllyBIntro1")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyDIntro1, "Script.Tutorial.AllyDIntro1")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyAIntro1, "Script.Tutorial.AllyAIntro1")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyBIntro2, "Script.Tutorial.AllyBIntro2")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyDIntro2, "Script.Tutorial.AllyDIntro2")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyAIntro2, "Script.Tutorial.AllyAIntro2")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyAIntro3, "Script.Tutorial.AllyAIntro3")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyDIntro3, "Script.Tutorial.AllyDIntro3")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_PlayerInWaterTowerAlley, "Script.Tutorial.PlayerInWaterTowerAlley")
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyAIntro1, "Script.Tutorial.Bark.AllyAIntro1")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyAIntro2, "Script.Tutorial.Bark.AllyAIntro2")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyAIntro3, "Script.Tutorial.Bark.AllyAIntro3")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyAIntro4, "Script.Tutorial.Bark.AllyAIntro4")
-
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyBIntro1, "Script.Tutorial.Bark.AllyBIntro1")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyBIntro2, "Script.Tutorial.Bark.AllyBIntro2")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyBIntro3, "Script.Tutorial.Bark.AllyBIntro3")
-
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyDIntro1, "Script.Tutorial.Bark.AllyDIntro1")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyDIntro2, "Script.Tutorial.Bark.AllyDIntro2")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Bark_AllyDIntro3, "Script.Tutorial.Bark.AllyDIntro3")
-
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Target_WaterTower, "Script.Tutorial.Target.WaterTower")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_Target_WaterTowerAlleyGate, "Script.Tutorial.Target.WaterTowerAlleyGate")
+// Targets
+UE_DEFINE_GAMEPLAY_TAG(TAG_Target_Tutorial_WaterTower, "Target.Tutorial.WaterTower")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Target_Tutorial_WaterTowerAlleyGate, "Target.Tutorial.WaterTowerAlleyGate")
