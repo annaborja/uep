@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Tags/ScriptTags.h"
 #include "UI/UpHud.h"
 #include "Utils/Constants.h"
@@ -132,14 +133,8 @@ void AUpLevelScriptActor::ExecuteCommand(const FUpScriptCommand& Command)
 	case EUpScriptCommandType::PlayBark:
 		PlayBark(Command);
 		break;
-	case EUpScriptCommandType::SetPawnFollowTarget:
-		SetPawnFollowTarget(Command);
-		break;
-	case EUpScriptCommandType::SetPawnLookTarget:
-		SetPawnLookTarget(Command);
-		break;
-	case EUpScriptCommandType::SetPawnMoveTarget:
-		SetPawnMoveTarget(Command);
+	case EUpScriptCommandType::SetBlackboardKey:
+		SetBlackboardKey(Command);
 		break;
 	case EUpScriptCommandType::SetPotentialLookTarget:
 		SetPotentialLookTarget(Command);
@@ -220,19 +215,72 @@ void AUpLevelScriptActor::PlayBark(const FUpScriptCommand& Command) const
 	}
 }
 
-void AUpLevelScriptActor::SetPawnFollowTarget(const FUpScriptCommand& Command) const
+void AUpLevelScriptActor::SetBlackboardKey(const FUpScriptCommand& Command) const
 {
-	SetBlackboardKey(Command, FName(BLACKBOARD_SELECTOR_FOLLOW_ACTOR));
-}
+	const auto Actors = UUpBlueprintFunctionLibrary::FindActors(this, Command.ActorParamsA.ActorClass, Command.ActorParamsA.TagId)
+		.FilterByPredicate([&Command](const AActor* Actor)
+		{
+			return UUpBlueprintFunctionLibrary::SatisfiesActorParams(Command.ActorParamsA, Actor);
+		});
+	const auto Targets = Command.ActorParamsB.ActorClass ? UUpBlueprintFunctionLibrary::FindActors(this, Command.ActorParamsB.ActorClass, Command.ActorParamsB.TagId)
+		.FilterByPredicate([&Command](const AActor* Actor)
+		{
+			return UUpBlueprintFunctionLibrary::SatisfiesActorParams(Command.ActorParamsB, Actor);
+		}) : TArray<AActor*> { nullptr };
 
-void AUpLevelScriptActor::SetPawnLookTarget(const FUpScriptCommand& Command) const
-{
-	SetBlackboardKey(Command, FName(BLACKBOARD_SELECTOR_LOOK_TARGET_LOCATION));
-}
+	if (const auto BlackboardKey = UUpBlueprintFunctionLibrary::GetBlackboardKeyFromTag(Command.DataTag); BlackboardKey.IsNone())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid blackboard key: %s"), *Command.DataTag.ToString())
+	} else if (Actors.Num() <= 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No actors found: %s"), *Command.ActorParamsA.TagId.ToString())
+	} else if (Targets.Num() != 1)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Unexpected number of targets found: %s, %d"), *Command.ActorParamsB.TagId.ToString(), Targets.Num())
+	} else
+	{
+		for (const auto Actor : Actors)
+		{
+			if (const auto Pawn = Cast<AUpCharacter>(Actor))
+			{
+				if (const auto PawnController = Cast<AUpAiController>(Pawn->GetController()))
+				{
+					if (const auto BlackboardComponent = PawnController->GetBlackboardComponent())
+					{
+						for (const auto Target : Targets)
+						{
+							if (Target)
+							{
+								if (BlackboardKey.ToString().EndsWith(TEXT("Location")))
+								{
+									auto Value = Target->GetActorLocation();
 
-void AUpLevelScriptActor::SetPawnMoveTarget(const FUpScriptCommand& Command) const
-{
-	SetBlackboardKey(Command, FName(Command.bUseTransform ? BLACKBOARD_SELECTOR_MOVE_TARGET_LOCATION : BLACKBOARD_SELECTOR_MOVE_TARGET_ACTOR));
+									// Allow for randomizing the target location.
+									if (Command.RelevantFloat > 0.f)
+									{
+										Value += UKismetMathLibrary::RandomUnitVector().GetSafeNormal2D() * Command.RelevantFloat;
+									}
+								
+									BlackboardComponent->SetValueAsVector(BlackboardKey, Value);
+								} else
+								{
+									BlackboardComponent->SetValueAsObject(BlackboardKey, Target);
+								}
+							} else
+							{
+								BlackboardComponent->ClearValue(BlackboardKey);
+							}
+						}
+						
+						continue;
+					}
+				}
+			}
+			
+			UE_LOG(LogTemp, Error, TEXT("Set blackboard key failed: %s / %s / %s"), *Command.DataTag.ToString(),
+				*Command.ActorParamsA.TagId.ToString(), *Command.ActorParamsB.TagId.ToString())
+		}
+	}
 }
 
 void AUpLevelScriptActor::SetPotentialLookTarget(const FUpScriptCommand& Command)
@@ -297,55 +345,5 @@ void AUpLevelScriptActor::ShowTutorial(const FUpScriptCommand& Command) const
 	} else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Tutorial data not found: %s"), *Command.DataRowHandle.ToDebugString())
-	}
-}
-
-void AUpLevelScriptActor::SetBlackboardKey(const FUpScriptCommand& Command, const FName& BlackboardKey) const
-{
-	const auto Actors = UUpBlueprintFunctionLibrary::FindActors(this, Command.ActorParamsA.ActorClass, Command.ActorParamsA.TagId)
-		.FilterByPredicate([&Command](const AActor* Actor)
-		{
-			return UUpBlueprintFunctionLibrary::SatisfiesActorParams(Command.ActorParamsA, Actor);
-		});
-	const auto Targets = UUpBlueprintFunctionLibrary::FindActors(this, Command.ActorParamsB.ActorClass, Command.ActorParamsB.TagId)
-		.FilterByPredicate([&Command](const AActor* Actor)
-		{
-			return UUpBlueprintFunctionLibrary::SatisfiesActorParams(Command.ActorParamsB, Actor);
-		});
-	
-	if (Actors.Num() <= 0)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Set blackboard key no actors found: %s / %s"), *Command.ActorParamsA.TagId.ToString(), *Command.ActorParamsB.TagId.ToString())
-	} else if (Targets.Num() <= 0)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Set blackboard key no targets found: %s / %s"), *Command.ActorParamsA.TagId.ToString(), *Command.ActorParamsB.TagId.ToString())
-	} else
-	{
-		for (const auto Actor : Actors)
-		{
-			if (const auto Pawn = Cast<AUpCharacter>(Actor))
-			{
-				if (const auto PawnController = Cast<AUpAiController>(Pawn->GetController()))
-				{
-					if (const auto BlackboardComponent = PawnController->GetBlackboardComponent())
-					{
-						for (const auto Target : Targets)
-						{
-							if (Command.bUseTransform)
-							{
-								BlackboardComponent->SetValueAsVector(BlackboardKey, Target->GetActorLocation());
-							} else
-							{
-								BlackboardComponent->SetValueAsObject(BlackboardKey, Target);
-							}
-						}
-						
-						continue;
-					}
-				}
-			}
-			
-			UE_LOG(LogTemp, Error, TEXT("Set blackboard key failed: %s / %s"), *Command.ActorParamsA.TagId.ToString(), *Command.ActorParamsB.TagId.ToString())
-		}
 	}
 }

@@ -2,6 +2,12 @@
 
 #include "Tags/ScriptTags.h"
 
+// Blackboard
+UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey, "BlackboardKey")
+UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_FollowActor, "BlackboardKey.FollowActor")
+UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_LookTargetLocation, "BlackboardKey.LookTargetLocation")
+UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_MoveTargetLocation, "BlackboardKey.MoveTargetLocation")
+
 // Events
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_ActivateEquipment_SocketSwitch, "Event.ActivateEquipment.SocketSwitch")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death_DetachItems, "Event.Death.DetachItems")

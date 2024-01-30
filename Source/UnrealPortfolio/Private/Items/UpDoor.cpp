@@ -44,6 +44,7 @@ void AUpDoor::Tick(const float DeltaSeconds)
 
 	if (CurrentRotation.Equals(TargetRotation, 0.1f))
 	{
+		OpenStateDelegate.Broadcast(bOpen);
 		SetActorTickEnabled(false);
 		return;
 	}
@@ -53,16 +54,14 @@ void AUpDoor::Tick(const float DeltaSeconds)
 
 void AUpDoor::Interact(AUpPlayerController* PlayerController)
 {
-	bOpen = !bOpen;
+	ToggleOpen();
+}
 
-	if (!bOpen)
-	{
-		bCloseSoundPlayed = false;
-	}
+void AUpDoor::Open()
+{
+	if (bOpen) return;
 
-	SetActorTickEnabled(true);
-	
-	UGameplayStatics::PlaySoundAtLocation(this, Sfx_Swing, GetActorLocation(), GetActorRotation());
+	ToggleOpen();
 }
 
 void AUpDoor::BeginPlay()
@@ -76,4 +75,18 @@ void AUpDoor::BeginPlay()
 FText AUpDoor::GetInteractionPromptText(const AUpPlayerController* PlayerController) const
 {
 	return FText::FromString(FString::Printf(TEXT("%s %s"), bOpen ? TEXT("Close") : TEXT("Open"), *ItemData.Name.ToString()));
+}
+
+void AUpDoor::ToggleOpen()
+{
+	bOpen = !bOpen;
+
+	if (!bOpen)
+	{
+		bCloseSoundPlayed = false;
+	}
+
+	SetActorTickEnabled(true);
+	
+	UGameplayStatics::PlaySoundAtLocation(this, Sfx_Swing, GetActorLocation(), GetActorRotation());
 }

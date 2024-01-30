@@ -16,9 +16,7 @@ namespace EUpScriptCommandType
 		GrantQuest,
 		PlayAnimation,
 		PlayBark,
-		SetPawnFollowTarget,
-		SetPawnLookTarget,
-		SetPawnMoveTarget,
+		SetBlackboardKey,
 		SetPotentialLookTarget,
 		ShowTutorial,
 	};
@@ -44,7 +42,7 @@ struct FUpScriptCommand : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag DataTag;
 	UPROPERTY(EditDefaultsOnly)
-	bool bUseTransform = false;
+	float RelevantFloat = 0.f;
 	
 	UPROPERTY(EditDefaultsOnly)
 	FUpScriptActorParams ActorParamsA;
@@ -99,11 +97,7 @@ protected:
 	void ExecuteCommand(const FUpScriptCommand& Command);
 	void PlayAnimation(const FUpScriptCommand& Command) const;
 	void PlayBark(const FUpScriptCommand& Command) const;
-	void SetPawnFollowTarget(const FUpScriptCommand& Command) const;
-	void SetPawnLookTarget(const FUpScriptCommand& Command) const;
-	void SetPawnMoveTarget(const FUpScriptCommand& Command) const;
+	void SetBlackboardKey(const FUpScriptCommand& Command) const;
 	void SetPotentialLookTarget(const FUpScriptCommand& Command);
 	void ShowTutorial(const FUpScriptCommand& Command) const;
-
-	void SetBlackboardKey(const FUpScriptCommand& Command, const FName& BlackboardKey) const;
 };

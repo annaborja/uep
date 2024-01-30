@@ -10,6 +10,7 @@ UENUM()
 namespace EUpNavLinkProxyNavigationType {
 	enum Type : uint8
 	{
+		Door,
 		Jump,
 		Mantle
 	};
@@ -27,10 +28,18 @@ protected:
 	virtual void BeginPlay() override;
 	
 private:
+	UPROPERTY(EditAnywhere, Category="UP Debug")
+	bool bDebug = false;
+	
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float MovementDuration = 1.f;
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	TEnumAsByte<EUpNavLinkProxyNavigationType::Type> NavigationType = EUpNavLinkProxyNavigationType::Jump;
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float OverlapSphereRadius = 100.f;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AActor> AssociatedActor;
 	
 	UFUNCTION()
 	void HandleSmartLinkReached(AActor* MovingActor, const FVector& DestinationPoint);

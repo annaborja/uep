@@ -4,6 +4,12 @@
 
 #include "NativeGameplayTags.h"
 
+// Blackboard
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_BlackboardKey)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_BlackboardKey_FollowActor)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_BlackboardKey_LookTargetLocation)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_BlackboardKey_MoveTargetLocation)
+
 // Events
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_ActivateEquipment_SocketSwitch)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_Death_DetachItems)

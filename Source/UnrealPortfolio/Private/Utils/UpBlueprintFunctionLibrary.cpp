@@ -6,7 +6,6 @@
 #include "GameplayTagAssetInterface.h"
 #include "GameplayTagContainer.h"
 #include "UpGameInstance.h"
-#include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "GAS/UpGasDataAsset.h"
@@ -16,6 +15,7 @@
 #include "Kismet/KismetStringLibrary.h"
 #include "Tags/ItemTags.h"
 #include "Tags/NpcTags.h"
+#include "Tags/ScriptTags.h"
 #include "UnrealPortfolio/UnrealPortfolioGameModeBase.h"
 #include "Utils/Constants.h"
 #include "Utils/Structs.h"
@@ -229,6 +229,21 @@ bool UUpBlueprintFunctionLibrary::HasTagId(const AActor* Actor, const FGameplayT
 	}
 
 	return false;
+}
+
+FName UUpBlueprintFunctionLibrary::GetBlackboardKeyFromTag(const FGameplayTag& Tag)
+{
+	if (Tag.MatchesTag(TAG_BlackboardKey))
+	{
+		TArray<FString> TagSegments;
+		Tag.ToString().ParseIntoArray(TagSegments, TEXT("."));
+
+		if (TagSegments.IsValidIndex(1)) return FName(TagSegments[1]);
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("No blackboard key found for tag: %s"), *Tag.ToString())
+
+	return NAME_None;
 }
 
 bool UUpBlueprintFunctionLibrary::ValidateTag(const FGameplayTag& Tag, const FString FuncName)

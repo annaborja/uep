@@ -8,17 +8,24 @@
 
 class USoundCue;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpDoorOpenStateSignature, const bool);
+
 UCLASS()
 class UNREALPORTFOLIO_API AUpDoor : public AUpItem
 {
 	GENERATED_BODY()
 
 public:
+	FUpDoorOpenStateSignature OpenStateDelegate;
+	
 	AUpDoor();
 	
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void Interact(AUpPlayerController* PlayerController) override;
+
+	bool IsOpen() const { return bOpen; }
+	void Open();
 
 protected:
 	UPROPERTY(EditAnywhere, Category="UP Assets")
@@ -47,4 +54,6 @@ protected:
 
 private:
 	bool bCloseSoundPlayed = false;
+
+	void ToggleOpen();
 };

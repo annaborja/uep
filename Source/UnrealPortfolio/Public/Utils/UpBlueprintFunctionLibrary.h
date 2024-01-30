@@ -42,6 +42,7 @@ public:
 	static FGameplayTag GetNormalizedTag(const FGameplayTag& Tag);
 	static bool HasTag(const AActor* Actor, const FGameplayTag& Tag);
 	static bool HasTagId(const AActor* Actor, const FGameplayTag& Tag);
+	static FName GetBlackboardKeyFromTag(const FGameplayTag& Tag);
 	
 	static bool ValidateTag(const FGameplayTag& Tag, const FString FuncName);
 	static bool ValidateItemTag(const FGameplayTag& Tag, const FString FuncName);
