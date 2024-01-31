@@ -19,113 +19,121 @@ AUpWeapon::AUpWeapon()
 	AmmoAttributeSet = CreateDefaultSubobject<UUpAmmoAttributeSet>(TEXT("AmmoAttributeSet"));
 }
 
-FUpInteractionData AUpWeapon::GetInteractionData(const AUpPlayerController* PlayerController)
+FUpInteractionData AUpWeapon::GetInteractionData(const AController* Controller)
 {
 	FUpInteractionData InteractionData;
 	InteractionData.Interactable = nullptr;
 
-	if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
+	if (const auto CustomPlayerController = Cast<AUpPlayerController>(Controller))
 	{
-		InteractionData.Interactable = this;
+		if (const auto PossessedCharacter = CustomPlayerController->GetPossessedCharacter())
+		{
+			InteractionData.Interactable = this;
 		
-		const auto& Equipment = PossessedCharacter->GetEquipment();
-		const auto ActiveWeaponSlot = Equipment.GetPotentialActiveWeaponSlot();
+			const auto& Equipment = PossessedCharacter->GetEquipment();
+			const auto ActiveWeaponSlot = Equipment.GetPotentialActiveWeaponSlot();
 		
-		const auto ActiveWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(ActiveWeaponSlot).ItemInstance.ItemActor);
-		const auto InactiveWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(
-			ActiveWeaponSlot == EUpEquipmentSlot::Weapon1 ? EUpEquipmentSlot::Weapon2 : EUpEquipmentSlot::Weapon1).ItemInstance.ItemActor);
+			const auto ActiveWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(ActiveWeaponSlot).ItemInstance.ItemActor);
+			const auto InactiveWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(
+				ActiveWeaponSlot == EUpEquipmentSlot::Weapon1 ? EUpEquipmentSlot::Weapon2 : EUpEquipmentSlot::Weapon1).ItemInstance.ItemActor);
 		
-		const auto PrimaryWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1).ItemInstance.ItemActor);
+			const auto PrimaryWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1).ItemInstance.ItemActor);
 
-		if (ActiveWeapon && ActiveWeapon->IsAmmoCompatible(this))
-		{
-			InteractionData.InteractionPromptText = FText::FromString(
-				FString::Printf(TEXT("Ammo for <RichText.Bold>%s</>"), *ActiveWeapon->GetInGameName().ToString()));
-			
-			if (!UUpBlueprintFunctionLibrary::CanGrantAmmo(ActiveWeapon))
+			if (ActiveWeapon && ActiveWeapon->IsAmmoCompatible(this))
 			{
-				InteractionData.InteractionPromptSubText = FText::FromString(TEXT("(Ammo Full)"));
-			}
-		} else if (InactiveWeapon && InactiveWeapon->IsAmmoCompatible(this))
-		{
-			InteractionData.InteractionPromptText = FText::FromString(
-				FString::Printf(TEXT("Ammo for <RichText.Bold>%s</>"), *InactiveWeapon->GetInGameName().ToString()));
+				InteractionData.InteractionPromptText = FText::FromString(
+					FString::Printf(TEXT("Ammo for <RichText.Bold>%s</>"), *ActiveWeapon->GetInGameName().ToString()));
+			
+				if (!UUpBlueprintFunctionLibrary::CanGrantAmmo(ActiveWeapon))
+				{
+					InteractionData.InteractionPromptSubText = FText::FromString(TEXT("(Ammo Full)"));
+				}
+			} else if (InactiveWeapon && InactiveWeapon->IsAmmoCompatible(this))
+			{
+				InteractionData.InteractionPromptText = FText::FromString(
+					FString::Printf(TEXT("Ammo for <RichText.Bold>%s</>"), *InactiveWeapon->GetInGameName().ToString()));
 
-			if (!UUpBlueprintFunctionLibrary::CanGrantAmmo(InactiveWeapon))
+				if (!UUpBlueprintFunctionLibrary::CanGrantAmmo(InactiveWeapon))
+				{
+					InteractionData.InteractionPromptSubText = FText::FromString(TEXT("(Ammo Full)"));
+				}
+			} else if (!PrimaryWeapon || PrimaryWeapon->GetInGameWeaponType() != GetInGameWeaponType())
 			{
-				InteractionData.InteractionPromptSubText = FText::FromString(TEXT("(Ammo Full)"));
-			}
-		} else if (!PrimaryWeapon || PrimaryWeapon->GetInGameWeaponType() != GetInGameWeaponType())
-		{
-			InteractionData.InteractionPromptText = FText::FromString(
-				FString::Printf(TEXT("Equip <RichText.Bold>%s</>"), *GetInGameName().ToString()));
+				InteractionData.InteractionPromptText = FText::FromString(
+					FString::Printf(TEXT("Equip <RichText.Bold>%s</>"), *GetInGameName().ToString()));
 			
-			if (const auto SecondaryWeapon = Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2).ItemInstance.ItemActor)
+				if (const auto SecondaryWeapon = Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2).ItemInstance.ItemActor)
+				{
+					InteractionData.InteractionPromptSubText = FText::FromString(
+						FString::Printf(TEXT("(Swap for <RichText.Bold>%s</>)"), *SecondaryWeapon->GetInGameName().ToString()));
+				}
+			} else
 			{
-				InteractionData.InteractionPromptSubText = FText::FromString(
-					FString::Printf(TEXT("(Swap for <RichText.Bold>%s</>)"), *SecondaryWeapon->GetInGameName().ToString()));
+				InteractionData.Interactable = nullptr;
 			}
-		} else
-		{
-			InteractionData.Interactable = nullptr;
 		}
 	}
 		
 	return InteractionData;
 }
 
-void AUpWeapon::Interact(AUpPlayerController* PlayerController)
+bool AUpWeapon::Interact(AController* Controller)
 {
-	if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
+	if (const auto CustomPlayerController = Cast<AUpPlayerController>(Controller))
 	{
-		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+		if (const auto PossessedCharacter = CustomPlayerController->GetPossessedCharacter())
 		{
-			if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+			if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 			{
-				if (const auto AmmoGrantEffectClass = GasDataAsset->GetEffectClass_AmmoGrant()) {
-					const auto& Equipment = PossessedCharacter->GetEquipment();
-					const auto ActiveWeaponSlot = Equipment.GetPotentialActiveWeaponSlot();
+				if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+				{
+					if (const auto AmmoGrantEffectClass = GasDataAsset->GetEffectClass_AmmoGrant()) {
+						const auto& Equipment = PossessedCharacter->GetEquipment();
+						const auto ActiveWeaponSlot = Equipment.GetPotentialActiveWeaponSlot();
 		
-					const auto ActiveWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(ActiveWeaponSlot).ItemInstance.ItemActor);
-					const auto InactiveWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(
-						ActiveWeaponSlot == EUpEquipmentSlot::Weapon1 ? EUpEquipmentSlot::Weapon2 : EUpEquipmentSlot::Weapon1).ItemInstance.ItemActor);
+						const auto ActiveWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(ActiveWeaponSlot).ItemInstance.ItemActor);
+						const auto InactiveWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(
+							ActiveWeaponSlot == EUpEquipmentSlot::Weapon1 ? EUpEquipmentSlot::Weapon2 : EUpEquipmentSlot::Weapon1).ItemInstance.ItemActor);
 		
-					const auto PrimaryWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1).ItemInstance.ItemActor);
+						const auto PrimaryWeapon = Cast<AUpWeapon>(Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1).ItemInstance.ItemActor);
 
-					if (ActiveWeapon && ActiveWeapon->IsAmmoCompatible(this))
-					{
-						if (const auto TargetAbilitySystemComponent = ActiveWeapon->GetAbilitySystemComponent())
+						if (ActiveWeapon && ActiveWeapon->IsAmmoCompatible(this))
 						{
-							auto EffectContext = TargetAbilitySystemComponent->MakeEffectContext();
-							EffectContext.AddSourceObject(this);
-							
-							if (TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
-								*TargetAbilitySystemComponent->MakeOutgoingSpec(AmmoGrantEffectClass, 1.f, EffectContext).Data.Get()).WasSuccessfullyApplied())
+							if (const auto TargetAbilitySystemComponent = ActiveWeapon->GetAbilitySystemComponent())
 							{
-								OnAmmoGrantSuccess();
+								auto EffectContext = TargetAbilitySystemComponent->MakeEffectContext();
+								EffectContext.AddSourceObject(this);
+							
+								if (TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
+									*TargetAbilitySystemComponent->MakeOutgoingSpec(AmmoGrantEffectClass, 1.f, EffectContext).Data.Get()).WasSuccessfullyApplied())
+								{
+									OnAmmoGrantSuccess();
+								}
 							}
-						}
-					} else if (InactiveWeapon && InactiveWeapon->IsAmmoCompatible(this))
-					{
-						if (const auto TargetAbilitySystemComponent = InactiveWeapon->GetAbilitySystemComponent())
+						} else if (InactiveWeapon && InactiveWeapon->IsAmmoCompatible(this))
 						{
-							auto EffectContext = TargetAbilitySystemComponent->MakeEffectContext();
-							EffectContext.AddSourceObject(this);
-							
-							if (TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
-								*TargetAbilitySystemComponent->MakeOutgoingSpec(AmmoGrantEffectClass, 1.f, EffectContext).Data.Get()).WasSuccessfullyApplied())
+							if (const auto TargetAbilitySystemComponent = InactiveWeapon->GetAbilitySystemComponent())
 							{
-								OnAmmoGrantSuccess();
+								auto EffectContext = TargetAbilitySystemComponent->MakeEffectContext();
+								EffectContext.AddSourceObject(this);
+							
+								if (TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
+									*TargetAbilitySystemComponent->MakeOutgoingSpec(AmmoGrantEffectClass, 1.f, EffectContext).Data.Get()).WasSuccessfullyApplied())
+								{
+									OnAmmoGrantSuccess();
+								}
 							}
+						} else if (!PrimaryWeapon || PrimaryWeapon->GetInGameWeaponType() != GetInGameWeaponType())
+						{
+							PossessedCharacter->EquipItem(this, EUpEquipmentSlot::Weapon2);
 						}
-					} else if (!PrimaryWeapon || PrimaryWeapon->GetInGameWeaponType() != GetInGameWeaponType())
-					{
-						PossessedCharacter->EquipItem(this, EUpEquipmentSlot::Weapon2);
 					}
 				}
 			}
 		}
 	}
+
+	return true;
 }
 
 EUpCharacterPosture::Type AUpWeapon::GetCharacterPosture() const

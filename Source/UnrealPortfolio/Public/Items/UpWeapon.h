@@ -19,8 +19,8 @@ class UNREALPORTFOLIO_API AUpWeapon : public AUpItem, public IAbilitySystemInter
 public:
 	AUpWeapon();
 
-	virtual FUpInteractionData GetInteractionData(const AUpPlayerController* PlayerController) override;
-	virtual void Interact(AUpPlayerController* PlayerController) override;
+	virtual FUpInteractionData GetInteractionData(const AController* Controller) override;
+	virtual bool Interact(AController* Controller) override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 

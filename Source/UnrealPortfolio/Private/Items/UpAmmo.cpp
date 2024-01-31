@@ -64,12 +64,12 @@ bool AUpAmmo::TryGrantAmmoForWeaponSlot(const TSubclassOf<UGameplayEffect> Effec
 	return false;
 }
 
-FUpInteractionData AUpAmmo::GetInteractionData(const AUpPlayerController* PlayerController)
+FUpInteractionData AUpAmmo::GetInteractionData(const AController* Controller)
 {
 	FUpInteractionData InteractionData;
 	InteractionData.Interactable = this;
 	
-	if (const auto& WeaponTag = GetInteractionRelatedTag(PlayerController); WeaponTag.IsValid() && WeaponTag.MatchesTag(TAG_Item_Weapon))
+	if (const auto& WeaponTag = GetInteractionRelatedTag(Controller); WeaponTag.IsValid() && WeaponTag.MatchesTag(TAG_Item_Weapon))
 	{
 		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 		{
@@ -77,18 +77,21 @@ FUpInteractionData AUpAmmo::GetInteractionData(const AUpPlayerController* Player
 			{
 				InteractionData.InteractionPromptText = FText::FromString(
 					FString::Printf(TEXT("%s for <RichText.Bold>%s</>"), *ItemData.Name.ToString(), *WeaponItemData.Name.ToString()));
-				
-				if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
+
+				if (const auto CustomPlayerController = Cast<AUpPlayerController>(Controller))
 				{
-					if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+					if (const auto PossessedCharacter = CustomPlayerController->GetPossessedCharacter())
 					{
-						if (const auto EffectClass = GasDataAsset->GetEffectClass_AmmoGrant())
+						if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
 						{
-							if (const auto& Equipment = PossessedCharacter->GetEquipment();
-								!TryGrantAmmoForWeaponSlot(EffectClass, WeaponTag, 0, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1))
-								&& !TryGrantAmmoForWeaponSlot(EffectClass, WeaponTag, 0, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2)))
+							if (const auto EffectClass = GasDataAsset->GetEffectClass_AmmoGrant())
 							{
-								InteractionData.InteractionPromptSubText = FText::FromString(TEXT("(Ammo Full)"));
+								if (const auto& Equipment = PossessedCharacter->GetEquipment();
+									!TryGrantAmmoForWeaponSlot(EffectClass, WeaponTag, 0, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon1))
+									&& !TryGrantAmmoForWeaponSlot(EffectClass, WeaponTag, 0, Equipment.GetEquipmentSlotData(EUpEquipmentSlot::Weapon2)))
+								{
+									InteractionData.InteractionPromptSubText = FText::FromString(TEXT("(Ammo Full)"));
+								}
 							}
 						}
 					}
@@ -100,7 +103,7 @@ FUpInteractionData AUpAmmo::GetInteractionData(const AUpPlayerController* Player
 	return InteractionData;
 }
 
-int32 AUpAmmo::GetInteractionQuantity(const AUpPlayerController* PlayerController, const FGameplayTag& DynamicRelatedTag) const
+int32 AUpAmmo::GetInteractionQuantity(const AController* Controller, const FGameplayTag& DynamicRelatedTag) const
 {
 	// Setting a negative quantity indicates a full magazine.
 	if (Quantity < 0.f)
@@ -114,29 +117,32 @@ int32 AUpAmmo::GetInteractionQuantity(const AUpPlayerController* PlayerControlle
 		}
 	}
 	
-	return Super::GetInteractionQuantity(PlayerController, DynamicRelatedTag);
+	return Super::GetInteractionQuantity(Controller, DynamicRelatedTag);
 }
 
-FGameplayTag AUpAmmo::GetInteractionRelatedTag(const AUpPlayerController* PlayerController) const
+FGameplayTag AUpAmmo::GetInteractionRelatedTag(const AController* Controller) const
 {
 	// If the ammo's weapon tag isn't explicitly set, set it to the character's active or primary weapon.
 	if (!RelatedTag.IsValid())
 	{
-		if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
+		if (const auto CustomPlayerController = Cast<AUpPlayerController>(Controller))
 		{
-			if (const auto& WeaponSlotData = PossessedCharacter->GetEquipment().GetPotentialActiveWeaponSlotData();
-				WeaponSlotData.ItemInstance.ItemClass)
+			if (const auto PossessedCharacter = CustomPlayerController->GetPossessedCharacter())
 			{
-				if (const auto DefaultObject = WeaponSlotData.ItemInstance.ItemClass.GetDefaultObject())
+				if (const auto& WeaponSlotData = PossessedCharacter->GetEquipment().GetPotentialActiveWeaponSlotData();
+					WeaponSlotData.ItemInstance.ItemClass)
 				{
-					if (const auto& WeaponTag = DefaultObject->GetTagId(); WeaponTag.IsValid())
+					if (const auto DefaultObject = WeaponSlotData.ItemInstance.ItemClass.GetDefaultObject())
 					{
-						return WeaponTag;
+						if (const auto& WeaponTag = DefaultObject->GetTagId(); WeaponTag.IsValid())
+						{
+							return WeaponTag;
+						}
 					}
 				}
 			}
 		}
 	}
 	
-	return Super::GetInteractionRelatedTag(PlayerController);
+	return Super::GetInteractionRelatedTag(Controller);
 }

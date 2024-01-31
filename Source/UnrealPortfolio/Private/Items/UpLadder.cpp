@@ -28,24 +28,29 @@ AUpLadder::AUpLadder()
 	InteractionBox->SetCollisionResponseToChannel(TRACE_CHANNEL_INTERACTION, ECR_Block);
 }
 
-void AUpLadder::Interact(AUpPlayerController* PlayerController)
+bool AUpLadder::Interact(AController* Controller)
 {
-	if (const auto Character = PlayerController->GetPossessedCharacter())
+	if (const auto CustomPlayerController = Cast<AUpPlayerController>(Controller))
 	{
-		if (const auto CustomMovementComponent = Character->GetCustomMovementComponent())
+		if (const auto Character = CustomPlayerController->GetPossessedCharacter())
 		{
-			if (IsCharacterClimbing(Character))
+			if (const auto CustomMovementComponent = Character->GetCustomMovementComponent())
 			{
-				CustomMovementComponent->StopClimb();
-			} else
-			{
-				CustomMovementComponent->TryClimb(this);
+				if (IsCharacterClimbing(Character))
+				{
+					CustomMovementComponent->StopClimb();
+				} else
+				{
+					CustomMovementComponent->TryClimb(this);
+				}
 			}
 		}
 	}
+
+	return true;
 }
 
-bool AUpLadder::CanInteract(const AUpPlayerController* PlayerController) const
+bool AUpLadder::CanInteract(const AController* Controller) const
 {
 	// if (const auto Character = PlayerController->GetPossessedCharacter()) {
 	// 	const auto Angle = FMath::RadiansToDegrees(FMath::Acos(-Character->GetActorForwardVector().Dot(GetActorForwardVector())));
@@ -58,15 +63,20 @@ bool AUpLadder::CanInteract(const AUpPlayerController* PlayerController) const
 	// 	if (Angle > 90.0) return false;
 	// }
 	
-	return Super::CanInteract(PlayerController);
+	return Super::CanInteract(Controller);
 }
 
-FText AUpLadder::GetInteractionPromptText(const AUpPlayerController* PlayerController) const
+FText AUpLadder::GetInteractionPromptText(const AController* Controller) const
 {
-	const auto Character = PlayerController->GetPossessedCharacter();
+	if (const auto CustomPlayerController = Cast<AUpPlayerController>(Controller))
+	{
+		const auto Character = CustomPlayerController->GetPossessedCharacter();
 	
-	return FText::FromString(FString::Printf(TEXT("%s %s"),
-		Character && IsCharacterClimbing(Character) ? TEXT("Drop off") : TEXT("Climb"), *ItemData.Name.ToString()));
+		return FText::FromString(FString::Printf(TEXT("%s %s"),
+			Character && IsCharacterClimbing(Character) ? TEXT("Drop off") : TEXT("Climb"), *ItemData.Name.ToString()));
+	}
+
+	return FText::GetEmpty();
 }
 
 bool AUpLadder::IsCharacterClimbing(const AUpCharacter* Character) const

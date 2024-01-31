@@ -46,7 +46,6 @@ public:
 	
 	FORCEINLINE UInputAction* GetInputAction_CloseCharacterSwitcher() const { return InputAction_CloseCharacterSwitcher; }
 	
-	FORCEINLINE AActor* GetActiveInteractable() const { return ActiveInteractable; }
 	FORCEINLINE TEnumAsByte<EUpCameraView::Type> GetCameraView() const { return CameraView; }
 	FORCEINLINE AUpHud* GetCustomHud() const { return CustomHud; }
 	FORCEINLINE AUpPlayableCharacter* GetPossessedCharacter() const { return PossessedCharacter; }
@@ -126,8 +125,6 @@ private:
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float LookInputMultiplier_AimAssist = 0.5f;
 	
-	UPROPERTY(Transient)
-	TObjectPtr<AActor> ActiveInteractable;
 	UPROPERTY(Transient)
 	TEnumAsByte<EUpAimAssistLevel::Type> AimAssistLevel = EUpAimAssistLevel::None;
 	UPROPERTY(Transient)

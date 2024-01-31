@@ -24,8 +24,8 @@ public:
 
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 
-	virtual FUpInteractionData GetInteractionData(const AUpPlayerController* PlayerController) override;
-	virtual void Interact(AUpPlayerController* PlayerController) override;
+	virtual FUpInteractionData GetInteractionData(const AController* Controller) override;
+	virtual bool Interact(AController* Controller) override;
 
 	virtual FText GetInGameName() const override { return CharacterData.Name; }
 

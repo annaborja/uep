@@ -6,7 +6,6 @@
 #include "UObject/Interface.h"
 #include "UpInteractable.generated.h"
 
-class AUpPlayerController;
 struct FUpInteractionData;
 
 UINTERFACE(MinimalAPI)
@@ -20,7 +19,7 @@ class UNREALPORTFOLIO_API IUpInteractable
 	GENERATED_BODY()
 
 public:
-	virtual FUpInteractionData GetInteractionData(const AUpPlayerController* PlayerController) = 0;
-	virtual void Interact(AUpPlayerController* PlayerController) = 0;
-	virtual void OnInteractionEnd(AUpPlayerController* PlayerController) {};
+	virtual FUpInteractionData GetInteractionData(const AController* Controller) = 0;
+	virtual bool Interact(AController* Controller) = 0;
+	virtual void OnInteractionEnd(AController* Controller) {};
 };

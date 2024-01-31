@@ -52,7 +52,7 @@ public:
 	void TryClimb(AActor* ClimbableActor);
 	void StopClimb();
 	
-	bool TryMantle();
+	bool TryMantle(const float OverrideForwardDistance = -1.f);
 
 	FORCEINLINE AActor* GetClimbedActor() const { return ClimbedActor; }
 	FORCEINLINE FVector GetClimbedSurfaceLocation() const { return ClimbedSurfaceLocation; }
@@ -60,6 +60,8 @@ public:
 	
 	FORCEINLINE float GetMaxSprintSpeed() const { return MaxSprintSpeed; }
 	FORCEINLINE bool IsSprinting() const { return bWantsToSprint; }
+	
+	FORCEINLINE bool ShouldDebugMantle() const { return bDebugMantle; }
 
 protected:
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;

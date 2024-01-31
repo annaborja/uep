@@ -40,7 +40,7 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> AssociatedActor;
-	
+
 	UFUNCTION()
 	void HandleSmartLinkReached(AActor* MovingActor, const FVector& DestinationPoint);
 };

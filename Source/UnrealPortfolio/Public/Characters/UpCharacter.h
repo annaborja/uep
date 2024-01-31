@@ -105,11 +105,14 @@ public:
 	void HandleJumpLaunch() const;
 	void HandleLanding(const FName& BoneName, const EUpTraceDirection::Type TraceDirection = EUpTraceDirection::Down,
 		const float TraceLength = 10.f, const float VolumeMultiplier = 1.f) const;
+
+	void SetEffectHandle_BusyState(const FActiveGameplayEffectHandle& InHandle) { EffectHandle_BusyState = InHandle; }
 	
 	FORCEINLINE FGameplayTag GetActiveSpecialMoveTag() const { return ActiveSpecialMoveTag; }
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 	FORCEINLINE FUpCharacterData GetCharacterData() const { return CharacterData; }
 	FORCEINLINE UUpCharacterMovementComponent* GetCustomMovementComponent() const { return CustomMovementComponent; }
+	FORCEINLINE FActiveGameplayEffectHandle GetEffectHandle_BusyState() const { return EffectHandle_BusyState; }
 	FORCEINLINE FUpCharacterEquipment GetEquipment() const { return Equipment; }
 	FORCEINLINE EUpCharacterPosture::Type GetPosture() const { return Posture; }
 	FORCEINLINE USoundCue* GetSfx_BulletImpacts() const { return Sfx_BulletImpacts; }
@@ -190,6 +193,7 @@ protected:
 	TObjectPtr<UUpVitalAttributeSet> VitalAttributeSet;
 	
 	FUpCharacterData CharacterData;
+	FActiveGameplayEffectHandle EffectHandle_BusyState;
 	bool bRelaxed = true;
 	
 	FVector RootMotionTargetLocation;

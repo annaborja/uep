@@ -8,6 +8,7 @@
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Tags/GasTags.h"
 #include "Tags/ScriptTags.h"
 #include "UI/UpHud.h"
 #include "Utils/Constants.h"
@@ -19,25 +20,36 @@ AUpLevelScriptActor::AUpLevelScriptActor()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
-FUpInteractionData AUpLevelScriptActor::GetInteractionData(const AUpPlayerController* PlayerController)
+FUpInteractionData AUpLevelScriptActor::GetInteractionData(const AController* Controller)
 {
 	if (PotentialLookTarget) return FUpInteractionData(this, FText::FromString(TEXT("Look")));
 	
 	return FUpInteractionData();
 }
 
-void AUpLevelScriptActor::Interact(AUpPlayerController* PlayerController)
+bool AUpLevelScriptActor::Interact(AController* Controller)
 {
-	if (!PotentialLookTarget) return;
+	if (!PotentialLookTarget) return true;
+
+	if (const auto CustomPlayerController = Cast<AUpPlayerController>(Controller))
+	{
+		CustomPlayerController->CreateTemporaryCamera(PotentialLookTarget, LookTargetCameraBlendTime, LookTargetAspectRatio, LookTargetFieldOfView);
+		bPotentialLookTargetActive = true;
+	}
 	
-	PlayerController->CreateTemporaryCamera(PotentialLookTarget, LookTargetCameraBlendTime, LookTargetAspectRatio, LookTargetFieldOfView);
+	return false;
 }
 
-void AUpLevelScriptActor::OnInteractionEnd(AUpPlayerController* PlayerController)
+void AUpLevelScriptActor::OnInteractionEnd(AController* Controller)
 {
-	IUpInteractable::OnInteractionEnd(PlayerController);
+	IUpInteractable::OnInteractionEnd(Controller);
 
-	PlayerController->DestroyTemporaryCamera(LookTargetCameraBlendTime);
+	if (const auto CustomPlayerController = Cast<AUpPlayerController>(Controller))
+	{
+		CustomPlayerController->DestroyTemporaryCamera(LookTargetCameraBlendTime);
+	}
+	
+	bPotentialLookTargetActive = false;
 }
 
 void AUpLevelScriptActor::NotifyTag(const FGameplayTag& Tag)
@@ -324,11 +336,17 @@ void AUpLevelScriptActor::SetPotentialLookTarget(const FUpScriptCommand& Command
 				{
 					InteractionComponent->SetInteractionData(GetInteractionData(CustomPlayerController));
 				}
-			}
-
-			if (CustomPlayerController->GetActiveInteractable() == this)
-			{
-				OnInteractionEnd(CustomPlayerController);
+				
+				if (bPotentialLookTargetActive)
+				{
+					if (const auto AbilitySystemComponent = PlayerPossessedCharacter->GetAbilitySystemComponent())
+					{
+						FGameplayTagContainer AbilityTags;
+						AbilityTags.AddTag(TAG_Ability_Interact);
+		
+						AbilitySystemComponent->CancelAbilities(&AbilityTags);
+					}
+				}
 			}
 		}
 	}

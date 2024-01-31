@@ -20,33 +20,38 @@ AUpItem::AUpItem()
 	InteractionSphere->SetCollisionResponseToChannel(TRACE_CHANNEL_INTERACTION, ECR_Block);
 }
 
-FUpInteractionData AUpItem::GetInteractionData(const AUpPlayerController* PlayerController)
+FUpInteractionData AUpItem::GetInteractionData(const AController* Controller)
 {
-	if (!CanInteract(PlayerController)) return FUpInteractionData();
+	if (!CanInteract(Controller)) return FUpInteractionData();
 	
 	return FUpInteractionData(this,
-		GetInteractionPromptText(PlayerController), GetInteractionPromptSubText(PlayerController));
+		GetInteractionPromptText(Controller), GetInteractionPromptSubText(Controller));
 }
 
-void AUpItem::Interact(AUpPlayerController* PlayerController)
+bool AUpItem::Interact(AController* Controller)
 {
-	if (const auto PossessedCharacter = PlayerController->GetPossessedCharacter())
+	if (const auto CustomPlayerController = Cast<AUpPlayerController>(Controller))
 	{
-		const auto& DynamicRelatedTag = GetInteractionRelatedTag(PlayerController);
-		
-		FUpTagSpec TagSpec(TagId, GetInteractionQuantity(PlayerController, DynamicRelatedTag));
-		TagSpec.RelatedCount = GetInteractionRelatedQuantity(PlayerController, DynamicRelatedTag);
-		
-		if (DynamicRelatedTag.IsValid())
+		if (const auto PossessedCharacter = CustomPlayerController->GetPossessedCharacter())
 		{
-			TagSpec.RelatedTag = DynamicRelatedTag;
-		}
+			const auto& DynamicRelatedTag = GetInteractionRelatedTag(Controller);
 		
-		if (PossessedCharacter->GrantTagSpec(TagSpec))
-		{
-			if (bDestroyOnInteract) Destroy();
+			FUpTagSpec TagSpec(TagId, GetInteractionQuantity(Controller, DynamicRelatedTag));
+			TagSpec.RelatedCount = GetInteractionRelatedQuantity(Controller, DynamicRelatedTag);
+		
+			if (DynamicRelatedTag.IsValid())
+			{
+				TagSpec.RelatedTag = DynamicRelatedTag;
+			}
+		
+			if (PossessedCharacter->GrantTagSpec(TagSpec))
+			{
+				if (bDestroyOnInteract) Destroy();
+			}
 		}
 	}
+
+	return true;
 }
 
 void AUpItem::AttachToComponentWithScaling(USceneComponent* Parent, const FAttachmentTransformRules& AttachmentRules, const FName& SocketName)

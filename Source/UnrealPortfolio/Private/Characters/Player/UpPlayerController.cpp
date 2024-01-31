@@ -601,23 +601,25 @@ void AUpPlayerController::StartInteraction(const FInputActionValue& InputActionV
 	{
 		if (const auto TargetInteractable = InteractionComponent->GetTargetInteractable())
 		{
-			if (const auto Interactable = Cast<IUpInteractable>(TargetInteractable))
-			{
-				ActiveInteractable = TargetInteractable;
-				Interactable->Interact(this);
-			}
+			FGameplayEventData EventPayload;
+			EventPayload.OptionalObject = TargetInteractable;
+		
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PossessedCharacter, TAG_Ability_Interact, EventPayload);
 		}
 	}
 }
 
 void AUpPlayerController::EndInteraction(const FInputActionValue& InputActionValue)
 {
-	if (const auto Interactable = Cast<IUpInteractable>(ActiveInteractable))
+	if (!PossessedCharacter) return;
+
+	if (const auto AbilitySystemComponent = PossessedCharacter->GetAbilitySystemComponent())
 	{
-		Interactable->OnInteractionEnd(this);
+		FGameplayTagContainer AbilityTags;
+		AbilityTags.AddTag(TAG_Ability_Interact);
+		
+		AbilitySystemComponent->CancelAbilities(&AbilityTags);
 	}
-	
-	ActiveInteractable = nullptr;
 }
 
 void AUpPlayerController::ToggleWeapon1(const FInputActionValue& InputActionValue)

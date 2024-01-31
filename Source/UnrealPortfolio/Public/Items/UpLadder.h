@@ -17,14 +17,14 @@ class UNREALPORTFOLIO_API AUpLadder : public AUpItem
 public:
 	AUpLadder();
 	
-	virtual void Interact(AUpPlayerController* PlayerController) override;
+	virtual bool Interact(AController* Controller) override;
 
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UBoxComponent> InteractionBox;
 
-	virtual bool CanInteract(const AUpPlayerController* PlayerController) const override;
-	virtual FText GetInteractionPromptText(const AUpPlayerController* PlayerController) const override;
+	virtual bool CanInteract(const AController* Controller) const override;
+	virtual FText GetInteractionPromptText(const AController* Controller) const override;
 
 	bool IsCharacterClimbing(const AUpCharacter* Character) const;
 };

@@ -9,6 +9,7 @@
 #include "Components/UpDialogueComponent.h"
 #include "GAS/Attributes/UpVitalAttributeSet.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -56,7 +57,7 @@ void AUpPlayableNpc::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) c
 	}
 }
 
-FUpInteractionData AUpPlayableNpc::GetInteractionData(const AUpPlayerController* PlayerController)
+FUpInteractionData AUpPlayableNpc::GetInteractionData(const AController* Controller)
 {
 	if (DialogueComponent->HasAvailableDialogue())
 	{
@@ -66,12 +67,18 @@ FUpInteractionData AUpPlayableNpc::GetInteractionData(const AUpPlayerController*
 	return FUpInteractionData();
 }
 
-void AUpPlayableNpc::Interact(AUpPlayerController* PlayerController)
+bool AUpPlayableNpc::Interact(AController* Controller)
 {
-	if (DialogueComponent->HasAvailableDialogue())
+	if (const auto CustomPlayerController = Cast<AUpPlayerController>(Controller))
 	{
-		DialogueComponent->StartDialogue(PlayerController);
+		if (DialogueComponent->HasAvailableDialogue())
+		{
+			DialogueComponent->StartDialogue(CustomPlayerController);
+			return false;
+		}
 	}
+
+	return true;
 }
 
 void AUpPlayableNpc::JumpToLocation(const FVector& TargetLocation, const float Duration)
@@ -90,8 +97,14 @@ void AUpPlayableNpc::JumpToLocation(const FVector& TargetLocation, const float D
 bool AUpPlayableNpc::Mantle() const
 {
 	if (!CustomMovementComponent) return false;
+
+	const auto TraceStart = GetActorLocation();
+	FHitResult OutHit;
+	UKismetSystemLibrary::LineTraceSingle(this, TraceStart, TraceStart + GetActorForwardVector() * 100.f,
+		UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_CLIMBABLE), false, TArray<AActor*> {},
+		CustomMovementComponent->ShouldDebugMantle() ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, OutHit, true);
 	
-	return CustomMovementComponent->TryMantle();
+	return CustomMovementComponent->TryMantle(OutHit.bBlockingHit ? (OutHit.ImpactPoint - TraceStart).Size2D() : -1.f);
 }
 
 void AUpPlayableNpc::ToggleSprint(const bool bSprint) const

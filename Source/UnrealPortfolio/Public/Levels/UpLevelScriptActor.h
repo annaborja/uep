@@ -61,9 +61,9 @@ class UNREALPORTFOLIO_API AUpLevelScriptActor : public ALevelScriptActor, public
 public:
 	AUpLevelScriptActor();
 	
-	virtual FUpInteractionData GetInteractionData(const AUpPlayerController* PlayerController) override;
-	virtual void Interact(AUpPlayerController* PlayerController) override;
-	virtual void OnInteractionEnd(AUpPlayerController* PlayerController) override;
+	virtual FUpInteractionData GetInteractionData(const AController* Controller) override;
+	virtual bool Interact(AController* Controller) override;
+	virtual void OnInteractionEnd(AController* Controller) override;
 	
 	void NotifyTag(const FGameplayTag& Tag);
 	
@@ -83,6 +83,8 @@ protected:
 	float LookTargetCameraBlendTime = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float LookTargetFieldOfView = 60.f;
+
+	bool bPotentialLookTargetActive = false;
 
 	UPROPERTY(Transient)
 	TArray<FUpScriptCommand> AllScriptCommands;

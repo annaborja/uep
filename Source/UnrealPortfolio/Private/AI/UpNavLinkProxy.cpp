@@ -2,7 +2,6 @@
 
 #include "AI/UpNavLinkProxy.h"
 
-#include "NavLinkCustomComponent.h"
 #include "Characters/UpPlayableNpc.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Items/UpDoor.h"
@@ -54,12 +53,6 @@ void AUpNavLinkProxy::BeginPlay()
 
 void AUpNavLinkProxy::HandleSmartLinkReached(AActor* MovingActor, const FVector& DestinationPoint)
 {
-	if (bDebug)
-	{
-		const auto SmartLinkComponent = GetSmartLinkComp();
-		UE_LOG(LogTemp, Warning, TEXT("%d has moving agents %d"), NavigationType, SmartLinkComponent->HasMovingAgents())
-	}
-	
 	if (const auto Npc = Cast<AUpPlayableNpc>(MovingActor))
 	{
 		switch (NavigationType)
@@ -75,8 +68,10 @@ void AUpNavLinkProxy::HandleSmartLinkReached(AActor* MovingActor, const FVector&
 						if (const auto CustomMovementComponent = Npc->GetCustomMovementComponent())
 						{
 							CustomMovementComponent->StopMovementImmediately();
-							CustomMovementComponent->AddImpulse(FVector(DestinationPoint.X, DestinationPoint.Y, Npc->GetActorLocation().Z) - Npc->GetActorLocation(), true);
 						}
+						
+						Npc->SetYaw(UKismetMathLibrary::FindLookAtRotation(Npc->GetActorLocation(), DestinationPoint).Yaw);
+						Npc->LaunchCharacter(DestinationPoint - Npc->GetActorLocation(), true, true);
 					};
 					
 					if (Door->IsOpen())
@@ -97,29 +92,18 @@ void AUpNavLinkProxy::HandleSmartLinkReached(AActor* MovingActor, const FVector&
 			break;
 		case EUpNavLinkProxyNavigationType::Mantle:
 			{
-				if (bDebug)
+				if (const auto CustomMovementComponent = Npc->GetCustomMovementComponent())
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Mantle %s"), *Npc->GetName())
+					CustomMovementComponent->StopMovementImmediately();
 				}
 				
-				Npc->SetYaw(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), DestinationPoint).Yaw);
-			
-				uint8 NumAttempts = 0;
-			
-				while (!Npc->Mantle())
-				{
-					// Avoid an infinite loop.
-					if (++NumAttempts > 100) return;
-					
-					if (bDebug)
-					{
-						UE_LOG(LogTemp, Warning, TEXT("Mantle %s, %d"), *Npc->GetName(), NumAttempts)
-					}
+				Npc->SetYaw(UKismetMathLibrary::FindLookAtRotation(Npc->GetActorLocation(), DestinationPoint).Yaw);
 
-					Npc->SetActorLocation(Npc->GetActorLocation() + Npc->GetActorForwardVector());
-				}
-			
-				Npc->SetRootMotionTargetLocation(DestinationPoint);
+				const auto LaunchVector(DestinationPoint - Npc->GetActorLocation());
+				Npc->LaunchCharacter(FVector(LaunchVector.X, LaunchVector.Y, 0.f), true, false);
+
+				if (Npc->Mantle()) Npc->SetRootMotionTargetLocation(DestinationPoint);
+				
 				break;
 			}
 		default:

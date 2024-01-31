@@ -330,7 +330,7 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 		{
 			if (const auto Capsule = Character->GetCapsuleComponent())
 			{
-				Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				Capsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 			}
 		}
 
@@ -357,6 +357,17 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 		{
 			if (const auto RootMotionTargetLocation = Character->GetRootMotionTargetLocation(); RootMotionTargetLocation != Character->GetActorLocation())
 			{
+				if (Character->ShouldDebugMovement())
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Launching %s toward RootMotionTargetLocation"), *Character->GetName())
+
+					if (const auto Capsule = Character->GetCapsuleComponent())
+					{
+						UKismetSystemLibrary::DrawDebugCapsule(Character, RootMotionTargetLocation, Capsule->GetScaledCapsuleHalfHeight(),
+							Capsule->GetScaledCapsuleRadius(), Character->GetActorRotation(), FColor::Yellow, 3.f);
+					}
+				}
+				
 				Character->LaunchCharacter(RootMotionTargetLocation - Character->GetActorLocation(), true, false);
 			}
 
@@ -370,6 +381,7 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 	{
 		RemoveRootMotionSourceByID(TransitionRootMotionSourceId);
 		bTransitionRootMotionSourceFinished = true;
+		// Character->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
 	
 	bHadAnimRootMotion = HasAnimRootMotion();
@@ -452,10 +464,7 @@ void UUpCharacterMovementComponent::TryClimb(AActor* ClimbableActor)
 
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
-		{
-			GameInstance->ApplyBusyState(AbilitySystemComponent);
-		}
+		GameInstance->ApplyBusyState(Character);
 	}
 	
 	SetMovementMode(MOVE_Custom, EUpCustomMovementMode::Climb);
@@ -486,10 +495,7 @@ void UUpCharacterMovementComponent::StopClimb()
 	{
 		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 		{
-			if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
-			{
-				GameInstance->RemoveBusyState(AbilitySystemComponent);
-			}
+			GameInstance->RemoveBusyState(Character);
 		}
 
 		Character->ActivateEquipment(PrevActiveEquipmentSlot);
@@ -504,7 +510,7 @@ void UUpCharacterMovementComponent::StopClimb()
 	}
 }
 
-bool UUpCharacterMovementComponent::TryMantle()
+bool UUpCharacterMovementComponent::TryMantle(const float OverrideForwardDistance)
 {
 	// Can only mantle if we're walking/standing or jumping/falling.
 	if (!(MovementMode == MOVE_Walking && !IsCrouching()) && MovementMode != MOVE_Falling) return false;
@@ -522,8 +528,9 @@ bool UUpCharacterMovementComponent::TryMantle()
 			const auto ForwardNormal2d = UpdatedComponent->GetForwardVector().GetSafeNormal2D();
 		
 			// The valid forward distance of the mantle is based on the character's velocity.
-			const auto ValidForwardDistance = FMath::Clamp(UKismetMathLibrary::VSizeXY(Velocity) * 0.25f,
-				CapsuleRadius + MantleMinDistanceOffset, UKismetMathLibrary::Conv_FloatToDouble(MantleMaxDistance));
+			const auto ValidForwardDistance = OverrideForwardDistance >= 0.f ? OverrideForwardDistance :
+				FMath::Clamp(UKismetMathLibrary::VSizeXY(Velocity) * 0.25f,
+					CapsuleRadius + MantleMinDistanceOffset, UKismetMathLibrary::Conv_FloatToDouble(MantleMaxDistance));
 		
 			// Enable mantling starting from the height at which the character can't just step up onto something.
 			const auto MinMantleHeight = MaxStepHeight - 1.f;
@@ -546,18 +553,27 @@ bool UUpCharacterMovementComponent::TryMantle()
 			}
 	
 			// No valid front surface to mantle.
-			if (!FrontSurfaceHit.IsValidBlockingHit()) return false;
+			// if (!FrontSurfaceHit.IsValidBlockingHit())
+			if (!FrontSurfaceHit.bBlockingHit)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("No front surface blocking hit"))
+				return false;
+			}
 	
 			const auto WallSteepnessAngle = FMath::RadiansToDegrees(FMath::Acos(FrontSurfaceHit.ImpactNormal.Dot(FVector::UpVector)));
 			const auto WallApproachAngle = FMath::RadiansToDegrees(FMath::Acos(ForwardNormal2d.Dot(-FrontSurfaceHit.ImpactNormal)));
 	
 			if (bDebugMantle)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("TryMantle WallSteepnessAngle = %g, WallApproachAngle = %g"), WallSteepnessAngle, WallApproachAngle)
+				// UE_LOG(LogTemp, Warning, TEXT("TryMantle WallSteepnessAngle = %g, WallApproachAngle = %g"), WallSteepnessAngle, WallApproachAngle)
 			}
 	
 			// Wall or approach angle is invalid.
-			if (WallSteepnessAngle < MantleMinWallSteepnessAngle || WallApproachAngle > MantleMaxAlignmentAngle) return false;
+			if (WallSteepnessAngle < MantleMinWallSteepnessAngle || WallApproachAngle > MantleMaxAlignmentAngle)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Wall angles invalid"))
+				return false;
+			}
 	
 			const auto WallUpVector = FVector::VectorPlaneProject(FVector::UpVector, FrontSurfaceHit.ImpactNormal).GetSafeNormal();
 			FHitResult TopSurfaceHit;
@@ -569,11 +585,16 @@ bool UUpCharacterMovementComponent::TryMantle()
 					UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_CLIMBABLE), false, TArray<AActor*> { Character },
 					bDebugMantle ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, TopSurfaceHit, true))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("top trace fail"))
 				return false;
 			}
 
 			// No valid top surface to mantle.
-			if (!TopSurfaceHit.IsValidBlockingHit()) return false;
+			if (!TopSurfaceHit.IsValidBlockingHit())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("top surface no blocking hit"))
+				return false;
+			}
 	
 			const auto SurfaceCos = TopSurfaceHit.ImpactNormal.Dot(FVector::UpVector);
 			const auto MantleSurfaceAngle = FMath::RadiansToDegrees(FMath::Acos(SurfaceCos));
@@ -581,10 +602,14 @@ bool UUpCharacterMovementComponent::TryMantle()
 	
 			if (bDebugMantle)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("TryMantle MantleSurfaceAngle = %g, SurfaceHeight = %g"), MantleSurfaceAngle, SurfaceHeight)
+				// UE_LOG(LogTemp, Warning, TEXT("TryMantle MantleSurfaceAngle = %g, SurfaceHeight = %g"), MantleSurfaceAngle, SurfaceHeight)
 			}
 		
-			if (MantleSurfaceAngle > MantleMaxSurfaceAngle || SurfaceHeight > MaxMantleHeight) return false;
+			if (MantleSurfaceAngle > MantleMaxSurfaceAngle || SurfaceHeight > MaxMantleHeight)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("bad angles"))
+				return false;
+			}
 
 			const auto SlopeWidth = CapsuleRadius;
 			const auto SlopeLength = SlopeWidth / FMath::Cos(FMath::DegreesToRadians(180 - 90 - (90 - MantleSurfaceAngle)));
@@ -593,7 +618,7 @@ bool UUpCharacterMovementComponent::TryMantle()
 
 			if (bDebugMantle)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("TryMantle SlopeHeight = %g, ImpactNormalCos = %g"), SlopeHeight, ImpactNormalCos)
+				// UE_LOG(LogTemp, Warning, TEXT("TryMantle SlopeHeight = %g, ImpactNormalCos = %g"), SlopeHeight, ImpactNormalCos)
 			}
 	
 			MainRootMotionEndLocation = TopSurfaceHit.Location + ForwardNormal2d * CapsuleRadius +
@@ -603,17 +628,17 @@ bool UUpCharacterMovementComponent::TryMantle()
 			FCollisionQueryParams CollisionQueryParams;
 			CollisionQueryParams.AddIgnoredActor(Character);
 		
-			if (World->OverlapBlockingTestByProfile(MainRootMotionEndLocation, FQuat::Identity, TEXT("BlockAll"),
-				CollisionShape, CollisionQueryParams))
-			{
-				if (bDebugMantle)
-				{
-					UKismetSystemLibrary::DrawDebugCapsule(this, MainRootMotionEndLocation,
-						CapsuleHalfHeight, CapsuleRadius, Character->GetActorRotation(), FColor::Red, 4.f);
-				}
-			
-				return false;
-			}
+			// if (World->OverlapBlockingTestByProfile(MainRootMotionEndLocation, FQuat::Identity, TEXT("BlockAll"),
+			// 	CollisionShape, CollisionQueryParams))
+			// {
+			// 	if (bDebugMantle)
+			// 	{
+			// 		UKismetSystemLibrary::DrawDebugCapsule(this, MainRootMotionEndLocation,
+			// 			CapsuleHalfHeight, CapsuleRadius, Character->GetActorRotation(), FColor::Red, 4.f);
+			// 	}
+			//
+			// 	return false;
+			// }
 
 			if (bDebugMantle)
 			{
@@ -666,16 +691,23 @@ bool UUpCharacterMovementComponent::TryMantle()
 				PostTransitionMontageData.StartSection = bTallMantle ? TEXT("MantleTall") : TEXT("MantleShort");
 
 				MantlesMontageEndCount = 0;
+
+
+				const auto& Equipment = Character->GetEquipment();
+				const auto EquipmentSlot = Equipment.GetPotentialActiveWeaponSlot();
+				
+				if (const auto EquipmentSlotData = Equipment.GetEquipmentSlotData(EquipmentSlot); EquipmentSlotData.bActivated)
+				{
+					PrevActiveEquipmentSlot = EquipmentSlot;
+					Character->DeactivateEquipment(EquipmentSlot);
+				}
 				
 				Character->PlayAnimMontage(MantlesMontage, 1 / TransitionRootMotionSource->Duration,
 					bTallMantle ? TEXT("MantleTallTransition") : TEXT("MantleShortTransition"));
 
 				if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(World))
 				{
-					if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
-					{
-						GameInstance->ApplyBusyState(AbilitySystemComponent);
-					}
+					GameInstance->ApplyBusyState(Character);
 				}
 			}
 			
@@ -729,11 +761,10 @@ void UUpCharacterMovementComponent::HandleMontageEnded(UAnimMontage* Montage, bo
 	{
 		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 		{
-			if (const auto AbilitySystemComponent = Character->GetAbilitySystemComponent())
-			{
-				GameInstance->RemoveBusyState(AbilitySystemComponent);
-			}
+			GameInstance->RemoveBusyState(Character);
 		}
+
+		Character->ActivateEquipment(PrevActiveEquipmentSlot);
 	}
 }
 

@@ -52,9 +52,10 @@ void AUpDoor::Tick(const float DeltaSeconds)
 	SetActorRotation(FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaSeconds, SwingSpeed));
 }
 
-void AUpDoor::Interact(AUpPlayerController* PlayerController)
+bool AUpDoor::Interact(AController* Controller)
 {
 	ToggleOpen();
+	return true;
 }
 
 void AUpDoor::Open()
@@ -72,7 +73,7 @@ void AUpDoor::BeginPlay()
 	check(Sfx_Swing);
 }
 
-FText AUpDoor::GetInteractionPromptText(const AUpPlayerController* PlayerController) const
+FText AUpDoor::GetInteractionPromptText(const AController* Controller) const
 {
 	return FText::FromString(FString::Printf(TEXT("%s %s"), bOpen ? TEXT("Close") : TEXT("Open"), *ItemData.Name.ToString()));
 }

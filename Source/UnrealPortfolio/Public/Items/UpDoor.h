@@ -22,7 +22,7 @@ public:
 	
 	virtual void Tick(float DeltaSeconds) override;
 
-	virtual void Interact(AUpPlayerController* PlayerController) override;
+	virtual bool Interact(AController* Controller) override;
 
 	bool IsOpen() const { return bOpen; }
 	void Open();
@@ -50,7 +50,7 @@ protected:
 	
 	virtual void BeginPlay() override;
 
-	virtual FText GetInteractionPromptText(const AUpPlayerController* PlayerController) const override;
+	virtual FText GetInteractionPromptText(const AController* Controller) const override;
 
 private:
 	bool bCloseSoundPlayed = false;

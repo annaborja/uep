@@ -23,8 +23,8 @@ class UNREALPORTFOLIO_API AUpItem : public AStaticMeshActor, public IUpInteracta
 public:
 	AUpItem();
 	
-	virtual FUpInteractionData GetInteractionData(const AUpPlayerController* PlayerController) override;
-	virtual void Interact(AUpPlayerController* PlayerController) override;
+	virtual FUpInteractionData GetInteractionData(const AController* Controller) override;
+	virtual bool Interact(AController* Controller) override;
 
 	virtual FText GetInGameName() const override { return ItemData.Name; }
 
@@ -70,10 +70,10 @@ protected:
 	
 	virtual void BeginPlay() override;
 
-	virtual bool CanInteract(const AUpPlayerController* PlayerController) const { return bCanInteract; }
-	virtual FText GetInteractionPromptText(const AUpPlayerController* PlayerController) const { return GetInGameName(); }
-	virtual FText GetInteractionPromptSubText(const AUpPlayerController* PlayerController) const { return FText::GetEmpty(); }
-	virtual int32 GetInteractionQuantity(const AUpPlayerController* PlayerController, const FGameplayTag& DynamicRelatedTag) const { return Quantity; }
-	virtual float GetInteractionRelatedQuantity(const AUpPlayerController* PlayerController, const FGameplayTag& DynamicRelatedTag) const { return RelatedQuantity; }
-	virtual FGameplayTag GetInteractionRelatedTag(const AUpPlayerController* PlayerController) const { return RelatedTag; }
+	virtual bool CanInteract(const AController* Controller) const { return bCanInteract; }
+	virtual FText GetInteractionPromptText(const AController* Controller) const { return GetInGameName(); }
+	virtual FText GetInteractionPromptSubText(const AController* Controller) const { return FText::GetEmpty(); }
+	virtual int32 GetInteractionQuantity(const AController* Controller, const FGameplayTag& DynamicRelatedTag) const { return Quantity; }
+	virtual float GetInteractionRelatedQuantity(const AController* Controller, const FGameplayTag& DynamicRelatedTag) const { return RelatedQuantity; }
+	virtual FGameplayTag GetInteractionRelatedTag(const AController* Controller) const { return RelatedTag; }
 };

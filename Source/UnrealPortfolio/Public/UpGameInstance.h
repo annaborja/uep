@@ -10,6 +10,7 @@
 #include "Utils/Structs.h"
 #include "UpGameInstance.generated.h"
 
+class AUpCharacter;
 class AUpLevelScriptActor;
 struct FUpCharacterData;
 class UDataTable;
@@ -45,8 +46,8 @@ public:
 	FUpInventory GetNpcInventory(const FGameplayTag& NpcTagId);
 	FUpWeaponData GetWeaponData(const FGameplayTag& WeaponTagId);
 
-	void ApplyBusyState(UAbilitySystemComponent* AbilitySystemComponent);
-	void RemoveBusyState(UAbilitySystemComponent* AbilitySystemComponent);
+	void ApplyBusyState(AUpCharacter* Character) const;
+	void RemoveBusyState(AUpCharacter* Character) const;
 
 	void SetLevelScriptActor(AUpLevelScriptActor* InLevelScriptActor) { LevelScriptActor = InLevelScriptActor; }
 	FORCEINLINE AUpLevelScriptActor* GetLevelScriptActor() const { return LevelScriptActor; }
@@ -106,6 +107,4 @@ private:
 	TArray<FUpItemData> AllItemData;
 	UPROPERTY(Transient)
 	TArray<FUpWeaponData> AllWeaponData;
-
-	FActiveGameplayEffectHandle EffectHandle_BusyState;
 };
