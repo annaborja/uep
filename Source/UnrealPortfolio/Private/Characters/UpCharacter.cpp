@@ -34,6 +34,7 @@ AUpCharacter::AUpCharacter()
 	if (const auto CapsuleComponent = GetCapsuleComponent())
 	{
 		CapsuleComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+		CapsuleComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
 		CapsuleComponent->SetCollisionResponseToChannel(TRACE_CHANNEL_WEAPON, ECR_Ignore);
 	}
 

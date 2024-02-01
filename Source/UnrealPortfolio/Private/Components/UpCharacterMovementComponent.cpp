@@ -556,7 +556,7 @@ bool UUpCharacterMovementComponent::TryMantle(const float OverrideForwardDistanc
 			// if (!FrontSurfaceHit.IsValidBlockingHit())
 			if (!FrontSurfaceHit.bBlockingHit)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("No front surface blocking hit"))
+				// UE_LOG(LogTemp, Warning, TEXT("No front surface blocking hit"))
 				return false;
 			}
 	
@@ -571,7 +571,7 @@ bool UUpCharacterMovementComponent::TryMantle(const float OverrideForwardDistanc
 			// Wall or approach angle is invalid.
 			if (WallSteepnessAngle < MantleMinWallSteepnessAngle || WallApproachAngle > MantleMaxAlignmentAngle)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Wall angles invalid"))
+				// UE_LOG(LogTemp, Warning, TEXT("Wall angles invalid"))
 				return false;
 			}
 	
@@ -585,14 +585,14 @@ bool UUpCharacterMovementComponent::TryMantle(const float OverrideForwardDistanc
 					UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_CLIMBABLE), false, TArray<AActor*> { Character },
 					bDebugMantle ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, TopSurfaceHit, true))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("top trace fail"))
+				// UE_LOG(LogTemp, Warning, TEXT("top trace fail"))
 				return false;
 			}
 
 			// No valid top surface to mantle.
 			if (!TopSurfaceHit.IsValidBlockingHit())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("top surface no blocking hit"))
+				// UE_LOG(LogTemp, Warning, TEXT("top surface no blocking hit"))
 				return false;
 			}
 	
@@ -607,7 +607,7 @@ bool UUpCharacterMovementComponent::TryMantle(const float OverrideForwardDistanc
 		
 			if (MantleSurfaceAngle > MantleMaxSurfaceAngle || SurfaceHeight > MaxMantleHeight)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("bad angles"))
+				// UE_LOG(LogTemp, Warning, TEXT("bad angles"))
 				return false;
 			}
 

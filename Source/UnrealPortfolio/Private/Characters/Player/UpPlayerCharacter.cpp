@@ -8,6 +8,7 @@
 #include "Characters/Player/UpPlayerState.h"
 #include "Characters/Player/Components/UpPlayerCombatComponent.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GAS/Attributes/UpAttributeSet.h"
@@ -36,6 +37,9 @@ void AUpPlayerCharacter::BeginPlay()
 	
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	if (CustomPlayerController)
 	{

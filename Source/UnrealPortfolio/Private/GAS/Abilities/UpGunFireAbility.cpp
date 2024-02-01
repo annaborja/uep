@@ -9,6 +9,7 @@
 #include "Characters/UpCharacter.h"
 #include "Items/UpWeapon.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Tags/GasTags.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -18,6 +19,12 @@ UUpGunFireAbility::UUpGunFireAbility()
 	AbilityTags.AddTag(TAG_Ability_GunFire);
 
 	ActivationOwnedTags.AddTag(TAG_State_Shooting);
+
+	auto TriggerData = FAbilityTriggerData();
+	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+	TriggerData.TriggerTag = TAG_Ability_GunFire;
+	
+	AbilityTriggers.Add(TriggerData);
 }
 
 void UUpGunFireAbility::OnGameplayTaskInitialized(UGameplayTask& Task)
@@ -35,6 +42,11 @@ void UUpGunFireAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	ResetBurstShotCount();
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (TriggerEventData)
+	{
+		TargetActor = Cast<AActor>(TriggerEventData->OptionalObject);
+	}
 }
 
 float UUpGunFireAbility::GetRepeatInterval() const
@@ -85,73 +97,87 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 						UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, Montage, 1.f,
 							FName(UUpBlueprintFunctionLibrary::GetWeaponMontageSectionName(Character)))->Activate();
 					}
-					
-					FVector ReticleWorldPosition;
-					FVector ReticleWorldDirection;
 
-					if (const auto CustomPlayerController = Cast<AUpPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
-						CustomPlayerController && CustomPlayerController->ProjectReticleToWorld(ReticleWorldPosition, ReticleWorldDirection))
+					TArray<AActor*> IgnoredActors { Character };
+
+					for (const auto Actor : Character->Children)
 					{
-						if (const auto WeaponMesh = Weapon->GetStaticMeshComponent())
+						IgnoredActors.Add(Actor);
+					}
+					
+					FVector TargetLocation;
+
+					if (TargetActor)
+					{
+						TargetLocation = TargetActor->GetActorLocation();
+					} else
+					{
+						FVector ReticleWorldPosition;
+						FVector ReticleWorldDirection;
+
+						if (const auto CustomPlayerController = Cast<AUpPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+							CustomPlayerController && CustomPlayerController->ProjectReticleToWorld(ReticleWorldPosition, ReticleWorldDirection))
 						{
-							const auto ReticleTraceStart = ReticleWorldPosition;
-							TArray<AActor*> IgnoredActors { Character };
-
-							for (const auto Actor : Character->Children)
 							{
-								IgnoredActors.Add(Actor);
-							}
+								const auto ReticleTraceStart = ReticleWorldPosition;
 
-							TArray<FHitResult> ReticleHitResults;
-							UKismetSystemLibrary::LineTraceMulti(this,
-								ReticleTraceStart, ReticleTraceStart + ReticleWorldDirection * Weapon->GetRange(),
-								UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_WEAPON), false, IgnoredActors,
-								EDrawDebugTrace::None, ReticleHitResults, true);
-
-							if (ReticleHitResults.Num() > 0)
-							{
-								const auto MuzzleTraceStart = WeaponMesh->GetSocketLocation(FName(SOCKET_NAME_ATTACK_SOURCE));
-								const auto& ReticleHit = ReticleHitResults.Last();
-								
-								TArray<FHitResult> MuzzleHitResults;
-								UKismetSystemLibrary::LineTraceMulti(this, MuzzleTraceStart,
-									// Add some buffer space to make sure the line trace isn't too short.
-									ReticleHit.ImpactPoint + (ReticleHit.ImpactPoint - MuzzleTraceStart).GetSafeNormal() * 10.f,
+								TArray<FHitResult> ReticleHitResults;
+								UKismetSystemLibrary::LineTraceMulti(this,
+									ReticleTraceStart, ReticleTraceStart + ReticleWorldDirection * Weapon->GetRange(),
 									UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_WEAPON), false, IgnoredActors,
-									bDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, MuzzleHitResults, true);
+									EDrawDebugTrace::None, ReticleHitResults, true);
 
-								for (const auto& MuzzleHit : MuzzleHitResults)
+								if (ReticleHitResults.Num() > 0)
 								{
-									if (const auto HitActor = MuzzleHit.GetActor())
-									{
-										if (bDebug)
-										{
-											UE_LOG(LogTemp, Warning, TEXT("Hit actor %s"), *HitActor->GetName())
-										}
-										
-										if (MuzzleHit.bBlockingHit)
-										{
-											if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor))
-											{
-												FGameplayCueParameters CueParams;
-												CueParams.Location = MuzzleHit.ImpactPoint;
-												CueParams.Normal = MuzzleHit.ImpactNormal;
-												CueParams.SourceObject = Weapon;
+									TargetLocation = ReticleHitResults.Last().ImpactPoint;
+								}
+							}
+						}
+					}
 
-												TargetAbilitySystemComponent->ExecuteGameplayCue(TAG_GameplayCue_GunFire_Impact, CueParams);
-												
-												auto EffectContextHandle = TargetAbilitySystemComponent->MakeEffectContext();
-												EffectContextHandle.AddHitResult(MuzzleHit);
-			
-												FGameplayEventData EventPayload;
-												EventPayload.ContextHandle = EffectContextHandle;
-			
-												UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, TAG_Ability_HitReaction, EventPayload);
-											}
-			
-											TriggerDamage(MuzzleHit);
-										}
+					if (const auto WeaponMesh = Weapon->GetStaticMeshComponent())
+					{
+						Character->SetYaw(UKismetMathLibrary::FindLookAtRotation(Character->GetActorLocation(), TargetLocation).Yaw);
+						
+						const auto MuzzleTraceStart = WeaponMesh->GetSocketLocation(FName(SOCKET_NAME_ATTACK_SOURCE));
+						
+						TArray<FHitResult> MuzzleHitResults;
+						UKismetSystemLibrary::LineTraceMulti(this, MuzzleTraceStart,
+							// Add some buffer space to make sure the line trace isn't too short.
+							TargetLocation + (TargetLocation - MuzzleTraceStart).GetSafeNormal() * 10.f,
+							UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_WEAPON), false, IgnoredActors,
+							bDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, MuzzleHitResults, true);
+
+						for (const auto& MuzzleHit : MuzzleHitResults)
+						{
+							if (const auto HitActor = MuzzleHit.GetActor())
+							{
+								if (bDebug)
+								{
+									UE_LOG(LogTemp, Warning, TEXT("Hit actor %s"), *HitActor->GetName())
+								}
+								
+								if (MuzzleHit.bBlockingHit)
+								{
+									if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor))
+									{
+										FGameplayCueParameters CueParams;
+										CueParams.Location = MuzzleHit.ImpactPoint;
+										CueParams.Normal = MuzzleHit.ImpactNormal;
+										CueParams.SourceObject = Weapon;
+
+										TargetAbilitySystemComponent->ExecuteGameplayCue(TAG_GameplayCue_GunFire_Impact, CueParams);
+										
+										auto EffectContextHandle = TargetAbilitySystemComponent->MakeEffectContext();
+										EffectContextHandle.AddHitResult(MuzzleHit);
+	
+										FGameplayEventData EventPayload;
+										EventPayload.ContextHandle = EffectContextHandle;
+	
+										UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, TAG_Ability_HitReaction, EventPayload);
 									}
+	
+									TriggerDamage(MuzzleHit);
 								}
 							}
 						}

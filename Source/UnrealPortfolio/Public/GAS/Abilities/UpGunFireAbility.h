@@ -27,6 +27,9 @@ protected:
 	virtual void HandleRepeatAction(int32 ActionNumber) override;
 
 private:
+	UPROPERTY(Transient)
+	TObjectPtr<AActor> TargetActor;
+	
 	uint8 BurstShotCount = 0;
 
 	void ResetBurstShotCount();

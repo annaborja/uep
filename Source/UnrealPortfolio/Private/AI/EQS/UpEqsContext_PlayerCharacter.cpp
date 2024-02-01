@@ -10,11 +10,8 @@ void UUpEqsContext_PlayerCharacter::ProvideContext(FEnvQueryInstance& QueryInsta
 {
 	Super::ProvideContext(QueryInstance, ContextData);
 
-	if (const auto PlayerController = UGameplayStatics::GetPlayerController(this, 0))
+	if (const auto Character = UGameplayStatics::GetPlayerCharacter(this, 0))
 	{
-		if (const auto Character = PlayerController->GetCharacter())
-		{
-			UEnvQueryItemType_Actor::SetContextHelper(ContextData, Character);
-		}
+		UEnvQueryItemType_Actor::SetContextHelper(ContextData, Character);
 	}
 }

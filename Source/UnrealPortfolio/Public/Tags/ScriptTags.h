@@ -6,6 +6,7 @@
 
 // Blackboard
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_BlackboardKey)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_BlackboardKey_CombatTargetActor)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_BlackboardKey_FollowActor)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_BlackboardKey_LookTargetLocation)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_BlackboardKey_MoveTargetLocation)

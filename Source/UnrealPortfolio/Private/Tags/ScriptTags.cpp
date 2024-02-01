@@ -4,6 +4,7 @@
 
 // Blackboard
 UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey, "BlackboardKey")
+UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_CombatTargetActor, "BlackboardKey.CombatTargetActor")
 UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_FollowActor, "BlackboardKey.FollowActor")
 UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_LookTargetLocation, "BlackboardKey.LookTargetLocation")
 UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_MoveTargetLocation, "BlackboardKey.MoveTargetLocation")
