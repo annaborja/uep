@@ -12,7 +12,7 @@ class USphereComponent;
 class UUpDialogueComponent;
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpPlayableNpc : public AUpPlayableCharacter, public IGameplayTagAssetInterface, public IUpInteractable, public IUpNameable
+class UNREALPORTFOLIO_API AUpPlayableNpc : public AUpPlayableCharacter, public IUpInteractable, public IUpNameable
 {
 	GENERATED_BODY()
 
@@ -31,7 +31,6 @@ public:
 
 	void JumpToLocation(const FVector& TargetLocation, const float Duration);
 	bool Mantle() const;
-	void ToggleSprint(const bool bSprint) const;
 
 	FORCEINLINE UUpDialogueComponent* GetDialogueComponent() const { return DialogueComponent; }
 

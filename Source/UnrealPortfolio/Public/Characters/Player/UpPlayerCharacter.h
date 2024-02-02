@@ -9,7 +9,7 @@
 class AUpPlayableNpc;
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpPlayableCharacter, public IGameplayTagAssetInterface
+class UNREALPORTFOLIO_API AUpPlayerCharacter : public AUpPlayableCharacter
 {
 	GENERATED_BODY()
 

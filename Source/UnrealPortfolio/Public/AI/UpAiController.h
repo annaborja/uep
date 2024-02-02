@@ -6,6 +6,8 @@
 #include "AIController.h"
 #include "UpAiController.generated.h"
 
+struct FAIStimulus;
+class UAISenseConfig_Sight;
 class UBehaviorTreeComponent;
 
 UCLASS()
@@ -15,6 +17,8 @@ class UNREALPORTFOLIO_API AUpAiController : public AAIController
 
 public:
 	explicit AUpAiController(const FObjectInitializer& ObjectInitializer);
+	
+	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
@@ -23,4 +27,9 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAISenseConfig_Sight> SenseConfig_Sight;
+
+	UFUNCTION()
+	void HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 };

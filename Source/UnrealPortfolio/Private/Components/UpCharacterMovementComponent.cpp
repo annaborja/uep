@@ -186,7 +186,7 @@ void UUpCharacterMovementComponent::UpdateCharacterStateBeforeMovement(const flo
 					const auto SpeedModifier = SpeedAttribute.GetNumericValue(AttributeSet) - 50.f;
 					const auto SpeedModifierMultiplier = GameMode->GetWalkSpeedModifierMultiplier();
 			
-					MaxWalkSpeed = BaseMaxWalkSpeed + SpeedModifier * SpeedModifierMultiplier;
+					MaxWalkSpeed = (OverrideMaxWalkSpeed >= 0.f ? OverrideMaxWalkSpeed : BaseMaxWalkSpeed) + SpeedModifier * SpeedModifierMultiplier;
 					MaxSprintSpeed = BaseMaxSprintSpeed + SpeedModifier * SpeedModifierMultiplier;
 				}
 			}

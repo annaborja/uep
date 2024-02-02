@@ -137,7 +137,7 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 
 					if (const auto WeaponMesh = Weapon->GetStaticMeshComponent())
 					{
-						Character->SetYaw(UKismetMathLibrary::FindLookAtRotation(Character->GetActorLocation(), TargetLocation).Yaw);
+						// Character->SetYaw(UKismetMathLibrary::FindLookAtRotation(Character->GetActorLocation(), TargetLocation).Yaw);
 						
 						const auto MuzzleTraceStart = WeaponMesh->GetSocketLocation(FName(SOCKET_NAME_ATTACK_SOURCE));
 						

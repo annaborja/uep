@@ -44,7 +44,7 @@ struct FUpCharacterData : public FTableRowBase
 };
 
 UCLASS()
-class UNREALPORTFOLIO_API AUpCharacter : public ACharacter, public IAbilitySystemInterface, public IUpCombatable, public IUpTagIdable
+class UNREALPORTFOLIO_API AUpCharacter : public ACharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface, public IUpCombatable, public IUpTagIdable
 {
 	GENERATED_BODY()
 
@@ -55,6 +55,8 @@ public:
 	virtual void BeginPlay() override;
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
+
+	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 
 	virtual float CalculateDamageDealt(const FHitResult& HitResult) const override;
 	virtual void Die() override;
@@ -81,6 +83,7 @@ public:
 	bool IsStrafingForward() const;
 	void SetPosture(const EUpCharacterPosture::Type InPosture) { Posture = InPosture; }
 	void SetRelaxed(const bool bInRelaxed);
+	void ToggleSprint(const bool bSprint) const;
 	
 	virtual TArray<UUpAttributeSet*> GetAttributeSets() const;
 

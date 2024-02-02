@@ -44,17 +44,16 @@ void AUpPlayableNpc::Die()
 
 void AUpPlayableNpc::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
+	Super::GetOwnedGameplayTags(TagContainer);
+	
+	FGameplayTagContainer NpcTags;
+	
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		GameInstance->GetNpcCharacterTags(TagId, TagContainer);
+		GameInstance->GetNpcCharacterTags(TagId, NpcTags);
 	}
 
-	if (AbilitySystemComponent)
-	{
-		FGameplayTagContainer AbilitySystemTags;
-		AbilitySystemComponent->GetOwnedGameplayTags(AbilitySystemTags);
-		TagContainer.AppendTags(AbilitySystemTags);
-	}
+	TagContainer.AppendTags(NpcTags);
 }
 
 FUpInteractionData AUpPlayableNpc::GetInteractionData(const AController* Controller)
@@ -105,11 +104,4 @@ bool AUpPlayableNpc::Mantle() const
 		CustomMovementComponent->ShouldDebugMantle() ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, OutHit, true);
 	
 	return CustomMovementComponent->TryMantle(OutHit.bBlockingHit ? (OutHit.ImpactPoint - TraceStart).Size2D() : -1.f);
-}
-
-void AUpPlayableNpc::ToggleSprint(const bool bSprint) const
-{
-	if (!CustomMovementComponent) return;
-
-	CustomMovementComponent->ToggleSprint(bSprint);
 }

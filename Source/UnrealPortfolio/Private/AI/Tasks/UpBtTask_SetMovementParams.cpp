@@ -10,23 +10,16 @@ EBTNodeResult::Type UUpBtTask_SetMovementParams::ExecuteTask(UBehaviorTreeCompon
 {
 	if (const auto AiController = OwnerComp.GetAIOwner())
 	{
-		if (const auto Npc = Cast<AUpPlayableNpc>(AiController->GetPawn()))
+		if (const auto Character = Cast<AUpCharacter>(AiController->GetPawn()))
 		{
-			if (const auto MovementComponent = Npc->GetCustomMovementComponent())
+			if (const auto MovementComponent = Character->GetCustomMovementComponent())
 			{
 				for (const auto& Command : Commands)
 				{
 					switch (Command.CommandType)
 					{
 					case EUpBttSetMovementParamsCommandType::SetMaxWalkSpeed:
-						if (Command.FloatValue >= 0.f)
-						{
-							MovementComponent->MaxWalkSpeed = Command.FloatValue;
-						} else
-						{
-							MovementComponent->ResetMaxWalkSpeed();
-						}
-						
+						MovementComponent->SetOverrideMaxWalkSpeed(Command.FloatValue);
 						break;
 					case EUpBttSetMovementParamsCommandType::SetRotationRate:
 						MovementComponent->RotationRate = FRotator(
@@ -36,13 +29,13 @@ EBTNodeResult::Type UUpBtTask_SetMovementParams::ExecuteTask(UBehaviorTreeCompon
 						MovementComponent->ResetRotationRate();
 						break;
 					case EUpBttSetMovementParamsCommandType::StartSprint:
-						Npc->ToggleSprint(true);
+						Character->ToggleSprint(true);
 						break;
 					case EUpBttSetMovementParamsCommandType::StopSprint:
-						Npc->ToggleSprint(false);
+						Character->ToggleSprint(false);
 						break;
 					case EUpBttSetMovementParamsCommandType::SetRelaxed:
-						Npc->SetRelaxed(Command.FloatValue > 0.f);
+						Character->SetRelaxed(Command.FloatValue > 0.f);
 						break;
 					default:
 						UE_LOG(LogTemp, Error, TEXT("Invalid SetMovementParams command type %d"), Command.CommandType)

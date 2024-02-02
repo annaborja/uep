@@ -112,6 +112,17 @@ void AUpCharacter::BeginPlay()
 	}
 }
 
+void AUpCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
+{
+	TagContainer.AddTag(TagId);
+	
+	FGameplayTagContainer AbilitySystemTags;
+
+	if (AbilitySystemComponent) AbilitySystemComponent->GetOwnedGameplayTags(AbilitySystemTags);
+
+	TagContainer.AppendTags(AbilitySystemTags);
+}
+
 float AUpCharacter::CalculateDamageDealt(const FHitResult& HitResult) const
 {
 	return 20.f;
@@ -254,6 +265,13 @@ void AUpCharacter::SetRelaxed(const bool bInRelaxed)
 			}
 		}
 	}
+}
+
+void AUpCharacter::ToggleSprint(const bool bSprint) const
+{
+	if (!CustomMovementComponent) return;
+
+	CustomMovementComponent->ToggleSprint(bSprint);
 }
 
 TArray<UUpAttributeSet*> AUpCharacter::GetAttributeSets() const

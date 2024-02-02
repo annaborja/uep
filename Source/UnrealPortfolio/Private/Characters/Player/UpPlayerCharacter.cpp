@@ -127,15 +127,14 @@ void AUpPlayerCharacter::BeginPlay()
 
 void AUpPlayerCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
+	Super::GetOwnedGameplayTags(TagContainer);
+
+	FGameplayTagContainer PlayerTags;
+	
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
 	{
-		GameInstance->GetPlayerCharacterTags(TagContainer);
+		GameInstance->GetPlayerCharacterTags(PlayerTags);
 	}
 
-	if (AbilitySystemComponent)
-	{
-		FGameplayTagContainer AbilitySystemTags;
-		AbilitySystemComponent->GetOwnedGameplayTags(AbilitySystemTags);
-		TagContainer.AppendTags(AbilitySystemTags);
-	}
+	TagContainer.AppendTags(PlayerTags);
 }

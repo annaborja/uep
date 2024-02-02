@@ -45,6 +45,7 @@ public:
 	void ResetRotationRate() { RotationRate = BaseRotationRate; }
 	void ToggleCustomPressedJump(const bool bInCustomPressedJump) { bCustomPressedJump = bInCustomPressedJump; }
 
+	void SetOverrideMaxWalkSpeed(const float InOverrideMaxWalkSpeed) { OverrideMaxWalkSpeed = InOverrideMaxWalkSpeed; }
 	void ToggleSprint(const bool bInWantsToSprint) { bWantsToSprint = bInWantsToSprint; }
 
 	bool IsClimbing() const;
@@ -131,6 +132,7 @@ private:
 	float BaseMaxSprintSpeed = 0.f;
 	float BaseMaxWalkSpeed = 0.f;
 	FRotator BaseRotationRate;
+	float OverrideMaxWalkSpeed = -1.f;
 
 	bool bWantsToSprint = false;
 
