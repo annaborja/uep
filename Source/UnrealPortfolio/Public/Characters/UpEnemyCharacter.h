@@ -16,6 +16,8 @@ public:
 
 	virtual void Die() override;
 
+	FORCEINLINE FGameplayTag GetPatrolPathTag() const { return PatrolPathTag; }
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCapsuleComponent> AimAssistCapsule_Body;
@@ -26,4 +28,9 @@ protected:
 	float AimAssistHeadHeight= 12.f;
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float AimAssistHeadRadius = 16.f;
+	
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	FGameplayTag PatrolPathTag;
+
+	virtual void BeginPlay() override;
 };

@@ -120,6 +120,7 @@ public:
 	FORCEINLINE EUpCharacterPosture::Type GetPosture() const { return Posture; }
 	FORCEINLINE USoundCue* GetSfx_BulletImpacts() const { return Sfx_BulletImpacts; }
 	FORCEINLINE bool IsRelaxed() const { return bRelaxed; }
+	FORCEINLINE bool ShouldDebugGas() const { return bDebugGas; }
 	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
 	
 	FORCEINLINE FVector GetRootMotionTargetLocation() const { return RootMotionTargetLocation; }

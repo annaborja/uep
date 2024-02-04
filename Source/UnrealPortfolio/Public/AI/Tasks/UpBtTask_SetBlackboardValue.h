@@ -12,6 +12,7 @@ namespace EUpBlackboardValueType
 	enum Type : uint8
 	{
 		Boolean,
+		Object,
 		Vector
 	};
 }
@@ -25,6 +26,8 @@ public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 private:
+	UPROPERTY(EditInstanceOnly, Category="UP Params")
+	FBlackboardKeySelector SourceSelector;
 	UPROPERTY(EditInstanceOnly, Category="UP Params")
 	FBlackboardKeySelector TargetSelector;
 	UPROPERTY(EditInstanceOnly, Category="UP Params")

@@ -6,6 +6,9 @@
 #include "GameplayTagAssetInterface.h"
 #include "GameplayTagContainer.h"
 #include "UpGameInstance.h"
+#include "AI/UpAiController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Characters/UpEnemyCharacter.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Characters/Player/Components/UpPlayerPartyComponent.h"
 #include "GAS/UpGasDataAsset.h"
@@ -13,6 +16,7 @@
 #include "Items/UpWeapon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
+#include "Scripting/UpTriggerVolume.h"
 #include "Tags/ItemTags.h"
 #include "Tags/NpcTags.h"
 #include "Tags/ScriptTags.h"
@@ -82,6 +86,62 @@ TArray<AActor*> UUpBlueprintFunctionLibrary::FindActors(const UObject* WorldCont
 		} else
 		{
 			Result.Add(Actor);
+		}
+	}
+
+	return Result;
+}
+
+AActor* UUpBlueprintFunctionLibrary::FindPatrolTarget(AUpEnemyCharacter* Character, const float OverlapSphereRadius, const bool bDebug)
+{
+	AActor* Result = nullptr;
+	
+	if (const auto AiController = Cast<AUpAiController>(Character->GetController()))
+	{
+		if (const auto BlackboardComponent = AiController->GetBlackboardComponent())
+		{
+			const auto BlackboardKey = GetBlackboardKeyFromTag(TAG_BlackboardKey_PatrolTargetActor);
+			const auto PrevTarget = Cast<AUpTriggerVolume>(BlackboardComponent->GetValueAsObject(BlackboardKey));
+			const auto PrevTargetNumber = PrevTarget ? PrevTarget->GetTargetNumber() : 0;
+		
+			if (const auto PatrolPathTag = Character->GetPatrolPathTag(); PatrolPathTag.IsValid())
+			{
+				const auto SpherePosition = Character->GetActorLocation();
+
+				TArray<AActor*> OverlapActors;
+				UKismetSystemLibrary::SphereOverlapActors(Character, SpherePosition, OverlapSphereRadius,
+					TArray<TEnumAsByte<EObjectTypeQuery>> { UEngineTypes::ConvertToObjectType(ECC_WorldDynamic) },
+					AUpTriggerVolume::StaticClass(), TArray<AActor*> { Character }, OverlapActors);
+
+				if (bDebug)
+				{
+					UKismetSystemLibrary::DrawDebugSphere(Character, SpherePosition, OverlapSphereRadius, 12, FColor::Orange, 5.f);
+				}
+
+				TArray<AUpTriggerVolume*> PathTargetActors;
+
+				for (const auto Actor : OverlapActors)
+				{
+					if (const auto TargetActor = Cast<AUpTriggerVolume>(Actor))
+					{
+						if (TargetActor->GetTagId().MatchesTagExact(PatrolPathTag))
+						{
+							PathTargetActors.Add(TargetActor);
+						
+							if (TargetActor->GetTargetNumber() == PrevTargetNumber + 1)
+							{
+								Result = Actor;
+								break;
+							}
+						}
+					}
+				}
+
+				if (!Result && PathTargetActors.IsValidIndex(0))
+				{
+					Result = PathTargetActors[0];
+				}
+			}
 		}
 	}
 

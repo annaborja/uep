@@ -51,6 +51,8 @@ public:
 	AUpTriggerVolume();
 
 	virtual FGameplayTag GetTagId() const override { return TagId; }
+	
+	FORCEINLINE uint8 GetTargetNumber() const { return TargetNumber; }
 
 protected:
 	UFUNCTION(BlueprintNativeEvent)
@@ -65,6 +67,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	FGameplayTag TagId;
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	uint8 TargetNumber = 1;
+	
 	UPROPERTY(EditAnywhere, Category="UP Params", meta=(TitleProperty="Type"))
 	TArray<FUpTriggerEffect> TriggerEffects;
 	

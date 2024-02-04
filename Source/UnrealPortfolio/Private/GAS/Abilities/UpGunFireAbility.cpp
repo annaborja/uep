@@ -7,9 +7,9 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_Repeat.h"
 #include "Characters/UpCharacter.h"
+#include "Characters/UpNonPlayableNpc.h"
 #include "Items/UpWeapon.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Tags/GasTags.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
@@ -39,6 +39,7 @@ void UUpGunFireAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	NpcShotsTaken = 0;
 	ResetBurstShotCount();
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
@@ -70,6 +71,9 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 	
 	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 	{
+		const auto PlayableCharacter = Cast<AUpPlayableCharacter>(Character);
+		const auto bIsNpc = Cast<AUpNonPlayableNpc>(Character) != nullptr || (PlayableCharacter != nullptr && !PlayableCharacter->IsPlayer());
+		
 		if (const auto Weapon = Character->GetActiveWeapon())
 		{
 			if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
@@ -137,8 +141,6 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 
 					if (const auto WeaponMesh = Weapon->GetStaticMeshComponent())
 					{
-						// Character->SetYaw(UKismetMathLibrary::FindLookAtRotation(Character->GetActorLocation(), TargetLocation).Yaw);
-						
 						const auto MuzzleTraceStart = WeaponMesh->GetSocketLocation(FName(SOCKET_NAME_ATTACK_SOURCE));
 						
 						TArray<FHitResult> MuzzleHitResults;
@@ -186,7 +188,15 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 					if (Weapon->GetFiringMode() == EUpWeaponFiringMode::SemiAutomatic)
 					{
 						ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
-						EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+
+						if (bIsNpc && ++NpcShotsTaken < 3)
+						{
+							ResetBurstShotCount();
+						} else
+						{
+							EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+						}
+						
 						return;
 					}
 
@@ -196,6 +206,11 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 					{
 						ResetBurstShotCount();
 						ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
+					}
+
+					if (bIsNpc && ++NpcShotsTaken >= 3)
+					{
+						EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 					}
 					
 					return;
@@ -207,6 +222,11 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 					AbilityTags.AddTag(TAG_Ability_GunReload);
 
 					AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+
+					if (bIsNpc)
+					{
+						EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+					}
 				}
 
 				return;

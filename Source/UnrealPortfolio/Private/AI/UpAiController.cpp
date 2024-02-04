@@ -77,6 +77,6 @@ void AUpAiController::OnUnPossess()
 
 void AUpAiController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	UE_LOG(LogTemp, Warning, TEXT("perception uddated %s"), *Actor->GetName())
+	// UE_LOG(LogTemp, Warning, TEXT("perception uddated %s"), *Actor->GetName())
 }
 

@@ -8,6 +8,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UpBlueprintFunctionLibrary.generated.h"
 
+class AUpEnemyCharacter;
 class AUpLevelScriptActor;
 class AUpPlayableCharacter;
 class AUpPlayerController;
@@ -34,6 +35,7 @@ public:
 	static AUnrealPortfolioGameModeBase* GetGameMode(const UObject* WorldContextObject);
 	
 	static TArray<AActor*> FindActors(const UObject* WorldContextObject, const TSubclassOf<AActor> ActorClass, const FGameplayTag& TagId);
+	static AActor* FindPatrolTarget(AUpEnemyCharacter* Character, const float OverlapSphereRadius, const bool bDebug = false);
 	static bool SatisfiesActorParams(const FUpScriptActorParams& ActorParams, const AActor* Actor);
 
 	static FText GetInGameName(const UObject* WorldContextObject, const FGameplayTag& TagId);

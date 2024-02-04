@@ -8,6 +8,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_CombatTargetActor, "BlackboardKey.Comba
 UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_FollowActor, "BlackboardKey.FollowActor")
 UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_LookTargetLocation, "BlackboardKey.LookTargetLocation")
 UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_MoveTargetLocation, "BlackboardKey.MoveTargetLocation")
+UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_PatrolTargetActor, "BlackboardKey.PatrolTargetActor")
 
 // Events
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_ActivateEquipment_SocketSwitch, "Event.ActivateEquipment.SocketSwitch")
@@ -17,6 +18,11 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death_DetachItems, "Event.Death.DetachItems")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Gestures, "Montage.Gestures")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Gestures_Nod, "Montage.Gestures.Nod")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Gestures_PointHigh, "Montage.Gestures.PointHigh")
+
+// Paths
+UE_DEFINE_GAMEPLAY_TAG(TAG_Path_A, "Path.A")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Path_B, "Path.B")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Path_C, "Path.C")
 
 // Scripts
 UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyBIntro1, "Script.Tutorial.AllyBIntro1")

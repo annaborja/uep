@@ -2,8 +2,11 @@
 
 #include "Characters/UpEnemyCharacter.h"
 
+#include "AI/UpAiController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
+#include "Tags/ScriptTags.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -43,4 +46,23 @@ void AUpEnemyCharacter::Die()
 	
 	if (AimAssistCapsule_Body) UUpBlueprintFunctionLibrary::TearDownActorComponent(AimAssistCapsule_Body);
 	if (AimAssistCapsule_Head) UUpBlueprintFunctionLibrary::TearDownActorComponent(AimAssistCapsule_Head);
+}
+
+void AUpEnemyCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (PatrolPathTag.IsValid())
+	{
+		if (const auto AiController = Cast<AUpAiController>(GetController()))
+		{
+			if (const auto Blackboard = AiController->GetBlackboardComponent())
+			{
+				if (const auto PatrolTarget = UUpBlueprintFunctionLibrary::FindPatrolTarget(this, 5000.f))
+				{
+					Blackboard->SetValueAsObject(UUpBlueprintFunctionLibrary::GetBlackboardKeyFromTag(TAG_BlackboardKey_PatrolTargetActor), PatrolTarget);
+				}
+			}
+		}
+	}
 }

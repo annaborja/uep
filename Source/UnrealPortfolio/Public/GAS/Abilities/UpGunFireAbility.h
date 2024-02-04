@@ -29,8 +29,9 @@ protected:
 private:
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> TargetActor;
-	
+
 	uint8 BurstShotCount = 0;
+	uint8 NpcShotsTaken = 0;
 
 	void ResetBurstShotCount();
 };

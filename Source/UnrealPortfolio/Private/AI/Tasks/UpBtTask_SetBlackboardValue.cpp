@@ -19,11 +19,12 @@ EBTNodeResult::Type UUpBtTask_SetBlackboardValue::ExecuteTask(UBehaviorTreeCompo
 		{
 		case EUpBlackboardValueType::Boolean:
 			BlackboardComponent->SetValueAsBool(TargetSelector.SelectedKeyName, bBooleanValue);
-			
+			return EBTNodeResult::Succeeded;
+		case EUpBlackboardValueType::Object:
+			BlackboardComponent->SetValueAsObject(TargetSelector.SelectedKeyName, BlackboardComponent->GetValueAsObject(SourceSelector.SelectedKeyName));
 			return EBTNodeResult::Succeeded;
 		case EUpBlackboardValueType::Vector:
 			BlackboardComponent->SetValueAsVector(TargetSelector.SelectedKeyName, VectorValue);
-			
 			return EBTNodeResult::Succeeded;
 		default:
 			return EBTNodeResult::Failed;
