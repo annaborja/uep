@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/UpCharacter.h"
 #include "Characters/UpPlayableCharacter.h"
+#include "Characters/Player/UpPlayerController.h"
 #include "Navigation/CrowdFollowingComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
@@ -32,12 +33,18 @@ ETeamAttitude::Type AUpAiController::GetTeamAttitudeTowards(const AActor& Other)
 {
 	if (const auto Pawn = Cast<APawn>(&Other))
 	{
-		if (const auto TeamAgent = Cast<IGenericTeamAgentInterface>(Pawn->GetController()))
+		const auto TeamId = GetGenericTeamId().GetId();
+
+		if (Cast<AUpPlayerController>(Pawn->GetController()))
+		{
+			if (TeamId == 1) return ETeamAttitude::Friendly;
+			if (TeamId == 0) return ETeamAttitude::Neutral;
+		} else if (const auto TeamAgent = Cast<IGenericTeamAgentInterface>(Pawn->GetController()))
 		{
 			const auto OtherTeamId = TeamAgent->GetGenericTeamId().GetId();
 
+			if (OtherTeamId == TeamId) return ETeamAttitude::Friendly;
 			if (OtherTeamId == 0) return ETeamAttitude::Neutral;
-			if (OtherTeamId == GetGenericTeamId().GetId()) return ETeamAttitude::Friendly;
 		}
 	}
 	

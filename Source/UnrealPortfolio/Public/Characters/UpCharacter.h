@@ -92,6 +92,8 @@ public:
 	bool ActivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 	bool DeactivateEquipment(const EUpEquipmentSlot::Type EquipmentSlot);
 	AUpWeapon* GetActiveWeapon() const;
+
+	int8 GetNumShotsToTake() const;
 	
 	void AttachActivatedItem(AUpItem* ItemActor);
 	void AttachDeactivatedItem(AUpItem* ItemActor);
@@ -134,6 +136,11 @@ protected:
 	TObjectPtr<UUpAbilitySystemComponent> AbilitySystemComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpCombatComponent> CombatComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UCapsuleComponent> HitCapsule_Head;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UCapsuleComponent> HitCapsule_Body;	
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TObjectPtr<UBehaviorTree> BehaviorTree;

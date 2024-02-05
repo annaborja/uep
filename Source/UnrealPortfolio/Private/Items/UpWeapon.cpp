@@ -174,7 +174,7 @@ float AUpWeapon::GetBurstShotInterval() const
 	return WeaponData.BurstShotInterval;
 }
 
-int32 AUpWeapon::GetBurstSize() const
+int8 AUpWeapon::GetBurstSize() const
 {
 	return WeaponData.BurstSize;
 }

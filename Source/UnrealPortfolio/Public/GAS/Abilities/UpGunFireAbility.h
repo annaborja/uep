@@ -32,6 +32,7 @@ private:
 
 	uint8 BurstShotCount = 0;
 	uint8 NpcShotsTaken = 0;
+	uint8 NpcNumShotsToTake = 1;
 
 	void ResetBurstShotCount();
 };

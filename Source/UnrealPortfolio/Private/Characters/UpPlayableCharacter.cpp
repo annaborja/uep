@@ -553,6 +553,9 @@ void AUpPlayableCharacter::SetUpFirstPersonMesh()
 		Mesh->SetSkeletalMesh(SkeletalMesh_FirstPerson);
 		Mesh->SetAnimClass(AnimClass_FirstPerson);
 		Mesh->SetCastShadow(false);
+		
+		// if (HitCapsule_Head) HitCapsule_Body->SetupAttachment(Mesh, FName(TEXT("Bone.Head")));
+		// if (HitCapsule_Body) HitCapsule_Body->SetupAttachment(Mesh, FName(TEXT("Bone.SpineMid")));
 	}
 
 	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())
@@ -581,6 +584,9 @@ void AUpPlayableCharacter::SetUpThirdPersonMesh()
 		Mesh->SetSkeletalMesh(SkeletalMesh_ThirdPerson);
 		Mesh->SetAnimClass(AnimClass_ThirdPerson);
 		Mesh->SetCastShadow(true);
+		
+		// if (HitCapsule_Head) HitCapsule_Body->SetupAttachment(Mesh, FName(TEXT("Bone.Head")));
+		// if (HitCapsule_Body) HitCapsule_Body->SetupAttachment(Mesh, FName(TEXT("Bone.SpineMid")));
 	}
 
 	for (const auto EquipmentSlot : FUpCharacterEquipment::GetWeaponSlots())

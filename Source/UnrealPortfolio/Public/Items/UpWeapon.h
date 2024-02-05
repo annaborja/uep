@@ -32,7 +32,7 @@ public:
 	float GetMaxAmmo() const;
 	float GetBurstInterval() const;
 	float GetBurstShotInterval() const;
-	int32 GetBurstSize() const;
+	int8 GetBurstSize() const;
 	float GetRange() const;
 
 	FString GetWeaponTypeNameSectionString() const;

@@ -333,7 +333,7 @@ struct FUpWeaponData : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly)
 	TEnumAsByte<EUpWeaponFiringMode::Type> FiringMode = EUpWeaponFiringMode::SemiAutomatic;
 	UPROPERTY(EditDefaultsOnly)
-	uint8 BurstSize = 1;
+	int8 BurstSize = -1;
 	UPROPERTY(EditDefaultsOnly)
 	float BurstShotInterval = 0.1f;
 	UPROPERTY(EditDefaultsOnly)

@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_Repeat.h"
+#include "AI/UpAiController.h"
 #include "Characters/UpCharacter.h"
 #include "Characters/UpNonPlayableNpc.h"
 #include "Items/UpWeapon.h"
@@ -42,12 +43,13 @@ void UUpGunFireAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	NpcShotsTaken = 0;
 	ResetBurstShotCount();
 	
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
 	if (TriggerEventData)
 	{
 		TargetActor = Cast<AActor>(TriggerEventData->OptionalObject);
+		NpcNumShotsToTake = FMath::FloorToInt(TriggerEventData->EventMagnitude);
 	}
+	
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
 float UUpGunFireAbility::GetRepeatInterval() const
@@ -150,6 +152,8 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 							UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_WEAPON), false, IgnoredActors,
 							bDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, MuzzleHitResults, true);
 
+						auto bHitHostile = false;
+
 						for (const auto& MuzzleHit : MuzzleHitResults)
 						{
 							if (const auto HitActor = MuzzleHit.GetActor())
@@ -161,6 +165,18 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 								
 								if (MuzzleHit.bBlockingHit)
 								{
+									if (bIsNpc)
+									{
+										if (const auto AiController = Cast<AUpAiController>(HitActor->GetInstigatorController()))
+										{
+											if (AiController->GetTeamAttitudeTowards(*Character) == ETeamAttitude::Friendly)
+											{
+												EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+												return;
+											}
+										}
+									}
+									
 									if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor))
 									{
 										FGameplayCueParameters CueParams;
@@ -177,22 +193,26 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 										EventPayload.ContextHandle = EffectContextHandle;
 	
 										UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, TAG_Ability_HitReaction, EventPayload);
+										bHitHostile = true;
 									}
 	
 									TriggerDamage(MuzzleHit);
 								}
 							}
 						}
+						
+						if (bIsNpc && !bHitHostile)
+						{
+							EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+							return;
+						}
 					}
 			
 					if (Weapon->GetFiringMode() == EUpWeaponFiringMode::SemiAutomatic)
 					{
 						ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
-
-						if (bIsNpc && ++NpcShotsTaken < 3)
-						{
-							ResetBurstShotCount();
-						} else
+						
+						if (!bIsNpc || ++NpcShotsTaken >= NpcNumShotsToTake)
 						{
 							EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 						}
@@ -202,13 +222,13 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 
 					BurstShotCount++;
 
-					if (BurstShotCount >= Weapon->GetBurstSize())
+					if (const auto BurstSize = Weapon->GetBurstSize(); BurstSize >= 0 && BurstShotCount >= BurstSize)
 					{
 						ResetBurstShotCount();
 						ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
 					}
 
-					if (bIsNpc && ++NpcShotsTaken >= 3)
+					if (bIsNpc && ++NpcShotsTaken >= NpcNumShotsToTake)
 					{
 						EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 					}

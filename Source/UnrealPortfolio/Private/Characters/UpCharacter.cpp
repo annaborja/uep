@@ -31,11 +31,31 @@ AUpCharacter::AUpCharacter()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
 
+	HitCapsule_Body = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCapsule_Body"));
+	HitCapsule_Body->SetCollisionResponseToAllChannels(ECR_Ignore);
+	HitCapsule_Body->SetCollisionResponseToChannel(TRACE_CHANNEL_WEAPON, ECR_Block);
+	
+	HitCapsule_Head = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCapsule_Head"));
+	HitCapsule_Head->SetCollisionResponseToAllChannels(ECR_Ignore);
+	HitCapsule_Head->SetCollisionResponseToChannel(TRACE_CHANNEL_WEAPON, ECR_Block);
+	
 	if (const auto CapsuleComponent = GetCapsuleComponent())
 	{
 		CapsuleComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 		CapsuleComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
 		CapsuleComponent->SetCollisionResponseToChannel(TRACE_CHANNEL_WEAPON, ECR_Ignore);
+
+		if (HitCapsule_Body)
+		{
+			HitCapsule_Body->SetCapsuleHalfHeight(36.f);
+			HitCapsule_Body->SetCapsuleRadius(18.f);
+		}
+
+		if (HitCapsule_Head)
+		{
+			HitCapsule_Head->SetCapsuleHalfHeight(15.f);
+			HitCapsule_Head->SetCapsuleRadius(14.f);
+		}
 	}
 
 	if (const auto Mesh = GetMesh())
@@ -44,7 +64,17 @@ AUpCharacter::AUpCharacter()
 		Mesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 		
 		Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-		Mesh->SetCollisionResponseToChannel(TRACE_CHANNEL_WEAPON, ECR_Block);
+		Mesh->SetCollisionResponseToChannel(TRACE_CHANNEL_WEAPON, ECR_Ignore);
+
+		if (HitCapsule_Body)
+		{
+			HitCapsule_Body->SetupAttachment(Mesh, FName(TEXT("Bone.SpineMid")));
+		}
+
+		if (HitCapsule_Head)
+		{
+			HitCapsule_Head->SetupAttachment(Mesh, FName(TEXT("Bone.Head")));
+		}
 	}
 
 	if (const auto MovementComponent = GetCharacterMovement())
@@ -395,6 +425,16 @@ AUpWeapon* AUpCharacter::GetActiveWeapon() const
 	}
 
 	return nullptr;
+}
+
+int8 AUpCharacter::GetNumShotsToTake() const
+{
+	if (const auto Weapon = GetActiveWeapon())
+	{
+		return FMath::RandRange(1, FMath::FloorToInt(Weapon->GetMagazineCapacity()));
+	}
+
+	return 1;
 }
 
 void AUpCharacter::AttachActivatedItem(AUpItem* ItemActor)
