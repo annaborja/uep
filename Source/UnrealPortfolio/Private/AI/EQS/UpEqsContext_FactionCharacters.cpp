@@ -18,7 +18,7 @@ void UUpEqsContext_FactionCharacters::ProvideContext(FEnvQueryInstance& QueryIns
 		if (const auto AiController = Cast<AUpAiController>(Character->GetController()))
 		{
 			TArray<AActor*> OverlapActors;
-			UKismetSystemLibrary::SphereOverlapActors(Character, Character->GetActorLocation(), 5000.f,
+			UKismetSystemLibrary::SphereOverlapActors(Character, Character->GetActorLocation(), 2000.f,
 				TArray<TEnumAsByte<EObjectTypeQuery>> { UEngineTypes::ConvertToObjectType(ECC_Pawn) }, AUpCharacter::StaticClass(),
 				TArray<AActor*> { Character }, OverlapActors);
 

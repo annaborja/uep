@@ -73,8 +73,7 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 	
 	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 	{
-		const auto PlayableCharacter = Cast<AUpPlayableCharacter>(Character);
-		const auto bIsNpc = Cast<AUpNonPlayableNpc>(Character) != nullptr || (PlayableCharacter != nullptr && !PlayableCharacter->IsPlayer());
+		const auto bIsPlayer = Character->IsPlayerControlled();
 		
 		if (const auto Weapon = Character->GetActiveWeapon())
 		{
@@ -165,13 +164,18 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 								
 								if (MuzzleHit.bBlockingHit)
 								{
-									if (bIsNpc)
+									if (!bIsPlayer)
 									{
 										if (const auto AiController = Cast<AUpAiController>(HitActor->GetInstigatorController()))
 										{
 											if (AiController->GetTeamAttitudeTowards(*Character) == ETeamAttitude::Friendly)
 											{
-												EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+												if (Character->ShouldDebugGas())
+												{
+													UE_LOG(LogTemp, Warning, TEXT("%s ending gun fire"), *Character->GetName())
+												}
+												
+												EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 												return;
 											}
 										}
@@ -201,9 +205,14 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 							}
 						}
 						
-						if (bIsNpc && !bHitHostile)
+						if (!bIsPlayer && !bHitHostile)
 						{
-							EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+							if (Character->ShouldDebugGas())
+							{
+								UE_LOG(LogTemp, Warning, TEXT("%s ending gun fire"), *Character->GetName())
+							}
+							
+							EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 							return;
 						}
 					}
@@ -212,8 +221,13 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 					{
 						ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
 						
-						if (!bIsNpc || ++NpcShotsTaken >= NpcNumShotsToTake)
+						if (bIsPlayer || ++NpcShotsTaken >= NpcNumShotsToTake)
 						{
+							if (Character->ShouldDebugGas())
+							{
+								UE_LOG(LogTemp, Warning, TEXT("%s ending gun fire"), *Character->GetName())
+							}
+							
 							EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 						}
 						
@@ -228,8 +242,13 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 						ApplyCooldown(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
 					}
 
-					if (bIsNpc && ++NpcShotsTaken >= NpcNumShotsToTake)
+					if (!bIsPlayer && ++NpcShotsTaken >= NpcNumShotsToTake)
 					{
+						if (Character->ShouldDebugGas())
+						{
+							UE_LOG(LogTemp, Warning, TEXT("%s ending gun fire"), *Character->GetName())
+						}
+					
 						EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 					}
 					
@@ -243,8 +262,13 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 
 					AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
 
-					if (bIsNpc)
+					if (!bIsPlayer)
 					{
+						if (Character->ShouldDebugGas())
+						{
+							UE_LOG(LogTemp, Warning, TEXT("%s ending gun fire"), *Character->GetName())
+						}
+						
 						EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 					}
 				}
@@ -253,8 +277,10 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 			}
 		}
 	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("ending gun fire"))
 
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, true);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
 void UUpGunFireAbility::ResetBurstShotCount()

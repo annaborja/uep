@@ -19,17 +19,27 @@ EBTNodeResult::Type UUpBtTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 			{
 				if (const auto Target = Cast<AActor>(BlackboardComponent->GetValueAsObject(TargetSelector.SelectedKeyName)))
 				{
+					if (const auto AbilitySystemComponent = AiPawn->GetAbilitySystemComponent();
+						AbilitySystemComponent && !AbilitySystemComponent->OnAbilityEnded.IsBoundToObject(this))
+					{
+						if (AiPawn->ShouldDebugGas())
+						{
+							UE_LOG(LogTemp, Warning, TEXT("%s binding attack delegate"), *AiPawn->GetName())
+						}
+						
+						AbilitySystemComponent->OnAbilityEnded.AddUObject(this, &ThisClass::OnAbilityEnded);
+					}
+
+					if (AiPawn->ShouldDebugGas())
+					{
+						UE_LOG(LogTemp, Warning, TEXT("%s triggering gun fire"), *AiPawn->GetName())
+					}
+
 					FGameplayEventData EventPayload;
 					EventPayload.OptionalObject = Target;
 					EventPayload.EventMagnitude = AiPawn->GetNumShotsToTake();
 		
 					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(AiPawn, TAG_Ability_GunFire, EventPayload);
-
-					if (const auto AbilitySystemComponent = AiPawn->GetAbilitySystemComponent();
-						AbilitySystemComponent && !AbilitySystemComponent->OnAbilityEnded.IsBoundToObject(this))
-					{
-						AbilitySystemComponent->OnAbilityEnded.AddUObject(this, &ThisClass::OnAttackEnded);
-					}
 			
 					return EBTNodeResult::InProgress;
 				}
@@ -46,7 +56,10 @@ EBTNodeResult::Type UUpBtTask_Attack::AbortTask(UBehaviorTreeComponent& OwnerCom
 	{
 		if (const auto AiPawn = Cast<AUpCharacter>(AiController->GetPawn()))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("abort attack %s"), *AiPawn->GetName())
+			if (AiPawn->ShouldDebugGas())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("%s abort attack"), *AiPawn->GetName())
+			}
 			
 			if (const auto AbilitySystemComponent = AiPawn->GetAbilitySystemComponent())
 			{
@@ -61,8 +74,15 @@ EBTNodeResult::Type UUpBtTask_Attack::AbortTask(UBehaviorTreeComponent& OwnerCom
 	return Super::AbortTask(OwnerComp, NodeMemory);
 }
 
-void UUpBtTask_Attack::OnAttackEnded(const FAbilityEndedData& AbilityEndedData)
+void UUpBtTask_Attack::OnAbilityEnded(const FAbilityEndedData& AbilityEndedData)
 {
+	UE_LOG(LogTemp, Warning, TEXT("some abilty ended"))
+	
+	if (const auto Ability = AbilityEndedData.AbilityThatEnded)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("some abilty ended with tags: %s"), *Ability->AbilityTags.ToString())
+	}
+	
 	if (const auto Ability = AbilityEndedData.AbilityThatEnded; Ability && Ability->AbilityTags.HasTagExact(TAG_Ability_GunFire))
 	{
 		if (const auto AvatarActor = Cast<AUpCharacter>(Ability->GetAvatarActorFromActorInfo()))

@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "EnvironmentQuery/EnvQueryContext.h"
-#include "UpEqsContext_Cover.generated.h"
+#include "UpEqsContext_HostileCharacters.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpEqsContext_Cover : public UEnvQueryContext
+class UNREALPORTFOLIO_API UUpEqsContext_HostileCharacters : public UEnvQueryContext
 {
 	GENERATED_BODY()
 	

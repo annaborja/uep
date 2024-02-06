@@ -21,10 +21,8 @@ protected:
 	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 private:
-	TMulticastDelegate<void(const FAbilityEndedData&)>::FDelegate AttackEndedDelegate;
-	
 	UFUNCTION()
-	void OnAttackEnded(const FAbilityEndedData& AbilityEndedData);
+	void OnAbilityEnded(const FAbilityEndedData& AbilityEndedData);
 	
 	UPROPERTY(EditInstanceOnly, Category="UP Params")
 	FBlackboardKeySelector TargetSelector;

@@ -3,6 +3,9 @@
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 
 #include "GameplayEffectExtension.h"
+#include "Characters/UpNonPlayableNpc.h"
+#include "Characters/UpPlayableCharacter.h"
+#include "Items/UpWeapon.h"
 #include "Tags/AttributeTags.h"
 
 UUpAmmoAttributeSet::UUpAmmoAttributeSet()
@@ -23,5 +26,14 @@ void UUpAmmoAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 	} else if (Data.EvaluatedData.Attribute == GetMagazineFillAttribute())
 	{
 		SetMagazineFill(FMath::Clamp(GetMagazineFill(), 0.f, GetMagazineCapacity()));
+	}
+
+	if (const auto AvatarActor = Data.Target.GetAvatarActor())
+	{
+		if (const auto Character = Cast<ACharacter>(AvatarActor->GetAttachParentActor()); Character && !Character->IsPlayerControlled())
+		{
+			// Make sure NPCs never run out of ammo.
+			SetAmmoReserve(GetMaxAmmo() - GetMagazineFill());
+		}
 	}
 }

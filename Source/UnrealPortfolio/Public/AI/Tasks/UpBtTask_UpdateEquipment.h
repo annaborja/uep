@@ -7,27 +7,8 @@
 #include "Utils/Enums.h"
 #include "UpBtTask_UpdateEquipment.generated.h"
 
-UENUM()
-namespace EUpUpdateEquipmentCommandType
-{
-	enum Type : uint8
-	{
-		Equip,
-		Unequip
-	};
-}
-
-USTRUCT()
-struct FUpUpdateEquipmentCommand
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	TEnumAsByte<EUpUpdateEquipmentCommandType::Type> CommandType = EUpUpdateEquipmentCommandType::Equip;
-	
-	UPROPERTY(EditAnywhere)
-	TEnumAsByte<EUpEquipmentSlot::Type> EquipmentSlot = EUpEquipmentSlot::Weapon1;
-};
+class AUpCharacter;
+struct FAbilityEndedData;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpBtTask_UpdateEquipment : public UBTTaskNode
@@ -38,6 +19,11 @@ public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 protected:
-	UPROPERTY(EditInstanceOnly, Category="UP Params", meta=(TitleProperty="CommandType"))
-	FUpUpdateEquipmentCommand Command;
+	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+private:
+	UFUNCTION()
+	void OnAbilityEnded(const FAbilityEndedData& AbilityEndedData);
+
+	void TriggerAbility(AUpCharacter* Character, const EUpEquipmentSlot::Type EquipmentSlot);
 };
