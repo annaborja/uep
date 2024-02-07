@@ -18,6 +18,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_GunReload, "Ability.GunReload")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HitReaction, "Ability.HitReaction")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Interact, "Ability.Interact")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Mantle, "Ability.Mantle")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_ShieldRegen, "Ability.ShieldRegen")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_SpecialMove_Push, "Ability.SpecialMove.Push")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Sprint, "Ability.Sprint")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_StaminaRegen, "Ability.StaminaRegen")
@@ -25,6 +26,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_SwitchIntoSquadMember, "Ability.SwitchIntoSqu
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_SwitchOutOfSquadMember, "Ability.SwitchOutOfSquadMember")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_GunFire, "Cooldown.GunFire")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_ShieldRegen, "Cooldown.ShieldRegen")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_StaminaRegen, "Cooldown.StaminaRegen")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_GunFire_Impact, "GameplayCue.GunFire.Impact")

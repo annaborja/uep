@@ -120,7 +120,6 @@ public:
 	FORCEINLINE FActiveGameplayEffectHandle GetEffectHandle_BusyState() const { return EffectHandle_BusyState; }
 	FORCEINLINE FUpCharacterEquipment GetEquipment() const { return Equipment; }
 	FORCEINLINE EUpCharacterPosture::Type GetPosture() const { return Posture; }
-	FORCEINLINE USoundCue* GetSfx_BulletImpacts() const { return Sfx_BulletImpacts; }
 	FORCEINLINE bool IsRelaxed() const { return bRelaxed; }
 	FORCEINLINE bool ShouldDebugGas() const { return bDebugGas; }
 	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
@@ -169,8 +168,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|GAS")
 	TSubclassOf<UGameplayEffect> EffectClass_InitVitalAttributes;
 	
-	UPROPERTY(EditDefaultsOnly, Category="UP Assets|SFX")
-	TObjectPtr<USoundCue> Sfx_BulletImpacts;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|SFX")
 	TObjectPtr<USoundCue> Sfx_JumpLaunches;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|SFX")

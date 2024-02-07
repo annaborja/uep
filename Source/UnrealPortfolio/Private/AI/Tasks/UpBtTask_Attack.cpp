@@ -22,17 +22,7 @@ EBTNodeResult::Type UUpBtTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 					if (const auto AbilitySystemComponent = AiPawn->GetAbilitySystemComponent();
 						AbilitySystemComponent && !AbilitySystemComponent->OnAbilityEnded.IsBoundToObject(this))
 					{
-						if (AiPawn->ShouldDebugGas())
-						{
-							UE_LOG(LogTemp, Warning, TEXT("%s binding attack delegate"), *AiPawn->GetName())
-						}
-						
 						AbilitySystemComponent->OnAbilityEnded.AddUObject(this, &ThisClass::OnAbilityEnded);
-					}
-
-					if (AiPawn->ShouldDebugGas())
-					{
-						UE_LOG(LogTemp, Warning, TEXT("%s triggering gun fire"), *AiPawn->GetName())
 					}
 
 					FGameplayEventData EventPayload;
@@ -76,13 +66,6 @@ EBTNodeResult::Type UUpBtTask_Attack::AbortTask(UBehaviorTreeComponent& OwnerCom
 
 void UUpBtTask_Attack::OnAbilityEnded(const FAbilityEndedData& AbilityEndedData)
 {
-	UE_LOG(LogTemp, Warning, TEXT("some abilty ended"))
-	
-	if (const auto Ability = AbilityEndedData.AbilityThatEnded)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("some abilty ended with tags: %s"), *Ability->AbilityTags.ToString())
-	}
-	
 	if (const auto Ability = AbilityEndedData.AbilityThatEnded; Ability && Ability->AbilityTags.HasTagExact(TAG_Ability_GunFire))
 	{
 		if (const auto AvatarActor = Cast<AUpCharacter>(Ability->GetAvatarActorFromActorInfo()))

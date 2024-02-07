@@ -170,26 +170,26 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 										{
 											if (AiController->GetTeamAttitudeTowards(*Character) == ETeamAttitude::Friendly)
 											{
-												if (Character->ShouldDebugGas())
-												{
-													UE_LOG(LogTemp, Warning, TEXT("%s ending gun fire"), *Character->GetName())
-												}
-												
 												EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 												return;
 											}
 										}
 									}
+
+									auto EffectContext = WeaponAbilitySystemComponent->MakeEffectContext();
+									EffectContext.AddHitResult(MuzzleHit);
+									
+									FGameplayCueParameters CueParams;
+									CueParams.EffectCauser = Weapon;
+									CueParams.SourceObject = HitActor;
+									CueParams.EffectContext = EffectContext;
+									CueParams.Location = MuzzleHit.ImpactPoint;
+									CueParams.Normal = MuzzleHit.ImpactNormal;
+
+									WeaponAbilitySystemComponent->ExecuteGameplayCue(TAG_GameplayCue_GunFire_Impact, CueParams);
 									
 									if (const auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor))
 									{
-										FGameplayCueParameters CueParams;
-										CueParams.Location = MuzzleHit.ImpactPoint;
-										CueParams.Normal = MuzzleHit.ImpactNormal;
-										CueParams.SourceObject = Weapon;
-
-										TargetAbilitySystemComponent->ExecuteGameplayCue(TAG_GameplayCue_GunFire_Impact, CueParams);
-										
 										auto EffectContextHandle = TargetAbilitySystemComponent->MakeEffectContext();
 										EffectContextHandle.AddHitResult(MuzzleHit);
 	
@@ -207,11 +207,6 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 						
 						if (!bIsPlayer && !bHitHostile)
 						{
-							if (Character->ShouldDebugGas())
-							{
-								UE_LOG(LogTemp, Warning, TEXT("%s ending gun fire"), *Character->GetName())
-							}
-							
 							EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 							return;
 						}
@@ -223,11 +218,6 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 						
 						if (bIsPlayer || ++NpcShotsTaken >= NpcNumShotsToTake)
 						{
-							if (Character->ShouldDebugGas())
-							{
-								UE_LOG(LogTemp, Warning, TEXT("%s ending gun fire"), *Character->GetName())
-							}
-							
 							EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 						}
 						
@@ -244,11 +234,6 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 
 					if (!bIsPlayer && ++NpcShotsTaken >= NpcNumShotsToTake)
 					{
-						if (Character->ShouldDebugGas())
-						{
-							UE_LOG(LogTemp, Warning, TEXT("%s ending gun fire"), *Character->GetName())
-						}
-					
 						EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 					}
 					
@@ -264,11 +249,6 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 
 					if (!bIsPlayer)
 					{
-						if (Character->ShouldDebugGas())
-						{
-							UE_LOG(LogTemp, Warning, TEXT("%s ending gun fire"), *Character->GetName())
-						}
-						
 						EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 					}
 				}
@@ -278,8 +258,6 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 		}
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("ending gun fire"))
-
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 

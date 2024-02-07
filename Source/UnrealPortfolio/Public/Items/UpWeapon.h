@@ -8,7 +8,6 @@
 #include "GAS/UpAbilitySystemComponent.h"
 #include "UpWeapon.generated.h"
 
-class USoundCue;
 class UUpAmmoAttributeSet;
 
 UCLASS()
@@ -43,8 +42,13 @@ public:
 
 	FORCEINLINE UUpAmmoAttributeSet* GetAmmoAttributeSet() const { return AmmoAttributeSet; }
 	FORCEINLINE EUpWeaponFiringMode::Type GetFiringMode() const { return WeaponData.FiringMode; }
-	FORCEINLINE UNiagaraSystem* GetNiagaraSystem_Impact() const { return WeaponData.NiagaraSystem_Impact; }
 	FORCEINLINE FUpWeaponData GetWeaponData() const { return WeaponData; }
+	
+	FORCEINLINE TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> GetSfx_Impacts() const { return SfxMap_Impacts; }
+	FORCEINLINE USoundBase* GetSfx_Fire() const { return WeaponData.Sfx_Fire; }
+	
+	FORCEINLINE UNiagaraSystem* GetNiagaraSystem_Fire() const { return WeaponData.NiagaraSystem_Fire; }
+	FORCEINLINE UNiagaraSystem* GetNiagaraSystem_Impact() const { return WeaponData.NiagaraSystem_Impact; }
 	
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -52,8 +56,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="UP Assets")
 	TSubclassOf<UGameplayEffect> EffectClass_InitAmmo;
-	UPROPERTY(EditAnywhere, Category="UP Assets")
-	TObjectPtr<USoundCue> Sfx_AmmoGrant;
+
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|SFX")
+	TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> SfxMap_Impacts;
 	
 	UPROPERTY()
 	TObjectPtr<UUpAmmoAttributeSet> AmmoAttributeSet;

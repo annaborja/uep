@@ -241,7 +241,6 @@ void AUpWeapon::BeginPlay()
 
 	check(TagId.MatchesTag(TAG_Item_Weapon));
 	
-	check(Sfx_AmmoGrant);
 	check(Sfx_Equip);
 
 	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
@@ -262,7 +261,10 @@ void AUpWeapon::BeginPlay()
 
 void AUpWeapon::OnAmmoGrantSuccess()
 {
-	if (Sfx_AmmoGrant) UGameplayStatics::PlaySound2D(this, Sfx_AmmoGrant);
+	if (const auto Sound = WeaponData.Sfx_AmmoGrant)
+	{
+		UGameplayStatics::PlaySound2D(this, Sound);
+	}
 
 	Destroy();
 }

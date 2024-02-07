@@ -106,7 +106,6 @@ void AUpCharacter::BeginPlay()
 	check(ReloadsMontage_ThirdPerson);
 	check(WeaponEquipMontage_ThirdPerson);
 
-	check(Sfx_BulletImpacts);
 	check(Sfx_JumpLaunches);
 
 	CustomMovementComponent = CastChecked<UUpCharacterMovementComponent>(GetCharacterMovement());
@@ -119,6 +118,8 @@ void AUpCharacter::BeginPlay()
 		
 		AbilitySystemComponent->Init(this, this,
 			TArray { EffectClass_InitVitalAttributes, EffectClass_InitPrimaryAttributes }, AbilityClasses);
+		AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Cooldown_ShieldRegen, EGameplayTagEventType::AnyCountChange)
+			.AddUObject(this, &ThisClass::HandleAbilitySystemTagEvent);
 		AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Cooldown_StaminaRegen, EGameplayTagEventType::AnyCountChange)
 			.AddUObject(this, &ThisClass::HandleAbilitySystemTagEvent);
 	}
@@ -507,15 +508,26 @@ void AUpCharacter::HandleAbilitySystemTagEvent(const FGameplayTag Tag, const int
 {
 	if (bDebugGas)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GAS tag event: %s (%d)"), *Tag.GetTagName().ToString(), Count)
+		UE_LOG(LogTemp, Warning, TEXT("%s GAS tag event: %s (%d)"), *GetName(), *Tag.GetTagName().ToString(), Count)
 	}
 
-	if (Tag.MatchesTagExact(TAG_Cooldown_StaminaRegen) && Count <= 0 && AbilitySystemComponent)
+	if (AbilitySystemComponent)
 	{
-		FGameplayTagContainer AbilityTags;
-		AbilityTags.AddTag(TAG_Ability_StaminaRegen);
+		if (Tag.MatchesTagExact(TAG_Cooldown_StaminaRegen) && Count <= 0)
+		{
+			FGameplayTagContainer AbilityTags;
+			AbilityTags.AddTag(TAG_Ability_StaminaRegen);
 					
-		AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+		}
+
+		if (Tag.MatchesTagExact(TAG_Cooldown_ShieldRegen) && Count <= 0)
+		{
+			FGameplayTagContainer AbilityTags;
+			AbilityTags.AddTag(TAG_Ability_ShieldRegen);
+					
+			AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+		}
 	}
 }
 

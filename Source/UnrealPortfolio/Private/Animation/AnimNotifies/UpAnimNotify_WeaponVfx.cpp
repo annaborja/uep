@@ -14,10 +14,13 @@ void UUpAnimNotify_WeaponVfx::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 	{
 		if (const auto Weapon = Character->GetActiveWeapon())
 		{
-			if (const auto Mesh = Weapon->GetStaticMeshComponent())
+			if (const auto NiagaraSystem = Weapon->GetNiagaraSystem_Fire())
 			{
-				UNiagaraFunctionLibrary::SpawnSystemAttached(NiagaraSystem, Mesh, SocketName,
-					FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true);
+				if (const auto Mesh = Weapon->GetStaticMeshComponent())
+				{
+					UNiagaraFunctionLibrary::SpawnSystemAttached(NiagaraSystem, Mesh, SocketName,
+						FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true);
+				}
 			}
 		}
 	}

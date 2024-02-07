@@ -9,6 +9,7 @@
 #include "Tags/ItemTags.h"
 #include "Structs.generated.h"
 
+class USoundCue;
 class UNiagaraSystem;
 class AUpItem;
 
@@ -341,7 +342,14 @@ struct FUpWeaponData : public FTableRowBase
 	
 	UPROPERTY(EditDefaultsOnly)
 	float Range = 20000.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<USoundBase> Sfx_AmmoGrant;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<USoundBase> Sfx_Fire;
 	
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraSystem> NiagaraSystem_Fire;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraSystem> NiagaraSystem_Impact;
 };

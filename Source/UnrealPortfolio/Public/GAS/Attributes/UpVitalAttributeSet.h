@@ -44,4 +44,7 @@ public:
 	UUpVitalAttributeSet();
 
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
+private:
+	void TriggerShieldRegenCooldown(const FGameplayEffectModCallbackData& Data) const;
 };

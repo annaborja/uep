@@ -3,11 +3,9 @@
 #include "GAS/Cues/UpCue_GunFireImpact.h"
 
 #include "NiagaraFunctionLibrary.h"
-#include "Characters/UpCharacter.h"
 #include "Items/UpWeapon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Sound/SoundCue.h"
 #include "Tags/GasTags.h"
 
 UUpCue_GunFireImpact::UUpCue_GunFireImpact()
@@ -19,19 +17,25 @@ bool UUpCue_GunFireImpact::OnExecute_Implementation(AActor* MyTarget, const FGam
 {
 	const auto NormalRotation = UKismetMathLibrary::MakeRotFromX(Parameters.Normal);
 	
-	if (const auto Weapon = Cast<AUpWeapon>(Parameters.SourceObject.Get()))
+	if (const auto Weapon = Cast<AUpWeapon>(Parameters.EffectCauser.Get()))
 	{
+		if (const auto HitResultPtr = Parameters.EffectContext.GetHitResult())
+		{
+			const auto SurfaceType = UPhysicalMaterial::DetermineSurfaceType(HitResultPtr->PhysMaterial.Get());
+			const auto SoundPtr = Weapon->GetSfx_Impacts().Find(SurfaceType);
+
+			if (const auto Sound = SoundPtr == nullptr ? nullptr : *SoundPtr)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, Sound, Parameters.Location, NormalRotation);
+			} else
+			{
+				UE_LOG(LogTemp, Error, TEXT("No bullet impact sound for surface type %d"), SurfaceType)
+			}
+		}
+
 		if (const auto NiagaraSystem = Weapon->GetNiagaraSystem_Impact())
 		{
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(Weapon, NiagaraSystem, Parameters.Location, NormalRotation);
-		}
-	}
-	
-	if (const auto Character = Cast<AUpCharacter>(MyTarget))
-	{
-		if (const auto Sfx = Character->GetSfx_BulletImpacts())
-		{
-			UGameplayStatics::PlaySoundAtLocation(Character, Sfx, Parameters.Location, NormalRotation);
 		}
 	}
 	

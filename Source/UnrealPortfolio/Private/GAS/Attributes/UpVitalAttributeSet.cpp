@@ -30,6 +30,7 @@ void UUpVitalAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	} else if (Data.EvaluatedData.Attribute == GetShieldAttribute())
 	{
 		SetShield(FMath::Clamp(GetShield(), 0.f, GetMaxShield()));
+		TriggerShieldRegenCooldown(Data);
 	} else if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
 	{
 		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
@@ -52,7 +53,15 @@ void UUpVitalAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	{
 		if (GetIncomingDamage() > 0.f)
 		{
-			SetHealth(FMath::Clamp(GetHealth() - GetIncomingDamage(), 0.f, GetMaxHealth()));
+			const auto ExcessDamage = GetIncomingDamage() - GetShield();
+
+			SetShield(FMath::Clamp(GetShield() - GetIncomingDamage(), 0.f, GetMaxShield()));
+			TriggerShieldRegenCooldown(Data);
+
+			if (ExcessDamage > 0.f)
+			{
+				SetHealth(FMath::Clamp(GetHealth() - ExcessDamage, 0.f, GetMaxHealth()));
+			}
 
 			if (GetHealth() <= 0.f)
 			{
@@ -67,5 +76,23 @@ void UUpVitalAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 		}
 		
 		SetIncomingDamage(0.f);
+	}
+}
+
+void UUpVitalAttributeSet::TriggerShieldRegenCooldown(const FGameplayEffectModCallbackData& Data) const
+{
+	if (GetShield() < GetMaxShield())
+	{
+		if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+		{
+			if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+			{
+				if (const auto EffectClass = GasDataAsset->GetEffectClass_ShieldRegenCooldown())
+				{
+					Data.Target.ApplyGameplayEffectSpecToSelf(
+						*Data.Target.MakeOutgoingSpec(EffectClass, 1.f, Data.Target.MakeEffectContext()).Data.Get());
+				}
+			}
+		}
 	}
 }
