@@ -119,6 +119,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float InterpSpeed_CameraFov = 5.f;
+	UPROPERTY(EditAnywhere, Category="UP Params")
+	float InterpSpeed_Recoil = 5.f;
 	
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	float LookInputMultiplier_Aiming = 0.5f;
@@ -148,6 +150,8 @@ private:
 
 	bool bInitialized = false;
 	float TargetCameraFov = -1.f;
+
+	FRotator CumulativeControlRotationInterp = FRotator();
 	
 	FGameplayTag PostPossessionGameplayEventTag = FGameplayTag::EmptyTag;
 	FGameplayEventData PostPossessionGameplayEventData;

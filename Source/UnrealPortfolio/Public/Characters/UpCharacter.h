@@ -112,6 +112,8 @@ public:
 		const float TraceLength = 10.f, const float VolumeMultiplier = 1.f) const;
 
 	void SetEffectHandle_BusyState(const FActiveGameplayEffectHandle& InHandle) { EffectHandle_BusyState = InHandle; }
+
+	void AddRecoil(const FVector2D& Value, const float TimeToLive);
 	
 	FORCEINLINE FGameplayTag GetActiveSpecialMoveTag() const { return ActiveSpecialMoveTag; }
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
@@ -120,6 +122,7 @@ public:
 	FORCEINLINE FActiveGameplayEffectHandle GetEffectHandle_BusyState() const { return EffectHandle_BusyState; }
 	FORCEINLINE FUpCharacterEquipment GetEquipment() const { return Equipment; }
 	FORCEINLINE EUpCharacterPosture::Type GetPosture() const { return Posture; }
+	FORCEINLINE FVector2D GetCurrentRecoil() const { return CurrentRecoil; }
 	FORCEINLINE bool IsRelaxed() const { return bRelaxed; }
 	FORCEINLINE bool ShouldDebugGas() const { return bDebugGas; }
 	FORCEINLINE bool ShouldDebugMovement() const { return bDebugMovement; }
@@ -206,6 +209,9 @@ protected:
 	
 	FVector RootMotionTargetLocation;
 	bool bHasRootMotionTargetLocation = false;
+	
+	FVector2D CurrentRecoil = FVector2D(0.f, 0.f);
+	FTimerHandle RecoilCenterTimerHandle;
 
 	UFUNCTION()
 	void HandleAbilitySystemTagEvent(const FGameplayTag Tag, int32 Count);

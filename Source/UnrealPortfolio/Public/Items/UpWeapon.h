@@ -26,6 +26,8 @@ public:
 	virtual EUpCharacterPosture::Type GetCharacterPosture() const override;
 	
 	float CalculateDamage() const;
+	FVector2D CalculateRecoil() const;
+	float GetRecoilCenterTime() const;
 	float GetAmmoGrantAmount() const;
 	float GetMagazineCapacity() const;
 	float GetMaxAmmo() const;
@@ -33,6 +35,8 @@ public:
 	float GetBurstShotInterval() const;
 	int8 GetBurstSize() const;
 	float GetRange() const;
+	uint8 GetProjectilesPerShot() const;
+	float GetSpreadAngleInDegrees() const;
 
 	FString GetWeaponTypeNameSectionString() const;
 	EUpInGameWeaponType::Type GetInGameWeaponType() const;

@@ -149,6 +149,25 @@ float AUpWeapon::CalculateDamage() const
 	return 25.f;
 }
 
+FVector2D AUpWeapon::CalculateRecoil() const
+{
+	if (TagId.MatchesTag(TAG_Item_Weapon_Pistol))
+	{
+		return FVector2D(0.f, 0.8f);
+	} else if (TagId.MatchesTag(TAG_Item_Weapon_AssaultRifle))
+	{
+		return FVector2D(0.2f, 0.2f);
+	} else
+	{
+		return FVector2D(1.f, 0.f);
+	}
+}
+
+float AUpWeapon::GetRecoilCenterTime() const
+{
+	return 0.5f;
+}
+
 float AUpWeapon::GetAmmoGrantAmount() const
 {
 	return FMath::RandRange(FMath::CeilToInt(GetMagazineCapacity() * 0.5f), FMath::CeilToInt(GetMaxAmmo() * 0.5f));
@@ -182,6 +201,18 @@ int8 AUpWeapon::GetBurstSize() const
 float AUpWeapon::GetRange() const
 {
 	return WeaponData.Range;
+}
+
+uint8 AUpWeapon::GetProjectilesPerShot() const
+{
+	if (TagId.MatchesTag(TAG_Item_Weapon_Shotgun)) return 8;
+
+	return 1;
+}
+
+float AUpWeapon::GetSpreadAngleInDegrees() const
+{
+	return 3.f;
 }
 
 FString AUpWeapon::GetWeaponTypeNameSectionString() const

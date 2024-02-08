@@ -504,6 +504,16 @@ void AUpCharacter::HandleLanding(const FName& BoneName, const EUpTraceDirection:
 	HandleNoise(SfxMap_JumpLandings, BoneName, TraceDirection, TraceLength, VolumeMultiplier);
 }
 
+void AUpCharacter::AddRecoil(const FVector2D& Value, const float TimeToLive)
+{
+	CurrentRecoil += Value;
+
+	GetWorldTimerManager().SetTimer(RecoilCenterTimerHandle, FTimerDelegate::CreateLambda([this]
+	{
+		CurrentRecoil = FVector2D(0.f, 0.f);
+	}), TimeToLive, false);
+}
+
 void AUpCharacter::HandleAbilitySystemTagEvent(const FGameplayTag Tag, const int32 Count)
 {
 	if (bDebugGas)

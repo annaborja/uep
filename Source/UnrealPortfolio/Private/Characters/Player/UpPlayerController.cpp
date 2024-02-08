@@ -307,6 +307,20 @@ void AUpPlayerController::Tick(const float DeltaSeconds)
 		}
 	}
 
+	const auto CurrentRecoil = PossessedCharacter->GetCurrentRecoil();
+	
+	// Calculate the base control rotation, then add the current view kick to it.
+	auto TargetControlRotation = GetControlRotation();
+	TargetControlRotation.Pitch -= CumulativeControlRotationInterp.Pitch;
+	TargetControlRotation.Yaw -= CumulativeControlRotationInterp.Yaw;
+	TargetControlRotation.Pitch += CurrentRecoil.Y;
+	TargetControlRotation.Yaw += CurrentRecoil.X;
+
+	const auto ControlRotationWithInterp = FMath::RInterpTo(GetControlRotation(), TargetControlRotation, DeltaSeconds, InterpSpeed_Recoil);
+	CumulativeControlRotationInterp += (ControlRotationWithInterp - GetControlRotation());
+	
+	SetControlRotation(ControlRotationWithInterp);
+
 	AimAssistLevel = EUpAimAssistLevel::None;
 	FVector ReticleWorldPosition;
 	FVector ReticleWorldDirection;
