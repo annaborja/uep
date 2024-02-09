@@ -170,3 +170,13 @@ void AUpHud::BroadcastTutorial(const FUpTutorialData& TutorialData) const
 {
 	TutorialDelegate.Broadcast(TutorialData);
 }
+
+void AUpHud::BroadcastObjective(const FUpObjectiveData& ObjectiveData) const
+{
+	ObjectiveDelegate.Broadcast(ObjectiveData);
+}
+
+void AUpHud::BroadcastNotification(const FUpNotificationData& NotificationData) const
+{
+	NotificationDelegate.Broadcast(NotificationData);
+}

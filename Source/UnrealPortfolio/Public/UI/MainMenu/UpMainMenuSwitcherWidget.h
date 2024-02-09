@@ -7,7 +7,7 @@
 #include "UpMainMenuSwitcherWidget.generated.h"
 
 class UCommonActivatableWidgetSwitcher;
-class UUpJournalMenuWidget;
+class UUpLogbookMenuWidget;
 class UUpSettingsMenuWidget;
 class UUpSquadMenuWidget;
 class UUpTabListWidget;
@@ -25,7 +25,7 @@ protected:
 	UCommonActivatableWidgetSwitcher* GetWidgetSwitcher() const;
 	
 	UFUNCTION(BlueprintImplementableEvent)
-	UUpJournalMenuWidget* GetJournalMenu() const;
+	UUpLogbookMenuWidget* GetLogbookMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpSettingsMenuWidget* GetSettingsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)

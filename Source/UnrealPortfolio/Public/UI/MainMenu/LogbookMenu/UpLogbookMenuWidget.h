@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UI/UpCommonActivatableWidget.h"
-#include "UpJournalMenuWidget.generated.h"
+#include "UpLogbookMenuWidget.generated.h"
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpJournalMenuWidget : public UUpCommonActivatableWidget
+class UNREALPORTFOLIO_API UUpLogbookMenuWidget : public UUpCommonActivatableWidget
 {
 	GENERATED_BODY()
 };

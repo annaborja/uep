@@ -7,6 +7,8 @@
 #include "Utils/Enums.h"
 #include "UpPersistentEquipmentItemDisplayWidget.generated.h"
 
+class UCommonActionWidget;
+
 UCLASS()
 class UNREALPORTFOLIO_API UUpPersistentEquipmentItemDisplayWidget : public UUpCommonUserWidget
 {
@@ -16,6 +18,9 @@ public:
 	void SetActivated(const bool bInActivated) { bActivated = bInActivated; }
 	void SetImage(UTexture2D* InImage) { Image = InImage; }
 	void ResetImage() { Image = Image_Empty; }
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	UCommonActionWidget* GetCommonActionWidget() const;
 
 	FORCEINLINE EUpEquipmentSlot::Type GetEquipmentSlot() const { return EquipmentSlot; }
 
@@ -37,6 +42,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	FLinearColor GetImageColor() const;
+	UFUNCTION(BlueprintCallable)
+	ESlateVisibility GetCommonActionWidgetVisibility() const;
 
 	virtual void NativePreConstruct() override;
 };

@@ -212,6 +212,8 @@ uint8 AUpWeapon::GetProjectilesPerShot() const
 
 float AUpWeapon::GetSpreadAngleInDegrees() const
 {
+	if (TagId.MatchesTag(TAG_Item_Weapon_Shotgun)) return 8.f;
+	
 	return 3.f;
 }
 

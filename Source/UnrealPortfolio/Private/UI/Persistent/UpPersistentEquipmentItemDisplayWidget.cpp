@@ -9,6 +9,13 @@ FLinearColor UUpPersistentEquipmentItemDisplayWidget::GetImageColor() const
 	return ImageColor_Deactivated;
 }
 
+ESlateVisibility UUpPersistentEquipmentItemDisplayWidget::GetCommonActionWidgetVisibility() const
+{
+	if (Image == Image_Empty) return ESlateVisibility::Collapsed;
+
+	return ESlateVisibility::SelfHitTestInvisible;
+}
+
 void UUpPersistentEquipmentItemDisplayWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();

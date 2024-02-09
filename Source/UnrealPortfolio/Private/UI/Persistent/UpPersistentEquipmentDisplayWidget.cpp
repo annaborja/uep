@@ -2,6 +2,7 @@
 
 #include "UI/Persistent/UpPersistentEquipmentDisplayWidget.h"
 
+#include "CommonActionWidget.h"
 #include "UI/UpHud.h"
 #include "UI/Persistent/UpPersistentEquipmentItemDisplayWidget.h"
 
@@ -13,6 +14,24 @@ void UUpPersistentEquipmentDisplayWidget::OnCustomHudSet_Implementation(AUpHud* 
 	
 	CustomHud->EquipmentUpdateDelegate.AddUObject(this, &ThisClass::HandleEquipmentUpdate);
 	CustomHud->EquipmentActivationUpdateDelegate.AddUObject(this, &ThisClass::HandleEquipmentActivationUpdate);
+
+	const auto Widgets = GetEquipmentItemDisplayWidgets();
+	
+	for (uint8 i = 0; i < Widgets.Num(); i++)
+	{
+		if (!Widgets.IsValidIndex(i)) continue;
+
+		if (const auto Widget = Widgets[i])
+		{
+			if (EquipmentCommonInputActions.IsValidIndex(i))
+			{
+				if (const auto CommonActionWidget = Widget->GetCommonActionWidget())
+				{
+					CommonActionWidget->SetInputAction(EquipmentCommonInputActions[i]);
+				}
+			}
+		}
+	}
 }
 
 void UUpPersistentEquipmentDisplayWidget::HandleEquipmentActivationUpdate(const EUpEquipmentSlot::Type EquipmentSlot, const bool bActivated)

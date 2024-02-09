@@ -9,7 +9,7 @@
 #include "UI/UpHud.h"
 #include "UI/Basic/UpTabListWidget.h"
 #include "UI/Basic/UpTabWidget.h"
-#include "UI/MainMenu/JournalMenu/UpJournalMenuWidget.h"
+#include "UI/MainMenu/LogbookMenu/UpLogbookMenuWidget.h"
 #include "UI/MainMenu/SettingsMenu/UpSettingsMenuWidget.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMenuWidget.h"
 
@@ -67,9 +67,9 @@ void UUpMainMenuSwitcherWidget::SetUpTabList() const
 				TabList->RegisterTab(TAG_Menu_Squad.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 			
-			if (const auto Menu = GetJournalMenu())
+			if (const auto Menu = GetLogbookMenu())
 			{
-				TabList->RegisterTab(TAG_Menu_Journal.GetTag().GetTagName(), MenuTabClass, Menu);
+				TabList->RegisterTab(TAG_Menu_Logbook.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 
 			if (const auto Menu = GetSettingsMenu())

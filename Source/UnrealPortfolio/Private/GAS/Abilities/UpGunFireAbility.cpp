@@ -158,7 +158,7 @@ void UUpGunFireAbility::HandleRepeatAction(const int32 ActionNumber)
 
 						for (uint8 i = 0; i < ProjectilesPerShot; i++)
 						{
-							const auto TraceDirection = Character->IsAiming() ? TargetDirection :
+							const auto TraceDirection = !Weapon->GetTagId().MatchesTag(TAG_Item_Weapon_Shotgun) && Character->IsAiming() ? TargetDirection :
 								UKismetMathLibrary::RandomUnitVectorInConeInDegrees(TargetDirection, SpreadAngle);
 							
 							TArray<FHitResult> MuzzleHitResults;

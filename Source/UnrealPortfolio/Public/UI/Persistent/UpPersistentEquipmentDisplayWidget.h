@@ -7,6 +7,7 @@
 #include "Utils/Enums.h"
 #include "UpPersistentEquipmentDisplayWidget.generated.h"
 
+struct FDataTableRowHandle;
 struct FUpItemData;
 class UUpPersistentEquipmentItemDisplayWidget;
 
@@ -22,6 +23,9 @@ protected:
 	virtual void OnCustomHudSet_Implementation(AUpHud* NewCustomHud) override;
 
 private:
+    UPROPERTY(EditDefaultsOnly, Category="UP Params")
+    TArray<FDataTableRowHandle> EquipmentCommonInputActions;
+	
 	UFUNCTION()
 	void HandleEquipmentActivationUpdate(const EUpEquipmentSlot::Type EquipmentSlot, const bool bActivated);
 	UFUNCTION()

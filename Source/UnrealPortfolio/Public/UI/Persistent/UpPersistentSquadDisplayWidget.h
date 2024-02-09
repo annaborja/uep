@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "UI/UpCommonUserWidget.h"
 #include "UpPersistentSquadDisplayWidget.generated.h"
 
@@ -25,6 +26,9 @@ protected:
     UUpPersistentVitalStatsDisplayWidget* GetVitalStatsDisplay_Secondary2() const;
 
 private:
+    UPROPERTY(EditDefaultsOnly, Category="UP Params")
+    TArray<FDataTableRowHandle> SquadMemberCommonInputActions;
+    
     UFUNCTION()
     void HandlePossessedCharacterChange(AUpPlayableCharacter* PossessedCharacter);
     UFUNCTION()

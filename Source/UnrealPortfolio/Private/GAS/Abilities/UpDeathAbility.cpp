@@ -75,6 +75,11 @@ void UUpDeathAbility::OnGameplayEventReceived(const FGameplayEventData Payload)
 
 void UUpDeathAbility::OnMontageCompleted()
 {
+	if (bDebug)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s death montage completed"), *GetAvatarActorFromActorInfo()->GetName())
+	}
+	
 	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 	{
 		Character->Die();

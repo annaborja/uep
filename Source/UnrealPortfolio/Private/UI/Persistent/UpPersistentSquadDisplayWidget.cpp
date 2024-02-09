@@ -2,6 +2,7 @@
 
 #include "UI/Persistent/UpPersistentSquadDisplayWidget.h"
 
+#include "CommonActionWidget.h"
 #include "UI/UpHud.h"
 #include "UI/Persistent/UpPersistentVitalStatsDisplayWidget.h"
 
@@ -14,9 +15,24 @@ void UUpPersistentSquadDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewC
 	CustomHud->PossessedCharacterDelegate.AddUObject(this, &ThisClass::HandlePossessedCharacterChange);
 	CustomHud->SecondarySquadMemberDelegate.AddUObject(this, &ThisClass::HandleSecondarySquadMemberBroadcast);
 
-	for (const auto Widget : GetSecondaryDisplayWidgets())
+	const auto Widgets = GetSecondaryDisplayWidgets();
+	
+	for (uint8 i = 0; i < Widgets.Num(); i++)
 	{
-		Widget->SetSecondary(true);
+		if (!Widgets.IsValidIndex(i)) continue;
+
+		if (const auto Widget = Widgets[i])
+		{
+			Widget->SetSecondary(true);
+
+			if (SquadMemberCommonInputActions.IsValidIndex(i))
+			{
+				if (const auto CommonActionWidget = Widget->GetCommonActionWidget())
+				{
+					CommonActionWidget->SetInputAction(SquadMemberCommonInputActions[i]);
+				}
+			}
+		}
 	}
 }
 

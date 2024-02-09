@@ -2,7 +2,7 @@
 
 #include "Tags/UiTags.h"
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Menu_Journal, "Menu.Journal")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Menu_Logbook, "Menu.Logbook")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Menu_Settings, "Menu.Settings")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Menu_Squad, "Menu.Squad")
 

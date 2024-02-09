@@ -109,6 +109,20 @@ ESlateVisibility UUpPersistentVitalStatsDisplayWidget::ShowIfSecondary() const
 	return ESlateVisibility::SelfHitTestInvisible;
 }
 
+FLinearColor UUpPersistentVitalStatsDisplayWidget::GetImageOpacity() const
+{
+	if (!Character || Character->IsDead()) return FLinearColor(1.f, 1.f, 1.f, 0.6f);
+
+	return FLinearColor(1.f, 1.f, 1.f, 1.f);
+}
+
+ESlateVisibility UUpPersistentVitalStatsDisplayWidget::GetCommonActionWidgetVisibility() const
+{
+	if (!Character || Character->IsDead()) return ESlateVisibility::Collapsed;
+
+	return ESlateVisibility::SelfHitTestInvisible;
+}
+
 void UUpPersistentVitalStatsDisplayWidget::HandleAttributeValueChange(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const float Value)
 {
 	if (!Character || !TagId.MatchesTagExact(Character->GetTagId())) return;

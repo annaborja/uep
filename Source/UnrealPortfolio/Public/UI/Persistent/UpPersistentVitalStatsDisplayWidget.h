@@ -8,6 +8,7 @@
 #include "UI/UpCommonUserWidget.h"
 #include "UpPersistentVitalStatsDisplayWidget.generated.h"
 
+class UCommonActionWidget;
 class AUpPlayableCharacter;
 
 UCLASS()
@@ -18,6 +19,9 @@ class UNREALPORTFOLIO_API UUpPersistentVitalStatsDisplayWidget : public UUpCommo
 public:
     void SetCharacter(AUpPlayableCharacter* InCharacter);
     void SetSecondary(const bool bInSecondary) { bSecondary = bInSecondary; }
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	UCommonActionWidget* GetCommonActionWidget() const;
 
     FORCEINLINE AUpPlayableCharacter* GetCharacter() const { return Character; }
 
@@ -56,6 +60,10 @@ protected:
 	ESlateVisibility HideIfSecondary() const;
 	UFUNCTION(BlueprintCallable)
 	ESlateVisibility ShowIfSecondary() const;
+	UFUNCTION(BlueprintCallable)
+	FLinearColor GetImageOpacity() const;
+	UFUNCTION(BlueprintCallable)
+	ESlateVisibility GetCommonActionWidgetVisibility() const;
 
 private:
     UPROPERTY(EditDefaultsOnly, Category="UP Params")

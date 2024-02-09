@@ -316,6 +316,34 @@ struct FUpTutorialData : public FTableRowBase
 	float TimeToLive = 5.f;
 };
 
+USTRUCT(BlueprintType)
+struct FUpObjectiveData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	bool IsValid() const { return !Text.IsEmpty(); }
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText Text;
+
+	UPROPERTY(EditDefaultsOnly)
+	float TimeToLive = 5.f;
+};
+
+USTRUCT(BlueprintType)
+struct FUpNotificationData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	bool IsValid() const { return !Text.IsEmpty(); }
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText Text;
+
+	UPROPERTY(EditDefaultsOnly)
+	float TimeToLive = 5.f;
+};
+
 USTRUCT()
 struct FUpWeaponData : public FTableRowBase
 {
