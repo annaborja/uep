@@ -88,13 +88,6 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 			FGameplayTagContainer OutTags;
 			CustomPlayerState->GetSquadMemberTags(OutTags);
 			OutTags.GetGameplayTagArray(SquadMemberTags);
-
-			// TODO(P0): Sorting doesn't seem to be working for some reason.
-			SquadMemberTags.Sort([this] (const FGameplayTag& TagA, const FGameplayTag& TagB)
-			{
-				return UUpBlueprintFunctionLibrary::GetInGameName(this, TagA).ToString().Compare(
-					UUpBlueprintFunctionLibrary::GetInGameName(this, TagB).ToString());
-			});
 		}
 	}
 
@@ -159,7 +152,7 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 
 				if (CharacterData.IsValid()) Widget->SetImage(CharacterData.Image_Head);
 
-				Widget->OnClicked().AddLambda([Carousel, Nav, SquadMemberIndex]
+				Widget->OnClicked().AddLambda([this, Carousel, Nav, SquadMemberIndex]
 				{
 					for (const auto ChildWidget : Nav->GetAllChildren())
 					{
@@ -180,6 +173,10 @@ void UUpSquadMenuWidget::PopulateSquadMembers()
 				}
 
 				if (SquadMemberIndex <= 0) Widget->SetIsSelected(true);
+
+				// Set the sound override after the first widget is activated
+				// so that the sound won't play upon initialization.
+				Widget->SetPressedSoundOverride(Sfx_SquadMemberSwitch);
 			}
 
 			SquadMemberIndex++;
@@ -233,6 +230,10 @@ void UUpSquadMenuWidget::PopulateSubMenuNav()
 			Nav->AddChild(Widget);
 
 			if (WidgetIndex <= 0) Widget->SetIsSelected(true);
+			
+			// Set the sound override after the first widget is activated
+			// so that the sound won't play upon initialization.
+			Widget->SetPressedSoundOverride(Sfx_SubMenuSwitch);
 			
 			WidgetIndex++;
 		}

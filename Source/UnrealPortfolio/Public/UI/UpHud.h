@@ -49,7 +49,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudPossessedCharacterSignature, AUpPlayab
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudSecondarySquadMemberSignature, AUpPlayableCharacter*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudTutorialSignature, const FUpTutorialData&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudObjectiveSignature, const FUpObjectiveData&);
-DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudNotificationSignature, const FUpNotificationData&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudNotificationSignature, const FUpNotificationData);
 
 UCLASS()
 class UNREALPORTFOLIO_API AUpHud : public AHUD
@@ -94,7 +94,7 @@ public:
 	void BroadcastSecondarySquadMember(AUpPlayableCharacter* Character) const;
 	void BroadcastTutorial(const FUpTutorialData& TutorialData) const;
 	void BroadcastObjective(const FUpObjectiveData& ObjectiveData) const;
-	void BroadcastNotification(const FUpNotificationData& NotificationData) const;
+	void BroadcastNotification(const FUpNotificationData NotificationData) const;
 
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
 	

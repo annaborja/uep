@@ -7,7 +7,7 @@
 #include "UpMainMenuSwitcherWidget.generated.h"
 
 class UCommonActivatableWidgetSwitcher;
-class UUpLogbookMenuWidget;
+class UUpJournalMenuWidget;
 class UUpSettingsMenuWidget;
 class UUpSquadMenuWidget;
 class UUpTabListWidget;
@@ -25,7 +25,7 @@ protected:
 	UCommonActivatableWidgetSwitcher* GetWidgetSwitcher() const;
 	
 	UFUNCTION(BlueprintImplementableEvent)
-	UUpLogbookMenuWidget* GetLogbookMenu() const;
+	UUpJournalMenuWidget* GetJournalMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpSettingsMenuWidget* GetSettingsMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
@@ -43,7 +43,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UUpTabWidget> MenuTabClass;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TObjectPtr<USoundBase> SFX_MainMenuOpen;
+	TObjectPtr<USoundBase> Sfx_MainMenuOpen;
 	
 	void ResumeGame() const;
 	void SetUpTabList() const;

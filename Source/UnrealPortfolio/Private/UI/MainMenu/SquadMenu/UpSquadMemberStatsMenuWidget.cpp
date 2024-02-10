@@ -8,8 +8,10 @@
 #include "Components/PanelWidget.h"
 #include "Components/VerticalBoxSlot.h"
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
+#include "Items/UpItem.h"
 #include "UI/Basic/UpAttributeBarWidget.h"
 #include "UI/Basic/UpProgressBarWidget.h"
+#include "UI/MainMenu/SquadMenu/UpSquadMemberEquipmentItemDisplayWidget.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
 void UUpSquadMemberStatsMenuWidget::SetNpc(const AUpPlayableNpc* Npc)
@@ -18,6 +20,28 @@ void UUpSquadMemberStatsMenuWidget::SetNpc(const AUpPlayableNpc* Npc)
 	
 	PopulatePrimaryAttributes(Npc);
 	PopulatePlayerSentiment(Npc->GetTagId());
+
+	const auto& Equipment = Npc->GetEquipment();
+
+	if (const auto Widget = GetWeapon1Display())
+	{
+		PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Weapon1);
+	}
+
+	if (const auto Widget = GetWeapon2Display())
+	{
+		PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Weapon2);
+	}
+
+	if (const auto Widget = GetHelmetDisplay())
+	{
+		PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Helmet);
+	}
+
+	if (const auto Widget = GetArmorDisplay())
+	{
+		PopulateEquipmentItemDisplay(Widget, Equipment, EUpEquipmentSlot::Armor);
+	}
 }
 
 void UUpSquadMemberStatsMenuWidget::SetNpcTagId(const FGameplayTag& NpcTagId)
@@ -80,6 +104,18 @@ void UUpSquadMemberStatsMenuWidget::PopulatePlayerSentiment(const FGameplayTag& 
 		if (const auto PanelSlot = Cast<UVerticalBoxSlot>(Container->AddChild(EsteemWidget)))
 		{
 			PanelSlot->SetPadding(FMargin(0.f, SentimentAttributeRowGap, 0.f, 0.f));
+		}
+	}
+}
+
+void UUpSquadMemberStatsMenuWidget::PopulateEquipmentItemDisplay(UUpSquadMemberEquipmentItemDisplayWidget* Widget,
+	const FUpCharacterEquipment& Equipment, const EUpEquipmentSlot::Type EquipmentSlot)
+{
+	if (const auto ItemClass = Equipment.GetEquipmentSlotData(EquipmentSlot).ItemInstance.ItemClass)
+	{
+		if (const auto DefaultObject = ItemClass.GetDefaultObject())
+		{
+			Widget->PopulateEquipmentItemData(DefaultObject->GetTagId());
 		}
 	}
 }

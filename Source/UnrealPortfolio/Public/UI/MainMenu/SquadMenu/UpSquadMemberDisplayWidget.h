@@ -9,8 +9,8 @@
 
 class UCommonActivatableWidgetSwitcher;
 class UUpSquadMemberInventoryMenuWidget;
-class UUpSquadMemberSkillsMenuWidget;
 class UUpSquadMemberStatsMenuWidget;
+class UUpSquadMemberUpgradesMenuWidget;
 
 UCLASS()
 class UNREALPORTFOLIO_API UUpSquadMemberDisplayWidget : public UUpCommonUserWidget
@@ -38,7 +38,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	UUpSquadMemberInventoryMenuWidget* GetSquadMemberInventoryMenu() const;
 	UFUNCTION(BlueprintImplementableEvent)
-	UUpSquadMemberSkillsMenuWidget* GetSquadMemberSkillsMenu() const;
+	UUpSquadMemberUpgradesMenuWidget* GetSquadMemberUpgradesMenu() const;
 
 	void PopulateSubMenuData() const;
 };

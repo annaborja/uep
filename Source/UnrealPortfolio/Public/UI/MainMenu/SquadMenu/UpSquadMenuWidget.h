@@ -51,11 +51,16 @@ private:
 	TSubclassOf<UUpSquadMemberNavButtonWidget> SquadMemberNavButtonClass;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UUpSquadMemberSubMenuNavButtonWidget> SubMenuNavButtonClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<USoundBase> Sfx_SquadMemberSwitch;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<USoundBase> Sfx_SubMenuSwitch;
 
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	float SquadMemberNavButtonGap = 12.f;
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	TArray<FGameplayTag> SubMenuTags { TAG_Menu_SquadMember_Stats, TAG_Menu_SquadMember_Inventory, TAG_Menu_SquadMember_Skills };
+	TArray<FGameplayTag> SubMenuTags { TAG_Menu_SquadMember_Stats, TAG_Menu_SquadMember_Upgrades };
 
 	uint8 CurrentSquadMemberIndex = 0;
 	TArray<FGameplayTag> SquadMemberTags;

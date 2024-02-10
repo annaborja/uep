@@ -331,9 +331,12 @@ struct FUpObjectiveData : public FTableRowBase
 };
 
 USTRUCT(BlueprintType)
-struct FUpNotificationData : public FTableRowBase
+struct FUpNotificationData
 {
 	GENERATED_BODY()
+
+	FUpNotificationData() {}
+	explicit FUpNotificationData(const FText InText) : Text(InText) {}
 
 	bool IsValid() const { return !Text.IsEmpty(); }
 

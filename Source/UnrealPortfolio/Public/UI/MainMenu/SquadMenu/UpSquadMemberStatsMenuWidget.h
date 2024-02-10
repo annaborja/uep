@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "Tags/AttributeTags.h"
 #include "UI/UpCommonActivatableWidget.h"
+#include "Utils/Enums.h"
 #include "UpSquadMemberStatsMenuWidget.generated.h"
 
+struct FUpCharacterEquipment;
+class UUpSquadMemberEquipmentItemDisplayWidget;
 class AUpPlayableNpc;
 class UUpAttributeBarWidget;
 class UUpProgressBarWidget;
@@ -28,6 +31,16 @@ protected:
 	UPanelWidget* GetPrimaryAttributesContainer() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UPanelWidget* GetPlayerSentimentAttributesContainer() const;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberEquipmentItemDisplayWidget* GetWeapon1Display() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberEquipmentItemDisplayWidget* GetWeapon2Display() const;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberEquipmentItemDisplayWidget* GetHelmetDisplay() const;
+	UFUNCTION(BlueprintImplementableEvent)
+	UUpSquadMemberEquipmentItemDisplayWidget* GetArmorDisplay() const;
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
@@ -55,4 +68,5 @@ private:
 
 	void PopulatePrimaryAttributes(const AUpPlayableNpc* Npc);
 	void PopulatePlayerSentiment(const FGameplayTag& NpcTagId);
+	static void PopulateEquipmentItemDisplay(UUpSquadMemberEquipmentItemDisplayWidget* Widget, const FUpCharacterEquipment& Equipment, const EUpEquipmentSlot::Type EquipmentSlot);
 };

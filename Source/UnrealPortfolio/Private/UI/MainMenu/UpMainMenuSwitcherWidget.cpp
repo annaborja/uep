@@ -9,7 +9,7 @@
 #include "UI/UpHud.h"
 #include "UI/Basic/UpTabListWidget.h"
 #include "UI/Basic/UpTabWidget.h"
-#include "UI/MainMenu/LogbookMenu/UpLogbookMenuWidget.h"
+#include "UI/MainMenu/JournalMenu/UpJournalMenuWidget.h"
 #include "UI/MainMenu/SettingsMenu/UpSettingsMenuWidget.h"
 #include "UI/MainMenu/SquadMenu/UpSquadMenuWidget.h"
 
@@ -30,7 +30,7 @@ void UUpMainMenuSwitcherWidget::NativeOnActivated()
 {
 	Super::NativeOnActivated();
 
-	UGameplayStatics::PlaySound2D(this, SFX_MainMenuOpen);
+	UGameplayStatics::PlaySound2D(this, Sfx_MainMenuOpen);
 	SetUpTabList();
 }
 
@@ -67,9 +67,9 @@ void UUpMainMenuSwitcherWidget::SetUpTabList() const
 				TabList->RegisterTab(TAG_Menu_Squad.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 			
-			if (const auto Menu = GetLogbookMenu())
+			if (const auto Menu = GetJournalMenu())
 			{
-				TabList->RegisterTab(TAG_Menu_Logbook.GetTag().GetTagName(), MenuTabClass, Menu);
+				TabList->RegisterTab(TAG_Menu_Journal.GetTag().GetTagName(), MenuTabClass, Menu);
 			}
 
 			if (const auto Menu = GetSettingsMenu())

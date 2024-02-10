@@ -176,7 +176,7 @@ void AUpHud::BroadcastObjective(const FUpObjectiveData& ObjectiveData) const
 	ObjectiveDelegate.Broadcast(ObjectiveData);
 }
 
-void AUpHud::BroadcastNotification(const FUpNotificationData& NotificationData) const
+void AUpHud::BroadcastNotification(const FUpNotificationData NotificationData) const
 {
 	NotificationDelegate.Broadcast(NotificationData);
 }
