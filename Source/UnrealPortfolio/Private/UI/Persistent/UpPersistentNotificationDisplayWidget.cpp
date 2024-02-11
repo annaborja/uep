@@ -2,7 +2,12 @@
 
 #include "UI/Persistent/UpPersistentNotificationDisplayWidget.h"
 
-#include "Components/RichTextBlock.h"
+#include "CommonRichTextBlock.h"
+#include "CommonTextBlock.h"
+#include "Animation/UMGSequencePlayer.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/PanelWidget.h"
+#include "Components/VerticalBoxSlot.h"
 #include "UI/UpHud.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -30,49 +35,89 @@ void UUpPersistentNotificationDisplayWidget::HandleNotification(const FUpNotific
 
 void UUpPersistentNotificationDisplayWidget::ProcessNotificationQueue()
 {
-	if (DisplayedNotifications.Num() >= MaxNumNotificationsDisplayed) return;
 	if (!NotificationQueue.IsValidIndex(0)) return;
+	if (DisplayedNotifications.Num() >= MaxNotificationsDisplayed) return;
 
 	const auto Notification = NotificationQueue[0];
 	NotificationQueue.RemoveAt(0, 1, true);
 	DisplayedNotifications.Add(Notification);
-	UpdateTextWidget();
-	
-	SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	UpdateDisplayedText();
+
+	if (GetVisibility() != ESlateVisibility::SelfHitTestInvisible)
+	{
+		SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+
+		if (const auto FadeAnimation = GetFadeAnimation())
+		{
+			PlayAnimationForward(FadeAnimation);
+		}
+	}
 	
 	if (const auto World = GetWorld())
 	{
 		FTimerHandle TimerHandle;
 		World->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([this, Notification]
 		{
-			if (const auto Idx = DisplayedNotifications.IndexOfByPredicate([Notification](const FUpNotificationData Data)
+			if (const auto Idx = DisplayedNotifications.IndexOfByPredicate([Notification](const FUpNotificationData& Data)
 			{
 				return Data.Text.EqualTo(Notification.Text);
 			}); Idx != INDEX_NONE)
 			{
 				DisplayedNotifications.RemoveAt(Idx, 1, true);
-				UpdateTextWidget();
+				ProcessNotificationQueue();
 			}
 			
 			if (DisplayedNotifications.Num() <= 0)
 			{
-				SetVisibility(ESlateVisibility::Hidden);
+				if (const auto FadeAnimation = GetFadeAnimation())
+				{
+					const auto SequencePlayer = PlayAnimationReverse(FadeAnimation);
+					SequencePlayer->OnSequenceFinishedPlaying().AddLambda([this](const UUMGSequencePlayer& Player)
+					{
+						SetVisibility(ESlateVisibility::Collapsed);
+						UpdateDisplayedText();
+					});
+				}
+			} else
+			{
+				UpdateDisplayedText();
 			}
 		}), Notification.TimeToLive, false);
 	}
 }
 
-void UUpPersistentNotificationDisplayWidget::UpdateTextWidget() const
+void UUpPersistentNotificationDisplayWidget::UpdateDisplayedText() const
 {
-	if (const auto Widget = GetTextWidget())
+	if (const auto Container = GetTextContainer())
 	{
-		FString WidgetText = TEXT("");
-
-		for (const auto& Notification : DisplayedNotifications)
+		Container->ClearChildren();
+		uint8 WidgetIdx = 0;
+		
+		for (const auto Notification : DisplayedNotifications)
 		{
-			WidgetText += UUpBlueprintFunctionLibrary::GetInGameNameifiedText(this, Notification.Text).ToString();
-		}
+			if (!WidgetTree) continue;
+
+			const auto Widget = WidgetTree->ConstructWidget<UCommonRichTextBlock>(UCommonRichTextBlock::StaticClass());
+			Widget->SetText(Notification.Text);
 			
-		Widget->SetText(FText::FromString(WidgetText));
+			if (NotificationTextStyle)
+			{
+				if (const auto TextStyle = Cast<UCommonTextStyle>(NotificationTextStyle.GetDefaultObject()))
+				{
+					FTextBlockStyle TextBlockStyle;
+					TextStyle->ToTextBlockStyle(TextBlockStyle);
+					
+					Widget->SetDefaultTextStyle(TextBlockStyle);
+					Widget->SetTextStyleSet(NotificationTextStyleSet);
+				}
+			}
+
+			if (const auto PanelSlot = Cast<UVerticalBoxSlot>(Container->AddChild(Widget)); PanelSlot && WidgetIdx > 0)
+			{
+				PanelSlot->SetPadding(FMargin(0.f, NotificationGap, 0.f, 0.f));
+			}
+
+			WidgetIdx++;
+		}
 	}
 }

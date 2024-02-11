@@ -3,10 +3,13 @@
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 
 #include "GameplayEffectExtension.h"
-#include "Characters/UpNonPlayableNpc.h"
+#include "UpGameInstance.h"
 #include "Characters/UpPlayableCharacter.h"
+#include "GAS/UpGasDataAsset.h"
 #include "Items/UpWeapon.h"
-#include "Tags/AttributeTags.h"
+#include "Tags/GasTags.h"
+#include "UI/UpHud.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 UUpAmmoAttributeSet::UUpAmmoAttributeSet()
 {
@@ -22,7 +25,29 @@ void UUpAmmoAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 
 	if (Data.EvaluatedData.Attribute == GetAmmoReserveAttribute())
 	{
-		SetAmmoReserve(FMath::Clamp(GetAmmoReserve(), 0.f, GetMaxAmmo() - GetMagazineFill()));
+		const auto Max = GetMaxAmmo() - GetMagazineFill();
+		const auto Excess = GetAmmoReserve() - Max;
+		SetAmmoReserve(FMath::Clamp(GetAmmoReserve(), 0.f, Max));
+
+		if (const auto Weapon = Cast<AUpWeapon>(Data.Target.GetAvatarActor()))
+		{
+			if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(Weapon))
+			{
+				if (const auto GasDataAsset = GameInstance->GetGasDataAsset())
+				{
+					if (const auto Delta = Data.EvaluatedData.Magnitude - Excess;
+						Delta > 0.f && Data.EffectSpec.Def.GetClass() == GasDataAsset->GetEffectClass_AmmoGrant())
+					{
+						if (const auto CustomHud = UUpBlueprintFunctionLibrary::GetCustomHud(Weapon))
+						{
+							CustomHud->BroadcastNotification(FUpNotificationData(FText::FromString(
+								FString::Printf(TEXT("Gained <RichText.Bold>%d</> ammo for <RichText.Bold>%s</>"),
+									FMath::FloorToInt(Delta), *Weapon->GetInGameName().ToString()))));
+						}
+					}
+				}
+			}
+		}
 	} else if (Data.EvaluatedData.Attribute == GetMagazineFillAttribute())
 	{
 		SetMagazineFill(FMath::Clamp(GetMagazineFill(), 0.f, GetMagazineCapacity()));

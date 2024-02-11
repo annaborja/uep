@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Tags/AttributeTags.h"
+#include "Tags/GasTags.h"
 #include "UI/UpCommonActivatableWidget.h"
 #include "Utils/Enums.h"
 #include "UpSquadMemberStatsMenuWidget.generated.h"

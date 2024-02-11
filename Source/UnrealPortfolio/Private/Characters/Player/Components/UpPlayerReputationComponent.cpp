@@ -3,7 +3,7 @@
 #include "Characters/Player/Components/UpPlayerReputationComponent.h"
 
 #include "UpGameInstance.h"
-#include "Tags/ReputationTags.h"
+#include "Tags/GasTags.h"
 #include "Utils/Structs.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 

@@ -5,7 +5,7 @@
 #include "Characters/UpPlayableCharacter.h"
 #include "GAS/Attributes/UpVitalAttributeSet.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Tags/AttributeTags.h"
+#include "Tags/GasTags.h"
 #include "UI/UpHud.h"
 
 void UUpPersistentVitalStatsDisplayWidget::SetCharacter(AUpPlayableCharacter* InCharacter)

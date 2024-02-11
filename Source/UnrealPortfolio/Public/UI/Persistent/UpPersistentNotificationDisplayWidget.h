@@ -7,6 +7,7 @@
 #include "Utils/Structs.h"
 #include "UpPersistentNotificationDisplayWidget.generated.h"
 
+class UCommonTextStyle;
 class URichTextBlock;
 
 UCLASS()
@@ -21,14 +22,21 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	UWidgetAnimation* GetFadeAnimation() const;
 	UFUNCTION(BlueprintImplementableEvent)
-	UPanelWidget* GetTabsContainer() const;
+	UPanelWidget* GetTextContainer() const;
 
 	virtual void NativePreConstruct() override;
 	virtual void OnCustomHudSet_Implementation(AUpHud* NewCustomHud) override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TSubclassOf<UCommonTextStyle> NotificationTextStyle;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<UDataTable> NotificationTextStyleSet;
+	
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
-	uint8 MaxNumNotificationsDisplayed = 3;
+	uint8 MaxNotificationsDisplayed = 3;
+	UPROPERTY(EditDefaultsOnly, Category="UP Params")
+	float NotificationGap = 20.f;
 	
 	UPROPERTY(Transient)
 	TArray<FUpNotificationData> NotificationQueue;
@@ -39,5 +47,5 @@ private:
 	void HandleNotification(const FUpNotificationData NotificationData);
 
 	void ProcessNotificationQueue();
-	void UpdateTextWidget() const;
+	void UpdateDisplayedText() const;
 };

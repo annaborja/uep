@@ -9,8 +9,6 @@
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "Items/UpAmmo.h"
 #include "Kismet/GameplayStatics.h"
-#include "Sound/SoundCue.h"
-#include "UI/UpHud.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -298,12 +296,6 @@ void AUpWeapon::OnAmmoGrantSuccess()
 	if (const auto Sound = WeaponData.Sfx_AmmoGrant)
 	{
 		UGameplayStatics::PlaySound2D(this, Sound);
-	}
-
-	if (const auto CustomHud = UUpBlueprintFunctionLibrary::GetCustomHud(this))
-	{
-		CustomHud->BroadcastNotification(
-			FUpNotificationData(FText::FromString(TEXT("Picked up ammo"))));
 	}
 
 	Destroy();

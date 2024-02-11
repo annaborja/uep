@@ -5,6 +5,7 @@
 #include "UpGameInstance.h"
 #include "AI/UpAiController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Characters/Player/UpPlayerState.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -136,14 +137,21 @@ void AUpLevelScriptActor::ExecuteCommand(const FUpScriptCommand& Command)
 	
 	switch (Command.CommandType)
 	{
-	case EUpScriptCommandType::GrantQuest:
-		UE_LOG(LogTemp, Warning, TEXT("[Temp] Grant quest"))
-		break;
 	case EUpScriptCommandType::PlayAnimation:
 		PlayAnimation(Command);
 		break;
 	case EUpScriptCommandType::PlayBark:
 		PlayBark(Command);
+		break;
+	case EUpScriptCommandType::ProgressMission:
+		if (const auto PlayerController = UGameplayStatics::GetPlayerController(this, 0))
+		{
+			if (const auto PlayerState = PlayerController->GetPlayerState<AUpPlayerState>())
+			{
+				PlayerState->ProgressMission(Command.DataTag);
+			}
+		}
+		
 		break;
 	case EUpScriptCommandType::SetBlackboardKey:
 		SetBlackboardKey(Command);

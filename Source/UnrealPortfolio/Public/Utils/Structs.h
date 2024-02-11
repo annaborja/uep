@@ -317,17 +317,50 @@ struct FUpTutorialData : public FTableRowBase
 };
 
 USTRUCT(BlueprintType)
+struct FUpMissionData : public FTableRowBase
+{
+	GENERATED_BODY()
+	
+	bool IsValid() const { return TagId.IsValid(); }
+	
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag TagId;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText Title;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText Description;
+};
+
+USTRUCT(BlueprintType)
 struct FUpObjectiveData : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	bool IsValid() const { return !Text.IsEmpty(); }
+	bool IsValid() const { return TagId.IsValid(); }
+	
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag TagId;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FText Text;
+	FText Summary;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText Description;
+};
 
+USTRUCT()
+struct FUpMissionState
+{
+	GENERATED_BODY()
+	
+	FUpMissionState() {}
+	explicit FUpMissionState(const uint8 InStep, const EUpMissionStatus::Type InStatus = EUpMissionStatus::InProgress) :
+		Step(InStep), Status(InStatus) {}
+	
 	UPROPERTY(EditDefaultsOnly)
-	float TimeToLive = 5.f;
+	uint8 Step = 0;
+	UPROPERTY(EditDefaultsOnly)
+	TEnumAsByte<EUpMissionStatus::Type> Status = EUpMissionStatus::InProgress;
 };
 
 USTRUCT(BlueprintType)
@@ -344,7 +377,7 @@ struct FUpNotificationData
 	FText Text;
 
 	UPROPERTY(EditDefaultsOnly)
-	float TimeToLive = 5.f;
+	float TimeToLive = 3.f;
 };
 
 USTRUCT()

@@ -49,9 +49,9 @@ void UUpPersistentTutorialDisplayWidget::ClearData()
 	if (const auto FadeAnimation = GetFadeAnimation())
 	{
 		const auto SequencePlayer = PlayAnimationReverse(FadeAnimation);
-		SequencePlayer->OnSequenceFinishedPlaying().AddLambda([this](UUMGSequencePlayer& Player)
+		SequencePlayer->OnSequenceFinishedPlaying().AddLambda([this](const UUMGSequencePlayer& Player)
 		{
-			SetVisibility(ESlateVisibility::Hidden);
+			SetVisibility(ESlateVisibility::Collapsed);
 
 			Text = FText::GetEmpty();
 

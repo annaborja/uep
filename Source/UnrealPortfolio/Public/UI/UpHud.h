@@ -84,6 +84,8 @@ public:
 	void DisplayDialogueOptions(AUpPlayableNpc* Npc, const TArray<FUpDialogueOptionData>& DialogueOptions) const;
 	void SelectDialogueOption(const AUpPlayableNpc* Npc, const FUpDialogueOptionData& DialogueOption) const;
 
+	TMap<FGameplayTag, FUpMissionState> GetMissionMap() const;
+
 	void BroadcastActiveWeapon(const AUpWeapon* Weapon) const;
 	void BroadcastAttributeValue(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const;
 	void BroadcastBark(const FUpBarkData& BarkData) const;

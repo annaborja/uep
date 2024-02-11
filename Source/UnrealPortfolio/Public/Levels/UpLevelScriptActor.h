@@ -13,9 +13,9 @@ namespace EUpScriptCommandType
 {
 	enum Type : uint8
 	{
-		GrantQuest,
 		PlayAnimation,
 		PlayBark,
+		ProgressMission,
 		SetBlackboardKey,
 		SetPotentialLookTarget,
 		ShowTutorial,

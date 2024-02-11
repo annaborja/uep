@@ -87,6 +87,16 @@ namespace EUpItemCategory
 }
 
 UENUM()
+namespace EUpMissionStatus
+{
+	enum Type : uint8 {
+		InProgress,
+		Succeeded,
+		Failed
+	};
+}
+
+UENUM()
 namespace EUpMontageType
 {
 	enum Type : uint8

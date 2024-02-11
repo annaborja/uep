@@ -15,6 +15,8 @@ void UUpGameInstance::Init()
 	check(CharacterDataTable);
 	check(GasDataAsset);
 	check(ItemDataTable);
+	check(MissionDataTable);
+	check(ObjectiveDataTable);
 	check(PlayerDialogueVoice);
 	check(WeaponDataTable);
 
@@ -32,6 +34,22 @@ void UUpGameInstance::Init()
 	for (const auto Row : AllItemDataRows)
 	{
 		AllItemData.Add(*Row);
+	}
+
+	TArray<FUpMissionData*> AllMissionDataRows;
+	MissionDataTable->GetAllRows(TEXT("MissionDataTable GetAllRows"), AllMissionDataRows);
+
+	for (const auto Row : AllMissionDataRows)
+	{
+		AllMissionData.Add(*Row);
+	}
+
+	TArray<FUpObjectiveData*> AllObjectiveDataRows;
+	ObjectiveDataTable->GetAllRows(TEXT("ObjectiveDataTable GetAllRows"), AllObjectiveDataRows);
+
+	for (const auto Row : AllObjectiveDataRows)
+	{
+		AllObjectiveData.Add(*Row);
 	}
 
 	TArray<FUpWeaponData*> AllWeaponDataRows;
@@ -205,6 +223,36 @@ FUpItemData UUpGameInstance::GetItemData(const FGameplayTag& ItemTagId)
 			{
 				Result = Data;
 			}
+		}
+	}
+
+	return Result;
+}
+
+FUpMissionData UUpGameInstance::GetMissionData(const FGameplayTag& TagId)
+{
+	FUpMissionData Result;
+
+	for (const auto Data : AllMissionData)
+	{
+		if (Data.TagId.MatchesTagExact(TagId))
+		{
+			Result = Data;
+		}
+	}
+
+	return Result;
+}
+
+FUpObjectiveData UUpGameInstance::GetObjectiveData(const FGameplayTag& TagId)
+{
+	FUpObjectiveData Result;
+
+	for (const auto Data : AllObjectiveData)
+	{
+		if (Data.TagId.MatchesTagExact(TagId))
+		{
+			Result = Data;
 		}
 	}
 

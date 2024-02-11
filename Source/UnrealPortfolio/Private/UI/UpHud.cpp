@@ -5,6 +5,7 @@
 #include "UpGameInstance.h"
 #include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerController.h"
+#include "Characters/Player/UpPlayerState.h"
 #include "Components/UpDialogueComponent.h"
 #include "GAS/Attributes/UpAttributeSet.h"
 #include "UI/UpCommonActivatableWidget.h"
@@ -123,6 +124,19 @@ void AUpHud::SelectDialogueOption(const AUpPlayableNpc* Npc, const FUpDialogueOp
 	{
 		DialogueComponent->SelectDialogueOption(DialogueOption, CustomController);
 	}
+}
+
+TMap<FGameplayTag, FUpMissionState> AUpHud::GetMissionMap() const
+{
+	if (CustomController)
+	{
+		if (const auto PlayerState = CustomController->GetPlayerState<AUpPlayerState>())
+		{
+			return PlayerState->GetMissionMap();
+		}
+	}
+
+	return TMap<FGameplayTag, FUpMissionState>();
 }
 
 void AUpHud::BroadcastActiveWeapon(const AUpWeapon* Weapon) const

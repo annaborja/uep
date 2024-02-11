@@ -5,7 +5,6 @@
 #include "GameplayEffectExtension.h"
 #include "UpGameInstance.h"
 #include "GAS/UpGasDataAsset.h"
-#include "Tags/AttributeTags.h"
 #include "Tags/GasTags.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 

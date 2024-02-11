@@ -43,6 +43,8 @@ public:
 	bool UpdatePlayerReputation_Esteem(const FGameplayTag& TagId, const int8 Delta);
 
 	FUpItemData GetItemData(const FGameplayTag& ItemTagId);
+	FUpMissionData GetMissionData(const FGameplayTag& TagId);
+	FUpObjectiveData GetObjectiveData(const FGameplayTag& TagId);
 	FUpInventory GetNpcInventory(const FGameplayTag& NpcTagId);
 	FUpWeaponData GetWeaponData(const FGameplayTag& WeaponTagId);
 
@@ -71,6 +73,10 @@ private:
 	TObjectPtr<UDataTable> CharacterDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpItemData"))
 	TObjectPtr<UDataTable> ItemDataTable;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpMissionData"))
+	TObjectPtr<UDataTable> MissionDataTable;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpObjectiveData"))
+	TObjectPtr<UDataTable> ObjectiveDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpWeaponData"))
 	TObjectPtr<UDataTable> WeaponDataTable;
 	
@@ -105,6 +111,10 @@ private:
 	TArray<FUpCharacterData> AllCharacterData;
 	UPROPERTY(Transient)
 	TArray<FUpItemData> AllItemData;
+	UPROPERTY(Transient)
+	TArray<FUpMissionData> AllMissionData;
+	UPROPERTY(Transient)
+	TArray<FUpObjectiveData> AllObjectiveData;
 	UPROPERTY(Transient)
 	TArray<FUpWeaponData> AllWeaponData;
 };

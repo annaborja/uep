@@ -2,7 +2,7 @@
 
 #include "GAS/Attributes/UpPrimaryAttributeSet.h"
 
-#include "Tags/AttributeTags.h"
+#include "Tags/GasTags.h"
 
 UUpPrimaryAttributeSet::UUpPrimaryAttributeSet()
 {

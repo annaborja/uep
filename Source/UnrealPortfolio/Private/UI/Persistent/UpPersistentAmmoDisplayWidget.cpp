@@ -4,7 +4,7 @@
 
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "Items/UpWeapon.h"
-#include "Tags/AttributeTags.h"
+#include "Tags/GasTags.h"
 #include "UI/UpHud.h"
 
 ESlateVisibility UUpPersistentAmmoDisplayWidget::GetRootVisibility() const
