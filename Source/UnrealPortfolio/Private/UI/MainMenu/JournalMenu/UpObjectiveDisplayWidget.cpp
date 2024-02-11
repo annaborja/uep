@@ -4,18 +4,18 @@
 
 #include "CommonTextBlock.h"
 
-void UUpObjectiveDisplayWidget::NativePreConstruct()
-{
-	Super::NativePreConstruct();
-	
-	SetIsFocusable(true);
-}
-
 FReply UUpObjectiveDisplayWidget::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
 {
+	SetStyle(FocusedButtonStyle);
 	FocusDelegate.Broadcast();
 	
 	return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
+}
+
+void UUpObjectiveDisplayWidget::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
+{
+	Super::NativeOnFocusLost(InFocusEvent);
+	SetStyle(ButtonStyle);
 }
 
 void UUpObjectiveDisplayWidget::SetCompleted(const bool bInCompleted)

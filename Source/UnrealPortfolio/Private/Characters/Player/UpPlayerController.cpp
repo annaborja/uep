@@ -270,6 +270,7 @@ void AUpPlayerController::BeginPlay()
 	check(InputAction_Move);
 	check(InputAction_Sprint);
 	check(InputAction_Look);
+	check(InputAction_MeleeAttack);
 	check(InputAction_PauseGame);
 	check(InputAction_SwitchCameraView);
 	check(InputAction_Jump);
@@ -392,6 +393,8 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InputAction_Sprint, ETriggerEvent::Completed, this, &ThisClass::StopSprint);
 	
 	EnhancedInputComponent->BindAction(InputAction_Look, ETriggerEvent::Triggered, this, &ThisClass::Look);
+	
+	EnhancedInputComponent->BindAction(InputAction_MeleeAttack, ETriggerEvent::Started, this, &ThisClass::MeleeAttack);
 	
 	EnhancedInputComponent->BindAction(InputAction_PauseGame, ETriggerEvent::Started, this, &ThisClass::PauseGame);
 	
@@ -558,6 +561,19 @@ void AUpPlayerController::Look(const FInputActionValue& InputActionValue)
 
 	AddPitchInput(InputActionVector.Y * InputMultiplier);
 	AddYawInput(InputActionVector.X * InputMultiplier);
+}
+
+void AUpPlayerController::MeleeAttack(const FInputActionValue& InputActionValue)
+{
+	if (!PossessedCharacter) return;
+
+	if (const auto AbilitySystemComponent = PossessedCharacter->GetAbilitySystemComponent())
+	{
+		FGameplayTagContainer AbilityTags;
+		AbilityTags.AddTag(TAG_Ability_MeleeAttack);
+		
+		AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+	}
 }
 
 void AUpPlayerController::PauseGame(const FInputActionValue& InputActionValue)

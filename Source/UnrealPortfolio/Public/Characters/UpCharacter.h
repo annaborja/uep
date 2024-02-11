@@ -102,6 +102,7 @@ public:
 	virtual UAnimMontage* GetDeathsMontage() const { return DeathsMontage_ThirdPerson; }
 	virtual UAnimMontage* GetGesturesMontage() const { return GesturesMontage_ThirdPerson; }
 	virtual UAnimMontage* GetGunFiringMontage() const { return GunFiringMontage_ThirdPerson; }
+	virtual UAnimMontage* GetGunMeleeAttacksMontage() const { return GunMeleeAttacksMontage_ThirdPerson; }
 	virtual UAnimMontage* GetMantlesMontage() const { return MantlesMontage_ThirdPerson; }
 	virtual UAnimMontage* GetWeaponEquipMontage() const { return WeaponEquipMontage_ThirdPerson; }
 
@@ -155,6 +156,8 @@ protected:
 	TObjectPtr<UAnimMontage> GesturesMontage_ThirdPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> GunFiringMontage_ThirdPerson;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> GunMeleeAttacksMontage_ThirdPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> HitReactionsMontage_ThirdPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")

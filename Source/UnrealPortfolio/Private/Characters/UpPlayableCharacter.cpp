@@ -161,6 +161,13 @@ UAnimMontage* AUpPlayableCharacter::GetGunFiringMontage() const
 	return Super::GetGunFiringMontage();
 }
 
+UAnimMontage* AUpPlayableCharacter::GetGunMeleeAttacksMontage() const
+{
+	if (IsInFirstPersonMode()) return GunMeleeAttacksMontage_FirstPerson;
+	
+	return Super::GetGunMeleeAttacksMontage();
+}
+
 UAnimMontage* AUpPlayableCharacter::GetMantlesMontage() const
 {
 	if (IsInFirstPersonMode()) return MantlesMontage_FirstPerson;

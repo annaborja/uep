@@ -35,6 +35,7 @@ public:
 	virtual EUpCameraView::Type GetCameraView() const override;
 	virtual UAnimMontage* GetClimbingMontage() const override;
 	virtual UAnimMontage* GetGunFiringMontage() const override;
+	virtual UAnimMontage* GetGunMeleeAttacksMontage() const override;
 	virtual UAnimMontage* GetMantlesMontage() const override;
 	virtual UAnimMontage* GetReloadsMontage() const override;
 	virtual UAnimMontage* GetWeaponEquipMontage() const override;
@@ -78,6 +79,8 @@ protected:
 	TObjectPtr<UAnimMontage> ClimbingMontage_FirstPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> GunFiringMontage_FirstPerson;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> GunMeleeAttacksMontage_FirstPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> MantlesMontage_FirstPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
