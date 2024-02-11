@@ -9,13 +9,13 @@
 #include "Components/UpDialogueComponent.h"
 #include "GAS/Attributes/UpAttributeSet.h"
 #include "UI/UpCommonActivatableWidget.h"
-#include "UI/CharacterSwitcher/UpCharacterSwitcherWidget.h"
+#include "UI/PowerWheel/UpPowerWheelWidget.h"
 #include "UI/Persistent/UpPersistentOverlayWidget.h"
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
 
 void AUpHud::Init(AUpPlayerController* InPlayerController)
 {
-	check(CharacterSwitcherClass);
+	check(PowerWheelClass);
 	check(DialogueOverlayClass);
 	check(MenuSwitcherClass);
 	check(PersistentOverlayClass);
@@ -45,24 +45,24 @@ bool AUpHud::IsMainMenuOpen() const
 	return false;
 }
 
-void AUpHud::OpenCharacterSwitcher()
+void AUpHud::OpenPowerWheel()
 {
 	if (!PersistentOverlayWidget) return;
 
-	if (CharacterSwitcherWidget && CharacterSwitcherWidget->IsActivated())
+	if (PowerWheelWidget && PowerWheelWidget->IsActivated())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Character switcher already open"))
 		return;
 	}
 	
-	CharacterSwitcherWidget = PersistentOverlayWidget->OpenCharacterSwitcher();
+	PowerWheelWidget = PersistentOverlayWidget->OpenPowerWheel();
 }
 
-void AUpHud::CloseCharacterSwitcher() const
+void AUpHud::ClosePowerWheel() const
 {
-	if (!CharacterSwitcherWidget) return;
+	if (!PowerWheelWidget) return;
 	
-	CharacterSwitcherWidget->DeactivateWidget();
+	PowerWheelWidget->DeactivateWidget();
 }
 
 void AUpHud::SwitchCharacter(AUpPlayableNpc* Npc) const

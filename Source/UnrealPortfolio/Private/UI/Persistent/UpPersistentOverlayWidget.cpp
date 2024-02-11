@@ -5,7 +5,7 @@
 #include "Input/CommonUIActionRouterBase.h"
 #include "UI/UpHud.h"
 #include "UI/UpCommonActivatableWidget.h"
-#include "UI/CharacterSwitcher/UpCharacterSwitcherWidget.h"
+#include "UI/PowerWheel/UpPowerWheelWidget.h"
 #include "UI/Dialogue/UpDialogueOverlayWidget.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
 
@@ -13,7 +13,7 @@ bool UUpPersistentOverlayWidget::IsDescendentWidgetActivated() const
 {
 	if (IsMainMenuOpen()) return true;
 
-	if (const auto WidgetContainer = GetCharacterSwitcherContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
+	if (const auto WidgetContainer = GetPowerWheelContainer(); WidgetContainer && WidgetContainer->GetActiveWidget())
 	{
 		return true;
 	}
@@ -51,16 +51,16 @@ void UUpPersistentOverlayWidget::OpenMainMenu() const
 	}
 }
 
-UUpCharacterSwitcherWidget* UUpPersistentOverlayWidget::OpenCharacterSwitcher() const
+UUpPowerWheelWidget* UUpPersistentOverlayWidget::OpenPowerWheel() const
 {
-	UUpCharacterSwitcherWidget* Widget = nullptr;
+	UUpPowerWheelWidget* Widget = nullptr;
 
-	if (const auto CharacterSwitcherContainer = GetCharacterSwitcherContainer(); CharacterSwitcherContainer && CustomHud)
+	if (const auto PowerWheelContainer = GetPowerWheelContainer(); PowerWheelContainer && CustomHud)
 	{
-		if (const auto WidgetClass = CustomHud->GetCharacterSwitcherClass())
+		if (const auto WidgetClass = CustomHud->GetPowerWheelClass())
 		{
 			// `AddWidget()` will handle grabbing an existing instance of the given widget class (if any).
-			CharacterSwitcherContainer->AddWidget<UUpCharacterSwitcherWidget>(WidgetClass, [this, &Widget](UUpCharacterSwitcherWidget& AddedWidget)
+			PowerWheelContainer->AddWidget<UUpPowerWheelWidget>(WidgetClass, [this, &Widget](UUpPowerWheelWidget& AddedWidget)
 			{
 				Widget = &AddedWidget;
 				AddedWidget.SetCustomHud(CustomHud);
@@ -107,7 +107,7 @@ void UUpPersistentOverlayWidget::NativePreConstruct()
 		WidgetContainer->OnDisplayedWidgetChanged().AddUObject(this, &ThisClass::OnDisplayedWidgetChanged);
 	}
 
-	if (const auto WidgetContainer = GetCharacterSwitcherContainer())
+	if (const auto WidgetContainer = GetPowerWheelContainer())
 	{
 		WidgetContainer->OnDisplayedWidgetChanged().AddUObject(this, &ThisClass::OnDisplayedWidgetChanged);
 	}

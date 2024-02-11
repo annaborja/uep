@@ -1,52 +1,50 @@
 // Copyright AB. All Rights Reserved.
 
-#include "UI/CharacterSwitcher/UpCharacterSwitcherWidget.h"
+#include "UI/PowerWheel/UpPowerWheelWidget.h"
 
 #include "CommonButtonBase.h"
 #include "EnhancedInputSubsystems.h"
-#include "UpGameInstance.h"
 #include "Characters/UpPlayableCharacter.h"
 #include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerController.h"
 #include "Characters/Player/UpPlayerState.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "UI/UpHud.h"
-#include "UI/CharacterSwitcher/UpCharacterSwitcherButtonWidget.h"
-#include "Utils/UpBlueprintFunctionLibrary.h"
+#include "UI/PowerWheel/UpPowerWheelButtonWidget.h"
 
-UWidget* UUpCharacterSwitcherWidget::NativeGetDesiredFocusTarget() const
+UWidget* UUpPowerWheelWidget::NativeGetDesiredFocusTarget() const
 {
 	return GetDefaultFocusButton();
 }
 
-void UUpCharacterSwitcherWidget::NativeOnActivated()
+void UUpPowerWheelWidget::NativeOnActivated()
 {
 	Super::NativeOnActivated();
 
-	PopulateCharacterSwitcherButtons();
+	PopulatePowerWheelButtons();
 }
 
-FReply UUpCharacterSwitcherWidget::NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+FReply UUpPowerWheelWidget::NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
 	if (CustomHud)
 	{
 		if (const auto CustomController = CustomHud->GetCustomController())
 		{
-			if (const auto InputAction = CustomController->GetInputAction_CloseCharacterSwitcher())
-			{
-				if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(CustomController->GetLocalPlayer());
-					Subsystem && Subsystem->QueryKeysMappedToAction(InputAction).Contains(InKeyEvent.GetKey()))
-				{
-					CustomController->CloseCharacterSwitcher();
-				}
-			}
+			// if (const auto InputAction = CustomController->GetInputAction_ClosePowerWheel())
+			// {
+			// 	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(CustomController->GetLocalPlayer());
+			// 		Subsystem && Subsystem->QueryKeysMappedToAction(InputAction).Contains(InKeyEvent.GetKey()))
+			// 	{
+			// 		CustomController->ClosePowerWheel();
+			// 	}
+			// }
 		}
 	}
 	
 	return Super::NativeOnKeyUp(InGeometry, InKeyEvent);
 }
 
-void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const
+void UUpPowerWheelWidget::PopulatePowerWheelButtons() const
 {
 	if (!CustomHud) return;
 
@@ -62,7 +60,7 @@ void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const
 				TArray<FGameplayTag> SquadMemberTags;
 				OutTags.GetGameplayTagArray(SquadMemberTags);
 	
-				const auto CharacterSwitcherButtons = GetCharacterSwitcherButtons();
+				const auto PowerWheelButtons = GetPowerWheelButtons();
 				const auto SpherePosition = PossessedCharacter->GetActorLocation();
 
 				TArray<AActor*> OverlapActors;
@@ -76,9 +74,9 @@ void UUpCharacterSwitcherWidget::PopulateCharacterSwitcherButtons() const
 						OverlapSphereRadius, 12, FColor::Orange, 5.f);
 				}
 
-				for (uint8 i = 0; CharacterSwitcherButtons.IsValidIndex(i); i++)
+				for (uint8 i = 0; PowerWheelButtons.IsValidIndex(i); i++)
 				{
-					if (const auto Button = CharacterSwitcherButtons[i])
+					if (const auto Button = PowerWheelButtons[i])
 					{
 						if (SquadMemberTags.IsValidIndex(i))
 						{

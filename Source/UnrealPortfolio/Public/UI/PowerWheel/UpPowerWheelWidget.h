@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UI/UpCommonActivatableWidget.h"
-#include "UpCharacterSwitcherWidget.generated.h"
+#include "UpPowerWheelWidget.generated.h"
 
 class UCommonButtonBase;
-class UUpCharacterSwitcherButtonWidget;
+class UUpPowerWheelButtonWidget;
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpCharacterSwitcherWidget : public UUpCommonActivatableWidget
+class UNREALPORTFOLIO_API UUpPowerWheelWidget : public UUpCommonActivatableWidget
 {
 	GENERATED_BODY()
 
@@ -20,7 +20,7 @@ protected:
 	virtual FReply NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	TArray<UUpCharacterSwitcherButtonWidget*> GetCharacterSwitcherButtons() const;
+	TArray<UUpPowerWheelButtonWidget*> GetPowerWheelButtons() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UCommonButtonBase* GetDefaultFocusButton() const;
 
@@ -31,5 +31,5 @@ private:
 	UPROPERTY(EditAnywhere, Category="UP Params")
 	int32 OverlapSphereRadius = 10000;
 	
-	void PopulateCharacterSwitcherButtons() const;
+	void PopulatePowerWheelButtons() const;
 };

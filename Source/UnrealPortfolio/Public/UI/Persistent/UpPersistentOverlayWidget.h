@@ -8,7 +8,7 @@
 
 class UCommonActivatableWidget;
 class UCommonActivatableWidgetContainerBase;
-class UUpCharacterSwitcherWidget;
+class UUpPowerWheelWidget;
 class UUpDialogueOverlayWidget;
 
 UCLASS()
@@ -20,12 +20,12 @@ public:
 	bool IsDescendentWidgetActivated() const;
 	bool IsMainMenuOpen() const;
 	void OpenMainMenu() const;
-	UUpCharacterSwitcherWidget* OpenCharacterSwitcher() const;
+	UUpPowerWheelWidget* OpenPowerWheel() const;
 	UUpDialogueOverlayWidget* OpenDialogueFlow() const;
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
-	UCommonActivatableWidgetContainerBase* GetCharacterSwitcherContainer() const;
+	UCommonActivatableWidgetContainerBase* GetPowerWheelContainer() const;
 	UFUNCTION(BlueprintImplementableEvent)
 	UCommonActivatableWidgetContainerBase* GetDialogueWidgetContainer() const;
 	UFUNCTION(BlueprintImplementableEvent)

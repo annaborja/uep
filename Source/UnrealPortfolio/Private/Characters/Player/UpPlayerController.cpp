@@ -57,14 +57,14 @@ bool AUpPlayerController::ProjectReticleToWorld(FVector& WorldPosition, FVector&
 		WorldPosition, WorldDirection);
 }
 
-void AUpPlayerController::CloseCharacterSwitcher()
+void AUpPlayerController::ClosePowerWheel()
 {
 	if (!CustomHud) return;
 
-	CustomHud->CloseCharacterSwitcher();
+	CustomHud->ClosePowerWheel();
 	DisableMouse();
 	
-	if (InputMappingContext_CharacterSwitcher) DeactivateInputMappingContext(InputMappingContext_CharacterSwitcher);
+	if (InputMappingContext_PowerWheel) DeactivateInputMappingContext(InputMappingContext_PowerWheel);
 	ResetInputMappingContexts();
 }
 
@@ -102,7 +102,7 @@ void AUpPlayerController::SwitchCharacter(AUpPlayableCharacter* Npc)
 		}
 	}
 	
-	CloseCharacterSwitcher();
+	ClosePowerWheel();
 	Possess(Npc);
 }
 
@@ -262,7 +262,7 @@ void AUpPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	check(InputMappingContext_Base);
-	check(InputMappingContext_CharacterSwitcher);
+	check(InputMappingContext_PowerWheel);
 	check(InputMappingContext_Gun);
 	check(InputMappingContext_InteractionOnly);
 
@@ -421,9 +421,9 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Started, this, &ThisClass::StartFiringWeapon);
 	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Completed, this, &ThisClass::StopFiringWeapon);
 	
-	EnhancedInputComponent->BindAction(InputAction_OpenCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::OpenCharacterSwitcher);
-	EnhancedInputComponent->BindAction(InputAction_CloseCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::TriggerCloseCharacterSwitcher);
-	EnhancedInputComponent->BindAction(InputAction_NavigateCharacterSwitcher, ETriggerEvent::Triggered, this, &ThisClass::NavigateCharacterSwitcher);
+	EnhancedInputComponent->BindAction(InputAction_OpenPowerWheel, ETriggerEvent::Triggered, this, &ThisClass::OpenPowerWheel);
+	EnhancedInputComponent->BindAction(InputAction_ClosePowerWheel, ETriggerEvent::Triggered, this, &ThisClass::TriggerClosePowerWheel);
+	EnhancedInputComponent->BindAction(InputAction_NavigatePowerWheel, ETriggerEvent::Triggered, this, &ThisClass::NavigatePowerWheel);
 	
 	EnhancedInputComponent->BindAction(InputAction_Crouch, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
 }
@@ -760,22 +760,22 @@ void AUpPlayerController::StopFiringWeapon(const FInputActionValue& InputActionV
 	}
 }
 
-void AUpPlayerController::OpenCharacterSwitcher(const FInputActionValue& InputActionValue)
+void AUpPlayerController::OpenPowerWheel(const FInputActionValue& InputActionValue)
 {
 	if (!CustomHud) return;
 
-	CustomHud->OpenCharacterSwitcher();
+	CustomHud->OpenPowerWheel();
 	EnableMouse();
 
-	if (InputMappingContext_CharacterSwitcher) ActivateInputMappingContext(InputMappingContext_CharacterSwitcher);
+	if (InputMappingContext_PowerWheel) ActivateInputMappingContext(InputMappingContext_PowerWheel);
 }
 
-void AUpPlayerController::TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue)
+void AUpPlayerController::TriggerClosePowerWheel(const FInputActionValue& InputActionValue)
 {
-	CloseCharacterSwitcher();
+	ClosePowerWheel();
 }
 
-void AUpPlayerController::NavigateCharacterSwitcher(const FInputActionValue& InputActionValue)
+void AUpPlayerController::NavigatePowerWheel(const FInputActionValue& InputActionValue)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[temp] navigate char switcher"))
 }

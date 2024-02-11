@@ -31,7 +31,7 @@ public:
 	bool IsDebugCameraActive() const;
 	bool ProjectReticleToWorld(FVector& WorldPosition, FVector& WorldDirection) const;
 	
-	void CloseCharacterSwitcher();
+	void ClosePowerWheel();
 	void SwitchCharacter(AUpPlayableCharacter* Npc);
 	void AddSquadMember(AUpPlayableNpc* Npc);
 	
@@ -44,7 +44,7 @@ public:
 	void SetCameraView(const EUpCameraView::Type InCameraView) { CameraView = InCameraView; }
 	void SetTargetCameraFov(const float InTargetCameraFov) { TargetCameraFov = InTargetCameraFov; }
 	
-	FORCEINLINE UInputAction* GetInputAction_CloseCharacterSwitcher() const { return InputAction_CloseCharacterSwitcher; }
+	FORCEINLINE UInputAction* GetInputAction_ClosePowerWheel() const { return InputAction_ClosePowerWheel; }
 	
 	FORCEINLINE TEnumAsByte<EUpCameraView::Type> GetCameraView() const { return CameraView; }
 	FORCEINLINE AUpHud* GetCustomHud() const { return CustomHud; }
@@ -61,7 +61,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
 	TObjectPtr<UInputMappingContext> InputMappingContext_Base;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
-	TObjectPtr<UInputMappingContext> InputMappingContext_CharacterSwitcher;
+	TObjectPtr<UInputMappingContext> InputMappingContext_PowerWheel;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
 	TObjectPtr<UInputMappingContext> InputMappingContext_Gun;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
@@ -104,13 +104,13 @@ private:
 	TObjectPtr<UInputAction> InputAction_FireWeapon;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_CloseCharacterSwitcher;
+	TObjectPtr<UInputAction> InputAction_ClosePowerWheel;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_Crouch;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_NavigateCharacterSwitcher;
+	TObjectPtr<UInputAction> InputAction_NavigatePowerWheel;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
-	TObjectPtr<UInputAction> InputAction_OpenCharacterSwitcher;
+	TObjectPtr<UInputAction> InputAction_OpenPowerWheel;
 	
 	UPROPERTY(EditAnywhere, Category="UP Debug")
 	bool bDebugAimAssist = false;
@@ -198,9 +198,9 @@ private:
 	void StartFiringWeapon(const FInputActionValue& InputActionValue);
 	void StopFiringWeapon(const FInputActionValue& InputActionValue);
 	
-	void OpenCharacterSwitcher(const FInputActionValue& InputActionValue);
-	void TriggerCloseCharacterSwitcher(const FInputActionValue& InputActionValue);
-	void NavigateCharacterSwitcher(const FInputActionValue& InputActionValue);
+	void OpenPowerWheel(const FInputActionValue& InputActionValue);
+	void TriggerClosePowerWheel(const FInputActionValue& InputActionValue);
+	void NavigatePowerWheel(const FInputActionValue& InputActionValue);
 	
 	void ToggleCrouch(const FInputActionValue& InputActionValue);
 };

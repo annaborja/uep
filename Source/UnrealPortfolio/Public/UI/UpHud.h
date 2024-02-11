@@ -20,7 +20,7 @@ struct FUpDialogueLine;
 struct FUpDialogueOptionData;
 struct FUpDialogueStepData;
 class UUpAttributeSet;
-class UUpCharacterSwitcherWidget;
+class UUpPowerWheelWidget;
 class UUpCommonActivatableWidget;
 class UUpDialogueOverlayWidget;
 class UUpPersistentOverlayWidget;
@@ -73,8 +73,8 @@ public:
 	void OpenMainMenu() const;
 	bool IsMainMenuOpen() const;
 	
-	void OpenCharacterSwitcher();
-	void CloseCharacterSwitcher() const;
+	void OpenPowerWheel();
+	void ClosePowerWheel() const;
 	void SwitchCharacter(AUpPlayableNpc* Npc) const;
 	
 	void OpenDialogueFlow();
@@ -100,16 +100,16 @@ public:
 
 	FORCEINLINE AUpPlayerController* GetCustomController() const { return CustomController; }
 	
-	FORCEINLINE TSubclassOf<UUpCharacterSwitcherWidget> GetCharacterSwitcherClass() const { return CharacterSwitcherClass; }
+	FORCEINLINE TSubclassOf<UUpPowerWheelWidget> GetPowerWheelClass() const { return PowerWheelClass; }
 	FORCEINLINE TSubclassOf<UUpDialogueOverlayWidget> GetDialogueOverlayClass() const { return DialogueOverlayClass; }
 	FORCEINLINE TSubclassOf<UUpCommonActivatableWidget> GetMenuSwitcherClass() const { return MenuSwitcherClass; }
 	
-	FORCEINLINE UUpCharacterSwitcherWidget* GetCharacterSwitcher() const { return CharacterSwitcherWidget; }
+	FORCEINLINE UUpPowerWheelWidget* GetPowerWheel() const { return PowerWheelWidget; }
 	FORCEINLINE UUpPersistentOverlayWidget* GetPersistentOverlay() const { return PersistentOverlayWidget; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
-	TSubclassOf<UUpCharacterSwitcherWidget> CharacterSwitcherClass;
+	TSubclassOf<UUpPowerWheelWidget> PowerWheelClass;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
 	TSubclassOf<UUpDialogueOverlayWidget> DialogueOverlayClass;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
@@ -121,7 +121,7 @@ private:
 	TObjectPtr<AUpPlayerController> CustomController;
 	
 	UPROPERTY(Transient)
-	TObjectPtr<UUpCharacterSwitcherWidget> CharacterSwitcherWidget;
+	TObjectPtr<UUpPowerWheelWidget> PowerWheelWidget;
 	UPROPERTY(Transient)
 	TObjectPtr<UUpDialogueOverlayWidget> DialogueOverlayWidget;
 	UPROPERTY(Transient)

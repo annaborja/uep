@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UI/UpCommonButtonBase.h"
-#include "UpCharacterSwitcherButtonWidget.generated.h"
+#include "UpPowerWheelButtonWidget.generated.h"
 
 class AUpPlayableNpc;
 struct FGameplayTag;
 
 UENUM(BlueprintType)
-namespace EUpCharacterSwitcherButtonState
+namespace EUpPowerWheelButtonState
 {
 	enum Type : uint8
 	{
@@ -22,7 +22,7 @@ namespace EUpCharacterSwitcherButtonState
 }
 
 UCLASS()
-class UNREALPORTFOLIO_API UUpCharacterSwitcherButtonWidget : public UUpCommonButtonBase
+class UNREALPORTFOLIO_API UUpPowerWheelButtonWidget : public UUpCommonButtonBase
 {
 	GENERATED_BODY()
 
@@ -32,7 +32,7 @@ public:
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	TEnumAsByte<EUpCharacterSwitcherButtonState::Type> CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Empty;
+	TEnumAsByte<EUpPowerWheelButtonState::Type> PowerWheelButtonState = EUpPowerWheelButtonState::Empty;
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UTexture2D> Image;
 	UPROPERTY(BlueprintReadOnly)

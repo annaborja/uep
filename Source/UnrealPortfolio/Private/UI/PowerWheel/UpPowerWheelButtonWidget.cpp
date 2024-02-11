@@ -1,13 +1,13 @@
 // Copyright AB. All Rights Reserved.
 
-#include "UI/CharacterSwitcher/UpCharacterSwitcherButtonWidget.h"
+#include "UI/PowerWheel/UpPowerWheelButtonWidget.h"
 
 #include "UpGameInstance.h"
 #include "Characters/UpPlayableNpc.h"
 #include "UI/UpHud.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-void UUpCharacterSwitcherButtonWidget::SetNpc(AUpPlayableNpc* InNpc)
+void UUpPowerWheelButtonWidget::SetNpc(AUpPlayableNpc* InNpc)
 {
 	Npc = InNpc;
 
@@ -20,14 +20,14 @@ void UUpCharacterSwitcherButtonWidget::SetNpc(AUpPlayableNpc* InNpc)
 		{
 			if (const auto CustomController = CustomHud->GetCustomController(); CustomController && CustomController->GetPossessedCharacter() == Npc)
 			{
-				CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Active;
+				PowerWheelButtonState = EUpPowerWheelButtonState::Active;
 				SetIsEnabled(false);
 				
 				return;
 			}
 		}
 		
-		CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Available;
+		PowerWheelButtonState = EUpPowerWheelButtonState::Available;
 		SetIsEnabled(true);
 
 		OnClicked().Clear();
@@ -43,14 +43,14 @@ void UUpCharacterSwitcherButtonWidget::SetNpc(AUpPlayableNpc* InNpc)
 	
 	Label = FText();
 	Image = nullptr;
-	CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Empty;
+	PowerWheelButtonState = EUpPowerWheelButtonState::Empty;
 	SetIsEnabled(false);
 }
 
-void UUpCharacterSwitcherButtonWidget::SetNpcTag(const FGameplayTag& NpcTag)
+void UUpPowerWheelButtonWidget::SetNpcTag(const FGameplayTag& NpcTag)
 {
 	Npc = nullptr;
-	CharacterSwitcherButtonState = EUpCharacterSwitcherButtonState::Unavailable;
+	PowerWheelButtonState = EUpPowerWheelButtonState::Unavailable;
 	SetIsEnabled(false);
 	
 	FUpCharacterData CharacterData;
@@ -64,7 +64,7 @@ void UUpCharacterSwitcherButtonWidget::SetNpcTag(const FGameplayTag& NpcTag)
 	Image = CharacterData.Image_Head;
 }
 
-void UUpCharacterSwitcherButtonWidget::NativePreConstruct()
+void UUpPowerWheelButtonWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
