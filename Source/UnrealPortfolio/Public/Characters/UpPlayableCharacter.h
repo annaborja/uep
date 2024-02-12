@@ -11,7 +11,6 @@ class AUpPlayerController;
 class AUpWeapon;
 class UCameraComponent;
 class USpringArmComponent;
-class UUpPlayerCombatComponent;
 class UUpPlayerInteractionComponent;
 
 UCLASS()
@@ -52,7 +51,6 @@ public:
 	FORCEINLINE USpringArmComponent* GetSpringArmComponent() const { return SpringArm; }
 	FORCEINLINE AUpPlayerController* GetCustomPlayerController() const { return CustomPlayerController; }
 	FORCEINLINE UUpPlayerInteractionComponent* GetPlayerInteractionComponent() const { return PlayerInteractionComponent; }
-	FORCEINLINE UUpPlayerCombatComponent* GetPlayerCombatComponent() const { return PlayerCombatComponent; }
 	FORCEINLINE bool IsPlayer() const { return bIsPlayer; }
 
 protected:
@@ -61,8 +59,6 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> SpringArm;
 	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UUpPlayerCombatComponent> PlayerCombatComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpPlayerInteractionComponent> PlayerInteractionComponent;
 	

@@ -66,6 +66,8 @@ public:
 	virtual void OnInteractionEnd(AController* Controller) override;
 	
 	void NotifyTag(const FGameplayTag& Tag);
+
+	FORCEINLINE bool IsLookTargetActive() const { return bPotentialLookTargetActive; }
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpScriptCommand"))

@@ -9,7 +9,7 @@ UUpShieldRegenAbility::UUpShieldRegenAbility()
 {
 	AbilityTags.AddTag(TAG_Ability_ShieldRegen);
 
-	RepeatInterval = 0.01f;
+	RepeatInterval = 0.1f;
 }
 
 void UUpShieldRegenAbility::OnGameplayTaskInitialized(UGameplayTask& Task)

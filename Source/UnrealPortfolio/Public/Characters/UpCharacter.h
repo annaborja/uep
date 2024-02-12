@@ -11,6 +11,7 @@
 #include "Utils/Structs.h"
 #include "UpCharacter.generated.h"
 
+class UUpCombatComponent;
 class AUpWeapon;
 class UBehaviorTree;
 class UDialogueVoice;
@@ -60,10 +61,16 @@ public:
 
 	virtual float CalculateDamageDealt(const FHitResult& HitResult) const override;
 	virtual void Die() override;
-	virtual UUpCombatComponent* GetCombatComponent() const override { return CombatComponent; }
 	virtual UAnimMontage* GetHitReactionsMontage() const override { return HitReactionsMontage_ThirdPerson; }
 	virtual UAnimMontage* GetReloadsMontage() const override { return ReloadsMontage_ThirdPerson; }
 	
+	void AddActiveHitBox(const FDataTableRowHandle& HitBoxDataRowHandle);
+	void RemoveActiveHitBox(const FDataTableRowHandle& HitBoxDataRowHandle);
+	void CleanUpCombatData();
+
+	FORCEINLINE TArray<FName> GetActiveHitBoxNames() const { return ActiveHitBoxNames; }
+	FORCEINLINE TArray<AActor*> GetHitActors() const { return HitActors; }
+
 	virtual FGameplayTag GetTagId() const override { return TagId; }
 
 	float GetHorizontalSpeed() const;
@@ -200,6 +207,11 @@ protected:
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;
 	UPROPERTY(Transient)
 	TEnumAsByte<EUpCharacterPosture::Type> Posture = EUpCharacterPosture::Casual;
+
+	UPROPERTY(Transient)
+	TArray<FName> ActiveHitBoxNames;
+	UPROPERTY(Transient)
+	TArray<AActor*> HitActors;
 
 	UPROPERTY()
 	TObjectPtr<UUpPrimaryAttributeSet> PrimaryAttributeSet;

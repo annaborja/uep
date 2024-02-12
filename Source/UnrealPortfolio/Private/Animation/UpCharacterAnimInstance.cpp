@@ -2,8 +2,11 @@
 
 #include "Animation/UpCharacterAnimInstance.h"
 
+#include "UpGameInstance.h"
 #include "Characters/UpCharacter.h"
 #include "Components/UpCharacterMovementComponent.h"
+#include "Levels/UpLevelScriptActor.h"
+#include "Utils/UpBlueprintFunctionLibrary.h"
 
 void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 {
@@ -14,13 +17,16 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 	
 	if (const auto Character = Cast<AUpCharacter>(TryGetPawnOwner()))
 	{
+		const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(Character);
+		const auto LevelScriptActor = GameInstance ? GameInstance->GetLevelScriptActor() : nullptr;
+		
 		HorizontalSpeed = Character->GetHorizontalSpeed();
 		VerticalVelocity = Character->GetVelocity().Z;;
 		bMovingHorizontally = HorizontalSpeed > 5.f;
 		bMovingDownward = VerticalVelocity < -5.f;
 		bMovingUpward = VerticalVelocity > 5.f;
 
-		AimPitch = Character->GetBaseAimRotation().Pitch;
+		AimPitch = LevelScriptActor && LevelScriptActor->IsLookTargetActive() ? 0.f : Character->GetBaseAimRotation().Pitch;
 		Yaw = Character->GetActorRotation().Yaw;
 		MovementOffsetYaw = 0.f;
 
@@ -34,7 +40,7 @@ void UUpCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 			}
 		}
 		
-		bUseBackwardsBlendSpace = FMath::Abs(MovementOffsetYaw) > 120.f;
+		bUseBackwardsBlendSpace = !Character->IsInFirstPersonMode() && FMath::Abs(MovementOffsetYaw) > 120.f;
 		
 		CameraView = Character->GetCameraView();
 		Posture = Character->GetPosture();

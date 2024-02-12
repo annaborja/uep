@@ -14,6 +14,7 @@ void UUpGameInstance::Init()
 
 	check(CharacterDataTable);
 	check(GasDataAsset);
+	check(HitBoxDataTable);
 	check(ItemDataTable);
 	check(MissionDataTable);
 	check(ObjectiveDataTable);

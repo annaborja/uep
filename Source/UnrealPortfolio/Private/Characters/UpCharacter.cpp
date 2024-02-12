@@ -175,6 +175,25 @@ void AUpCharacter::Die()
 	if (Controller) Controller->UnPossess();
 }
 
+void AUpCharacter::AddActiveHitBox(const FDataTableRowHandle& HitBoxDataRowHandle)
+{
+	if (!ActiveHitBoxNames.Contains(HitBoxDataRowHandle.RowName))
+	{
+		ActiveHitBoxNames.Add(HitBoxDataRowHandle.RowName);
+	}
+}
+
+void AUpCharacter::RemoveActiveHitBox(const FDataTableRowHandle& HitBoxDataRowHandle)
+{
+	ActiveHitBoxNames.Remove(HitBoxDataRowHandle.RowName);
+}
+
+void AUpCharacter::CleanUpCombatData()
+{
+	ActiveHitBoxNames.Reset();
+	HitActors.Reset();
+}
+
 float AUpCharacter::GetHorizontalSpeed() const
 {
 	return UKismetMathLibrary::VSizeXY(GetVelocity());

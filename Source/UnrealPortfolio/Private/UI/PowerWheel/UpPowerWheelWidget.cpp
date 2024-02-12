@@ -12,36 +12,11 @@
 #include "UI/UpHud.h"
 #include "UI/PowerWheel/UpPowerWheelButtonWidget.h"
 
-UWidget* UUpPowerWheelWidget::NativeGetDesiredFocusTarget() const
-{
-	return GetDefaultFocusButton();
-}
-
 void UUpPowerWheelWidget::NativeOnActivated()
 {
 	Super::NativeOnActivated();
 
 	PopulatePowerWheelButtons();
-}
-
-FReply UUpPowerWheelWidget::NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
-{
-	if (CustomHud)
-	{
-		if (const auto CustomController = CustomHud->GetCustomController())
-		{
-			// if (const auto InputAction = CustomController->GetInputAction_ClosePowerWheel())
-			// {
-			// 	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(CustomController->GetLocalPlayer());
-			// 		Subsystem && Subsystem->QueryKeysMappedToAction(InputAction).Contains(InKeyEvent.GetKey()))
-			// 	{
-			// 		CustomController->ClosePowerWheel();
-			// 	}
-			// }
-		}
-	}
-	
-	return Super::NativeOnKeyUp(InGeometry, InKeyEvent);
 }
 
 void UUpPowerWheelWidget::PopulatePowerWheelButtons() const

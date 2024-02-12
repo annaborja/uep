@@ -137,7 +137,7 @@ void AUpPlayerController::ActivateInputMappingContext(const UInputMappingContext
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Add input mapping context %s with priority %d"), *InputMappingContext->GetName(), Priority)
 		}
-		
+
 		Subsystem->AddMappingContext(InputMappingContext, Priority);
 	}
 }
@@ -777,7 +777,7 @@ void AUpPlayerController::TriggerClosePowerWheel(const FInputActionValue& InputA
 
 void AUpPlayerController::NavigatePowerWheel(const FInputActionValue& InputActionValue)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[temp] navigate char switcher"))
+	UE_LOG(LogTemp, Warning, TEXT("[temp] %s"), *InputActionValue.ToString())
 }
 
 void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue)

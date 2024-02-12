@@ -15,14 +15,10 @@ class UNREALPORTFOLIO_API UUpPowerWheelWidget : public UUpCommonActivatableWidge
 	GENERATED_BODY()
 
 protected:
-	virtual UWidget* NativeGetDesiredFocusTarget() const override;
 	virtual void NativeOnActivated() override;
-	virtual FReply NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	TArray<UUpPowerWheelButtonWidget*> GetPowerWheelButtons() const;
-	UFUNCTION(BlueprintImplementableEvent)
-	UCommonButtonBase* GetDefaultFocusButton() const;
 
 private:
 	UPROPERTY(EditAnywhere, Category="UP Debug")

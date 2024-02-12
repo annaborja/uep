@@ -7,6 +7,7 @@
 #include "Engine/DataTable.h"
 #include "UpCombatComponent.generated.h"
 
+class AUpCharacter;
 class UGameplayAbility;
 
 USTRUCT()
@@ -29,7 +30,19 @@ class UNREALPORTFOLIO_API UUpCombatComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	static bool IsCombatAbility(const UGameplayAbility* Ability);
-	
 	UUpCombatComponent();
+
+	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+private:
+	UPROPERTY(EditAnywhere, Category="UP Debug")
+	bool bDebug = false;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AUpCharacter> Character;
+
+	void HandleActiveHitBoxes();
+	void HandleActiveHitBox(const FName& HitBoxName, const UDataTable* HitBoxDataTable);
+	void HandleHitResult(const FHitResult HitResult);
 };

@@ -55,6 +55,7 @@ public:
 	FORCEINLINE AUpLevelScriptActor* GetLevelScriptActor() const { return LevelScriptActor; }
 	
 	FORCEINLINE UDataTable* GetCharacterDataTable() const { return CharacterDataTable; }
+	FORCEINLINE UDataTable* GetHitBoxDataTable() const { return HitBoxDataTable; }
 	FORCEINLINE UUpGasDataAsset* GetGasDataAsset() const { return GasDataAsset; }
 	
 	FORCEINLINE UDialogueVoice* GetPlayerDialogueVoice() const { return PlayerDialogueVoice; }
@@ -71,6 +72,8 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpCharacterData"))
 	TObjectPtr<UDataTable> CharacterDataTable;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpHitBoxData"))
+	TObjectPtr<UDataTable> HitBoxDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpItemData"))
 	TObjectPtr<UDataTable> ItemDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpMissionData"))

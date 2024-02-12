@@ -44,8 +44,6 @@ public:
 	void SetCameraView(const EUpCameraView::Type InCameraView) { CameraView = InCameraView; }
 	void SetTargetCameraFov(const float InTargetCameraFov) { TargetCameraFov = InTargetCameraFov; }
 	
-	FORCEINLINE UInputAction* GetInputAction_ClosePowerWheel() const { return InputAction_ClosePowerWheel; }
-	
 	FORCEINLINE TEnumAsByte<EUpCameraView::Type> GetCameraView() const { return CameraView; }
 	FORCEINLINE AUpHud* GetCustomHud() const { return CustomHud; }
 	FORCEINLINE AUpPlayableCharacter* GetPossessedCharacter() const { return PossessedCharacter; }

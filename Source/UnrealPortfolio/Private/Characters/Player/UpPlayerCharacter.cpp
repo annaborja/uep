@@ -6,7 +6,6 @@
 #include "Camera/CameraComponent.h"
 #include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerState.h"
-#include "Characters/Player/Components/UpPlayerCombatComponent.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
@@ -27,7 +26,6 @@ AUpPlayerCharacter::AUpPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	Camera->SetFieldOfView(BaseCameraFov);
 	Camera->bUsePawnControlRotation = false;
 	
-	PlayerCombatComponent = CreateDefaultSubobject<UUpPlayerCombatComponent>(TEXT("PlayerCombatComponent"));
 	PlayerInteractionComponent = CreateDefaultSubobject<UUpPlayerInteractionComponent>(TEXT("PlayerInteractionComponent"));
 }
 

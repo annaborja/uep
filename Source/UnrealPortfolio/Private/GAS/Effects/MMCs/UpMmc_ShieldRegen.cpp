@@ -4,5 +4,5 @@
 
 float UUpMmc_ShieldRegen::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
 {
-	return 20.f;
+	return 10.f;
 }

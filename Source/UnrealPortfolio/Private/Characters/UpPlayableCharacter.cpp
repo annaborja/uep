@@ -247,8 +247,11 @@ void AUpPlayableCharacter::ActivateCameraView(const EUpCameraView::Type CameraVi
 
 bool AUpPlayableCharacter::CanShoot() const
 {
+	const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this);
+	const auto LevelScriptActor = GameInstance ? GameInstance->GetLevelScriptActor() : nullptr;
+	
 	return (!CustomMovementComponent || !CustomMovementComponent->IsSprinting()) && GetCameraView() != EUpCameraView::ThirdPerson &&
-		GetPosture() != EUpCharacterPosture::Casual;
+		GetPosture() != EUpCharacterPosture::Casual && (!LevelScriptActor || !LevelScriptActor->IsLookTargetActive());
 }
 
 void AUpPlayableCharacter::GetAbilityClassesToGrant(TArray<TSubclassOf<UGameplayAbility>>& AbilityClasses) const

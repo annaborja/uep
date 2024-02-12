@@ -21,7 +21,6 @@ class UNREALPORTFOLIO_API IUpCombatable
 public:
 	virtual float CalculateDamageDealt(const FHitResult& HitResult) const = 0;
 	virtual void Die() = 0;
-	virtual UUpCombatComponent* GetCombatComponent() const = 0;
 	virtual uint8 GetCombatLevel() const { return 1; }
 	virtual UAnimMontage* GetHitReactionsMontage() const = 0;
 	virtual UAnimMontage* GetReloadsMontage() const = 0;
