@@ -39,7 +39,7 @@ struct FUpMenuTabData : public FTableRowBase
 	FText Label;
 };
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudActiveWeaponSignature, const AUpWeapon*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudActiveWeaponSignature, AUpWeapon*);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FUpHudAttributeValueSignature, const FGameplayTag&, const FGameplayTag&, const float);
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpHudBarkSignature, const FUpBarkData& BarkData);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FUpHudEquipmentActivationUpdateSignature, const EUpEquipmentSlot::Type, const bool bActivated);
@@ -86,7 +86,7 @@ public:
 
 	TMap<FGameplayTag, FUpMissionState> GetMissionMap() const;
 
-	void BroadcastActiveWeapon(const AUpWeapon* Weapon) const;
+	void BroadcastActiveWeapon(AUpWeapon* Weapon) const;
 	void BroadcastAttributeValue(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute, const UUpAttributeSet* AttributeSet) const;
 	void BroadcastBark(const FUpBarkData& BarkData) const;
 	void BroadcastEquipmentActivationUpdate(const EUpEquipmentSlot::Type EquipmentSlot, const bool bActivated) const;

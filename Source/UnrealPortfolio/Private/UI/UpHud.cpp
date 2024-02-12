@@ -139,7 +139,7 @@ TMap<FGameplayTag, FUpMissionState> AUpHud::GetMissionMap() const
 	return TMap<FGameplayTag, FUpMissionState>();
 }
 
-void AUpHud::BroadcastActiveWeapon(const AUpWeapon* Weapon) const
+void AUpHud::BroadcastActiveWeapon(AUpWeapon* Weapon) const
 {
 	ActiveWeaponDelegate.Broadcast(Weapon);
 }

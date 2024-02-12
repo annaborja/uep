@@ -10,12 +10,10 @@
 #include "Camera/CameraComponent.h"
 #include "Characters/UpPlayableNpc.h"
 #include "Characters/Player/UpPlayerCameraManager.h"
-#include "Characters/Player/UpPlayerCharacter.h"
 #include "Characters/Player/Components/UpPlayerInteractionComponent.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "GameFramework/DefaultPawn.h"
 #include "GAS/Abilities/UpActivateEquipmentAbility.h"
-#include "Interfaces/UpInteractable.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Tags/GasTags.h"
@@ -257,6 +255,16 @@ void AUpPlayerController::DestroyTemporaryCamera(const float CameraBlendTime)
 	ResetInputMappingContexts();
 }
 
+bool AUpPlayerController::IsSquadMemberSwitchingDisabled() const
+{
+	if (const auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		return Subsystem->HasMappingContext(InputMappingContext_DisableSquadMemberSwitching);
+	}
+	
+	return false;
+}
+
 void AUpPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -265,6 +273,7 @@ void AUpPlayerController::BeginPlay()
 	check(InputMappingContext_PowerWheel);
 	check(InputMappingContext_Gun);
 	check(InputMappingContext_InteractionOnly);
+	check(InputMappingContext_DisableSquadMemberSwitching);
 
 	check(InputAction_ToggleDebugCamera);
 	check(InputAction_Move);

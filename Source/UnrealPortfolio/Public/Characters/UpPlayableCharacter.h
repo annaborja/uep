@@ -45,6 +45,7 @@ public:
 	void ActivateCameraView(const EUpCameraView::Type CameraViewType, const bool bInstant = false);
 
 	bool CanShoot() const;
+	bool IsSquadMemberSwitchingDisabled() const;
 
 	FORCEINLINE float GetBaseCameraFov() const { return BaseCameraFov; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return Camera; }

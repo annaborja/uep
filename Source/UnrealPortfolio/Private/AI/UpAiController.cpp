@@ -77,8 +77,6 @@ void AUpAiController::OnUnPossess()
 {
 	Super::OnUnPossess();
 
-	if (BrainComponent) BrainComponent->StopLogic(TEXT("Unpossessed"));
-
 	if (IsValid(this)) Destroy();
 }
 

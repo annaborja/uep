@@ -83,7 +83,7 @@ AUpCharacter::AUpCharacter()
 	}
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UUpAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
-	CombatComponent = CreateDefaultSubobject<UUpCombatComponent>(TEXT("CombatComponent"));
+	CombatComponent_0 = CreateDefaultSubobject<UUpCombatComponent>(TEXT("CombatComponent_0"));
 	
 	PrimaryAttributeSet = CreateDefaultSubobject<UUpPrimaryAttributeSet>(TEXT("PrimaryAttributeSet"));
 	VitalAttributeSet = CreateDefaultSubobject<UUpVitalAttributeSet>(TEXT("VitalAttributeSet"));
@@ -172,7 +172,7 @@ void AUpCharacter::Die()
 		Mesh->SetSimulatePhysics(true);
 	}
 
-	if (Controller) Controller->UnPossess();
+	if (IsValid(Controller)) Controller->UnPossess();
 }
 
 void AUpCharacter::AddActiveHitBox(const FDataTableRowHandle& HitBoxDataRowHandle)
@@ -181,11 +181,21 @@ void AUpCharacter::AddActiveHitBox(const FDataTableRowHandle& HitBoxDataRowHandl
 	{
 		ActiveHitBoxNames.Add(HitBoxDataRowHandle.RowName);
 	}
+
+	if (CombatComponent_0 && ActiveHitBoxNames.Num() > 0)
+	{
+		CombatComponent_0->SetComponentTickEnabled(true);
+	}
 }
 
 void AUpCharacter::RemoveActiveHitBox(const FDataTableRowHandle& HitBoxDataRowHandle)
 {
 	ActiveHitBoxNames.Remove(HitBoxDataRowHandle.RowName);
+
+	if (CombatComponent_0 && ActiveHitBoxNames.Num() <= 0)
+	{
+		CombatComponent_0->SetComponentTickEnabled(false);
+	}
 }
 
 void AUpCharacter::CleanUpCombatData()

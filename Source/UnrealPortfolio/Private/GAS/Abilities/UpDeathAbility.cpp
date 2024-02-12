@@ -4,8 +4,11 @@
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "AI/UpAiController.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 #include "Characters/UpCharacter.h"
 #include "Characters/UpPlayableCharacter.h"
+#include "Characters/Player/UpPlayerController.h"
 #include "Tags/GasTags.h"
 #include "Tags/ScriptTags.h"
 
@@ -32,6 +35,14 @@ void UUpDeathAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 			// TODO(P0): Handle player death.
 		} else
 		{
+			if (const auto Controller = Cast<AUpAiController>(Character->GetController()))
+			{
+				if (const auto BrainComponent = Controller->GetBrainComponent())
+				{
+					BrainComponent->StopLogic(TEXT("Death ability"));
+				}
+			}
+			
 			if (const auto Montage = Character->GetDeathsMontage())
 			{
 				const auto MontageSectionName = GetMontageSectionName();

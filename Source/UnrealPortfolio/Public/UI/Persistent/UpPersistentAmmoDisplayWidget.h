@@ -24,19 +24,22 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	float AmmoReserve = 0.f;
 
+	UPROPERTY(Transient)
+	TObjectPtr<AUpWeapon> Weapon;
 	UPROPERTY(BlueprintReadOnly)
 	FUpItemData ItemData;
 	
 	UFUNCTION(BlueprintCallable)
 	ESlateVisibility GetRootVisibility() const;
 
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	virtual void OnCustomHudSet_Implementation(AUpHud* NewCustomHud) override;
 
 private:
 	UFUNCTION()
-	void HandleActiveWeaponChange(const AUpWeapon* Weapon);
+	void HandleActiveWeaponChange(AUpWeapon* InWeapon);
 	UFUNCTION()
 	void HandleAttributeValueChange(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const float Value);
 
-	void InitAttributes(const AUpWeapon* Weapon);
+	void UpdateValues();
 };

@@ -15,38 +15,7 @@ void UUpPersistentVitalStatsDisplayWidget::SetCharacter(AUpPlayableCharacter* In
 	Character = InCharacter;
 	Image = InCharacter->GetCharacterData().Image_Head;
 
-	if (const auto AttributeSet = Character->GetVitalAttributeSet())
-	{
-		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Health); Attribute.IsValid())
-		{
-			TargetHealth = Attribute.GetNumericValue(AttributeSet);
-		}
-
-		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxHealth); Attribute.IsValid())
-		{
-			MaxHealth = Attribute.GetNumericValue(AttributeSet);
-		}
-		
-		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Shield); Attribute.IsValid())
-		{
-			TargetShield = Attribute.GetNumericValue(AttributeSet);
-		}
-
-		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxShield); Attribute.IsValid())
-		{
-			MaxShield = Attribute.GetNumericValue(AttributeSet);
-		}
-
-		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_Stamina); Attribute.IsValid())
-		{
-			TargetStamina = Attribute.GetNumericValue(AttributeSet);
-		}
-
-		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Vital_MaxStamina); Attribute.IsValid())
-		{
-			MaxStamina = Attribute.GetNumericValue(AttributeSet);
-		}
-	}
+	UpdateValues();
 
 	if (bHadCharacter)
 	{
@@ -59,6 +28,8 @@ void UUpPersistentVitalStatsDisplayWidget::SetCharacter(AUpPlayableCharacter* In
 void UUpPersistentVitalStatsDisplayWidget::NativeTick(const FGeometry& MyGeometry, const float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+	
+	UpdateValues();
 
 	Health = UKismetMathLibrary::FInterpTo(Health, TargetHealth, InDeltaTime, InterpSpeed);
 	Shield = UKismetMathLibrary::FInterpTo(Shield, TargetShield, InDeltaTime, InterpSpeed);
@@ -71,7 +42,7 @@ void UUpPersistentVitalStatsDisplayWidget::OnCustomHudSet_Implementation(AUpHud*
 
 	if (!CustomHud) return;
 
-	CustomHud->AttributeValueDelegate.AddUObject(this, &ThisClass::HandleAttributeValueChange);
+	// CustomHud->AttributeValueDelegate.AddUObject(this, &ThisClass::HandleAttributeValueChange);
 }
 
 float UUpPersistentVitalStatsDisplayWidget::GetHealthBarPercentage() const
@@ -145,5 +116,20 @@ void UUpPersistentVitalStatsDisplayWidget::HandleAttributeValueChange(const FGam
 	} else if (AttributeTag.MatchesTagExact(TAG_Attribute_Vital_MaxStamina))
 	{
 		MaxStamina = Value;
+	}
+}
+
+void UUpPersistentVitalStatsDisplayWidget::UpdateValues()
+{
+	if (!Character) return;
+	
+	if (const auto AttributeSet = Character->GetVitalAttributeSet())
+	{
+		TargetHealth = AttributeSet->GetHealth();
+		MaxHealth = AttributeSet->GetMaxHealth();
+		TargetShield = AttributeSet->GetShield();
+		MaxShield = AttributeSet->GetMaxShield();
+		TargetStamina = AttributeSet->GetStamina();
+		MaxStamina = AttributeSet->GetMaxStamina();
 	}
 }

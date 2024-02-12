@@ -43,6 +43,8 @@ public:
 	void DestroyTemporaryCamera(const float CameraBlendTime);
 	void SetCameraView(const EUpCameraView::Type InCameraView) { CameraView = InCameraView; }
 	void SetTargetCameraFov(const float InTargetCameraFov) { TargetCameraFov = InTargetCameraFov; }
+
+	bool IsSquadMemberSwitchingDisabled() const;
 	
 	FORCEINLINE TEnumAsByte<EUpCameraView::Type> GetCameraView() const { return CameraView; }
 	FORCEINLINE AUpHud* GetCustomHud() const { return CustomHud; }
@@ -64,6 +66,8 @@ private:
 	TObjectPtr<UInputMappingContext> InputMappingContext_Gun;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
 	TObjectPtr<UInputMappingContext> InputMappingContext_InteractionOnly;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Mapping Contexts")
+	TObjectPtr<UInputMappingContext> InputMappingContext_DisableSquadMemberSwitching;
 	
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Input Actions")
 	TObjectPtr<UInputAction> InputAction_ToggleDebugCamera;

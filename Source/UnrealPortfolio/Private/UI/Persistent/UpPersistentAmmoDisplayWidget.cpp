@@ -14,6 +14,13 @@ ESlateVisibility UUpPersistentAmmoDisplayWidget::GetRootVisibility() const
 	return ESlateVisibility::SelfHitTestInvisible;
 }
 
+void UUpPersistentAmmoDisplayWidget::NativeTick(const FGeometry& MyGeometry, const float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	UpdateValues();
+}
+
 void UUpPersistentAmmoDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewCustomHud)
 {
 	Super::OnCustomHudSet_Implementation(NewCustomHud);
@@ -21,7 +28,7 @@ void UUpPersistentAmmoDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewCu
 	if (!CustomHud) return;
 
 	CustomHud->ActiveWeaponDelegate.AddUObject(this, &ThisClass::HandleActiveWeaponChange);
-	CustomHud->AttributeValueDelegate.AddUObject(this, &ThisClass::HandleAttributeValueChange);
+	// CustomHud->AttributeValueDelegate.AddUObject(this, &ThisClass::HandleAttributeValueChange);
 
 	if (const auto CustomController = CustomHud->GetCustomController())
 	{
@@ -29,29 +36,17 @@ void UUpPersistentAmmoDisplayWidget::OnCustomHudSet_Implementation(AUpHud* NewCu
 		{
 			if (const auto EquipmentSlotData = PossessedCharacter->GetEquipment().GetPotentialActiveWeaponSlotData(); EquipmentSlotData.bActivated)
 			{
-				if (const auto Weapon = Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor))
-				{
-					InitAttributes(Weapon);
-				}
+				Weapon = Cast<AUpWeapon>(EquipmentSlotData.ItemInstance.ItemActor);
+				UpdateValues();
 			}
 		}
 	}
 }
 
-void UUpPersistentAmmoDisplayWidget::HandleActiveWeaponChange(const AUpWeapon* Weapon)
+void UUpPersistentAmmoDisplayWidget::HandleActiveWeaponChange(AUpWeapon* InWeapon)
 {
-	if (Weapon)
-	{
-		ItemData = Weapon->GetItemData();
-
-		InitAttributes(Weapon);
-	} else
-	{
-		ItemData = FUpItemData();
-		MagazineFill = 0.f;
-		MagazineCapacity = 0.f;
-		AmmoReserve = 0.f;
-	}
+	Weapon = InWeapon;
+	UpdateValues();
 }
 
 void UUpPersistentAmmoDisplayWidget::HandleAttributeValueChange(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const float Value)
@@ -68,23 +63,23 @@ void UUpPersistentAmmoDisplayWidget::HandleAttributeValueChange(const FGameplayT
 	}
 }
 
-void UUpPersistentAmmoDisplayWidget::InitAttributes(const AUpWeapon* Weapon)
+void UUpPersistentAmmoDisplayWidget::UpdateValues()
 {
-	if (const auto AttributeSet = Weapon->GetAmmoAttributeSet())
+	if (Weapon)
 	{
-		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Ammo_MagazineFill); Attribute.IsValid())
+		ItemData = Weapon->GetItemData();
+
+		if (const auto AttributeSet = Weapon->GetAmmoAttributeSet())
 		{
-			MagazineFill = Attribute.GetNumericValue(AttributeSet);
+			MagazineFill = AttributeSet->GetMagazineFill();
+			MagazineCapacity = AttributeSet->GetMagazineCapacity();
+			AmmoReserve = AttributeSet->GetAmmoReserve();
 		}
-		
-		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Ammo_MagazineCapacity); Attribute.IsValid())
-		{
-			MagazineCapacity = Attribute.GetNumericValue(AttributeSet);
-		}
-		
-		if (const auto Attribute = AttributeSet->GetAttribute(TAG_Attribute_Ammo_AmmoReserve); Attribute.IsValid())
-		{
-			AmmoReserve = Attribute.GetNumericValue(AttributeSet);
-		}
+	} else
+	{
+		ItemData = FUpItemData();
+		MagazineFill = 0.f;
+		MagazineCapacity = 0.f;
+		AmmoReserve = 0.f;
 	}
 }

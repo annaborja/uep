@@ -254,6 +254,13 @@ bool AUpPlayableCharacter::CanShoot() const
 		GetPosture() != EUpCharacterPosture::Casual && (!LevelScriptActor || !LevelScriptActor->IsLookTargetActive());
 }
 
+bool AUpPlayableCharacter::IsSquadMemberSwitchingDisabled() const
+{
+	if (!CustomPlayerController) return false;
+
+	return true;
+}
+
 void AUpPlayableCharacter::GetAbilityClassesToGrant(TArray<TSubclassOf<UGameplayAbility>>& AbilityClasses) const
 {
 	Super::GetAbilityClassesToGrant(AbilityClasses);
@@ -618,22 +625,22 @@ void AUpPlayableCharacter::SetUpThirdPersonCamera()
 
 void AUpPlayableCharacter::HandleWeaponDelegates(AUpWeapon* Weapon)
 {
-	if (ActiveWeapon)
-	{
-		if (const auto WeaponAbilitySystemComponent = ActiveWeapon->GetAbilitySystemComponent())
-		{
-			if (const auto AttributeSet = ActiveWeapon->GetAmmoAttributeSet())
-			{
-				for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
-				{
-					if (const auto DelegateHandle = AttributeValueDelegateHandleMap.Find(TagAttributeMapping.Key))
-					{
-						WeaponAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value()).Remove(*DelegateHandle);
-					}
-				}
-			}	
-		}
-	}
+	// if (ActiveWeapon)
+	// {
+	// 	if (const auto WeaponAbilitySystemComponent = ActiveWeapon->GetAbilitySystemComponent())
+	// 	{
+	// 		if (const auto AttributeSet = ActiveWeapon->GetAmmoAttributeSet())
+	// 		{
+	// 			for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
+	// 			{
+	// 				if (const auto DelegateHandle = AttributeValueDelegateHandleMap.Find(TagAttributeMapping.Key))
+	// 				{
+	// 					WeaponAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value()).Remove(*DelegateHandle);
+	// 				}
+	// 			}
+	// 		}	
+	// 	}
+	// }
 
 	ActiveWeapon = Weapon;
 	
@@ -643,25 +650,25 @@ void AUpPlayableCharacter::HandleWeaponDelegates(AUpWeapon* Weapon)
 	{
 		CustomHud->BroadcastActiveWeapon(Weapon);
 
-		if (Weapon)
-		{
-			if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
-			{
-				if (const auto AttributeSet = Weapon->GetAmmoAttributeSet())
-				{
-					for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
-					{
-						AttributeValueDelegateHandleMap.Add(TagAttributeMapping.Key, WeaponAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value())
-							.AddLambda([this, AttributeSet, CustomHud, TagAttributeMapping, Weapon](const FOnAttributeChangeData& Data)
-							{
-								if (IsValid(CustomHud))
-								{
-									CustomHud->BroadcastAttributeValue(Weapon->GetTagId(), TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
-								}
-							}));
-					}
-				}
-			}
-		}
+		// if (Weapon)
+		// {
+		// 	if (const auto WeaponAbilitySystemComponent = Weapon->GetAbilitySystemComponent())
+		// 	{
+		// 		if (const auto AttributeSet = Weapon->GetAmmoAttributeSet())
+		// 		{
+		// 			for (const auto TagAttributeMapping : AttributeSet->GetTagAttributeMap())
+		// 			{
+		// 				AttributeValueDelegateHandleMap.Add(TagAttributeMapping.Key, WeaponAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TagAttributeMapping.Value())
+		// 					.AddLambda([this, AttributeSet, CustomHud, TagAttributeMapping, Weapon](const FOnAttributeChangeData& Data)
+		// 					{
+		// 						if (IsValid(CustomHud))
+		// 						{
+		// 							CustomHud->BroadcastAttributeValue(Weapon->GetTagId(), TagAttributeMapping.Key, TagAttributeMapping.Value(), AttributeSet);
+		// 						}
+		// 					}));
+		// 			}
+		// 		}
+		// 	}
+		// }
 	}
 }

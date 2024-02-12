@@ -145,7 +145,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UUpAbilitySystemComponent> AbilitySystemComponent;
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UUpCombatComponent> CombatComponent;
+	TObjectPtr<UUpCombatComponent> CombatComponent_0;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCapsuleComponent> HitCapsule_Head;

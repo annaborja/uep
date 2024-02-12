@@ -16,6 +16,9 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_BlackboardKey_PatrolTargetActor)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_ActivateEquipment_SocketSwitch)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_Death_DetachItems)
 
+// Input Mapping Contexts
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InputMappingContext_DisableSquadMemberSwitching)
+
 // Montages
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Montage_Gestures)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Montage_Gestures_Nod)

@@ -78,4 +78,6 @@ private:
     
     UFUNCTION()
     void HandleAttributeValueChange(const FGameplayTag& TagId, const FGameplayTag& AttributeTag, const float Value);
+
+	void UpdateValues();
 };

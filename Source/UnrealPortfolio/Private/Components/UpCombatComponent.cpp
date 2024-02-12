@@ -16,8 +16,8 @@
 
 UUpCombatComponent::UUpCombatComponent()
 {
-	// TODO(P1): Optimize for performance (disable tick when not necessary).
 	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = false;
 }
 
 void UUpCombatComponent::BeginPlay()
