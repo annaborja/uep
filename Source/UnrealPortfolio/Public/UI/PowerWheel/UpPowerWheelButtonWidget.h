@@ -3,11 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UpPowerWheelWidget.h"
 #include "UI/UpCommonButtonBase.h"
+#include "Utils/Structs.h"
 #include "UpPowerWheelButtonWidget.generated.h"
-
-class AUpPlayableNpc;
-struct FGameplayTag;
 
 UENUM(BlueprintType)
 namespace EUpPowerWheelButtonState
@@ -27,20 +26,21 @@ class UNREALPORTFOLIO_API UUpPowerWheelButtonWidget : public UUpCommonButtonBase
 	GENERATED_BODY()
 
 public:
-	void SetNpc(AUpPlayableNpc* InNpc);
-	void SetNpcTag(const FGameplayTag& NpcTag);
+	void SetSpecialMoveData(const FUpSpecialMoveData InSpecialMoveData);
+
+	FUpSpecialMoveData GetSpecialMoveData() const { return SpecialMoveData; }
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
+	FUpSpecialMoveData SpecialMoveData;
+	UPROPERTY(BlueprintReadOnly)
 	TEnumAsByte<EUpPowerWheelButtonState::Type> PowerWheelButtonState = EUpPowerWheelButtonState::Empty;
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<UTexture2D> Image;
-	UPROPERTY(BlueprintReadOnly)
-	FText Label;
 	
 	virtual void NativePreConstruct() override;
+	virtual void NativeOnHovered() override;
+	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
 
 private:
-	UPROPERTY(Transient)
-	TObjectPtr<AUpPlayableNpc> Npc;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets")
+	TObjectPtr<USoundBase> Sfx_Focus;
 };

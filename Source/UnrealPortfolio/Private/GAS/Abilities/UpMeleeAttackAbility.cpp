@@ -10,6 +10,8 @@
 UUpMeleeAttackAbility::UUpMeleeAttackAbility()
 {
 	AbilityTags.AddTag(TAG_Ability_MeleeAttack);
+
+	ActivationOwnedTags.AddTag(TAG_State_MeleeAttacking);
 }
 
 void UUpMeleeAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -22,17 +24,17 @@ void UUpMeleeAttackAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	{
 		if (const auto Montage = Character->GetGunMeleeAttacksMontage())
 		{
-			const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None,
-				Montage, 1.f, FName(UUpBlueprintFunctionLibrary::GetWeaponMontageSectionName(Character)));
-			PlayMontageAndWaitTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageCompleted);
-			PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-			PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCompleted);
+			const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this, NAME_None, Montage, 1.f, FName(UUpBlueprintFunctionLibrary::GetWeaponMontageSectionName(Character)));
+			PlayMontageAndWaitTask->OnBlendOut.AddDynamic(this, &ThisClass::TriggerAbilityEnd);
+			PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::TriggerAbilityEnd);
+			PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::TriggerAbilityEnd);
 			PlayMontageAndWaitTask->Activate();
 		}
 	}
 }
 
-void UUpMeleeAttackAbility::OnMontageCompleted()
+void UUpMeleeAttackAbility::TriggerAbilityEnd()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

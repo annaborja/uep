@@ -6,12 +6,15 @@
 #include "GAS/Abilities/UpGameplayAbility.h"
 #include "UpSpecialMoveAbility_Pull.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class UNREALPORTFOLIO_API UUpSpecialMoveAbility_Pull : public UUpGameplayAbility
 {
 	GENERATED_BODY()
-	
+
+public:
+	UUpSpecialMoveAbility_Pull();
+
+protected:
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 };

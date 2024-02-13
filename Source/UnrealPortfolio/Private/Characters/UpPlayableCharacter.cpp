@@ -41,6 +41,7 @@ void AUpPlayableCharacter::BeginPlay()
 	check(GunFiringMontage_FirstPerson);
 	check(MantlesMontage_FirstPerson);
 	check(ReloadsMontage_FirstPerson);
+	check(SpecialMovesMontage_FirstPerson);
 	check(WeaponEquipMontage_FirstPerson);
 
 	CapsuleHitDelegate.BindUFunction(this, FName(TEXT("OnCapsuleHit")));
@@ -180,6 +181,13 @@ UAnimMontage* AUpPlayableCharacter::GetReloadsMontage() const
 	if (IsInFirstPersonMode()) return ReloadsMontage_FirstPerson;
 	
 	return Super::GetReloadsMontage();
+}
+
+UAnimMontage* AUpPlayableCharacter::GetSpecialMovesMontage() const
+{
+	if (IsInFirstPersonMode()) return SpecialMovesMontage_FirstPerson;
+	
+	return Super::GetSpecialMovesMontage();
 }
 
 UAnimMontage* AUpPlayableCharacter::GetWeaponEquipMontage() const

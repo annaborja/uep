@@ -19,6 +19,7 @@ void UUpGameInstance::Init()
 	check(MissionDataTable);
 	check(ObjectiveDataTable);
 	check(PlayerDialogueVoice);
+	check(SpecialMoveDataTable);
 	check(WeaponDataTable);
 
 	TArray<FUpCharacterData*> AllCharacterDataRows;
@@ -51,6 +52,14 @@ void UUpGameInstance::Init()
 	for (const auto Row : AllObjectiveDataRows)
 	{
 		AllObjectiveData.Add(*Row);
+	}
+
+	TArray<FUpSpecialMoveData*> AllSpecialMoveDataRows;
+	SpecialMoveDataTable->GetAllRows(TEXT("SpecialMoveDataTable GetAllRows"), AllSpecialMoveDataRows);
+
+	for (const auto Row : AllSpecialMoveDataRows)
+	{
+		AllSpecialMoveData.Add(*Row);
 	}
 
 	TArray<FUpWeaponData*> AllWeaponDataRows;
@@ -279,6 +288,21 @@ FUpWeaponData UUpGameInstance::GetWeaponData(const FGameplayTag& WeaponTagId)
 			{
 				Result = Data;
 			}
+		}
+	}
+
+	return Result;
+}
+
+FUpSpecialMoveData UUpGameInstance::GetSpecialMoveData(const FGameplayTag& TagId)
+{
+	FUpSpecialMoveData Result;
+
+	for (const auto Data : AllSpecialMoveData)
+	{
+		if (Data.TagId.MatchesTagExact(TagId))
+		{
+			Result = Data;
 		}
 	}
 

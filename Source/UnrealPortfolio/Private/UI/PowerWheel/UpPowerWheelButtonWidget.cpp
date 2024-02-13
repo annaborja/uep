@@ -4,64 +4,49 @@
 
 #include "UpGameInstance.h"
 #include "Characters/UpPlayableNpc.h"
+#include "Kismet/GameplayStatics.h"
 #include "UI/UpHud.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
-void UUpPowerWheelButtonWidget::SetNpc(AUpPlayableNpc* InNpc)
+void UUpPowerWheelButtonWidget::SetSpecialMoveData(const FUpSpecialMoveData InSpecialMoveData)
 {
-	Npc = InNpc;
+	SpecialMoveData = InSpecialMoveData;
 
-	if (Npc)
+	if (SpecialMoveData.IsValid())
 	{
-		Label = Npc->GetInGameName();
-		Image = Npc->GetCharacterData().Image_Head;
-
+		PowerWheelButtonState = EUpPowerWheelButtonState::Available;
+		
 		if (CustomHud)
 		{
-			if (const auto CustomController = CustomHud->GetCustomController(); CustomController && CustomController->GetPossessedCharacter() == Npc)
+			if (const auto CustomController = CustomHud->GetCustomController())
 			{
-				PowerWheelButtonState = EUpPowerWheelButtonState::Active;
-				SetIsEnabled(false);
-				
-				return;
+				if (const auto PossessedCharacter = CustomController->GetPossessedCharacter();
+					PossessedCharacter && PossessedCharacter->GetActiveSpecialMoveTag().MatchesTagExact(SpecialMoveData.TagId))
+				{
+					PowerWheelButtonState = EUpPowerWheelButtonState::Active;
+				}
 			}
 		}
 		
-		PowerWheelButtonState = EUpPowerWheelButtonState::Available;
 		SetIsEnabled(true);
 
 		OnClicked().Clear();
 		OnClicked().AddLambda([this]
 		{
-			if (!CustomHud || !Npc) return;
+			SetFocus();
+			
+			if (!CustomHud) return;
 
-			CustomHud->SwitchCharacter(Npc);
+			if (const auto Controller = CustomHud->GetCustomController())
+			{
+				Controller->ClosePowerWheel();
+			}
 		});
-		
-		return;
-	}
-	
-	Label = FText();
-	Image = nullptr;
-	PowerWheelButtonState = EUpPowerWheelButtonState::Empty;
-	SetIsEnabled(false);
-}
-
-void UUpPowerWheelButtonWidget::SetNpcTag(const FGameplayTag& NpcTag)
-{
-	Npc = nullptr;
-	PowerWheelButtonState = EUpPowerWheelButtonState::Unavailable;
-	SetIsEnabled(false);
-	
-	FUpCharacterData CharacterData;
-	
-	if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+	} else
 	{
-		CharacterData = GameInstance->GetCharacterData(NpcTag);
+		PowerWheelButtonState = EUpPowerWheelButtonState::Empty;
+		SetIsEnabled(false);
 	}
-	
-	Label = CharacterData.Name;
-	Image = CharacterData.Image_Head;
 }
 
 void UUpPowerWheelButtonWidget::NativePreConstruct()
@@ -70,4 +55,18 @@ void UUpPowerWheelButtonWidget::NativePreConstruct()
 
 	SetIsEnabled(false);
 	OnClicked().Clear();
+}
+
+void UUpPowerWheelButtonWidget::NativeOnHovered()
+{
+	Super::NativeOnHovered();
+
+	SetFocus();
+}
+
+FReply UUpPowerWheelButtonWidget::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
+{
+	if (Sfx_Focus) UGameplayStatics::PlaySound2D(this, Sfx_Focus);
+	
+	return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
 }

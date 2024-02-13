@@ -20,5 +20,5 @@ protected:
 
 private:
 	UFUNCTION()
-	void OnMontageCompleted();
+	void TriggerAbilityEnd();
 };

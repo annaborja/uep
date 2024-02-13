@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/UpCombatable.h"
 #include "Interfaces/UpTagIdable.h"
+#include "Tags/GasTags.h"
 #include "Utils/Structs.h"
 #include "UpCharacter.generated.h"
 
@@ -84,6 +85,7 @@ public:
 	bool IsAiming() const;
 	bool IsBusy() const;
 	bool IsDead() const;
+	bool IsMeleeAttacking() const;
 	bool IsInFirstPersonMode() const;
 	bool IsInStrafingMode() const;
 	bool IsShooting() const;
@@ -102,7 +104,7 @@ public:
 
 	int8 GetNumShotsToTake() const;
 	
-	void AttachActivatedItem(AUpItem* ItemActor);
+	void AttachActivatedItem(AUpItem* ItemActor, const FName& SocketName = NAME_None);
 	void AttachDeactivatedItem(AUpItem* ItemActor);
 
 	virtual UAnimMontage* GetClimbingMontage() const { return ClimbingMontage_ThirdPerson; }
@@ -111,6 +113,7 @@ public:
 	virtual UAnimMontage* GetGunFiringMontage() const { return GunFiringMontage_ThirdPerson; }
 	virtual UAnimMontage* GetGunMeleeAttacksMontage() const { return GunMeleeAttacksMontage_ThirdPerson; }
 	virtual UAnimMontage* GetMantlesMontage() const { return MantlesMontage_ThirdPerson; }
+	virtual UAnimMontage* GetSpecialMovesMontage() const { return SpecialMovesMontage_ThirdPerson; }
 	virtual UAnimMontage* GetWeaponEquipMontage() const { return WeaponEquipMontage_ThirdPerson; }
 
 	void HandleFootstep(const FName& BoneName, const EUpTraceDirection::Type TraceDirection = EUpTraceDirection::Down,
@@ -122,6 +125,7 @@ public:
 	void SetEffectHandle_BusyState(const FActiveGameplayEffectHandle& InHandle) { EffectHandle_BusyState = InHandle; }
 
 	void AddRecoil(const FVector2D& Value, const float TimeToLive);
+	void SetActiveSpecialMoveTag(const FGameplayTag& Tag);
 	
 	FORCEINLINE FGameplayTag GetActiveSpecialMoveTag() const { return ActiveSpecialMoveTag; }
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
@@ -170,6 +174,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> MantlesMontage_ThirdPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> SpecialMovesMontage_ThirdPerson;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> ReloadsMontage_ThirdPerson;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> WeaponEquipMontage_ThirdPerson;
@@ -201,7 +207,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="UP Params")
 	FGameplayTag TagId;
 	UPROPERTY(EditAnywhere, Category="UP Params")
-	FGameplayTag ActiveSpecialMoveTag = FGameplayTag::EmptyTag;
+	FGameplayTag ActiveSpecialMoveTag = TAG_Ability_SpecialMove_Push;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<UUpCharacterMovementComponent> CustomMovementComponent;

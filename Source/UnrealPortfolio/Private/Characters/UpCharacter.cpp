@@ -103,6 +103,7 @@ void AUpCharacter::BeginPlay()
 	check(HitReactionsMontage_ThirdPerson);
 	check(MantlesMontage_ThirdPerson);
 	check(ReloadsMontage_ThirdPerson);
+	check(SpecialMovesMontage_ThirdPerson);
 	check(WeaponEquipMontage_ThirdPerson);
 
 	check(Sfx_JumpLaunches);
@@ -265,6 +266,19 @@ bool AUpCharacter::IsDead() const
 		AbilitySystemComponent->GetOwnedGameplayTags(AbilitySystemTags);
 
 		return AbilitySystemTags.HasTagExact(TAG_State_Dead);
+	}
+
+	return false;
+}
+
+bool AUpCharacter::IsMeleeAttacking() const
+{
+	if (AbilitySystemComponent)
+	{
+		FGameplayTagContainer AbilitySystemTags;
+		AbilitySystemComponent->GetOwnedGameplayTags(AbilitySystemTags);
+
+		return AbilitySystemTags.HasTagExact(TAG_State_MeleeAttacking);
 	}
 
 	return false;
@@ -466,7 +480,7 @@ int8 AUpCharacter::GetNumShotsToTake() const
 	return 1;
 }
 
-void AUpCharacter::AttachActivatedItem(AUpItem* ItemActor)
+void AUpCharacter::AttachActivatedItem(AUpItem* ItemActor, const FName& SocketName)
 {
 	if (const auto Mesh = GetMesh())
 	{
@@ -474,18 +488,24 @@ void AUpCharacter::AttachActivatedItem(AUpItem* ItemActor)
 
 		FString NameString = TEXT("");
 
-		if (const auto Weapon = Cast<AUpWeapon>(ItemActor))
+		if (SocketName.IsNone())
 		{
-			NameString += Weapon->GetWeaponTypeNameSectionString();
-		}
+			if (const auto Weapon = Cast<AUpWeapon>(ItemActor))
+			{
+				NameString += Weapon->GetWeaponTypeNameSectionString();
+			}
 
-		NameString += TEXT(".");
-		NameString += NAME_STRING_ACTIVATED;
-
-		if (NameString.StartsWith(NAME_STRING_RIFLE_TYPE) && bRelaxed)
-		{
 			NameString += TEXT(".");
-			NameString += NAME_STRING_RELAXED;
+			NameString += NAME_STRING_ACTIVATED;
+
+			if (NameString.StartsWith(NAME_STRING_RIFLE_TYPE) && bRelaxed)
+			{
+				NameString += TEXT(".");
+				NameString += NAME_STRING_RELAXED;
+			}
+		} else
+		{
+			NameString = SocketName.ToString();
 		}
 		
 		ItemActor->AttachToComponentWithScaling(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName(NameString));
@@ -540,6 +560,16 @@ void AUpCharacter::AddRecoil(const FVector2D& Value, const float TimeToLive)
 	{
 		CurrentRecoil = FVector2D(0.f, 0.f);
 	}), TimeToLive, false);
+}
+
+void AUpCharacter::SetActiveSpecialMoveTag(const FGameplayTag& Tag)
+{
+	if (bDebugGas)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Setting active special move tag to: %s"), *Tag.ToString())
+	}
+	
+	ActiveSpecialMoveTag = Tag;
 }
 
 void AUpCharacter::HandleAbilitySystemTagEvent(const FGameplayTag Tag, const int32 Count)

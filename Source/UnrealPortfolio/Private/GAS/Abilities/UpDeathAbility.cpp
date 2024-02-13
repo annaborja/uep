@@ -40,6 +40,7 @@ void UUpDeathAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 				if (const auto BrainComponent = Controller->GetBrainComponent())
 				{
 					BrainComponent->StopLogic(TEXT("Death ability"));
+					BrainComponent->Cleanup();
 				}
 			}
 			

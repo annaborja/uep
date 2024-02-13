@@ -37,6 +37,7 @@ public:
 	virtual UAnimMontage* GetGunMeleeAttacksMontage() const override;
 	virtual UAnimMontage* GetMantlesMontage() const override;
 	virtual UAnimMontage* GetReloadsMontage() const override;
+	virtual UAnimMontage* GetSpecialMovesMontage() const override;
 	virtual UAnimMontage* GetWeaponEquipMontage() const override;
 
 	virtual bool GrantTagSpec(const FUpTagSpec& TagSpec) override;
@@ -82,6 +83,8 @@ protected:
 	TObjectPtr<UAnimMontage> MantlesMontage_FirstPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> ReloadsMontage_FirstPerson;
+	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
+	TObjectPtr<UAnimMontage> SpecialMovesMontage_FirstPerson;
 	UPROPERTY(EditAnywhere, Category="UP Assets|Animation")
 	TObjectPtr<UAnimMontage> WeaponEquipMontage_FirstPerson;
 	

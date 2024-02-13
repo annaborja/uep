@@ -14,6 +14,20 @@ class UNiagaraSystem;
 class AUpItem;
 
 USTRUCT(BlueprintType)
+struct FUpSpecialMoveData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	bool IsValid() const { return TagId.IsValid() && !Name.IsEmpty(); }
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag TagId;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText Name;
+};
+
+USTRUCT(BlueprintType)
 struct FUpAbilityGrantSpec
 {
 	GENERATED_BODY()

@@ -15,6 +15,7 @@
 
 #define NAME_STRING_ACTIVATED TEXT("Activated")
 #define NAME_STRING_DEACTIVATED TEXT("Deactivated")
+#define NAME_STRING_MELEE TEXT("Melee")
 #define NAME_STRING_RELAXED TEXT("Relaxed")
 
 #define SOCKET_NAME_ATTACK_SOURCE TEXT("AttackSource")

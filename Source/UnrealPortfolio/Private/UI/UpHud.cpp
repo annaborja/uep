@@ -65,11 +65,11 @@ void AUpHud::ClosePowerWheel() const
 	PowerWheelWidget->DeactivateWidget();
 }
 
-void AUpHud::SwitchCharacter(AUpPlayableNpc* Npc) const
+void AUpHud::SetActiveSpecialMove(const FGameplayTag& Tag) const
 {
 	if (!CustomController) return;
 
-	CustomController->SwitchCharacter(Npc);
+	CustomController->SetActiveSpecialMove(Tag);
 }
 
 void AUpHud::OpenDialogueFlow()

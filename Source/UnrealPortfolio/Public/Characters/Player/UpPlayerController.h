@@ -32,6 +32,8 @@ public:
 	bool ProjectReticleToWorld(FVector& WorldPosition, FVector& WorldDirection) const;
 	
 	void ClosePowerWheel();
+	void SetActiveSpecialMove(const FGameplayTag& Tag) const;
+	
 	void SwitchCharacter(AUpPlayableCharacter* Npc);
 	void AddSquadMember(AUpPlayableNpc* Npc);
 	
@@ -50,6 +52,7 @@ public:
 	FORCEINLINE AUpHud* GetCustomHud() const { return CustomHud; }
 	FORCEINLINE AUpPlayableCharacter* GetPossessedCharacter() const { return PossessedCharacter; }
 	FORCEINLINE bool IsInitialized() const { return bInitialized; }
+	FORCEINLINE UInputAction* GetInputAction_ClosePowerWheel() const { return InputAction_ClosePowerWheel; }
 
 protected:
 	virtual void BeginPlay() override;

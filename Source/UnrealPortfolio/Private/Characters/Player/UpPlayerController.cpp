@@ -18,6 +18,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Tags/GasTags.h"
 #include "UI/UpHud.h"
+#include "UI/PowerWheel/UpPowerWheelButtonWidget.h"
+#include "UI/PowerWheel/UpPowerWheelWidget.h"
 #include "Utils/Constants.h"
 
 AUpPlayerController::AUpPlayerController(): APlayerController()
@@ -59,11 +61,34 @@ void AUpPlayerController::ClosePowerWheel()
 {
 	if (!CustomHud) return;
 
+	if (const auto PowerWheel = CustomHud->GetPowerWheel())
+	{
+		for (const auto Button : PowerWheel->GetPowerWheelButtons())
+		{
+			if (Button->HasUserFocus(this))
+			{
+				if (const auto SpecialMoveData = Button->GetSpecialMoveData(); SpecialMoveData.IsValid() && PossessedCharacter)
+				{
+					PossessedCharacter->SetActiveSpecialMoveTag(SpecialMoveData.TagId);
+				}
+				
+				break;
+			}
+		}
+	}
+
 	CustomHud->ClosePowerWheel();
 	DisableMouse();
 	
 	if (InputMappingContext_PowerWheel) DeactivateInputMappingContext(InputMappingContext_PowerWheel);
 	ResetInputMappingContexts();
+}
+
+void AUpPlayerController::SetActiveSpecialMove(const FGameplayTag& Tag) const
+{
+	if (!PossessedCharacter) return;
+
+	PossessedCharacter->SetActiveSpecialMoveTag(Tag);
 }
 
 void AUpPlayerController::SwitchCharacter(AUpPlayableCharacter* Npc)
@@ -431,7 +456,7 @@ void AUpPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InputAction_FireWeapon, ETriggerEvent::Completed, this, &ThisClass::StopFiringWeapon);
 	
 	EnhancedInputComponent->BindAction(InputAction_OpenPowerWheel, ETriggerEvent::Triggered, this, &ThisClass::OpenPowerWheel);
-	EnhancedInputComponent->BindAction(InputAction_ClosePowerWheel, ETriggerEvent::Triggered, this, &ThisClass::TriggerClosePowerWheel);
+	// EnhancedInputComponent->BindAction(InputAction_ClosePowerWheel, ETriggerEvent::Triggered, this, &ThisClass::TriggerClosePowerWheel);
 	EnhancedInputComponent->BindAction(InputAction_NavigatePowerWheel, ETriggerEvent::Triggered, this, &ThisClass::NavigatePowerWheel);
 	
 	EnhancedInputComponent->BindAction(InputAction_Crouch, ETriggerEvent::Started, this, &ThisClass::ToggleCrouch);
@@ -786,7 +811,27 @@ void AUpPlayerController::TriggerClosePowerWheel(const FInputActionValue& InputA
 
 void AUpPlayerController::NavigatePowerWheel(const FInputActionValue& InputActionValue)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[temp] %s"), *InputActionValue.ToString())
+	if (!CustomHud) return;
+
+	if (const auto PowerWheelWidget = CustomHud->GetPowerWheel())
+	{
+		const auto InputActionVector = InputActionValue.Get<FVector2D>();
+		const auto Angle = UKismetMathLibrary::RadiansToDegrees(FMath::Acos(FVector2D::UnitY().Dot(InputActionVector)));
+		const auto NormalizedAngle = InputActionVector.X < 0.f ? 180.f + (180.f - Angle) : Angle;
+
+		const auto PowerWheelButtons = PowerWheelWidget->GetPowerWheelButtons();
+		const auto ButtonAngle = 360.f / PowerWheelButtons.Num();
+		const auto ShiftedAngle = NormalizedAngle + ButtonAngle / 2.f;
+		const auto FinalAngle = ShiftedAngle >= 360.f ? ShiftedAngle - 360.f : ShiftedAngle;
+
+		if (const auto ButtonIdx = FMath::FloorToInt(FinalAngle / ButtonAngle); PowerWheelButtons.IsValidIndex(ButtonIdx))
+		{
+			if (const auto Button = PowerWheelButtons[ButtonIdx]; Button && Button->GetIsEnabled())
+			{
+				Button->SetFocus();
+			}
+		}
+	}
 }
 
 void AUpPlayerController::ToggleCrouch(const FInputActionValue& InputActionValue)

@@ -301,7 +301,7 @@ void UUpCharacterMovementComponent::UpdateCharacterStateAfterMovement(const floa
 				if (const auto Weapon = Character->GetActiveWeapon(); Weapon && Weapon->IsRifleType())
 				{
 					const auto ParentSocketName = Weapon->GetAttachParentSocketName();
-
+				
 					if (IsSprinting())
 					{
 						if (const auto DesiredSocketName = FName(FString::Printf(TEXT("%s.%s.%s"),

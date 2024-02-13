@@ -75,7 +75,7 @@ public:
 	
 	void OpenPowerWheel();
 	void ClosePowerWheel() const;
-	void SwitchCharacter(AUpPlayableNpc* Npc) const;
+	void SetActiveSpecialMove(const FGameplayTag& Tag) const;
 	
 	void OpenDialogueFlow();
 	void CloseDialogueFlow() const;

@@ -10,6 +10,7 @@
 #include "Utils/Structs.h"
 #include "UpGameInstance.generated.h"
 
+struct FUpSpecialMoveData;
 class AUpCharacter;
 class AUpLevelScriptActor;
 struct FUpCharacterData;
@@ -37,6 +38,7 @@ public:
 
 	FUpPartyMembershipSpec GetPartyMembershipSpec(const FGameplayTag& TagId) const;
 	TMap<FGameplayTag, FUpPartyMembershipSpec> GetPartyMembershipSpecMap() const { return PartyMembershipSpecMap; }
+	TArray<FUpSpecialMoveData> GetAllSpecialMoveData() const { return AllSpecialMoveData; }
 	
 	FUpReputationData GetPlayerReputationData(const FGameplayTag& TagId);
 	bool UpdatePlayerReputation_Affection(const FGameplayTag& TagId, const int8 Delta);
@@ -47,6 +49,7 @@ public:
 	FUpObjectiveData GetObjectiveData(const FGameplayTag& TagId);
 	FUpInventory GetNpcInventory(const FGameplayTag& NpcTagId);
 	FUpWeaponData GetWeaponData(const FGameplayTag& WeaponTagId);
+	FUpSpecialMoveData GetSpecialMoveData(const FGameplayTag& TagId);
 
 	void ApplyBusyState(AUpCharacter* Character) const;
 	void RemoveBusyState(AUpCharacter* Character) const;
@@ -80,6 +83,8 @@ private:
 	TObjectPtr<UDataTable> MissionDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpObjectiveData"))
 	TObjectPtr<UDataTable> ObjectiveDataTable;
+	UPROPERTY(EditDefaultsOnly, Category="UP Assets", meta=(RowType="/Script/UnrealPortfolio.UpSpecialMoveData"))
+	TObjectPtr<UDataTable> SpecialMoveDataTable;
 	UPROPERTY(EditDefaultsOnly, Category="UP Assets|DataTables", meta=(RowType="/Script/UnrealPortfolio.UpWeaponData"))
 	TObjectPtr<UDataTable> WeaponDataTable;
 	
@@ -118,6 +123,8 @@ private:
 	TArray<FUpMissionData> AllMissionData;
 	UPROPERTY(Transient)
 	TArray<FUpObjectiveData> AllObjectiveData;
+	UPROPERTY(Transient)
+	TArray<FUpSpecialMoveData> AllSpecialMoveData;
 	UPROPERTY(Transient)
 	TArray<FUpWeaponData> AllWeaponData;
 };

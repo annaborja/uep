@@ -6,7 +6,6 @@
 #include "UI/UpCommonActivatableWidget.h"
 #include "UpPowerWheelWidget.generated.h"
 
-class UCommonButtonBase;
 class UUpPowerWheelButtonWidget;
 
 UCLASS()
@@ -14,18 +13,14 @@ class UNREALPORTFOLIO_API UUpPowerWheelWidget : public UUpCommonActivatableWidge
 {
 	GENERATED_BODY()
 
-protected:
-	virtual void NativeOnActivated() override;
-
+public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	TArray<UUpPowerWheelButtonWidget*> GetPowerWheelButtons() const;
 
+protected:
+	virtual void NativeOnActivated() override;
+	virtual FReply NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+
 private:
-	UPROPERTY(EditAnywhere, Category="UP Debug")
-	bool bDebugOverlapSphere = false;
-	
-	UPROPERTY(EditAnywhere, Category="UP Params")
-	int32 OverlapSphereRadius = 10000;
-	
 	void PopulatePowerWheelButtons() const;
 };

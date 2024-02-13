@@ -2,6 +2,7 @@
 
 #include "GAS/Abilities/UpSpecialMoveAbility_Push.h"
 
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Characters/UpCharacter.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -20,8 +21,18 @@ void UUpSpecialMoveAbility_Push::ActivateAbility(const FGameplayAbilitySpecHandl
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (const auto Character = GetAvatarActorFromActorInfo())
+	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
 	{
+		if (const auto Montage = Character->GetSpecialMovesMontage())
+		{
+			const auto PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this, NAME_None, Montage, 1.f, FName(TEXT("Push")));
+			PlayMontageAndWaitTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageCompleted);
+			PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+			PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCompleted);
+			PlayMontageAndWaitTask->Activate();
+		}
+		
 		const auto TraceStart = Character->GetActorLocation();
 		
 		TArray<AActor*> IgnoredActors;
@@ -56,5 +67,10 @@ void UUpSpecialMoveAbility_Push::ActivateAbility(const FGameplayAbilitySpecHandl
 		}
 	}
 
+	// EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void UUpSpecialMoveAbility_Push::OnMontageCompleted()
+{
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
