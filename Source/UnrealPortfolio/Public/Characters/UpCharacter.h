@@ -144,6 +144,8 @@ public:
 	
 	FORCEINLINE UUpPrimaryAttributeSet* GetPrimaryAttributeSet() const { return PrimaryAttributeSet; }
 	FORCEINLINE UUpVitalAttributeSet* GetVitalAttributeSet() const { return VitalAttributeSet; }
+	
+	FORCEINLINE UCapsuleComponent* GetHitCapsule_Body() const { return HitCapsule_Body; }
 
 protected:
 	UPROPERTY(VisibleAnywhere)

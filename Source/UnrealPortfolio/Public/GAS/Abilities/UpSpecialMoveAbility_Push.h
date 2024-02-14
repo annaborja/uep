@@ -6,6 +6,8 @@
 #include "GAS/Abilities/UpGameplayAbility.h"
 #include "UpSpecialMoveAbility_Push.generated.h"
 
+class UAbilityTask_WaitGameplayEvent;
+
 UCLASS()
 class UNREALPORTFOLIO_API UUpSpecialMoveAbility_Push : public UUpGameplayAbility
 {
@@ -19,6 +21,11 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 private:
+	UPROPERTY(Transient)
+	TObjectPtr<UAbilityTask_WaitGameplayEvent> WaitGameplayEventTask;
+	
+	UFUNCTION()
+	void OnGameplayEventReceived(FGameplayEventData Payload);
 	UFUNCTION()
 	void OnMontageCompleted();
 };

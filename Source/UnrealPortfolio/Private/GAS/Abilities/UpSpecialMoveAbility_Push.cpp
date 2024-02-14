@@ -3,11 +3,13 @@
 #include "GAS/Abilities/UpSpecialMoveAbility_Push.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Characters/UpCharacter.h"
 #include "Components/UpCharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Tags/GasTags.h"
+#include "Tags/ScriptTags.h"
 #include "Utils/Constants.h"
 
 UUpSpecialMoveAbility_Push::UUpSpecialMoveAbility_Push()
@@ -31,8 +33,24 @@ void UUpSpecialMoveAbility_Push::ActivateAbility(const FGameplayAbilitySpecHandl
 			PlayMontageAndWaitTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCompleted);
 			PlayMontageAndWaitTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCompleted);
 			PlayMontageAndWaitTask->Activate();
+
+			if (WaitGameplayEventTask) WaitGameplayEventTask->EndTask();
+				
+			WaitGameplayEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, TAG_Event_SpecialMove_Execute);
+			WaitGameplayEventTask->EventReceived.AddDynamic(this, &ThisClass::OnGameplayEventReceived);
+			WaitGameplayEventTask->Activate();
+
+			return;
 		}
-		
+	}
+
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void UUpSpecialMoveAbility_Push::OnGameplayEventReceived(FGameplayEventData Payload)
+{
+	if (const auto Character = Cast<AUpCharacter>(GetAvatarActorFromActorInfo()))
+	{
 		const auto TraceStart = Character->GetActorLocation();
 		
 		TArray<AActor*> IgnoredActors;
@@ -66,8 +84,8 @@ void UUpSpecialMoveAbility_Push::ActivateAbility(const FGameplayAbilitySpecHandl
 			}
 		}
 	}
-
-	// EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	
+	WaitGameplayEventTask->EndTask();
 }
 
 void UUpSpecialMoveAbility_Push::OnMontageCompleted()

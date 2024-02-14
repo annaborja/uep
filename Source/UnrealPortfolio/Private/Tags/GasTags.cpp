@@ -33,6 +33,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_ShieldRegen, "Cooldown.ShieldRegen")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_StaminaRegen, "Cooldown.StaminaRegen")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_GunFire_Impact, "GameplayCue.GunFire.Impact")
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_SpecialMoveAoe_Impact, "GameplayCue.SpecialMoveAoe.Impact")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Magnitude_Damage, "Magnitude.Damage")
 

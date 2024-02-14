@@ -13,6 +13,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_BlackboardKey_PatrolTargetActor, "BlackboardKey.Patro
 // Events
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_ActivateEquipment_SocketSwitch, "Event.ActivateEquipment.SocketSwitch")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death_DetachItems, "Event.Death.DetachItems")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_SpecialMove_Execute, "Event.SpecialMove.Execute")
 
 // Input Mapping Contexts
 UE_DEFINE_GAMEPLAY_TAG(TAG_InputMappingContext_DisableSquadMemberSwitching, "InputMappingContext.DisableSquadMemberSwitching")
