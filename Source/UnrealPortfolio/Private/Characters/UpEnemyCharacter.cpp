@@ -48,10 +48,21 @@ void AUpEnemyCharacter::Die()
 	if (AimAssistCapsule_Head) UUpBlueprintFunctionLibrary::TearDownActorComponent(AimAssistCapsule_Head);
 }
 
+void AUpEnemyCharacter::SetPatrolPathTag(const FGameplayTag& InTag)
+{
+	PatrolPathTag = InTag;
+	SetPatrolPath();
+}
+
 void AUpEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetPatrolPath();
+}
+
+void AUpEnemyCharacter::SetPatrolPath()
+{
 	if (PatrolPathTag.IsValid())
 	{
 		if (const auto AiController = Cast<AUpAiController>(GetController()))

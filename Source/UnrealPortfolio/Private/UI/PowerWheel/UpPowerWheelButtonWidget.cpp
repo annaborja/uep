@@ -66,7 +66,7 @@ void UUpPowerWheelButtonWidget::NativeOnHovered()
 
 FReply UUpPowerWheelButtonWidget::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
 {
-	if (Sfx_Focus) UGameplayStatics::PlaySound2D(this, Sfx_Focus);
+	if (Sfx_Focus) UGameplayStatics::PlaySound2D(this, Sfx_Focus, 0.8f);
 	
 	return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
 }

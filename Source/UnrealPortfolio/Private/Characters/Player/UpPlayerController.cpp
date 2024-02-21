@@ -826,7 +826,9 @@ void AUpPlayerController::NavigatePowerWheel(const FInputActionValue& InputActio
 
 		if (const auto ButtonIdx = FMath::FloorToInt(FinalAngle / ButtonAngle); PowerWheelButtons.IsValidIndex(ButtonIdx))
 		{
-			if (const auto Button = PowerWheelButtons[ButtonIdx]; Button && Button->GetIsEnabled())
+			UE_LOG(LogTemp, Warning, TEXT("Angle: %g, ButtonIdx: %d, HasFocus: %d"), FinalAngle, ButtonIdx, PowerWheelButtons[ButtonIdx]->HasUserFocus(this))
+			
+			if (const auto Button = PowerWheelButtons[ButtonIdx]; Button && Button->GetIsEnabled() && !Button->HasUserFocus(this))
 			{
 				Button->SetFocus();
 			}

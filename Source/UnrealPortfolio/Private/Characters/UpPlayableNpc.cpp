@@ -88,8 +88,14 @@ void AUpPlayableNpc::JumpToLocation(const FVector& TargetLocation, const float D
 
 	if (CustomMovementComponent)
 	{
-		LaunchCharacter(UUpBlueprintFunctionLibrary::CalculateVelocity(
-			ActorLocation, TargetLocation, Duration, CustomMovementComponent->GravityScale), true, true);
+		if (TargetLocation.Z < GetActorLocation().Z)
+		{
+			LaunchCharacter((TargetLocation - GetActorLocation()) * 3.5f, true, false);
+		} else
+		{
+			LaunchCharacter(UUpBlueprintFunctionLibrary::CalculateVelocity(
+				ActorLocation, TargetLocation, Duration, CustomMovementComponent->GravityScale), true, true);
+		}
 	}
 }
 
@@ -99,9 +105,9 @@ bool AUpPlayableNpc::Mantle() const
 
 	const auto TraceStart = GetActorLocation();
 	FHitResult OutHit;
-	UKismetSystemLibrary::LineTraceSingle(this, TraceStart, TraceStart + GetActorForwardVector() * 100.f,
+	UKismetSystemLibrary::LineTraceSingle(this, TraceStart, TraceStart + GetActorForwardVector() * 1000.f,
 		UEngineTypes::ConvertToTraceType(TRACE_CHANNEL_CLIMBABLE), false, TArray<AActor*> {},
 		CustomMovementComponent->ShouldDebugMantle() ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, OutHit, true);
 	
-	return CustomMovementComponent->TryMantle(OutHit.bBlockingHit ? (OutHit.ImpactPoint - TraceStart).Size2D() : -1.f);
+	return CustomMovementComponent->TryMantle(OutHit.bBlockingHit ? (OutHit.ImpactPoint - TraceStart).Size2D() + 10.f : -1.f);
 }

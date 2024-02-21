@@ -26,7 +26,8 @@ bool UUpCue_GunFireImpact::OnExecute_Implementation(AActor* MyTarget, const FGam
 
 			if (const auto Sound = SoundPtr == nullptr ? nullptr : *SoundPtr)
 			{
-				UGameplayStatics::PlaySoundAtLocation(this, Sound, Parameters.Location, NormalRotation);
+				UGameplayStatics::PlaySoundAtLocation(this, Sound, Parameters.Location, NormalRotation,
+					Weapon->GetTagId().MatchesTag(TAG_Item_Weapon_Shotgun)? 0.5f : 0.8f);
 			} else
 			{
 				UE_LOG(LogTemp, Error, TEXT("No bullet impact sound for surface type %d"), SurfaceType)

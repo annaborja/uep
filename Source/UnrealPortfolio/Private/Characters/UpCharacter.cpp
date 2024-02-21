@@ -534,7 +534,7 @@ void AUpCharacter::AttachDeactivatedItem(AUpItem* ItemActor)
 
 void AUpCharacter::HandleFootstep(const FName& BoneName, const EUpTraceDirection::Type TraceDirection, const float TraceLength, const float VolumeMultiplier) const
 {
-	HandleNoise(SfxMap_Footsteps, BoneName, TraceDirection, TraceLength);
+	HandleNoise(SfxMap_Footsteps, BoneName, TraceDirection, TraceLength, VolumeMultiplier);
 }
 
 void AUpCharacter::HandleJumpLaunch() const

@@ -18,6 +18,9 @@ public:
 
 	FORCEINLINE FGameplayTag GetPatrolPathTag() const { return PatrolPathTag; }
 
+	UFUNCTION(BlueprintCallable)
+	void SetPatrolPathTag(const FGameplayTag& InTag);
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCapsuleComponent> AimAssistCapsule_Body;
@@ -33,4 +36,6 @@ protected:
 	FGameplayTag PatrolPathTag;
 
 	virtual void BeginPlay() override;
+
+	void SetPatrolPath();
 };

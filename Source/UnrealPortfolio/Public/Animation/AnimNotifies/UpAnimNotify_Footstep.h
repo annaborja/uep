@@ -23,5 +23,5 @@ private:
 	UPROPERTY(EditInstanceOnly, Category="UP Params")
 	float TraceLength = 100.f;
 	UPROPERTY(EditInstanceOnly, Category="UP Params")
-	float VolumeMultiplier = 1.f;
+	float VolumeMultiplier = 0.8f;
 };
