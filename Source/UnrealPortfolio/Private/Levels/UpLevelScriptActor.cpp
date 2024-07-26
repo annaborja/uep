@@ -36,6 +36,17 @@ bool AUpLevelScriptActor::Interact(AController* Controller)
 	{
 		CustomPlayerController->CreateTemporaryCamera(PotentialLookTarget, LookTargetCameraBlendTime, LookTargetAspectRatio, LookTargetFieldOfView);
 		bPotentialLookTargetActive = true;
+
+		if (LookTargetNotifyTag.IsValid())
+		{
+			if (const auto GameInstance = UUpBlueprintFunctionLibrary::GetGameInstance(this))
+			{
+				if (const auto LevelScriptActor = GameInstance->GetLevelScriptActor())
+				{
+					LevelScriptActor->NotifyTag(LookTargetNotifyTag);
+				}
+			}
+		}
 	}
 	
 	return false;
@@ -316,6 +327,7 @@ void AUpLevelScriptActor::SetPotentialLookTarget(const FUpScriptCommand& Command
 			if (const auto Actor = Actors[0])
 			{
 				PotentialLookTarget = Actor;
+				LookTargetNotifyTag = Command.NotifyTag;
 
 				if (const auto CustomPlayerController = UUpBlueprintFunctionLibrary::GetCustomPlayerController(this))
 				{
@@ -335,6 +347,7 @@ void AUpLevelScriptActor::SetPotentialLookTarget(const FUpScriptCommand& Command
 	} else
 	{
 		PotentialLookTarget = nullptr;
+		LookTargetNotifyTag = FGameplayTag::EmptyTag;
 				
 		if (const auto CustomPlayerController = UUpBlueprintFunctionLibrary::GetCustomPlayerController(this))
 		{

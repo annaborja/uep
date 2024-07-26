@@ -8,7 +8,7 @@ public class UnrealPortfolioTarget : TargetRules
 	public UnrealPortfolioTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
+		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
 		ExtraModuleNames.Add("UnrealPortfolio");
 	}

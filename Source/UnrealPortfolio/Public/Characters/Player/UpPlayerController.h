@@ -34,7 +34,7 @@ public:
 	void ClosePowerWheel();
 	void SetActiveSpecialMove(const FGameplayTag& Tag) const;
 	
-	void SwitchCharacter(AUpPlayableCharacter* Npc);
+	void SwitchCharacter(const AUpPlayableCharacter* Npc);
 	void AddSquadMember(AUpPlayableNpc* Npc);
 	
 	void ActivateInputMappingContext(const UInputMappingContext* InputMappingContext, const bool bClearExisting = true, const int32 Priority = 0) const;

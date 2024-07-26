@@ -32,7 +32,7 @@ void UUpInteractAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 			{
 				if (const auto Controller = AvatarActor->GetInstigatorController())
 				{
-					if (Interactable->Interact(Controller))
+					if (const_cast<IUpInteractable*>(Interactable)->Interact(Controller))
 					{
 						EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 					}
@@ -57,7 +57,7 @@ void UUpInteractAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 		{
 			if (const auto Controller = AvatarActor->GetInstigatorController())
 			{
-				Interactable->OnInteractionEnd(Controller);
+				const_cast<IUpInteractable*>(Interactable)->OnInteractionEnd(Controller);
 			}
 		}
 	}

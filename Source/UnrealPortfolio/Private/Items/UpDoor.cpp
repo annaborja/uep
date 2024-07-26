@@ -33,7 +33,7 @@ void AUpDoor::Tick(const float DeltaSeconds)
 
 	if (bDebug)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s rotation current (%s), target (%s)"), *CurrentRotation.ToString(), *TargetRotation.ToString())
+		UE_LOG(LogTemp, Warning, TEXT("%s rotation current (%s), target (%s)"), *GetName(), *CurrentRotation.ToString(), *TargetRotation.ToString())
 	}
 	
 	if (!bOpen && !bCloseSoundPlayed && CurrentRotation.Equals(TargetRotation, RotationTolerance_Closed))

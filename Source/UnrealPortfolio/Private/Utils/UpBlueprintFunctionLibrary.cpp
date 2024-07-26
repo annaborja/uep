@@ -383,7 +383,7 @@ bool UUpBlueprintFunctionLibrary::CanGrantAmmo(const AUpWeapon* Weapon)
 				{
 					if (const auto AbilitySystemComponent = Weapon->GetAbilitySystemComponent())
 					{
-						for (const auto& AppReq : Effect->ApplicationRequirements)
+						for (const auto& AppReq : Effect->ApplicationRequirements_DEPRECATED)
 						{
 							if (*AppReq)
 							{

@@ -40,7 +40,7 @@ void UUpGunReloadAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 				{
 					// This code is based on code in the engine in an attempt to avoid a situation where the game
 					// would randomly crash while executing this ability (maybe due to something being garbage collected?).
-					for (const auto& AppReq : Effect->ApplicationRequirements)
+					for (const auto& AppReq : Effect->ApplicationRequirements_DEPRECATED)
 					{
 						if (*AppReq)
 						{

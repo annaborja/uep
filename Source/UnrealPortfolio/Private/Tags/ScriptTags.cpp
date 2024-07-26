@@ -38,7 +38,12 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyAIntro2, "Script.Tutorial.AllyAIn
 UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyAIntro3, "Script.Tutorial.AllyAIntro3")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyDIntro3, "Script.Tutorial.AllyDIntro3")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_PlayerInWaterTowerAlley, "Script.Tutorial.PlayerInWaterTowerAlley")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_PlayerOnWaterTower, "Script.Tutorial.PlayerOnWaterTower")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_PlayerInSightOfBridge, "Script.Tutorial.PlayerInSightOfBridge")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyAViewingBridge, "Script.Tutorial.AllyAViewingBridge")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Script_Tutorial_AllyDWaterTowerToBridgeCall, "Script.Tutorial.AllyDWaterTowerToBridgeCall")
 
 // Targets
 UE_DEFINE_GAMEPLAY_TAG(TAG_Target_Tutorial_WaterTower, "Target.Tutorial.WaterTower")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Target_Tutorial_WaterTowerAlleyGate, "Target.Tutorial.WaterTowerAlleyGate")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Target_Tutorial_Bridge, "Target.Tutorial.Bridge")

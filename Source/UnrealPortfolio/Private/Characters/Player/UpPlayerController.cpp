@@ -91,7 +91,7 @@ void AUpPlayerController::SetActiveSpecialMove(const FGameplayTag& Tag) const
 	PossessedCharacter->SetActiveSpecialMoveTag(Tag);
 }
 
-void AUpPlayerController::SwitchCharacter(AUpPlayableCharacter* Npc)
+void AUpPlayerController::SwitchCharacter(const AUpPlayableCharacter* Npc)
 {
 	// Because we switch skeletal meshes when switching characters (going from third-person to first-person),
 	// gameplay abilities that rely on montages can be left hanging.
@@ -126,7 +126,7 @@ void AUpPlayerController::SwitchCharacter(AUpPlayableCharacter* Npc)
 	}
 	
 	ClosePowerWheel();
-	Possess(Npc);
+	Possess(const_cast<AUpPlayableCharacter*>(Npc));
 }
 
 void AUpPlayerController::AddSquadMember(AUpPlayableNpc* Npc)

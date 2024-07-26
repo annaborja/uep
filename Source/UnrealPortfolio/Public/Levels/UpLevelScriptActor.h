@@ -94,6 +94,8 @@ protected:
 	TArray<FUpScriptCommand> CommandsToExecute;
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> PotentialLookTarget;
+	
+	FGameplayTag LookTargetNotifyTag;
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;

@@ -46,7 +46,7 @@ void UUpGunFireAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	
 	if (TriggerEventData)
 	{
-		TargetActor = Cast<AActor>(TriggerEventData->OptionalObject);
+		TargetActor = Cast<AActor>(TriggerEventData->OptionalObject.Get());
 		NpcNumShotsToTake = FMath::FloorToInt(TriggerEventData->EventMagnitude);
 	}
 	

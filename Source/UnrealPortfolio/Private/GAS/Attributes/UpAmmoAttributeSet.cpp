@@ -25,9 +25,14 @@ void UUpAmmoAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 
 	if (Data.EvaluatedData.Attribute == GetAmmoReserveAttribute())
 	{
+		const auto OldAmmoReserve = GetAmmoReserve();
 		const auto Max = GetMaxAmmo() - GetMagazineFill();
-		const auto Excess = GetAmmoReserve() - Max;
+		const auto Excess = FMath::Max(0.f, OldAmmoReserve - Max);
+		
 		SetAmmoReserve(FMath::Clamp(GetAmmoReserve(), 0.f, Max));
+		
+		UE_LOG(LogTemp, Warning, TEXT("Old AmmoReserve: %g, Max: %g, Excess: %g, Magnitude: %g, New AmmoReserve: %g"),
+			OldAmmoReserve, Max, Excess, Data.EvaluatedData.Magnitude, GetAmmoReserve())
 
 		if (const auto Weapon = Cast<AUpWeapon>(Data.Target.GetAvatarActor()))
 		{

@@ -9,6 +9,7 @@
 #include "GAS/Attributes/UpAmmoAttributeSet.h"
 #include "Items/UpAmmo.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/UpHud.h"
 #include "Utils/Constants.h"
 #include "Utils/UpBlueprintFunctionLibrary.h"
 
@@ -125,6 +126,12 @@ bool AUpWeapon::Interact(AController* Controller)
 						} else if (!PrimaryWeapon || PrimaryWeapon->GetInGameWeaponType() != GetInGameWeaponType())
 						{
 							PossessedCharacter->EquipItem(this, EUpEquipmentSlot::Weapon2);
+
+							if (const auto CustomHud = UUpBlueprintFunctionLibrary::GetCustomHud(this))
+							{
+								CustomHud->BroadcastNotification(FUpNotificationData(FText::FromString(
+									FString::Printf(TEXT("Equipped <RichText.Bold>%s</>"), *this->GetInGameName().ToString()))));
+							}
 						}
 					}
 				}
